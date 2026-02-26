@@ -12,6 +12,7 @@ void RoomApp::setup(){
     walls.setup();
     projection.setup();
     atmosphere.setup();
+    wormSystem.setup(50); // On crée 50 worms
 
     // 2. Initialisation du nouveau module Poster
     // On passe les dimensions de la pièce pour le calcul du périmètre
@@ -74,6 +75,9 @@ void RoomApp::update(){
     // Mise à jour de la logique des modules
     poster.update();
     projection.update();
+    if (bDrawWorms) {
+        wormSystem.update(walls);
+    }
     ripples.update(walls); // <--- AJOUT : Update des ripples avec référence aux murs
 }
 
@@ -90,8 +94,12 @@ void RoomApp::drawSceneContent(bool showAtmosphere) {
     projection.drawPlanColle();
 
     // 3. Dessiner la Géométrie des Murs
-    if(bDrawWalls) {
+    if(bDrawGab) {
         walls.draw(bShowRoof, wallAlpha);
+    }
+
+    if (bDrawWorms) {
+        wormSystem.draw(walls);
     }
 
     if(bDrawRipples) {
@@ -140,11 +148,13 @@ void RoomApp::draw(){
     // ---------------------------------------------------------
     bool isLeftShift  = ofGetKeyPressed(OF_KEY_LEFT_SHIFT);
     bool isRightShift = ofGetKeyPressed(OF_KEY_RIGHT_SHIFT);
+    bool isSpacePressed = ofGetKeyPressed(' ');
+    bool isTabPressed = ofGetKeyPressed(OF_KEY_TAB); // Remplacement de CONTROL par TAB
 
     // 1. Gestion de la Caméra (EasyCam)
-    // Si Shift Gauche est pressé -> On gèle la caméra
+    // Si Shift Gauche, Espace ou Tab est pressé -> On gèle la caméra
     // Sinon (Rien ou Shift Droit) -> La caméra bouge normalement
-    if(isLeftShift) {
+    if(isLeftShift || isSpacePressed || isTabPressed) {
         camGlobal.disableMouseInput();
     } else {
         camGlobal.enableMouseInput();
@@ -161,6 +171,12 @@ void RoomApp::draw(){
             if (isLeftShift || isRightShift) {
                 projection.updateTarget(camGlobal, walls);
             }
+            if (isSpacePressed) {
+                projection.updateTarget2(camGlobal, walls);
+            }
+            if (isTabPressed) {
+                projection.updateTarget3(camGlobal, walls);
+            }
         }
 
         drawSceneContent(bDrawAtmosphere); 
@@ -176,26 +192,32 @@ void RoomApp::draw(){
     
     // UI de Debug
     ofSetColor(255);
-    ofDrawBitmapString("MURS [G]: " + ofToString(bDrawWalls), 20, 20);
-    ofDrawBitmapString("ATMO [B]: " + ofToString(bDrawAtmosphere), 20, 40); 
+    ofDrawBitmapString("GAB [G] Alpha: " + ofToString(wallAlpha, 1), 20, 20);
+    ofDrawBitmapString("BEAM [F]: " + ofToString(bDrawBeam), 20, 35);
+    ofDrawBitmapString("WORMS [T]: " + ofToString(bDrawWorms), 20, 50);
+    ofDrawBitmapString("ATMO [B]: " + ofToString(bDrawAtmosphere), 20, 65); 
     
     // Petit feedback visuel pour savoir quel mode est actif
-    if(isLeftShift) ofDrawBitmapStringHighlight("MODE: PROJECTEUR SEUL (Camera Lock)", 20, 60, ofColor(255, 0, 0), ofColor(255));
-    else if(isRightShift) ofDrawBitmapStringHighlight("MODE: PROJECTEUR + CAMERA", 20, 60, ofColor(0, 255, 0), ofColor(0));
+    if(isLeftShift) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 1 SEUL (Camera Lock)", 20, 85, ofColor(255, 0, 0), ofColor(255));
+    else if(isRightShift) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 1 + CAMERA", 20, 85, ofColor(0, 255, 0), ofColor(0));
+
+    if(isSpacePressed) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 2 SEUL (Camera Lock)", 20, 105, ofColor(0, 0, 255), ofColor(255));
+    if(isTabPressed) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 3 SEUL (Camera Lock)", 20, 125, ofColor(255, 0, 255), ofColor(255));
 }
 
 //--------------------------------------------------------------
 void RoomApp::keyPressed(int key){
-    if(key == 'f' || key == 'F') bDrawWalls = !bDrawWalls;
     if(key == 'g' || key == 'G') {
-        if(wallAlpha == 100.0f) {
-            wallAlpha = 10.0f;
+        // Toggle l'alpha du gabarit entre sa valeur normale et 10%
+        if (wallAlpha > 50.0f) { // Si l'alpha est "haut" (ex: 100.0f par défaut)
+            wallAlpha = 25.5f; // On le met à 10% d'alpha (255 * 0.1)
         } else {
-            wallAlpha = 100.0f;
+            wallAlpha = 100.0f; // On le remet à sa valeur par défaut
         }
     }
+    if(key == 'f' || key == 'F') bDrawBeam = !bDrawBeam; // Active/Désactive les Beams (Transparents)
     
-   if(key == 'b' || key == 'B') bDrawAtmosphere = !bDrawAtmosphere;
+    if(key == 'b' || key == 'B') bDrawAtmosphere = !bDrawAtmosphere;
     if(key == 'l' || key == 'L') bUseTexture = !bUseTexture;
     
     if(key == 'r' || key == 'R') {
@@ -205,7 +227,8 @@ void RoomApp::keyPressed(int key){
     }
     if(key == 'a' || key == 'A') bShowRoof = !bShowRoof;
     if(key == 'u' || key == 'U') respire = !respire;
-if(key == 'k' || key == 'K') bDrawRipples = !bDrawRipples;
+    if(key == 'k' || key == 'K') bDrawRipples = !bDrawRipples;
+    if(key == 't' || key == 'T') bDrawWorms = !bDrawWorms;
 
     // Délégation des touches aux modules
     projection.keyPressed(key);

@@ -1,7 +1,10 @@
 #include "BeamSystem.h"
 
-void BeamSystem::setup() {
-    imgBeam.load("iconeRZEF.png");
+void BeamSystem::setup(string imgName, float w, float h) {
+    targetBeamWidth = w;
+    targetBeamHeight = h;
+
+    imgBeam.load(imgName);
     imgBeam.setImageType(OF_IMAGE_COLOR_ALPHA); 
     imgBeam.getTexture().bind();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -73,7 +76,7 @@ void BeamSystem::updateTarget(const ofCamera& viewCam, RoomWalls& walls) {
 
     ofVec3f roomCenter(0, 600, 0);
     ofVec3f dirToCenter = (roomCenter - lastHitPoint).getNormalized();
-    float distFromWall = 1200.0f;
+    float distFromWall = 2500.0f;
     ofVec3f idealPos = lastHitPoint + (dirToCenter * distFromWall);
 
     currentSmoothedPos.interpolate(idealPos, 0.05f);
@@ -84,14 +87,16 @@ void BeamSystem::updateTarget(const ofCamera& viewCam, RoomWalls& walls) {
     currentDist = glm::distance((glm::vec3)projector.getPosition(), (glm::vec3)lastHitPoint);
 }
 
-void BeamSystem::drawProjection(RoomWalls& walls, bool showRoof) {
+void BeamSystem::drawProjection(RoomWalls& walls, bool showRoof, float depthBias) {
     if(!imgBeam.isAllocated()) return;
     
     ofEnableAlphaBlending();
     glDisable(GL_CULL_FACE);
+    glDisable(GL_LIGHTING); // Sécurité : on s'assure que l'éclairage n'interfère pas
     glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(-1.0, -1.0);
-    glDepthMask(GL_TRUE); 
+    glPolygonOffset(depthBias, depthBias); // Utilisation du biais dynamique
+    glDepthFunc(GL_LEQUAL);
+    glDepthMask(GL_FALSE); // IMPORTANT : On n'écrit pas dans le depth buffer pour éviter le Z-fighting entre beams et murs
 
     imgBeam.bind();
     
@@ -148,6 +153,8 @@ void BeamSystem::drawProjection(RoomWalls& walls, bool showRoof) {
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
     imgBeam.unbind();
+    glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE); // On réactive l'écriture depth pour le reste
     glDisable(GL_POLYGON_OFFSET_FILL);
 }
 

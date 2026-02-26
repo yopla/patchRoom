@@ -403,6 +403,7 @@ obj/osx/Release/src/ofApp.o: src/ofApp.cpp src/ofApp.h \
   src/view/fenetres/0_BG_3D/proj/BeamSystem.h \
   src/view/fenetres/0_BG_3D/atomsphere/AtmosphereSystem.h \
   src/view/fenetres/0_BG_3D/proj/PosterSystem.h \
+  src/view/fenetres/0_BG_3D/proj/WormSystem.h \
   src/view/fenetres/0_BG_3D/proj/CursorSquareSystem.h \
   src/view/fenetres/0_BG_3D/RippleSystem.h src/view/CanvasManager.h \
   src/view/fenetres/2_vueSIDE/Scene2D_SIDE.h src/fx/CreatureSystem.h \
@@ -1249,6 +1250,8 @@ src/view/fenetres/0_BG_3D/proj/BeamSystem.h:
 src/view/fenetres/0_BG_3D/atomsphere/AtmosphereSystem.h:
 
 src/view/fenetres/0_BG_3D/proj/PosterSystem.h:
+
+src/view/fenetres/0_BG_3D/proj/WormSystem.h:
 
 src/view/fenetres/0_BG_3D/proj/CursorSquareSystem.h:
 

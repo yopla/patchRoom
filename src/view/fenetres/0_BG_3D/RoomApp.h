@@ -6,6 +6,7 @@
 #include "ProjectionSystem.h"
 #include "AtmosphereSystem.h"
 #include "PosterSystem.h"
+#include "WormSystem.h"       // <--- AJOUT
 #include "CursorSquareSystem.h" // <--- AJOUT
 #include "RippleSystem.h" // <--- AJOUT 1
 
@@ -62,6 +63,7 @@ public:
     RoomWalls walls;
     ProjectionSystem projection;
     AtmosphereSystem atmosphere;
+    WormSystem wormSystem;
     bool bShowRoof = true;
     float wallAlpha = 100.0f;
 
@@ -75,8 +77,9 @@ private:
     ofVec3f rigPosition;
     
     // Flags de contrôle
-    bool bDrawWalls = true;
+    bool bDrawGab = true; // Remplaçant de bDrawWalls pour la texture "Gab"
     bool bDrawBeam = true; 
+    bool bDrawWorms = true;
     bool bUseTexture = true;
     bool bDrawAtmosphere = true; // Pour contrôler l'atmosphère de l'ui
 };

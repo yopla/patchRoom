@@ -404,6 +404,7 @@ obj/osx/Release/src/view/fenetres/0_BG_3D/RoomApp.o: \
   src/view/fenetres/0_BG_3D/proj/BeamSystem.h \
   src/view/fenetres/0_BG_3D/atomsphere/AtmosphereSystem.h \
   src/view/fenetres/0_BG_3D/proj/PosterSystem.h \
+  src/view/fenetres/0_BG_3D/proj/WormSystem.h \
   src/view/fenetres/0_BG_3D/proj/CursorSquareSystem.h \
   src/view/fenetres/0_BG_3D/RippleSystem.h
 
@@ -1214,6 +1215,8 @@ src/view/fenetres/0_BG_3D/proj/BeamSystem.h:
 src/view/fenetres/0_BG_3D/atomsphere/AtmosphereSystem.h:
 
 src/view/fenetres/0_BG_3D/proj/PosterSystem.h:
+
+src/view/fenetres/0_BG_3D/proj/WormSystem.h:
 
 src/view/fenetres/0_BG_3D/proj/CursorSquareSystem.h:
 

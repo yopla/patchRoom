@@ -16,6 +16,8 @@ public:
     
     void checkMouseIntersection(const ofCamera& cam);
     void updateTarget(const ofCamera& viewCam, RoomWalls& walls);
+    void updateTarget2(const ofCamera& viewCam, RoomWalls& walls);
+    void updateTarget3(const ofCamera& viewCam, RoomWalls& walls);
     
     void keyPressed(int key);
 
@@ -27,4 +29,6 @@ public:
 private:
     PlanColleSystem planColle;
     BeamSystem beam;
+    BeamSystem beam2;
+    BeamSystem beam3;
 };

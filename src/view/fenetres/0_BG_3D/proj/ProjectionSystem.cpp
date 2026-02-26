@@ -4,12 +4,16 @@
 void ProjectionSystem::setup() {
     planColle.setup();
     beam.setup();
+    beam2.setup();
+    beam3.setup("theatreoptique.jpg", 600, 300);
 }
 
 //--------------------------------------------------------------
 void ProjectionSystem::update() {
     planColle.update();
     beam.update();
+    beam2.update();
+    beam3.update();
 }
 
 //--------------------------------------------------------------
@@ -19,12 +23,16 @@ void ProjectionSystem::drawPlanColle() {
 
 //--------------------------------------------------------------
 void ProjectionSystem::drawBeamProjection(RoomWalls& walls, bool showRoof) {
-    beam.drawProjection(walls, showRoof);
+    beam.drawProjection(walls, showRoof, -10.0f);  // Offset augmenté pour éviter le Z-fighting
+    beam2.drawProjection(walls, showRoof, -20.0f); // Offset plus fort pour le 2ème
+    beam3.drawProjection(walls, showRoof, -30.0f); // Offset encore plus fort pour le 3ème
 }
 
 //--------------------------------------------------------------
 void ProjectionSystem::drawProjectorDebug(RoomWalls& walls) {
     beam.drawDebug(walls);
+    beam2.drawDebug(walls);
+    beam3.drawDebug(walls);
 }
 
 //--------------------------------------------------------------
@@ -38,9 +46,21 @@ void ProjectionSystem::updateTarget(const ofCamera& viewCam, RoomWalls& walls) {
 }
 
 //--------------------------------------------------------------
+void ProjectionSystem::updateTarget2(const ofCamera& viewCam, RoomWalls& walls) {
+    beam2.updateTarget(viewCam, walls);
+}
+
+//--------------------------------------------------------------
+void ProjectionSystem::updateTarget3(const ofCamera& viewCam, RoomWalls& walls) {
+    beam3.updateTarget(viewCam, walls);
+}
+
+//--------------------------------------------------------------
 void ProjectionSystem::keyPressed(int key) {
     planColle.keyPressed(key);
     beam.keyPressed(key);
+    beam2.keyPressed(key);
+    beam3.keyPressed(key);
 }
 
 //--------------------------------------------------------------

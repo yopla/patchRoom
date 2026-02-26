@@ -1,6 +1,6 @@
-obj/osx/Release/src/view/fenetres/3_PREVIZ3D/RoomPreview.o: \
-  src/view/fenetres/3_PREVIZ3D/RoomPreview.cpp \
-  src/view/fenetres/3_PREVIZ3D/RoomPreview.h \
+obj/osx/Release/src/view/fenetres/0_BG_3D/proj/WormSystem.o: \
+  src/view/fenetres/0_BG_3D/proj/WormSystem.cpp \
+  src/view/fenetres/0_BG_3D/proj/WormSystem.h \
   ../../../libs/openFrameworks/ofMain.h \
   ../../../libs/openFrameworks/utils/ofConstants.h \
   ../../../libs/glew/include/GL/glew.h \
@@ -397,49 +397,10 @@ obj/osx/Release/src/view/fenetres/3_PREVIZ3D/RoomPreview.o: \
   ../../../libs/openFrameworks/video/ofVideoPlayer.h \
   ../../../libs/openFrameworks/3d/of3dUtils.h \
   ../../../libs/openFrameworks/3d/ofCamera.h \
-  ../../../libs/openFrameworks/3d/ofEasyCam.h src/ofApp.h \
-  src/view/fenetres/0_BG_3D/RoomApp.h \
-  src/view/fenetres/0_BG_3D/RoomWalls.h \
-  src/view/fenetres/0_BG_3D/proj/ProjectionSystem.h \
-  src/view/fenetres/0_BG_3D/proj/PlanColleSystem.h \
-  src/view/fenetres/0_BG_3D/proj/BeamSystem.h \
-  src/view/fenetres/0_BG_3D/atomsphere/AtmosphereSystem.h \
-  src/view/fenetres/0_BG_3D/proj/PosterSystem.h \
-  src/view/fenetres/0_BG_3D/proj/WormSystem.h \
-  src/view/fenetres/0_BG_3D/proj/CursorSquareSystem.h \
-  src/view/fenetres/0_BG_3D/RippleSystem.h src/view/CanvasManager.h \
-  src/view/fenetres/2_vueSIDE/Scene2D_SIDE.h src/fx/CreatureSystem.h \
-  src/fx/creature/JellyCreature.h src/fx/creature/RippleCreature.h \
-  src/fx/creature/SpringCreature.h \
-  src/fx/creature/DoublePendulumCreature.h \
-  src/fx/creature/FluidsCreature.h src/fx/creature/WancoCreature.h \
-  src/fx/creature/DancingCreature.h src/fx/creature/geko/GekoManager.h \
-  src/fx/creature/geko/GekoUnits.h src/fx/creature/CousinCreature.h \
-  src/fx/creature/HaloCreature.h src/fx/LayerSystem.h \
-  src/fx/layer/SauteursLayer.h src/fx/layer/ColliderLayer.h \
-  src/fx/layer/FishSchoolLayer.h src/fx/layer/PoulpeLayer.h \
-  src/fx/layer/SlimeLayer.h src/fx/layer/WalkerLayer.h \
-  src/fx/layer/GearLayer.h src/fx/layer/LightningLayer.h \
-  src/fx/layer/PlantLayer.h src/fx/layer/FlytrapLayer.h \
-  src/fx/layer/FluidFloorLayer.h \
-  src/view/fenetres/1_vueTOP/Scene2DZenit.h src/OscManager.h \
-  ../../../addons/ofxOsc/src/ofxOsc.h \
-  ../../../addons/ofxOsc/src/ofxOscArg.h \
-  ../../../addons/ofxOsc/src/ofxOscMessage.h \
-  ../../../addons/ofxOsc/src/ofxOscSender.h \
-  ../../../addons/ofxOsc/libs/oscpack/src/osc/OscOutboundPacketStream.h \
-  ../../../addons/ofxOsc/libs/oscpack/src/osc/OscTypes.h \
-  ../../../addons/ofxOsc/libs/oscpack/src/osc/OscException.h \
-  ../../../addons/ofxOsc/libs/oscpack/src/ip/UdpSocket.h \
-  ../../../addons/ofxOsc/libs/oscpack/src/ip/NetworkingUtils.h \
-  ../../../addons/ofxOsc/libs/oscpack/src/ip/IpEndpointName.h \
-  ../../../addons/ofxOsc/src/ofxOscBundle.h \
-  ../../../addons/ofxOsc/src/ofxOscReceiver.h \
-  ../../../addons/ofxOsc/libs/oscpack/src/osc/OscPacketListener.h \
-  ../../../addons/ofxOsc/libs/oscpack/src/osc/OscReceivedElements.h \
-  ../../../addons/ofxOsc/libs/oscpack/src/osc/../ip/PacketListener.h
+  ../../../libs/openFrameworks/3d/ofEasyCam.h \
+  src/view/fenetres/0_BG_3D/RoomWalls.h
 
-src/view/fenetres/3_PREVIZ3D/RoomPreview.h:
+src/view/fenetres/0_BG_3D/proj/WormSystem.h:
 
 ../../../libs/openFrameworks/ofMain.h:
 
@@ -1235,110 +1196,4 @@ src/view/fenetres/3_PREVIZ3D/RoomPreview.h:
 
 ../../../libs/openFrameworks/3d/ofEasyCam.h:
 
-src/ofApp.h:
-
-src/view/fenetres/0_BG_3D/RoomApp.h:
-
 src/view/fenetres/0_BG_3D/RoomWalls.h:
-
-src/view/fenetres/0_BG_3D/proj/ProjectionSystem.h:
-
-src/view/fenetres/0_BG_3D/proj/PlanColleSystem.h:
-
-src/view/fenetres/0_BG_3D/proj/BeamSystem.h:
-
-src/view/fenetres/0_BG_3D/atomsphere/AtmosphereSystem.h:
-
-src/view/fenetres/0_BG_3D/proj/PosterSystem.h:
-
-src/view/fenetres/0_BG_3D/proj/WormSystem.h:
-
-src/view/fenetres/0_BG_3D/proj/CursorSquareSystem.h:
-
-src/view/fenetres/0_BG_3D/RippleSystem.h:
-
-src/view/CanvasManager.h:
-
-src/view/fenetres/2_vueSIDE/Scene2D_SIDE.h:
-
-src/fx/CreatureSystem.h:
-
-src/fx/creature/JellyCreature.h:
-
-src/fx/creature/RippleCreature.h:
-
-src/fx/creature/SpringCreature.h:
-
-src/fx/creature/DoublePendulumCreature.h:
-
-src/fx/creature/FluidsCreature.h:
-
-src/fx/creature/WancoCreature.h:
-
-src/fx/creature/DancingCreature.h:
-
-src/fx/creature/geko/GekoManager.h:
-
-src/fx/creature/geko/GekoUnits.h:
-
-src/fx/creature/CousinCreature.h:
-
-src/fx/creature/HaloCreature.h:
-
-src/fx/LayerSystem.h:
-
-src/fx/layer/SauteursLayer.h:
-
-src/fx/layer/ColliderLayer.h:
-
-src/fx/layer/FishSchoolLayer.h:
-
-src/fx/layer/PoulpeLayer.h:
-
-src/fx/layer/SlimeLayer.h:
-
-src/fx/layer/WalkerLayer.h:
-
-src/fx/layer/GearLayer.h:
-
-src/fx/layer/LightningLayer.h:
-
-src/fx/layer/PlantLayer.h:
-
-src/fx/layer/FlytrapLayer.h:
-
-src/fx/layer/FluidFloorLayer.h:
-
-src/view/fenetres/1_vueTOP/Scene2DZenit.h:
-
-src/OscManager.h:
-
-../../../addons/ofxOsc/src/ofxOsc.h:
-
-../../../addons/ofxOsc/src/ofxOscArg.h:
-
-../../../addons/ofxOsc/src/ofxOscMessage.h:
-
-../../../addons/ofxOsc/src/ofxOscSender.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/osc/OscOutboundPacketStream.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/osc/OscTypes.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/osc/OscException.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/ip/UdpSocket.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/ip/NetworkingUtils.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/ip/IpEndpointName.h:
-
-../../../addons/ofxOsc/src/ofxOscBundle.h:
-
-../../../addons/ofxOsc/src/ofxOscReceiver.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/osc/OscPacketListener.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/osc/OscReceivedElements.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/osc/../ip/PacketListener.h:
