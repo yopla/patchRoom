@@ -12,7 +12,7 @@ void RoomApp::setup(){
     walls.setup();
     projection.setup();
     atmosphere.setup();
-    wormSystem.setup(50); // On crée 50 worms
+    wormSystem.setup(550); // On crée 50 worms
 
     // 2. Initialisation du nouveau module Poster
     // On passe les dimensions de la pièce pour le calcul du périmètre
@@ -194,7 +194,7 @@ void RoomApp::draw(){
     ofSetColor(255);
     ofDrawBitmapString("GAB [G] Alpha: " + ofToString(wallAlpha, 1), 20, 20);
     ofDrawBitmapString("BEAM [F]: " + ofToString(bDrawBeam), 20, 35);
-    ofDrawBitmapString("WORMS [T]: " + ofToString(bDrawWorms), 20, 50);
+    ofDrawBitmapString("WORMS [Y]: " + ofToString(bDrawWorms), 20, 50);
     ofDrawBitmapString("ATMO [B]: " + ofToString(bDrawAtmosphere), 20, 65); 
     
     // Petit feedback visuel pour savoir quel mode est actif
@@ -228,7 +228,7 @@ void RoomApp::keyPressed(int key){
     if(key == 'a' || key == 'A') bShowRoof = !bShowRoof;
     if(key == 'u' || key == 'U') respire = !respire;
     if(key == 'k' || key == 'K') bDrawRipples = !bDrawRipples;
-    if(key == 't' || key == 'T') bDrawWorms = !bDrawWorms;
+    if(key == 'y' || key == 'Y') bDrawWorms = !bDrawWorms; // Changé de 'T' à 'Y'
 
     // Délégation des touches aux modules
     projection.keyPressed(key);

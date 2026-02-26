@@ -2,6 +2,7 @@
 #include "ViewApp.h" // INDISPENSABLE : Pour accéder à moveWindow
 #include "RoomPreview.h"      // <--- INDISPENSABLE pour accéder à setPaused
 #include "ofAppGLFWWindow.h"  // <--- INDISPENSABLE pour accéder à setVisible
+#define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h" // <--- AJOUTEZ CETTE LIGNE
 
 //--------------------------------------------------------------

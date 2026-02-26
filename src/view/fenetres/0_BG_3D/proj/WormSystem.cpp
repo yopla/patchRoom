@@ -9,6 +9,7 @@ void WormSystem::setup(int count) {
         agent.speed = ofRandom(0.01f, 0.03f);
         agent.segmentSpacing = ofRandom(15.0f, 30.0f);
         agent.isNew = true;
+        agent.color = ofColor::fromHsb(ofRandom(255), 200, 255);
     }
 }
 
@@ -101,7 +102,6 @@ void WormSystem::update(RoomWalls& walls) {
 void WormSystem::draw(RoomWalls& walls) {
     ofPushStyle();
     ofNoFill();
-    ofSetColor(255); // Contour blanc
     ofSetLineWidth(3.0f);
     
     // Offset pour dessiner par dessus les murs
@@ -109,6 +109,7 @@ void WormSystem::draw(RoomWalls& walls) {
     glPolygonOffset(-4.0, -4.0);
 
     for (auto& agent : agents) {
+        ofSetColor(agent.color);
         ofPolyline line;
         line.addVertex(agent.headPos);
         for(const auto& seg : agent.segments) {

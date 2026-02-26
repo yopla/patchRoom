@@ -12,6 +12,7 @@ struct WormAgent {
     int numSegments;
     float speed;
     float segmentSpacing;
+    ofColor color;
 
     // Simple state for respawning
     bool isNew = true;
