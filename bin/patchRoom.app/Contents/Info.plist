@@ -5,15 +5,15 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>patch-113-cleanmx</string>
+	<string>patchRoom</string>
 	<key>CFBundleIconFile</key>
 	<string>of.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>cc.openFrameworks.patch-113-cleanmx</string>
+	<string>cc.openFrameworks.patchRoom</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>patch-113-cleanmx</string>
+	<string>patchRoom</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
