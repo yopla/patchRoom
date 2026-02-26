@@ -398,10 +398,12 @@ obj/osx/Release/src/main.o: src/main.cpp \
   ../../../libs/openFrameworks/3d/ofEasyCam.h src/ofApp.h \
   src/view/fenetres/0_BG_3D/RoomApp.h \
   src/view/fenetres/0_BG_3D/RoomWalls.h \
-  src/view/fenetres/0_BG_3D/ProjectionSystem.h \
-  src/view/fenetres/0_BG_3D/AtmosphereSystem.h \
-  src/view/fenetres/0_BG_3D/PosterSystem.h \
-  src/view/fenetres/0_BG_3D/CursorSquareSystem.h \
+  src/view/fenetres/0_BG_3D/proj/ProjectionSystem.h \
+  src/view/fenetres/0_BG_3D/proj/PlanColleSystem.h \
+  src/view/fenetres/0_BG_3D/proj/BeamSystem.h \
+  src/view/fenetres/0_BG_3D/atomsphere/AtmosphereSystem.h \
+  src/view/fenetres/0_BG_3D/proj/PosterSystem.h \
+  src/view/fenetres/0_BG_3D/proj/CursorSquareSystem.h \
   src/view/fenetres/0_BG_3D/RippleSystem.h src/view/CanvasManager.h \
   src/view/fenetres/2_vueSIDE/Scene2D_SIDE.h src/fx/CreatureSystem.h \
   src/fx/creature/JellyCreature.h src/fx/creature/RippleCreature.h \
@@ -1237,13 +1239,17 @@ src/view/fenetres/0_BG_3D/RoomApp.h:
 
 src/view/fenetres/0_BG_3D/RoomWalls.h:
 
-src/view/fenetres/0_BG_3D/ProjectionSystem.h:
+src/view/fenetres/0_BG_3D/proj/ProjectionSystem.h:
 
-src/view/fenetres/0_BG_3D/AtmosphereSystem.h:
+src/view/fenetres/0_BG_3D/proj/PlanColleSystem.h:
 
-src/view/fenetres/0_BG_3D/PosterSystem.h:
+src/view/fenetres/0_BG_3D/proj/BeamSystem.h:
 
-src/view/fenetres/0_BG_3D/CursorSquareSystem.h:
+src/view/fenetres/0_BG_3D/atomsphere/AtmosphereSystem.h:
+
+src/view/fenetres/0_BG_3D/proj/PosterSystem.h:
+
+src/view/fenetres/0_BG_3D/proj/CursorSquareSystem.h:
 
 src/view/fenetres/0_BG_3D/RippleSystem.h:
 

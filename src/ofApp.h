@@ -30,7 +30,6 @@ public:
 
     OscManager oscManager;
      shared_ptr<RoomApp> roomApp; // Pointeur vers l'app 3D
-		bool lastHoverState = false; // Pour détecter le changement d'état
 
     // focus et quoi dautre ?
     shared_ptr<ofAppBaseWindow> previewWindowPtr;

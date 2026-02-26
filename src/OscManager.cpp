@@ -1,5 +1,8 @@
 #include "OscManager.h"
 #include "ofApp.h"
+#include "RoomApp.h" // Nécessaire pour app->roomApp
+#include "ProjectionSystem.h" // Nécessaire pour app->roomApp->projection
+
 #include "ViewApp.h" // Nécessaire pour app->viewApps[i]->moveWindow
 
 void OscManager::setup(string host, int sendPort, int receivePort){
@@ -25,11 +28,33 @@ void OscManager::sendHoverState(bool state, float radius, float elevation, float
     sender.sendMessage(mHover, false);
 }
 
+void OscManager::checkAndSendHoverState(ofApp* app) {
+    // On s'assure que tout est initialisé
+    if(!app || !app->roomApp) return;
+
+    // On récupère l'état actuel du survol via les nouvelles méthodes d'accès
+    bool isHovering = app->roomApp->projection.isPlanColleHovered();
+    
+    // On envoie le message seulement si l'état a changé (optimisation)
+    if(isHovering != lastHoverState) {
+        float radius = app->roomApp->projection.getPlanColleRadius();
+        float elevation = app->roomApp->projection.getPlanColleElevation();
+        float azimuth = app->roomApp->projection.getPlanColleAzimuth();
+        
+        sendHoverState(isHovering, radius, elevation, azimuth);
+       
+        lastHoverState = isHovering; // On met à jour l'état pour la prochaine frame
+    }
+}
+
 void OscManager::update(ofApp* app){
     // 1. Envoi systématique du numéro de frame
     sendFrameNum();
 
-    // 2. Traitement des messages reçus
+    // 2. Envoi conditionnel de l'état du survol
+    checkAndSendHoverState(app);
+
+    // 3. Traitement des messages reçus
     while(receiver.hasWaitingMessages()){
         ofxOscMessage mess;
         receiver.getNextMessage(mess);

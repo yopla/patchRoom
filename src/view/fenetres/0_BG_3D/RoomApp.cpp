@@ -66,6 +66,11 @@ void RoomApp::update(){
         camTopCour.setPosition(rigPosition); camTopCour.setupOffAxisViewPortal(walls.pTopCourTL, walls.pTopCourBL, walls.pTopCourBR);
     }
 
+    // Mise à jour des interactions basées sur la caméra (avant le reste)
+    // pour que l'état de survol soit à jour pour la logique OSC
+    projection.checkMouseIntersection(camGlobal);
+    cursorSquare.updateRaycast(camGlobal, walls);
+
     // Mise à jour de la logique des modules
     poster.update();
     projection.update();
@@ -147,8 +152,8 @@ void RoomApp::draw(){
 
     camGlobal.begin(); 
         // Détection survol souris pour le plan collé
-        cursorSquare.updateRaycast(camGlobal, walls);
-        projection.checkMouseIntersection(camGlobal);
+        // cursorSquare.updateRaycast(camGlobal, walls); // Déplacé dans update()
+        // projection.checkMouseIntersection(camGlobal); // Déplacé dans update()
 
         // 2. Gestion du Projecteur
         // Le projecteur ne bouge que si l'un des Shift est pressé

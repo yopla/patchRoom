@@ -1,20 +1,22 @@
 #pragma once
-#include "ofMain.h"
 #include "ofxOsc.h"
 
-class ofApp; // Forward declaration pour éviter les dépendances circulaires
+// Forward declaration pour éviter les inclusions circulaires
+class ofApp; 
 
 class OscManager {
 public:
-    void setup(string host, int sendPort, int receivePort);
+    void setup(std::string host, int sendPort, int receivePort);
     void update(ofApp* app);
-    
-    // Méthodes d'envoi spécifiques
+
+    // Fonctions d'envoi spécifiques
+    void sendFrameNum();
     void sendHoverState(bool state, float radius, float elevation, float azimuth);
 
 private:
+    void checkAndSendHoverState(ofApp* app);
+
     ofxOscSender sender;
     ofxOscReceiver receiver;
-    
-    void sendFrameNum();
+    bool lastHoverState = false; // Pour ne pas spammer l'OSC
 };

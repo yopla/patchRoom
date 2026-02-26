@@ -63,22 +63,6 @@ void ofApp::update(){
     creatureSystem.update(m);
     canvasManager.update();
 
-    if(roomApp) {
-	    // On récupère l'info calculée dans ProjectionSystem
-	    bool isHovering = roomApp->projection.isMouseOverPlan;
-        float  radius = roomApp->projection.radius;
-        float  elevation = roomApp->projection.elevation;
-        float  azimuth = roomApp->projection.azimuth;
-	    
-	    // On envoie le message seulement si l'état change (ENTER ou LEAVE)
-	    if(isHovering != lastHoverState) {
-            oscManager.sendHoverState(isHovering, radius, elevation, azimuth);
-           
-	        // Mise à jour de l'état précédent
-	        lastHoverState = isHovering;
-	    }
-	}
-
     // --- GESTION OSC (Réception & Envoi Frame) ---
     oscManager.update(this);
 

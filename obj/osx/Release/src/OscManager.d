@@ -1,12 +1,19 @@
 obj/osx/Release/src/OscManager.o: src/OscManager.cpp src/OscManager.h \
-  ../../../libs/openFrameworks/ofMain.h \
+  ../../../addons/ofxOsc/src/ofxOsc.h \
+  ../../../addons/ofxOsc/src/ofxOscArg.h \
   ../../../libs/openFrameworks/utils/ofConstants.h \
   ../../../libs/glew/include/GL/glew.h \
   ../../../libs/tess2/include/tesselator.h \
   ../../../libs/openFrameworks/utils/ofFileUtils.h \
-  ../../../libs/openFrameworks/utils/ofLog.h \
-  ../../../libs/openFrameworks/utils/ofSystemUtils.h \
-  ../../../libs/openFrameworks/utils/ofURLFileLoader.h \
+  ../../../addons/ofxOsc/src/ofxOscMessage.h \
+  ../../../addons/ofxOsc/src/ofxOscSender.h \
+  ../../../addons/ofxOsc/libs/oscpack/src/osc/OscOutboundPacketStream.h \
+  ../../../addons/ofxOsc/libs/oscpack/src/osc/OscTypes.h \
+  ../../../addons/ofxOsc/libs/oscpack/src/osc/OscException.h \
+  ../../../addons/ofxOsc/libs/oscpack/src/ip/UdpSocket.h \
+  ../../../addons/ofxOsc/libs/oscpack/src/ip/NetworkingUtils.h \
+  ../../../addons/ofxOsc/libs/oscpack/src/ip/IpEndpointName.h \
+  ../../../libs/openFrameworks/types/ofParameter.h \
   ../../../libs/openFrameworks/events/ofEvents.h \
   ../../../libs/openFrameworks/events/ofEventUtils.h \
   ../../../libs/openFrameworks/events/ofEvent.h \
@@ -34,22 +41,46 @@ obj/osx/Release/src/OscManager.o: src/OscManager.cpp src/OscManager.h \
   ../../../libs/glm/include/glm/./ext/vector_uint2_sized.hpp \
   ../../../libs/glm/include/glm/ext/../ext/vector_uint2.hpp \
   ../../../libs/glm/include/glm/ext/../ext/scalar_uint_sized.hpp \
-  ../../../libs/openFrameworks/utils/ofUtils.h \
-  ../../../libs/utf8/include/utf8.h \
-  ../../../libs/utf8/include/utf8/checked.h \
-  ../../../libs/utf8/include/utf8/core.h \
-  ../../../libs/utf8/include/utf8/cpp20.h \
-  ../../../libs/utf8/include/utf8/cpp17.h \
-  ../../../libs/utf8/include/utf8/cpp11.h \
-  ../../../libs/utf8/include/utf8/unchecked.h \
-  ../../../libs/openFrameworks/utils/ofRandomDistributions.h \
-  ../../../libs/openFrameworks/utils/ofRandomEngine.h \
-  ../../../libs/openFrameworks/utils/ofSingleton.h \
-  ../../../libs/openFrameworks/math/ofMath.h \
-  ../../../libs/glm/include/glm/gtc/constants.hpp \
-  ../../../libs/glm/include/glm/gtc/../ext/scalar_constants.hpp \
-  ../../../libs/glm/include/glm/ext/scalar_constants.inl \
-  ../../../libs/glm/include/glm/gtc/constants.inl \
+  ../../../libs/openFrameworks/types/ofPoint.h \
+  ../../../libs/openFrameworks/math/ofVec3f.h \
+  ../../../libs/openFrameworks/math/ofVec2f.h \
+  ../../../libs/glm/include/glm/fwd.hpp \
+  ../../../libs/glm/include/glm/trigonometric.hpp \
+  ../../../libs/glm/include/glm/detail/func_trigonometric.inl \
+  ../../../libs/glm/include/glm/detail/_vectorize.hpp \
+  ../../../libs/openFrameworks/math/ofVec4f.h \
+  ../../../libs/glm/include/glm/vec4.hpp \
+  ../../../libs/glm/include/glm/./ext/vector_bool4.hpp \
+  ../../../libs/glm/include/glm/ext/../detail/type_vec4.hpp \
+  ../../../libs/glm/include/glm/detail/type_vec4.inl \
+  ../../../libs/glm/include/glm/detail/compute_vector_relational.hpp \
+  ../../../libs/glm/include/glm/detail/compute_vector_decl.hpp \
+  ../../../libs/glm/include/glm/./ext/vector_bool4_precision.hpp \
+  ../../../libs/glm/include/glm/./ext/vector_float4.hpp \
+  ../../../libs/glm/include/glm/./ext/vector_float4_precision.hpp \
+  ../../../libs/glm/include/glm/./ext/vector_double4.hpp \
+  ../../../libs/glm/include/glm/./ext/vector_double4_precision.hpp \
+  ../../../libs/glm/include/glm/./ext/vector_int4.hpp \
+  ../../../libs/glm/include/glm/./ext/vector_int4_sized.hpp \
+  ../../../libs/glm/include/glm/ext/../ext/vector_int4.hpp \
+  ../../../libs/glm/include/glm/./ext/vector_uint4.hpp \
+  ../../../libs/glm/include/glm/./ext/vector_uint4_sized.hpp \
+  ../../../libs/glm/include/glm/ext/../ext/vector_uint4.hpp \
+  ../../../libs/glm/include/glm/vec3.hpp \
+  ../../../libs/glm/include/glm/./ext/vector_bool3.hpp \
+  ../../../libs/glm/include/glm/ext/../detail/type_vec3.hpp \
+  ../../../libs/glm/include/glm/detail/type_vec3.inl \
+  ../../../libs/glm/include/glm/./ext/vector_bool3_precision.hpp \
+  ../../../libs/glm/include/glm/./ext/vector_float3.hpp \
+  ../../../libs/glm/include/glm/./ext/vector_float3_precision.hpp \
+  ../../../libs/glm/include/glm/./ext/vector_double3.hpp \
+  ../../../libs/glm/include/glm/./ext/vector_double3_precision.hpp \
+  ../../../libs/glm/include/glm/./ext/vector_int3.hpp \
+  ../../../libs/glm/include/glm/./ext/vector_int3_sized.hpp \
+  ../../../libs/glm/include/glm/ext/../ext/vector_int3.hpp \
+  ../../../libs/glm/include/glm/./ext/vector_uint3.hpp \
+  ../../../libs/glm/include/glm/./ext/vector_uint3_sized.hpp \
+  ../../../libs/glm/include/glm/ext/../ext/vector_uint3.hpp \
   ../../../libs/openFrameworks/types/ofColor.h \
   ../../../libs/glm/include/glm/ext/scalar_common.hpp \
   ../../../libs/glm/include/glm/ext/../common.hpp \
@@ -62,55 +93,39 @@ obj/osx/Release/src/OscManager.o: src/OscManager.cpp src/OscManager.h \
   ../../../libs/glm/include/glm/detail/type_vec1.inl \
   ../../../libs/glm/include/glm/detail/type_vec2.hpp \
   ../../../libs/glm/include/glm/detail/type_vec3.hpp \
-  ../../../libs/glm/include/glm/detail/type_vec3.inl \
-  ../../../libs/glm/include/glm/detail/compute_vector_relational.hpp \
-  ../../../libs/glm/include/glm/detail/compute_vector_decl.hpp \
-  ../../../libs/glm/include/glm/detail/_vectorize.hpp \
   ../../../libs/glm/include/glm/detail/type_vec4.hpp \
-  ../../../libs/glm/include/glm/detail/type_vec4.inl \
   ../../../libs/glm/include/glm/ext/scalar_common.inl \
-  ../../../libs/glm/include/glm/vec3.hpp \
-  ../../../libs/glm/include/glm/./ext/vector_bool3.hpp \
-  ../../../libs/glm/include/glm/ext/../detail/type_vec3.hpp \
-  ../../../libs/glm/include/glm/./ext/vector_bool3_precision.hpp \
-  ../../../libs/glm/include/glm/./ext/vector_float3.hpp \
-  ../../../libs/glm/include/glm/./ext/vector_float3_precision.hpp \
-  ../../../libs/glm/include/glm/./ext/vector_double3.hpp \
-  ../../../libs/glm/include/glm/./ext/vector_double3_precision.hpp \
-  ../../../libs/glm/include/glm/./ext/vector_int3.hpp \
-  ../../../libs/glm/include/glm/./ext/vector_int3_sized.hpp \
-  ../../../libs/glm/include/glm/ext/../ext/vector_int3.hpp \
-  ../../../libs/glm/include/glm/./ext/vector_uint3.hpp \
-  ../../../libs/glm/include/glm/./ext/vector_uint3_sized.hpp \
-  ../../../libs/glm/include/glm/ext/../ext/vector_uint3.hpp \
-  ../../../libs/openFrameworks/utils/ofThread.h \
+  ../../../libs/openFrameworks/utils/ofLog.h \
+  ../../../libs/openFrameworks/math/ofMathConstants.h \
+  ../../../libs/glm/include/glm/gtc/constants.hpp \
+  ../../../libs/glm/include/glm/gtc/../ext/scalar_constants.hpp \
+  ../../../libs/glm/include/glm/ext/scalar_constants.inl \
+  ../../../libs/glm/include/glm/gtc/constants.inl \
+  ../../../libs/openFrameworks/types/ofRectangle.h \
+  ../../../libs/openFrameworks/utils/ofUtils.h \
+  ../../../libs/utf8/include/utf8.h \
+  ../../../libs/utf8/include/utf8/checked.h \
+  ../../../libs/utf8/include/utf8/core.h \
+  ../../../libs/utf8/include/utf8/cpp20.h \
+  ../../../libs/utf8/include/utf8/cpp17.h \
+  ../../../libs/utf8/include/utf8/cpp11.h \
+  ../../../libs/utf8/include/utf8/unchecked.h \
+  ../../../libs/openFrameworks/utils/ofRandomDistributions.h \
+  ../../../libs/openFrameworks/utils/ofRandomEngine.h \
+  ../../../libs/openFrameworks/utils/ofSingleton.h \
+  ../../../libs/openFrameworks/math/ofMath.h \
+  ../../../addons/ofxOsc/src/ofxOscBundle.h \
+  ../../../addons/ofxOsc/src/ofxOscReceiver.h \
   ../../../libs/openFrameworks/utils/ofThreadChannel.h \
+  ../../../addons/ofxOsc/libs/oscpack/src/osc/OscPacketListener.h \
+  ../../../addons/ofxOsc/libs/oscpack/src/osc/OscReceivedElements.h \
+  ../../../addons/ofxOsc/libs/oscpack/src/osc/../ip/PacketListener.h \
+  src/ofApp.h ../../../libs/openFrameworks/ofMain.h \
+  ../../../libs/openFrameworks/utils/ofSystemUtils.h \
+  ../../../libs/openFrameworks/utils/ofURLFileLoader.h \
+  ../../../libs/openFrameworks/utils/ofThread.h \
   ../../../libs/openFrameworks/utils/ofJson.h \
   ../../../libs/json/include/nlohmann/json.hpp \
-  ../../../libs/openFrameworks/types/ofParameter.h \
-  ../../../libs/openFrameworks/types/ofPoint.h \
-  ../../../libs/openFrameworks/math/ofVec3f.h \
-  ../../../libs/openFrameworks/math/ofVec2f.h \
-  ../../../libs/glm/include/glm/fwd.hpp \
-  ../../../libs/glm/include/glm/trigonometric.hpp \
-  ../../../libs/glm/include/glm/detail/func_trigonometric.inl \
-  ../../../libs/openFrameworks/math/ofVec4f.h \
-  ../../../libs/glm/include/glm/vec4.hpp \
-  ../../../libs/glm/include/glm/./ext/vector_bool4.hpp \
-  ../../../libs/glm/include/glm/ext/../detail/type_vec4.hpp \
-  ../../../libs/glm/include/glm/./ext/vector_bool4_precision.hpp \
-  ../../../libs/glm/include/glm/./ext/vector_float4.hpp \
-  ../../../libs/glm/include/glm/./ext/vector_float4_precision.hpp \
-  ../../../libs/glm/include/glm/./ext/vector_double4.hpp \
-  ../../../libs/glm/include/glm/./ext/vector_double4_precision.hpp \
-  ../../../libs/glm/include/glm/./ext/vector_int4.hpp \
-  ../../../libs/glm/include/glm/./ext/vector_int4_sized.hpp \
-  ../../../libs/glm/include/glm/ext/../ext/vector_int4.hpp \
-  ../../../libs/glm/include/glm/./ext/vector_uint4.hpp \
-  ../../../libs/glm/include/glm/./ext/vector_uint4_sized.hpp \
-  ../../../libs/glm/include/glm/ext/../ext/vector_uint4.hpp \
-  ../../../libs/openFrameworks/math/ofMathConstants.h \
-  ../../../libs/openFrameworks/types/ofRectangle.h \
   ../../../libs/openFrameworks/utils/ofXml.h \
   ../../../libs/pugixml/include/pugixml.hpp \
   ../../../libs/pugixml/include/pugiconfig.hpp \
@@ -396,27 +411,14 @@ obj/osx/Release/src/OscManager.o: src/OscManager.cpp src/OscManager.h \
   ../../../libs/openFrameworks/3d/of3dUtils.h \
   ../../../libs/openFrameworks/3d/ofCamera.h \
   ../../../libs/openFrameworks/3d/ofEasyCam.h \
-  ../../../addons/ofxOsc/src/ofxOsc.h \
-  ../../../addons/ofxOsc/src/ofxOscArg.h \
-  ../../../addons/ofxOsc/src/ofxOscMessage.h \
-  ../../../addons/ofxOsc/src/ofxOscSender.h \
-  ../../../addons/ofxOsc/libs/oscpack/src/osc/OscOutboundPacketStream.h \
-  ../../../addons/ofxOsc/libs/oscpack/src/osc/OscTypes.h \
-  ../../../addons/ofxOsc/libs/oscpack/src/osc/OscException.h \
-  ../../../addons/ofxOsc/libs/oscpack/src/ip/UdpSocket.h \
-  ../../../addons/ofxOsc/libs/oscpack/src/ip/NetworkingUtils.h \
-  ../../../addons/ofxOsc/libs/oscpack/src/ip/IpEndpointName.h \
-  ../../../addons/ofxOsc/src/ofxOscBundle.h \
-  ../../../addons/ofxOsc/src/ofxOscReceiver.h \
-  ../../../addons/ofxOsc/libs/oscpack/src/osc/OscPacketListener.h \
-  ../../../addons/ofxOsc/libs/oscpack/src/osc/OscReceivedElements.h \
-  ../../../addons/ofxOsc/libs/oscpack/src/osc/../ip/PacketListener.h \
-  src/ofApp.h src/view/fenetres/0_BG_3D/RoomApp.h \
+  src/view/fenetres/0_BG_3D/RoomApp.h \
   src/view/fenetres/0_BG_3D/RoomWalls.h \
-  src/view/fenetres/0_BG_3D/ProjectionSystem.h \
-  src/view/fenetres/0_BG_3D/AtmosphereSystem.h \
-  src/view/fenetres/0_BG_3D/PosterSystem.h \
-  src/view/fenetres/0_BG_3D/CursorSquareSystem.h \
+  src/view/fenetres/0_BG_3D/proj/ProjectionSystem.h \
+  src/view/fenetres/0_BG_3D/proj/PlanColleSystem.h \
+  src/view/fenetres/0_BG_3D/proj/BeamSystem.h \
+  src/view/fenetres/0_BG_3D/atomsphere/AtmosphereSystem.h \
+  src/view/fenetres/0_BG_3D/proj/PosterSystem.h \
+  src/view/fenetres/0_BG_3D/proj/CursorSquareSystem.h \
   src/view/fenetres/0_BG_3D/RippleSystem.h src/view/CanvasManager.h \
   src/view/fenetres/2_vueSIDE/Scene2D_SIDE.h src/fx/CreatureSystem.h \
   src/fx/creature/JellyCreature.h src/fx/creature/RippleCreature.h \
@@ -438,7 +440,9 @@ obj/osx/Release/src/OscManager.o: src/OscManager.cpp src/OscManager.h \
 
 src/OscManager.h:
 
-../../../libs/openFrameworks/ofMain.h:
+../../../addons/ofxOsc/src/ofxOsc.h:
+
+../../../addons/ofxOsc/src/ofxOscArg.h:
 
 ../../../libs/openFrameworks/utils/ofConstants.h:
 
@@ -448,11 +452,23 @@ src/OscManager.h:
 
 ../../../libs/openFrameworks/utils/ofFileUtils.h:
 
-../../../libs/openFrameworks/utils/ofLog.h:
+../../../addons/ofxOsc/src/ofxOscMessage.h:
 
-../../../libs/openFrameworks/utils/ofSystemUtils.h:
+../../../addons/ofxOsc/src/ofxOscSender.h:
 
-../../../libs/openFrameworks/utils/ofURLFileLoader.h:
+../../../addons/ofxOsc/libs/oscpack/src/osc/OscOutboundPacketStream.h:
+
+../../../addons/ofxOsc/libs/oscpack/src/osc/OscTypes.h:
+
+../../../addons/ofxOsc/libs/oscpack/src/osc/OscException.h:
+
+../../../addons/ofxOsc/libs/oscpack/src/ip/UdpSocket.h:
+
+../../../addons/ofxOsc/libs/oscpack/src/ip/NetworkingUtils.h:
+
+../../../addons/ofxOsc/libs/oscpack/src/ip/IpEndpointName.h:
+
+../../../libs/openFrameworks/types/ofParameter.h:
 
 ../../../libs/openFrameworks/events/ofEvents.h:
 
@@ -508,37 +524,85 @@ src/OscManager.h:
 
 ../../../libs/glm/include/glm/ext/../ext/scalar_uint_sized.hpp:
 
-../../../libs/openFrameworks/utils/ofUtils.h:
+../../../libs/openFrameworks/types/ofPoint.h:
 
-../../../libs/utf8/include/utf8.h:
+../../../libs/openFrameworks/math/ofVec3f.h:
 
-../../../libs/utf8/include/utf8/checked.h:
+../../../libs/openFrameworks/math/ofVec2f.h:
 
-../../../libs/utf8/include/utf8/core.h:
+../../../libs/glm/include/glm/fwd.hpp:
 
-../../../libs/utf8/include/utf8/cpp20.h:
+../../../libs/glm/include/glm/trigonometric.hpp:
 
-../../../libs/utf8/include/utf8/cpp17.h:
+../../../libs/glm/include/glm/detail/func_trigonometric.inl:
 
-../../../libs/utf8/include/utf8/cpp11.h:
+../../../libs/glm/include/glm/detail/_vectorize.hpp:
 
-../../../libs/utf8/include/utf8/unchecked.h:
+../../../libs/openFrameworks/math/ofVec4f.h:
 
-../../../libs/openFrameworks/utils/ofRandomDistributions.h:
+../../../libs/glm/include/glm/vec4.hpp:
 
-../../../libs/openFrameworks/utils/ofRandomEngine.h:
+../../../libs/glm/include/glm/./ext/vector_bool4.hpp:
 
-../../../libs/openFrameworks/utils/ofSingleton.h:
+../../../libs/glm/include/glm/ext/../detail/type_vec4.hpp:
 
-../../../libs/openFrameworks/math/ofMath.h:
+../../../libs/glm/include/glm/detail/type_vec4.inl:
 
-../../../libs/glm/include/glm/gtc/constants.hpp:
+../../../libs/glm/include/glm/detail/compute_vector_relational.hpp:
 
-../../../libs/glm/include/glm/gtc/../ext/scalar_constants.hpp:
+../../../libs/glm/include/glm/detail/compute_vector_decl.hpp:
 
-../../../libs/glm/include/glm/ext/scalar_constants.inl:
+../../../libs/glm/include/glm/./ext/vector_bool4_precision.hpp:
 
-../../../libs/glm/include/glm/gtc/constants.inl:
+../../../libs/glm/include/glm/./ext/vector_float4.hpp:
+
+../../../libs/glm/include/glm/./ext/vector_float4_precision.hpp:
+
+../../../libs/glm/include/glm/./ext/vector_double4.hpp:
+
+../../../libs/glm/include/glm/./ext/vector_double4_precision.hpp:
+
+../../../libs/glm/include/glm/./ext/vector_int4.hpp:
+
+../../../libs/glm/include/glm/./ext/vector_int4_sized.hpp:
+
+../../../libs/glm/include/glm/ext/../ext/vector_int4.hpp:
+
+../../../libs/glm/include/glm/./ext/vector_uint4.hpp:
+
+../../../libs/glm/include/glm/./ext/vector_uint4_sized.hpp:
+
+../../../libs/glm/include/glm/ext/../ext/vector_uint4.hpp:
+
+../../../libs/glm/include/glm/vec3.hpp:
+
+../../../libs/glm/include/glm/./ext/vector_bool3.hpp:
+
+../../../libs/glm/include/glm/ext/../detail/type_vec3.hpp:
+
+../../../libs/glm/include/glm/detail/type_vec3.inl:
+
+../../../libs/glm/include/glm/./ext/vector_bool3_precision.hpp:
+
+../../../libs/glm/include/glm/./ext/vector_float3.hpp:
+
+../../../libs/glm/include/glm/./ext/vector_float3_precision.hpp:
+
+../../../libs/glm/include/glm/./ext/vector_double3.hpp:
+
+../../../libs/glm/include/glm/./ext/vector_double3_precision.hpp:
+
+../../../libs/glm/include/glm/./ext/vector_int3.hpp:
+
+../../../libs/glm/include/glm/./ext/vector_int3_sized.hpp:
+
+../../../libs/glm/include/glm/ext/../ext/vector_int3.hpp:
+
+../../../libs/glm/include/glm/./ext/vector_uint3.hpp:
+
+../../../libs/glm/include/glm/./ext/vector_uint3_sized.hpp:
+
+../../../libs/glm/include/glm/ext/../ext/vector_uint3.hpp:
 
 ../../../libs/openFrameworks/types/ofColor.h:
 
@@ -564,103 +628,73 @@ src/OscManager.h:
 
 ../../../libs/glm/include/glm/detail/type_vec3.hpp:
 
-../../../libs/glm/include/glm/detail/type_vec3.inl:
-
-../../../libs/glm/include/glm/detail/compute_vector_relational.hpp:
-
-../../../libs/glm/include/glm/detail/compute_vector_decl.hpp:
-
-../../../libs/glm/include/glm/detail/_vectorize.hpp:
-
 ../../../libs/glm/include/glm/detail/type_vec4.hpp:
-
-../../../libs/glm/include/glm/detail/type_vec4.inl:
 
 ../../../libs/glm/include/glm/ext/scalar_common.inl:
 
-../../../libs/glm/include/glm/vec3.hpp:
+../../../libs/openFrameworks/utils/ofLog.h:
 
-../../../libs/glm/include/glm/./ext/vector_bool3.hpp:
+../../../libs/openFrameworks/math/ofMathConstants.h:
 
-../../../libs/glm/include/glm/ext/../detail/type_vec3.hpp:
+../../../libs/glm/include/glm/gtc/constants.hpp:
 
-../../../libs/glm/include/glm/./ext/vector_bool3_precision.hpp:
+../../../libs/glm/include/glm/gtc/../ext/scalar_constants.hpp:
 
-../../../libs/glm/include/glm/./ext/vector_float3.hpp:
+../../../libs/glm/include/glm/ext/scalar_constants.inl:
 
-../../../libs/glm/include/glm/./ext/vector_float3_precision.hpp:
+../../../libs/glm/include/glm/gtc/constants.inl:
 
-../../../libs/glm/include/glm/./ext/vector_double3.hpp:
+../../../libs/openFrameworks/types/ofRectangle.h:
 
-../../../libs/glm/include/glm/./ext/vector_double3_precision.hpp:
+../../../libs/openFrameworks/utils/ofUtils.h:
 
-../../../libs/glm/include/glm/./ext/vector_int3.hpp:
+../../../libs/utf8/include/utf8.h:
 
-../../../libs/glm/include/glm/./ext/vector_int3_sized.hpp:
+../../../libs/utf8/include/utf8/checked.h:
 
-../../../libs/glm/include/glm/ext/../ext/vector_int3.hpp:
+../../../libs/utf8/include/utf8/core.h:
 
-../../../libs/glm/include/glm/./ext/vector_uint3.hpp:
+../../../libs/utf8/include/utf8/cpp20.h:
 
-../../../libs/glm/include/glm/./ext/vector_uint3_sized.hpp:
+../../../libs/utf8/include/utf8/cpp17.h:
 
-../../../libs/glm/include/glm/ext/../ext/vector_uint3.hpp:
+../../../libs/utf8/include/utf8/cpp11.h:
 
-../../../libs/openFrameworks/utils/ofThread.h:
+../../../libs/utf8/include/utf8/unchecked.h:
+
+../../../libs/openFrameworks/utils/ofRandomDistributions.h:
+
+../../../libs/openFrameworks/utils/ofRandomEngine.h:
+
+../../../libs/openFrameworks/utils/ofSingleton.h:
+
+../../../libs/openFrameworks/math/ofMath.h:
+
+../../../addons/ofxOsc/src/ofxOscBundle.h:
+
+../../../addons/ofxOsc/src/ofxOscReceiver.h:
 
 ../../../libs/openFrameworks/utils/ofThreadChannel.h:
+
+../../../addons/ofxOsc/libs/oscpack/src/osc/OscPacketListener.h:
+
+../../../addons/ofxOsc/libs/oscpack/src/osc/OscReceivedElements.h:
+
+../../../addons/ofxOsc/libs/oscpack/src/osc/../ip/PacketListener.h:
+
+src/ofApp.h:
+
+../../../libs/openFrameworks/ofMain.h:
+
+../../../libs/openFrameworks/utils/ofSystemUtils.h:
+
+../../../libs/openFrameworks/utils/ofURLFileLoader.h:
+
+../../../libs/openFrameworks/utils/ofThread.h:
 
 ../../../libs/openFrameworks/utils/ofJson.h:
 
 ../../../libs/json/include/nlohmann/json.hpp:
-
-../../../libs/openFrameworks/types/ofParameter.h:
-
-../../../libs/openFrameworks/types/ofPoint.h:
-
-../../../libs/openFrameworks/math/ofVec3f.h:
-
-../../../libs/openFrameworks/math/ofVec2f.h:
-
-../../../libs/glm/include/glm/fwd.hpp:
-
-../../../libs/glm/include/glm/trigonometric.hpp:
-
-../../../libs/glm/include/glm/detail/func_trigonometric.inl:
-
-../../../libs/openFrameworks/math/ofVec4f.h:
-
-../../../libs/glm/include/glm/vec4.hpp:
-
-../../../libs/glm/include/glm/./ext/vector_bool4.hpp:
-
-../../../libs/glm/include/glm/ext/../detail/type_vec4.hpp:
-
-../../../libs/glm/include/glm/./ext/vector_bool4_precision.hpp:
-
-../../../libs/glm/include/glm/./ext/vector_float4.hpp:
-
-../../../libs/glm/include/glm/./ext/vector_float4_precision.hpp:
-
-../../../libs/glm/include/glm/./ext/vector_double4.hpp:
-
-../../../libs/glm/include/glm/./ext/vector_double4_precision.hpp:
-
-../../../libs/glm/include/glm/./ext/vector_int4.hpp:
-
-../../../libs/glm/include/glm/./ext/vector_int4_sized.hpp:
-
-../../../libs/glm/include/glm/ext/../ext/vector_int4.hpp:
-
-../../../libs/glm/include/glm/./ext/vector_uint4.hpp:
-
-../../../libs/glm/include/glm/./ext/vector_uint4_sized.hpp:
-
-../../../libs/glm/include/glm/ext/../ext/vector_uint4.hpp:
-
-../../../libs/openFrameworks/math/ofMathConstants.h:
-
-../../../libs/openFrameworks/types/ofRectangle.h:
 
 ../../../libs/openFrameworks/utils/ofXml.h:
 
@@ -1232,49 +1266,21 @@ src/OscManager.h:
 
 ../../../libs/openFrameworks/3d/ofEasyCam.h:
 
-../../../addons/ofxOsc/src/ofxOsc.h:
-
-../../../addons/ofxOsc/src/ofxOscArg.h:
-
-../../../addons/ofxOsc/src/ofxOscMessage.h:
-
-../../../addons/ofxOsc/src/ofxOscSender.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/osc/OscOutboundPacketStream.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/osc/OscTypes.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/osc/OscException.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/ip/UdpSocket.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/ip/NetworkingUtils.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/ip/IpEndpointName.h:
-
-../../../addons/ofxOsc/src/ofxOscBundle.h:
-
-../../../addons/ofxOsc/src/ofxOscReceiver.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/osc/OscPacketListener.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/osc/OscReceivedElements.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/osc/../ip/PacketListener.h:
-
-src/ofApp.h:
-
 src/view/fenetres/0_BG_3D/RoomApp.h:
 
 src/view/fenetres/0_BG_3D/RoomWalls.h:
 
-src/view/fenetres/0_BG_3D/ProjectionSystem.h:
+src/view/fenetres/0_BG_3D/proj/ProjectionSystem.h:
 
-src/view/fenetres/0_BG_3D/AtmosphereSystem.h:
+src/view/fenetres/0_BG_3D/proj/PlanColleSystem.h:
 
-src/view/fenetres/0_BG_3D/PosterSystem.h:
+src/view/fenetres/0_BG_3D/proj/BeamSystem.h:
 
-src/view/fenetres/0_BG_3D/CursorSquareSystem.h:
+src/view/fenetres/0_BG_3D/atomsphere/AtmosphereSystem.h:
+
+src/view/fenetres/0_BG_3D/proj/PosterSystem.h:
+
+src/view/fenetres/0_BG_3D/proj/CursorSquareSystem.h:
 
 src/view/fenetres/0_BG_3D/RippleSystem.h:
 
