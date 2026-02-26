@@ -5,15 +5,15 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>patch-116</string>
+	<string>patch-118</string>
 	<key>CFBundleIconFile</key>
 	<string>of.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>cc.openFrameworks.patch-116</string>
+	<string>cc.openFrameworks.patch-118</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>patch-116</string>
+	<string>patch-118</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
