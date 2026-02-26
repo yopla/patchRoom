@@ -1,5 +1,9 @@
 # About emptyExample
 
+pour débolquer la quarantaine osx  :
+xattr -cr /chemin/vers/votre_app.app
+
+
 ![Screenshot of emptyExample](emptyExample.png)
 
 ### Learning Objectives
