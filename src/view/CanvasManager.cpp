@@ -4,7 +4,7 @@ void CanvasManager::setup(int w, int h) {
     width = w;
     height = h;
     canvas.allocate(width, height, GL_RGBA, 4);
-    imgFullGab.load("fuyllgab.jpg");
+    imgFullGab.load("GAB/_fuyllgab.jpg");
     bIsVideo = false;
     canvas.begin(); ofClear(0); canvas.end();
 }

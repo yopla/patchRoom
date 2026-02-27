@@ -1,13 +1,13 @@
 #include "RoomWalls.h"
 
 void RoomWalls::setup() {
-    imgFront.load("FRONT.jpg"); 
-    imgBack.load("BACK.jpg");
-    imgCour.load("COUR.jpg");   
-    imgJar.load("JAR.jpg");
-    imgSol.load("SOL.jpg");     
-    imgTopCour.load("TOP_COUR.jpg"); 
-    imgTopJar.load("TOP_JAR.jpg");
+    imgFront.load("GAB2/FRONT.png"); 
+    imgBack.load("GAB2/BACK.png");
+    imgCour.load("GAB2/COUR.png");   
+    imgJar.load("GAB2/JAR.png");
+    imgSol.load("GAB2/SOL.png");     
+    imgTopCour.load("GAB2/TOP_COUR.png"); 
+    imgTopJar.load("GAB2/TOP_JAR.png");
 
     float w2 = roomWidth / 2.0f;
     float d2 = roomDepth / 2.0f;
