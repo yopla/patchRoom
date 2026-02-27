@@ -19,7 +19,7 @@ void FluidFloorLayer::setup(float w, float h, int resX, int resY) {
     fluidImage.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 
     // Chargement de l'image
-    bgImage.load("bg2.png");
+    if(!bgImage.isAllocated()) bgImage.load("bg2.png");
 
     resetPattern();
     

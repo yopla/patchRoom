@@ -74,6 +74,15 @@ gekoManager.update(mouseWorld.x, mouseWorld.y);
     for(auto& h : halos) {
         h->update(mouseWorld.x, mouseWorld.y);
     }
+    
+    for(auto& b : breakables) {
+        b->update(mouseWorld.x, mouseWorld.y);
+    }
+    
+    // Nettoyage automatique : on retire les créatures qui sont brisées et dont tous les morceaux ont disparu
+    breakables.erase(std::remove_if(breakables.begin(), breakables.end(),
+        [](const std::unique_ptr<BreakableCreature>& b){ return b->isFinished(); }),
+        breakables.end());
 }
 
 //--------------------------------------------------------------
@@ -103,6 +112,9 @@ void CreatureSystem::draw(ofVec2f mouseWorld) {
     
     // 5. Cousins (Premier plan aussi)
     for(const auto& c : cousins) c->draw();
+    
+    // 6. Breakables
+    for(const auto& b : breakables) b->draw();
 }
 
 //--------------------------------------------------------------
@@ -151,6 +163,17 @@ void CreatureSystem::onPress(float x, float y) {
         }
     }
     
+    // 5. Breakables
+    if (!handled) {
+        for (int i = breakables.size() - 1; i >= 0; i--) {
+            if (breakables[i]->isInside(x, y)) {
+                breakables[i]->onPress(x, y);
+                handled = true;
+                break;
+            }
+        }
+    }
+    
     // Note: Les autres créatures (Geko, Fluids...) n'ont pas d'interaction définie ici
 }
 
@@ -161,6 +184,7 @@ void CreatureSystem::onRelease(float x, float y) {
     for(const auto& s : springs) s->onRelease(x, y);
     for(const auto& p : pendulums) p->onRelease(x, y); // <--- Nouveau
     for(const auto& c : cousins) c->onRelease(x, y);
+    for(const auto& b : breakables) b->onRelease(x, y);
 }
 
 //--------------------------------------------------------------
@@ -218,6 +242,11 @@ void CreatureSystem::addHalo(float x, float y) {
     halos.push_back(std::make_unique<HaloCreature>(x, y));
 }
 
+void CreatureSystem::addBreakableCreature(float x, float y) {
+    float w = 400; float h = 400;
+    breakables.push_back(std::make_unique<BreakableCreature>(x - w/2, y - h/2, w, h, &sharedImage));
+}
+
 //--------------------------------------------------------------
 // GESTION LISTE
 //--------------------------------------------------------------
@@ -234,6 +263,8 @@ void CreatureSystem::removeLast() {
         cousins.pop_back();
     } else if (!pendulums.empty()) {
         pendulums.pop_back();
+    } else if (!breakables.empty()) {
+        breakables.pop_back();
     } else if (!gekoManager.gekos.empty()) { // Accès direct au vecteur si public
         gekoManager.removeLast();
     } else if (!dancingCreatures.empty()) {
@@ -258,4 +289,5 @@ gekoManager.clear();
     pendulums.clear();
     cousins.clear();
     halos.clear();
+    breakables.clear();
 }

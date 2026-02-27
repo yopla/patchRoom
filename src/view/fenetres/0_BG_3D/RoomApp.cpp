@@ -2,6 +2,7 @@
 
 //--------------------------------------------------------------
 void RoomApp::setup(){
+    inputHandler.setup(this);
     ripples.setup(10); // <--- AJOUT : On crée 10 projecteurs simultanés
 
     ofSetVerticalSync(true);
@@ -12,11 +13,20 @@ void RoomApp::setup(){
     walls.setup();
     projection.setup();
     atmosphere.setup();
-    wormSystem.setup(550); // On crée 50 worms
+    wormSystem.setup(50); // On crée 50 worms
+    wingedWormSystem.setup(20); // On crée 20 vers volants
 
     // 2. Initialisation du nouveau module Poster
     // On passe les dimensions de la pièce pour le calcul du périmètre
     poster.setup(roomWidth, roomDepth, heightFrontBack);
+
+    // Initialisation de l'anneau fluide
+    // Rayon agrandi pour être plus grand que la salle (2500 > 1200 demi-largeur)
+    fluidRing.setup(2500.0f, heightFrontBack, 800.0f);
+
+    // Initialisation du LightFlyRing (Un peu plus grand que le FluidRing)
+    // Rayon 2600
+    lightFlyRing.setup(1600.0f, heightFrontBack, 800.0f);
 
     // 3. Allocation des FBOs (Sorties visuelles)
     fboFront.allocate(roomWidth, heightFrontBack, GL_RGB);
@@ -36,14 +46,26 @@ void RoomApp::setup(){
 }
 
 void RoomApp::dragEvent(ofDragInfo dragInfo){
-    if(dragInfo.files.size() > 0){
-        // On récupère le chemin du premier fichier déposé
-        string file = dragInfo.files[0];
-        
-        // On l'envoie au système d'atmosphère
-        atmosphere.loadTexture(file);
-    }
+    inputHandler.dragEvent(dragInfo);
 }
+
+void RoomApp::keyReleased(int key) {
+    inputHandler.keyReleased(key);
+}
+
+void RoomApp::mouseMoved(int x, int y) {
+}
+
+void RoomApp::mouseDragged(int x, int y, int button) {
+}
+
+void RoomApp::mousePressed(int x, int y, int button) {
+}
+
+void RoomApp::mouseReleased(int x, int y, int button) {
+}
+
+void RoomApp::windowResized(int w, int h){}
 
 //--------------------------------------------------------------
 void RoomApp::update(){
@@ -69,8 +91,7 @@ void RoomApp::update(){
 
     // Mise à jour des interactions basées sur la caméra (avant le reste)
     // pour que l'état de survol soit à jour pour la logique OSC
-    projection.checkMouseIntersection(camGlobal);
-    cursorSquare.updateRaycast(camGlobal, walls);
+    inputHandler.update();
 
     // Mise à jour de la logique des modules
     poster.update();
@@ -78,7 +99,16 @@ void RoomApp::update(){
     if (bDrawWorms) {
         wormSystem.update(walls);
     }
+
+    if (bDrawWingedWorms) {
+        wingedWormSystem.update();
+    }
+
     ripples.update(walls); // <--- AJOUT : Update des ripples avec référence aux murs
+
+    if(bLightFlyRingEnabled) {
+        lightFlyRing.update();
+    }
 }
 
 //--------------------------------------------------------------
@@ -88,6 +118,18 @@ void RoomApp::drawSceneContent(bool showAtmosphere) {
     // 1. Dessiner l'Ambiance (Disco Ball ou Sphère Damier)
     if (showAtmosphere) {
         atmosphere.draw(bUseTexture);
+    }
+    
+    // 1. Dessin du LightFlyRing (Le plus grand rayon = Arrière plan)
+    // On le dessine en premier. Grâce au glDepthMask(GL_FALSE) dans sa méthode draw,
+    // il ne bloquera pas le rendu des objets devant lui.
+    if (bLightFlyRingEnabled) {
+        lightFlyRing.draw();
+    }
+
+    // 2. Dessin de l'anneau fluide (Devant le LightFlyRing)
+    if (bFluidRingEnabled) {
+        fluidRing.draw();
     }
 
     // 2. Dessiner le Plan Collé (Rush A)
@@ -102,11 +144,14 @@ void RoomApp::drawSceneContent(bool showAtmosphere) {
         wormSystem.draw(walls);
     }
 
+    if (bDrawWingedWorms) {
+        wingedWormSystem.draw();
+    }
+
     if(bDrawRipples) {
         ripples.draw(walls);
     }
 
-  
     bool posterOk = false;
     if (posterOk) poster.draw(roomWidth, roomDepth); 
     // ------------------
@@ -143,42 +188,7 @@ void RoomApp::draw(){
     // --- PREVIEW GLOBALE ---
     ofViewport(0, 0, ofGetWidth(), ofGetHeight());
 
-    // ---------------------------------------------------------
-    // GESTION DES INPUTS (SHIFT GAUCHE vs DROIT)
-    // ---------------------------------------------------------
-    bool isLeftShift  = ofGetKeyPressed(OF_KEY_LEFT_SHIFT);
-    bool isRightShift = ofGetKeyPressed(OF_KEY_RIGHT_SHIFT);
-    bool isSpacePressed = ofGetKeyPressed(' ');
-    bool isTabPressed = ofGetKeyPressed(OF_KEY_TAB); // Remplacement de CONTROL par TAB
-
-    // 1. Gestion de la Caméra (EasyCam)
-    // Si Shift Gauche, Espace ou Tab est pressé -> On gèle la caméra
-    // Sinon (Rien ou Shift Droit) -> La caméra bouge normalement
-    if(isLeftShift || isSpacePressed || isTabPressed) {
-        camGlobal.disableMouseInput();
-    } else {
-        camGlobal.enableMouseInput();
-    }
-
     camGlobal.begin(); 
-        // Détection survol souris pour le plan collé
-        // cursorSquare.updateRaycast(camGlobal, walls); // Déplacé dans update()
-        // projection.checkMouseIntersection(camGlobal); // Déplacé dans update()
-
-        // 2. Gestion du Projecteur
-        // Le projecteur ne bouge que si l'un des Shift est pressé
-        if(ofGetMousePressed(0)) { 
-            if (isLeftShift || isRightShift) {
-                projection.updateTarget(camGlobal, walls);
-            }
-            if (isSpacePressed) {
-                projection.updateTarget2(camGlobal, walls);
-            }
-            if (isTabPressed) {
-                projection.updateTarget3(camGlobal, walls);
-            }
-        }
-
         drawSceneContent(bDrawAtmosphere); 
         
         // Debug : Visualisation du projecteur
@@ -195,42 +205,24 @@ void RoomApp::draw(){
     ofDrawBitmapString("GAB [G] Alpha: " + ofToString(wallAlpha, 1), 20, 20);
     ofDrawBitmapString("BEAM [F]: " + ofToString(bDrawBeam), 20, 35);
     ofDrawBitmapString("WORMS [Y]: " + ofToString(bDrawWorms), 20, 50);
+    ofDrawBitmapString("WINGED [W]: " + ofToString(bDrawWingedWorms), 20, 50);
     ofDrawBitmapString("ATMO [B]: " + ofToString(bDrawAtmosphere), 20, 65); 
+    ofDrawBitmapString("LIGHT FLY [H]: " + ofToString(bLightFlyRingEnabled), 20, 80);
     
     // Petit feedback visuel pour savoir quel mode est actif
-    if(isLeftShift) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 1 SEUL (Camera Lock)", 20, 85, ofColor(255, 0, 0), ofColor(255));
-    else if(isRightShift) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 1 + CAMERA", 20, 85, ofColor(0, 255, 0), ofColor(0));
+    bool isLeftShift  = ofGetKeyPressed(OF_KEY_LEFT_SHIFT);
+    bool isRightShift = ofGetKeyPressed(OF_KEY_RIGHT_SHIFT);
+    bool isSpacePressed = ofGetKeyPressed(' ');
+    bool isTabPressed = ofGetKeyPressed(OF_KEY_TAB);
 
-    if(isSpacePressed) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 2 SEUL (Camera Lock)", 20, 105, ofColor(0, 0, 255), ofColor(255));
-    if(isTabPressed) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 3 SEUL (Camera Lock)", 20, 125, ofColor(255, 0, 255), ofColor(255));
+    if(isLeftShift) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 1 SEUL (Camera Lock)", 20, 85, ofColor::red, ofColor::white);
+    else if(isRightShift) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 1 + CAMERA", 20, 85, ofColor::green, ofColor::black);
+
+    if(isSpacePressed) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 2 SEUL (Camera Lock)", 20, 105, ofColor::blue, ofColor::white);
+    if(isTabPressed) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 3 SEUL (Camera Lock)", 20, 125, ofColor::magenta, ofColor::white);
 }
 
 //--------------------------------------------------------------
 void RoomApp::keyPressed(int key){
-    if(key == 'g' || key == 'G') {
-        // Toggle l'alpha du gabarit entre sa valeur normale et 10%
-        if (wallAlpha > 50.0f) { // Si l'alpha est "haut" (ex: 100.0f par défaut)
-            wallAlpha = 25.5f; // On le met à 10% d'alpha (255 * 0.1)
-        } else {
-            wallAlpha = 100.0f; // On le remet à sa valeur par défaut
-        }
-    }
-    if(key == 'f' || key == 'F') bDrawBeam = !bDrawBeam; // Active/Désactive les Beams (Transparents)
-    
-    if(key == 'b' || key == 'B') bDrawAtmosphere = !bDrawAtmosphere;
-    if(key == 'l' || key == 'L') bUseTexture = !bUseTexture;
-    
-    if(key == 'r' || key == 'R') {
-        camGlobal.setDistance(4000);
-        camGlobal.setPosition(2000, 2500, 3000);
-        camGlobal.lookAt(ofVec3f(0, 600, 0));
-    }
-    if(key == 'a' || key == 'A') bShowRoof = !bShowRoof;
-    if(key == 'u' || key == 'U') respire = !respire;
-    if(key == 'k' || key == 'K') bDrawRipples = !bDrawRipples;
-    if(key == 'y' || key == 'Y') bDrawWorms = !bDrawWorms; // Changé de 'T' à 'Y'
-
-    // Délégation des touches aux modules
-    projection.keyPressed(key);
-    atmosphere.keyPressed(key);
+    inputHandler.keyPressed(key);
 }

@@ -402,7 +402,8 @@ obj/osx/Release/src/fx/CreatureSystem.o: src/fx/CreatureSystem.cpp \
   src/fx/creature/FluidsCreature.h src/fx/creature/WancoCreature.h \
   src/fx/creature/DancingCreature.h src/fx/creature/geko/GekoManager.h \
   src/fx/creature/geko/GekoUnits.h src/fx/creature/CousinCreature.h \
-  src/fx/creature/HaloCreature.h src/fx/LayerSystem.h
+  src/fx/creature/HaloCreature.h src/fx/creature/BreakableCreature.h \
+  src/fx/LayerSystem.h
 
 src/fx/CreatureSystem.h:
 
@@ -1221,5 +1222,7 @@ src/fx/creature/geko/GekoUnits.h:
 src/fx/creature/CousinCreature.h:
 
 src/fx/creature/HaloCreature.h:
+
+src/fx/creature/BreakableCreature.h:
 
 src/fx/LayerSystem.h:

@@ -19,9 +19,14 @@ public:
     
     // Toggle entre Checker et Image
     void toggleBackground();
-
+     float width, height;
+     ofImage fluidImage;
+         ofImage bgImage;
+             bool bUseImage = false;
+  void checkInput(float mx, float my);
+  
 private:
-    float width, height;
+   
     int gridWidth, gridHeight;
     float scaleX, scaleY;
     
@@ -29,11 +34,11 @@ private:
     vector<FloorFluidCell> prevCells;
     vector<ofColor> initialColors; 
 
-    ofImage fluidImage;
+    
     
     // Image de fond
-    ofImage bgImage;
-    bool bUseImage = false;
+
+
     
     float prevLocalX, prevLocalY;
     
@@ -43,7 +48,7 @@ private:
     void colorFromPattern();
     void colorFromImage();
     
-    void checkInput(float mx, float my);
+  
     
     // Helper pour l'index avec Wrapping horizontal
     int getIndex(int i, int j) {

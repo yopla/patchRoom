@@ -13,6 +13,7 @@
 #include "PlantLayer.h"
 #include "FlytrapLayer.h"
 #include "FluidFloorLayer.h" // <--- AJOUT
+#include "CousinCon.h"
 
 class Scene2D_SIDE : public ofBaseApp {
 public:
@@ -53,6 +54,8 @@ public:
 
     // --- SYSTEMES ---
     CreatureSystem creatureSystem;
+    vector<shared_ptr<CousinCon>> cousinCons;
+    ofImage imgConcombre;
     shared_ptr<ColliderLayer> colliderLayer;
     SauteursLayer sauteursLayer;
     FishSchoolLayer fishSchoolLayer;
@@ -78,6 +81,7 @@ private:
 
     ofImage imgJar, imgFront, imgCour, imgBack;
     ofImage imgSol, imgTopJar, imgTopCour;
+    ofImage imgRush;
     
     bool bShowTextures = true;
     

@@ -77,6 +77,11 @@ void CousinHair::draw() {
     // Lissage de la courbe
     ofPolyline smoothed = poly.getSmoothed(4); 
     
+    // Correction : Forcer le premier point (racine) à rester fixe sur l'ancrage malgré le lissage
+    if(smoothed.size() > 0 && poly.size() > 0) {
+        smoothed[0] = poly[0];
+    }
+    
     ofMesh mesh;
     mesh.setMode(OF_PRIMITIVE_LINE_STRIP);
     vector<glm::vec3> verts = smoothed.getVertices();

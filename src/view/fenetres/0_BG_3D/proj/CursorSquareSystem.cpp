@@ -152,8 +152,15 @@ void CursorSquareSystem::drawProjected(RoomWalls& walls) {
    glEnable(GL_CLIP_PLANE0);
     glClipPlane(GL_CLIP_PLANE0, clipPlaneEq);
 
-    // --- LOGIQUE D'AFFICHAGE ---
+    // --- GESTION ALPHA ---
+    ofPushStyle();
+    if (bLowAlpha) { // Note: bLowAlpha est une variable membre publique (bool) à ajouter à la classe.
+        ofSetColor(255, 255, 255, 25.5); // 10% alpha
+    } else {
+        ofSetColor(255);
+    }
 
+    // --- LOGIQUE D'AFFICHAGE ---
     if (bDrawReflections) {
         // === MODE "REFLETS" (ANCIEN COMPORTEMENT) ===
         // Le carré peut déborder sur les murs voisins et le sol
@@ -198,6 +205,8 @@ void CursorSquareSystem::drawProjected(RoomWalls& walls) {
         }
     }
     
+    ofPopStyle();
+
     glDisable(GL_CLIP_PLANE0);
     
     glDisable(GL_TEXTURE_GEN_S);

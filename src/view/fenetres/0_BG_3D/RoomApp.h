@@ -7,8 +7,12 @@
 #include "AtmosphereSystem.h"
 #include "PosterSystem.h"
 #include "WormSystem.h"       // <--- AJOUT
+#include "WingedWormSystem.h" // <--- AJOUT NOUVEAU
 #include "CursorSquareSystem.h" // <--- AJOUT
 #include "RippleSystem.h" // <--- AJOUT 1
+#include "FluidRing.h"
+#include "RoomInputHandler.h"
+#include "LightFlyRing.h"
 
 class RoomApp : public ofBaseApp {
 
@@ -17,13 +21,22 @@ public:
     void setup();
     void update();
     void draw();
+    void keyPressed(int key);
+    void keyReleased(int key);
+    void mouseMoved(int x, int y );
+    void mouseDragged(int x, int y, int button);
+    void mousePressed(int x, int y, int button);
+    void mouseReleased(int x, int y, int button);
+    void windowResized(int w, int h);
     void dragEvent(ofDragInfo dragInfo);
     bool gabAlpha = true;
 
     CursorSquareSystem cursorSquare; // <--- AJOUT
     PosterSystem poster;
     ofImage posterImg;
-    RippleSystem ripples;
+    RippleSystem ripples; 
+    FluidRing fluidRing;
+    LightFlyRing lightFlyRing;
 
     // Position X globale sur le périmètre (de 0 à TotalPerimeter)
     float posterGlobalX; 
@@ -40,7 +53,6 @@ public:
     
     // La fonction qui centralise le rendu pour tous les FBOs
     void drawSceneContent(bool showAtmosphere = true); // Ajoute le paramètre ici
-    void keyPressed(int key);
     
     bool bEnabled = true;
     void setEnabled(bool enable) { bEnabled = enable; }
@@ -64,22 +76,27 @@ public:
     ProjectionSystem projection;
     AtmosphereSystem atmosphere;
     WormSystem wormSystem;
+    WingedWormSystem wingedWormSystem;
+
+    // --- Caméras et Navigation ---
+    ofEasyCam camGlobal;
+
+    // --- Flags de contrôle ---
     bool bShowRoof = true;
     float wallAlpha = 100.0f;
-
-
-private:
     bool respire = true;
     bool bDrawRipples = false; // Optionnel : pour activer/désactiver
-    // Caméras et Navigation
-    ofCamera camFront, camBack, camCour, camJar, camSol, camTopCour, camTopJar;
-    ofEasyCam camGlobal;
-    ofVec3f rigPosition;
-    
-    // Flags de contrôle
     bool bDrawGab = true; // Remplaçant de bDrawWalls pour la texture "Gab"
     bool bDrawBeam = true; 
     bool bDrawWorms = true;
+    bool bDrawWingedWorms = false; // Activé par touche 'W'
     bool bUseTexture = true;
     bool bDrawAtmosphere = true; // Pour contrôler l'atmosphère de l'ui
+    bool bFluidRingEnabled = false;
+    bool bLightFlyRingEnabled = true;
+
+private:
+    RoomInputHandler inputHandler;
+    ofCamera camFront, camBack, camCour, camJar, camSol, camTopCour, camTopJar;
+    ofVec3f rigPosition;
 };

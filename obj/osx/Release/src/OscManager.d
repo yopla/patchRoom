@@ -413,14 +413,20 @@ obj/osx/Release/src/OscManager.o: src/OscManager.cpp src/OscManager.h \
   ../../../libs/openFrameworks/3d/ofEasyCam.h \
   src/view/fenetres/0_BG_3D/RoomApp.h \
   src/view/fenetres/0_BG_3D/RoomWalls.h \
-  src/view/fenetres/0_BG_3D/proj/ProjectionSystem.h \
-  src/view/fenetres/0_BG_3D/proj/PlanColleSystem.h \
-  src/view/fenetres/0_BG_3D/proj/BeamSystem.h \
+  src/view/fenetres/0_BG_3D/proj/object/ProjectionSystem.h \
+  src/view/fenetres/0_BG_3D/proj/object/PlanColleSystem.h \
+  src/view/fenetres/0_BG_3D/proj/object/BeamSystem.h \
   src/view/fenetres/0_BG_3D/atomsphere/AtmosphereSystem.h \
-  src/view/fenetres/0_BG_3D/proj/PosterSystem.h \
-  src/view/fenetres/0_BG_3D/proj/WormSystem.h \
+  src/view/fenetres/0_BG_3D/proj/object/PosterSystem.h \
+  src/view/fenetres/0_BG_3D/proj/object/WormSystem.h \
+  src/view/fenetres/0_BG_3D/proj/object/WingedWormSystem.h \
   src/view/fenetres/0_BG_3D/proj/CursorSquareSystem.h \
-  src/view/fenetres/0_BG_3D/RippleSystem.h src/view/CanvasManager.h \
+  src/view/fenetres/0_BG_3D/proj/object/RippleSystem.h \
+  src/view/fenetres/0_BG_3D/atomsphere/ring/FluidRing.h \
+  src/fx/layer/FluidFloorLayer.h \
+  src/view/fenetres/0_BG_3D/RoomInputHandler.h \
+  src/view/fenetres/0_BG_3D/atomsphere/ring/LightFlyRing.h \
+  src/fx/creature/HaloCreature.h src/view/CanvasManager.h \
   src/view/fenetres/2_vueSIDE/Scene2D_SIDE.h src/fx/CreatureSystem.h \
   src/fx/creature/JellyCreature.h src/fx/creature/RippleCreature.h \
   src/fx/creature/SpringCreature.h \
@@ -428,14 +434,13 @@ obj/osx/Release/src/OscManager.o: src/OscManager.cpp src/OscManager.h \
   src/fx/creature/FluidsCreature.h src/fx/creature/WancoCreature.h \
   src/fx/creature/DancingCreature.h src/fx/creature/geko/GekoManager.h \
   src/fx/creature/geko/GekoUnits.h src/fx/creature/CousinCreature.h \
-  src/fx/creature/HaloCreature.h src/fx/LayerSystem.h \
+  src/fx/creature/BreakableCreature.h src/fx/LayerSystem.h \
   src/fx/layer/SauteursLayer.h src/fx/layer/ColliderLayer.h \
   src/fx/layer/FishSchoolLayer.h src/fx/layer/PoulpeLayer.h \
   src/fx/layer/SlimeLayer.h src/fx/layer/WalkerLayer.h \
   src/fx/layer/GearLayer.h src/fx/layer/LightningLayer.h \
   src/fx/layer/PlantLayer.h src/fx/layer/FlytrapLayer.h \
-  src/fx/layer/FluidFloorLayer.h \
-  src/view/fenetres/1_vueTOP/Scene2DZenit.h \
+  src/fx/creature/CousinCon.h src/view/fenetres/1_vueTOP/Scene2DZenit.h \
   src/view/fenetres/ZOUT_4VIEW/ViewApp.h \
   src/view/fenetres/ZOUT_4VIEW/ViewLayerManager.h
 
@@ -1271,21 +1276,33 @@ src/view/fenetres/0_BG_3D/RoomApp.h:
 
 src/view/fenetres/0_BG_3D/RoomWalls.h:
 
-src/view/fenetres/0_BG_3D/proj/ProjectionSystem.h:
+src/view/fenetres/0_BG_3D/proj/object/ProjectionSystem.h:
 
-src/view/fenetres/0_BG_3D/proj/PlanColleSystem.h:
+src/view/fenetres/0_BG_3D/proj/object/PlanColleSystem.h:
 
-src/view/fenetres/0_BG_3D/proj/BeamSystem.h:
+src/view/fenetres/0_BG_3D/proj/object/BeamSystem.h:
 
 src/view/fenetres/0_BG_3D/atomsphere/AtmosphereSystem.h:
 
-src/view/fenetres/0_BG_3D/proj/PosterSystem.h:
+src/view/fenetres/0_BG_3D/proj/object/PosterSystem.h:
 
-src/view/fenetres/0_BG_3D/proj/WormSystem.h:
+src/view/fenetres/0_BG_3D/proj/object/WormSystem.h:
+
+src/view/fenetres/0_BG_3D/proj/object/WingedWormSystem.h:
 
 src/view/fenetres/0_BG_3D/proj/CursorSquareSystem.h:
 
-src/view/fenetres/0_BG_3D/RippleSystem.h:
+src/view/fenetres/0_BG_3D/proj/object/RippleSystem.h:
+
+src/view/fenetres/0_BG_3D/atomsphere/ring/FluidRing.h:
+
+src/fx/layer/FluidFloorLayer.h:
+
+src/view/fenetres/0_BG_3D/RoomInputHandler.h:
+
+src/view/fenetres/0_BG_3D/atomsphere/ring/LightFlyRing.h:
+
+src/fx/creature/HaloCreature.h:
 
 src/view/CanvasManager.h:
 
@@ -1313,7 +1330,7 @@ src/fx/creature/geko/GekoUnits.h:
 
 src/fx/creature/CousinCreature.h:
 
-src/fx/creature/HaloCreature.h:
+src/fx/creature/BreakableCreature.h:
 
 src/fx/LayerSystem.h:
 
@@ -1337,7 +1354,7 @@ src/fx/layer/PlantLayer.h:
 
 src/fx/layer/FlytrapLayer.h:
 
-src/fx/layer/FluidFloorLayer.h:
+src/fx/creature/CousinCon.h:
 
 src/view/fenetres/1_vueTOP/Scene2DZenit.h:
 

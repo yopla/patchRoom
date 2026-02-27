@@ -1,0 +1,212 @@
+#include "RoomInputHandler.h"
+#include "RoomApp.h" // Include the full header here for implementation details
+
+void RoomInputHandler::setup(RoomApp* owner) {
+    app = owner;
+}
+
+void RoomInputHandler::update() {
+    if (!app || !app->bEnabled) return;
+
+    updateKeyStates();
+    handleCameraAndProjection();
+    updateFluidRingInteraction();
+    updateLightFlyInteraction(); // <--- AJOUT
+    
+    // This was in RoomApp::update()
+    app->projection.checkMouseIntersection(app->camGlobal);
+    app->cursorSquare.updateRaycast(app->camGlobal, app->walls);
+}
+
+void RoomInputHandler::updateKeyStates() {
+    bLeftShiftPressed  = ofGetKeyPressed(OF_KEY_LEFT_SHIFT);
+    bRightShiftPressed = ofGetKeyPressed(OF_KEY_RIGHT_SHIFT);
+    bSpacePressed = ofGetKeyPressed(' ');
+    bTabPressed = ofGetKeyPressed(OF_KEY_TAB);
+}
+
+void RoomInputHandler::handleCameraAndProjection() {
+    // This logic was in RoomApp::draw()
+    // 1. Gestion de la Caméra (EasyCam)
+    if(bLeftShiftPressed || bSpacePressed || bTabPressed) {
+        app->camGlobal.disableMouseInput();
+    } else {
+        app->camGlobal.enableMouseInput();
+    }
+
+    // 2. Gestion du Projecteur
+    if(ofGetMousePressed(0)) { 
+        if (bLeftShiftPressed || bRightShiftPressed) {
+            app->projection.updateTarget(app->camGlobal, app->walls);
+        }
+        if (bSpacePressed) {
+            app->projection.updateTarget2(app->camGlobal, app->walls);
+        }
+        if (bTabPressed) {
+            app->projection.updateTarget3(app->camGlobal, app->walls);
+        }
+    }
+}
+
+void RoomInputHandler::updateFluidRingInteraction() {
+    // This logic was in RoomApp::update()
+    if (!app->bFluidRingEnabled) return;
+
+    float localX = -1000.0f;
+    float localY = -1000.0f;
+
+    // Note: bFluidRingEnabled est une variable membre publique (bool) à ajouter à la classe RoomApp.
+    ofVec3f rayOrigin = app->camGlobal.getPosition();
+    ofVec3f rayDir = app->camGlobal.screenToWorld(ofVec3f(ofGetMouseX(), ofGetMouseY(), 0)) - rayOrigin;
+    rayDir.normalize();
+
+    float R = app->fluidRing.radius;
+    float A = rayDir.x * rayDir.x + rayDir.z * rayDir.z;
+    float B = 2 * (rayOrigin.x * rayDir.x + rayOrigin.z * rayDir.z);
+    float C = rayOrigin.x * rayOrigin.x + rayOrigin.z * rayOrigin.z - R * R;
+    float delta = B*B - 4*A*C;
+
+    if(delta >= 0) {
+        float t1 = (-B - sqrt(delta)) / (2*A);
+        float t2 = (-B + sqrt(delta)) / (2*A);
+        
+        float t = -1;
+        if (t1 > 0) t = t1;
+        else if (t2 > 0) t = t2;
+
+        if(t > 0) {
+            ofVec3f hit = rayOrigin + rayDir * t;
+            if(hit.y <= app->fluidRing.height && hit.y >= -app->fluidRing.bottomExt) {
+                float angle = atan2(hit.z, hit.x);
+                if(angle < 0) angle += TWO_PI;
+                float u = angle / TWO_PI;
+                float v = (app->fluidRing.height - hit.y) / (app->fluidRing.height + app->fluidRing.bottomExt);
+                
+                localX = u * app->fluidRing.fluid.width;
+                localY = v * app->fluidRing.fluid.height;
+            }
+        }
+    }
+    
+    app->fluidRing.fluid.update(localX, localY);
+}
+
+void RoomInputHandler::updateLightFlyInteraction() {
+    if (!app->bLightFlyRingEnabled) return;
+
+    float u = -1.0f;
+    float v = -1.0f;
+
+    ofVec3f rayOrigin = app->camGlobal.getPosition();
+    ofVec3f rayDir = app->camGlobal.screenToWorld(ofVec3f(ofGetMouseX(), ofGetMouseY(), 0)) - rayOrigin;
+    rayDir.normalize();
+
+    float R = app->lightFlyRing.radius;
+    float A = rayDir.x * rayDir.x + rayDir.z * rayDir.z;
+    float B = 2 * (rayOrigin.x * rayDir.x + rayOrigin.z * rayDir.z);
+    float C = rayOrigin.x * rayOrigin.x + rayOrigin.z * rayOrigin.z - R * R;
+    float delta = B*B - 4*A*C;
+
+    if(delta >= 0) {
+        float t1 = (-B - sqrt(delta)) / (2*A);
+        float t2 = (-B + sqrt(delta)) / (2*A);
+        
+        float t = -1;
+        if (t1 > 0) t = t1;
+        else if (t2 > 0) t = t2;
+
+        if(t > 0) {
+            ofVec3f hit = rayOrigin + rayDir * t;
+            if(hit.y <= app->lightFlyRing.height && hit.y >= -app->lightFlyRing.bottomExt) {
+                float angle = atan2(hit.z, hit.x);
+                if(angle < 0) angle += TWO_PI;
+                u = angle / TWO_PI;
+                v = (app->lightFlyRing.height - hit.y) / (app->lightFlyRing.height + app->lightFlyRing.bottomExt);
+            }
+        }
+    }
+    
+    app->lightFlyRing.setInteraction(u, v);
+}
+
+void RoomInputHandler::keyPressed(int key) {
+    if (!app) return;
+    // This logic was in RoomApp::keyPressed()
+    if(key == 'g' || key == 'G') {
+        if (app->wallAlpha > 50.0f) {
+            app->wallAlpha = 5.5f;
+        } else {
+            app->wallAlpha = 100.0f;
+        }
+    }
+    if(key == 'f' || key == 'F') app->bDrawBeam = !app->bDrawBeam;
+    if(key == 'b' || key == 'B') app->bDrawAtmosphere = !app->bDrawAtmosphere;
+    if(key == 'l' || key == 'L') app->bUseTexture = !app->bUseTexture;
+    
+    if(key == 'r' || key == 'R') {
+        app->camGlobal.setDistance(4000);
+        app->camGlobal.setPosition(2000, 2500, 3000);
+        app->camGlobal.lookAt(ofVec3f(0, 600, 0));
+    }
+    if(key == 'a' || key == 'A') app->bShowRoof = !app->bShowRoof;
+    if(key == 'u' || key == 'U') app->respire = !app->respire;
+    if(key == 'k' || key == 'K') app->bDrawRipples = !app->bDrawRipples;
+    if(key == 'v' || key == 'V') app->bDrawWorms = !app->bDrawWorms;
+    if(key == 'w' || key == 'W') app->bDrawWingedWorms = !app->bDrawWingedWorms;
+
+    // Touche 's' pour la transparence du curseur
+    if(key == 's' || key == 'S') {
+        // Note: bLowAlpha est une variable membre publique (bool) à ajouter à la classe CursorSquareSystem.
+        app->cursorSquare.bLowAlpha = !app->cursorSquare.bLowAlpha;
+    }
+    // Touche 'c' pour activer/désactiver l'interaction avec le FluidRing
+    if(key == 'c' || key == 'C') {
+        // Note: bFluidRingEnabled est une variable membre publique (bool) à ajouter à la classe RoomApp.
+        app->bFluidRingEnabled = !app->bFluidRingEnabled;
+    }
+    
+    // --- COMMANDES LIGHT FLY RING ---
+    if(key == 'h' || key == 'H') {
+        app->bLightFlyRingEnabled = !app->bLightFlyRingEnabled;
+    }
+    if(key == 'x' || key == 'X') {
+        app->lightFlyRing.clearLights();
+    }
+    if(key == 'y' || key == 'Y') {
+        // Ajoute une lumière à la position d'interaction actuelle
+        if(app->bLightFlyRingEnabled && app->lightFlyRing.isInteracting) {
+            // On récupère les coordonnées UV calculées dans updateLightFlyInteraction
+            // via une astuce ou en recalculant, mais ici on utilise la pos stockée dans le ring
+            app->lightFlyRing.addLightAt(app->lightFlyRing.interactPos.x / app->lightFlyRing.fbo.getWidth(), app->lightFlyRing.interactPos.y / app->lightFlyRing.fbo.getHeight());
+        }
+    }
+
+    // Delegation
+    app->projection.keyPressed(key);
+    app->atmosphere.keyPressed(key);
+}
+
+void RoomInputHandler::keyReleased(int key) {
+    // No specific logic here, but the method is available for future use.
+}
+
+void RoomInputHandler::mouseDragged(int x, int y, int button) {
+    // No specific logic here, EasyCam handles it.
+}
+
+void RoomInputHandler::mousePressed(int x, int y, int button) {
+    // No specific logic here, EasyCam handles it.
+}
+
+void RoomInputHandler::mouseReleased(int x, int y, int button) {
+    // No specific logic here, EasyCam handles it.
+}
+
+void RoomInputHandler::dragEvent(ofDragInfo dragInfo) {
+    if (!app) return;
+    // This logic was in RoomApp::dragEvent()
+    if(dragInfo.files.size() > 0){
+        string file = dragInfo.files[0];
+        app->atmosphere.loadTexture(file);
+    }
+}

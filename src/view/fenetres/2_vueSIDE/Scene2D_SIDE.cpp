@@ -1,7 +1,20 @@
 #include "Scene2D_SIDE.h"
 #include "PlantLayer.h"
+#include "MachineLayer.h"
+#include "DiggingCreature.h"
+#include "MachineAutoLayer.h"
+#include "CurtainCreature.h"
 
 //--------------------------------------------------------------
+static MachineLayer machineLayer;
+static bool bDrawMachine = false;
+static DiggingCreature diggingCreature;
+static bool bDrawDigging = false;
+static MachineAutoLayer machineAuto;
+static bool bDrawMachineAuto = false;
+static CurtainCreature curtain;
+static bool bDrawCurtain = false;
+
 void Scene2D_SIDE::setup() {
     ofSetRandomSeed(42);
     localTime = 0.0f;
@@ -9,6 +22,8 @@ void Scene2D_SIDE::setup() {
     // Chargement des images de fond
     imgJar.load("JAR.jpg"); imgFront.load("FRONT.jpg"); imgCour.load("COUR.jpg"); imgBack.load("BACK.jpg");
     imgSol.load("SOL.jpg"); imgTopJar.load("TOP_JAR.jpg"); imgTopCour.load("TOP_COUR.jpg");
+    imgConcombre.load("concombre.png");
+    imgRush.load("rushA.png");
 
     // Optimisation : Redimensionner les images à la taille des FBO pour alléger le rendu
     if(imgJar.isAllocated()) imgJar.resize(wJar, 784);
@@ -80,6 +95,18 @@ lightningLayer.setScale(1); // Utilisez le même scale que pour SlimeLayer ou Sa
     // Résolution X réduite (512) pour perf, Y (128)
     fluidFloorLayer.setup(totalSceneWidth, 800.0f, 512, 128);
 
+    // --- SETUP MACHINE LAYER ---
+    // On initialise la machine animale
+    machineLayer.setup(totalSceneWidth, 1472.0f);
+
+    // --- SETUP DIGGING CREATURE ---
+    diggingCreature.setup(srcX_Front + wFront/2.0f, 1000.0f, imgRush);
+
+    // --- SETUP MACHINE AUTO ---
+    machineAuto.setup(totalSceneWidth, 1472.0f);
+
+    // --- SETUP CURTAIN (RIDEAU) ---
+    curtain.setup(srcX_Front + 200, 100, 600, 800, "garde.png");
 
     // Allocation FBOs
     fboJar.allocate(wJar, 784, GL_RGBA);
@@ -137,6 +164,7 @@ if (bDrawLightning) {
     // Touche H : Créatures (Ondes, Jellys)
     if (bDrawCreatures) {
         creatureSystem.update(m);
+        for(auto& c : cousinCons) c->update(m.x, m.y);
     }
 
     if (bDrawWalker) {
@@ -230,6 +258,31 @@ if (bDrawLightning) {
         fluidFloorLayer.update(m.x, m.y - (1472.0f - 800.0f));
     }
 
+    // Touche U : Machine Animale
+    if (bDrawMachine) {
+        machineLayer.update(m.x, m.y);
+    }
+
+    // Touche T : Digging Creature
+    if (bDrawDigging) {
+        diggingCreature.toggle(); // Ensure state sync if needed, or just update
+        diggingCreature.update(m.x, m.y);
+    }
+
+    // Touche T : Digging Creature
+    if (bDrawDigging) {
+        diggingCreature.toggle(); // Ensure state sync if needed, or just update
+        diggingCreature.update(m.x, m.y);
+    }
+
+    if (bDrawMachineAuto) {
+        machineAuto.update();
+    }
+
+    if (bDrawCurtain) {
+        curtain.update(m.x, m.y);
+    }
+
     // 4. Animation Balle (Toujours active sauf si app désactivée)
     if (waypoints.size() > 1) {
         float totalDuration = 12.0f; 
@@ -268,6 +321,7 @@ void Scene2D_SIDE::drawDynamicElements() {
     // 1. CREATURES (Touche H)
     if (bDrawCreatures) {
         creatureSystem.draw(m);
+        for(auto& c : cousinCons) c->draw();
     }
 
     // VISUALISER LE POINT D'ANCRAGE DE L ECLAIR EN ATTENTE
@@ -361,6 +415,30 @@ void Scene2D_SIDE::drawDynamicElements() {
         fluidFloorLayer.draw(0, 1472.0f - 800.0f);
     }
 
+    // 11. MACHINE (Touche U)
+    if (bDrawMachine) {
+        machineLayer.draw();
+    }
+
+    // 12. DIGGING CREATURE (Touche T)
+    if (bDrawDigging) {
+        diggingCreature.draw();
+    }
+
+    // 12. DIGGING CREATURE (Touche T)
+    if (bDrawDigging) {
+        diggingCreature.draw();
+    }
+
+    if (bDrawMachineAuto) {
+        machineAuto.draw();
+    }
+
+    // 13. CURTAIN (Touche 1) - Devant tout le reste
+    if (bDrawCurtain) {
+        curtain.draw();
+    }
+
     // 6. BALLE (Toujours visible)
     ofPushStyle();
     ofSetColor(255, 0, 0);
@@ -406,8 +484,12 @@ void Scene2D_SIDE::draw() {
     stats += "Slime     [M]: " + ofToString(bDrawSlime) + "\n";
     stats += "Plantes   [P]: " + ofToString(bDrawPlants);
     stats += "\nFlytraps  [O]: " + ofToString(bDrawFlytraps);
-    stats += "\nFluidFloor[V]: " + ofToString(bDrawFluidFloor); 
+    stats += "\nFluidFloor[V]: " + ofToString(bDrawFluidFloor);
+    stats += "\nMachine   [U]: " + ofToString(bDrawMachine); 
     stats += "\nGears     [E]: " + ofToString(bDrawGears);
+    stats += "\nDigging   [T]: " + ofToString(bDrawDigging);
+    stats += "\nAutoMach  [X]: " + ofToString(bDrawMachineAuto);
+    stats += "\nCurtain   [1]: " + ofToString(bDrawCurtain);
 
     ofDrawBitmapStringHighlight(stats, 20, 30); 
 }
@@ -456,6 +538,7 @@ void Scene2D_SIDE::mousePressed(int x, int y, int button) {
         
         // Interaction Créatures (seulement si actif)
         if(bDrawCreatures) creatureSystem.onPress(m.x, m.y);
+        if(bDrawCreatures) for(auto& c : cousinCons) c->onPress(m.x, m.y);
        if(bDrawLightning) {
         
         if (!bLightningHasStart) {
@@ -471,6 +554,18 @@ void Scene2D_SIDE::mousePressed(int x, int y, int button) {
             bLightningHasStart = false; 
         }
     }
+
+    if (bDrawMachine) {
+        machineLayer.mousePressed(m.x, m.y, button);
+    }
+    
+    if (bDrawMachineAuto) {
+        machineAuto.mousePressed(m.x, m.y);
+    }
+
+    if (bDrawCurtain) {
+        curtain.mousePressed(m.x, m.y);
+    }
         // Note: Les interactions Slime et Fish sont gérées dans update() 
         // pour garantir qu'elles ne se produisent que si le layer est actif et mis à jour.
     }
@@ -479,6 +574,8 @@ void Scene2D_SIDE::mousePressed(int x, int y, int button) {
 void Scene2D_SIDE::mouseReleased(int x, int y, int button) {
     ofVec2f m = getTransformedMouse();
     if(bDrawCreatures) creatureSystem.onRelease(m.x, m.y);
+    if(bDrawCreatures) for(auto& c : cousinCons) c->onRelease(m.x, m.y);
+    if(bDrawCurtain) curtain.mouseReleased(m.x, m.y);
 }
 
 void Scene2D_SIDE::mouseDragged(int x, int y, int button) {
@@ -509,8 +606,19 @@ void Scene2D_SIDE::keyPressed(int key) {
         ofVec2f m = getTransformedMouse();
         creatureSystem.addHalo(m.x, m.y);
     }
-    if(key == 'd' || key == 'D') creatureSystem.removeLast();
-    if(key == 'c' || key == 'C') creatureSystem.clear();
+    // Touche Z : CousinCon (Concombre)
+    if(key == 'z' || key == 'Z') {
+        ofVec2f m = getTransformedMouse();
+        cousinCons.push_back(make_shared<CousinCon>(m.x, m.y, &imgConcombre));
+    }
+    // Touche B : Breakable Creature
+    if(key == 'b' || key == 'B') {
+        ofVec2f m = getTransformedMouse();
+        creatureSystem.addBreakableCreature(m.x, m.y);
+    }
+
+    if(key == 'd' || key == 'D') { creatureSystem.removeLast(); if(!cousinCons.empty()) cousinCons.pop_back(); }
+    if(key == 'c' || key == 'C') { creatureSystem.clear(); cousinCons.clear(); }
 
     // --- TOGGLES LAYERS ---
     if(key == 'h' || key == 'H') bDrawCreatures = !bDrawCreatures;
@@ -529,6 +637,13 @@ void Scene2D_SIDE::keyPressed(int key) {
         if(!bDrawGears) gearLayer.squares.clear();
     }
     if(key == 'w' || key == 'W') fluidFloorLayer.toggleBackground();
+    if(key == 'u' || key == 'U') bDrawMachine = !bDrawMachine;
+    if(key == 't' || key == 'T') {
+        bDrawDigging = !bDrawDigging;
+        if(bDrawDigging && !diggingCreature.isEnabled()) diggingCreature.toggle();
+    }
+    if(key == 'x' || key == 'X') bDrawMachineAuto = !bDrawMachineAuto;
+    if(key == '1') bDrawCurtain = !bDrawCurtain;
 
 
 }

@@ -24,7 +24,7 @@ public:
 
     float squareSize = 500.0f;
     bool isVisible = false;
-
+ bool bLowAlpha = false;
 private:
     ofVec3f currentPos;
     ofVec3f currentNormal;

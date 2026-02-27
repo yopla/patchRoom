@@ -399,14 +399,20 @@ obj/osx/Release/src/view/fenetres/0_BG_3D/RoomApp.o: \
   ../../../libs/openFrameworks/3d/ofCamera.h \
   ../../../libs/openFrameworks/3d/ofEasyCam.h \
   src/view/fenetres/0_BG_3D/RoomWalls.h \
-  src/view/fenetres/0_BG_3D/proj/ProjectionSystem.h \
-  src/view/fenetres/0_BG_3D/proj/PlanColleSystem.h \
-  src/view/fenetres/0_BG_3D/proj/BeamSystem.h \
+  src/view/fenetres/0_BG_3D/proj/object/ProjectionSystem.h \
+  src/view/fenetres/0_BG_3D/proj/object/PlanColleSystem.h \
+  src/view/fenetres/0_BG_3D/proj/object/BeamSystem.h \
   src/view/fenetres/0_BG_3D/atomsphere/AtmosphereSystem.h \
-  src/view/fenetres/0_BG_3D/proj/PosterSystem.h \
-  src/view/fenetres/0_BG_3D/proj/WormSystem.h \
+  src/view/fenetres/0_BG_3D/proj/object/PosterSystem.h \
+  src/view/fenetres/0_BG_3D/proj/object/WormSystem.h \
+  src/view/fenetres/0_BG_3D/proj/object/WingedWormSystem.h \
   src/view/fenetres/0_BG_3D/proj/CursorSquareSystem.h \
-  src/view/fenetres/0_BG_3D/RippleSystem.h
+  src/view/fenetres/0_BG_3D/proj/object/RippleSystem.h \
+  src/view/fenetres/0_BG_3D/atomsphere/ring/FluidRing.h \
+  src/fx/layer/FluidFloorLayer.h \
+  src/view/fenetres/0_BG_3D/RoomInputHandler.h \
+  src/view/fenetres/0_BG_3D/atomsphere/ring/LightFlyRing.h \
+  src/fx/creature/HaloCreature.h
 
 src/view/fenetres/0_BG_3D/RoomApp.h:
 
@@ -1206,18 +1212,30 @@ src/view/fenetres/0_BG_3D/RoomApp.h:
 
 src/view/fenetres/0_BG_3D/RoomWalls.h:
 
-src/view/fenetres/0_BG_3D/proj/ProjectionSystem.h:
+src/view/fenetres/0_BG_3D/proj/object/ProjectionSystem.h:
 
-src/view/fenetres/0_BG_3D/proj/PlanColleSystem.h:
+src/view/fenetres/0_BG_3D/proj/object/PlanColleSystem.h:
 
-src/view/fenetres/0_BG_3D/proj/BeamSystem.h:
+src/view/fenetres/0_BG_3D/proj/object/BeamSystem.h:
 
 src/view/fenetres/0_BG_3D/atomsphere/AtmosphereSystem.h:
 
-src/view/fenetres/0_BG_3D/proj/PosterSystem.h:
+src/view/fenetres/0_BG_3D/proj/object/PosterSystem.h:
 
-src/view/fenetres/0_BG_3D/proj/WormSystem.h:
+src/view/fenetres/0_BG_3D/proj/object/WormSystem.h:
+
+src/view/fenetres/0_BG_3D/proj/object/WingedWormSystem.h:
 
 src/view/fenetres/0_BG_3D/proj/CursorSquareSystem.h:
 
-src/view/fenetres/0_BG_3D/RippleSystem.h:
+src/view/fenetres/0_BG_3D/proj/object/RippleSystem.h:
+
+src/view/fenetres/0_BG_3D/atomsphere/ring/FluidRing.h:
+
+src/fx/layer/FluidFloorLayer.h:
+
+src/view/fenetres/0_BG_3D/RoomInputHandler.h:
+
+src/view/fenetres/0_BG_3D/atomsphere/ring/LightFlyRing.h:
+
+src/fx/creature/HaloCreature.h:

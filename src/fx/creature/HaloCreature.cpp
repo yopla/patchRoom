@@ -48,7 +48,7 @@ void HaloCreature::update(float mx, float my) {
     }
 }
 
-void HaloCreature::draw() {
+void HaloCreature::draw(float scaleX, float scaleY) {
     float fpsRec = 60.0f;
     float time = ofGetFrameNum() / fpsRec;
     float pulse = 1.0f + 0.05f * sin(time * 3.0f);
@@ -128,12 +128,18 @@ void HaloCreature::draw() {
     // On dessine le résultat (Halo troué) en mode Additif pour qu'il s'ajoute au fond
     ofEnableBlendMode(OF_BLENDMODE_ADD);
     ofSetColor(255);
-    fbo.draw(pos.x - 400, pos.y - 400);
+    
+    ofPushMatrix();
+    ofTranslate(pos.x, pos.y);
+    ofScale(scaleX, scaleY);
+    fbo.draw(-400, -400); // Dessin centré localement
+    ofPopMatrix();
     
     // --- 3. MOUCHES (Gris par dessus) ---
     ofEnableBlendMode(OF_BLENDMODE_ALPHA);
     ofPushMatrix();
     ofTranslate(pos.x, pos.y);
+    ofScale(scaleX, scaleY); // On applique aussi l'échelle aux mouches
     
     for(auto& f : flies) {
         float scale = ofMap(f.pos.z, -60, 60, 0.5, 1.3);

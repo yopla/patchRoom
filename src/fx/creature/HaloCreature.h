@@ -14,7 +14,7 @@ class HaloCreature {
 public:
     HaloCreature(float x, float y);
     void update(float mx, float my);
-    void draw();
+    void draw(float scaleX = 1.0f, float scaleY = 1.0f);
     bool isInside(float mx, float my);
 
 private:

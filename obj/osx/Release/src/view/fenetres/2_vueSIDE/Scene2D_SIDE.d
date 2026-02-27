@@ -404,13 +404,16 @@ obj/osx/Release/src/view/fenetres/2_vueSIDE/Scene2D_SIDE.o: \
   src/fx/creature/FluidsCreature.h src/fx/creature/WancoCreature.h \
   src/fx/creature/DancingCreature.h src/fx/creature/geko/GekoManager.h \
   src/fx/creature/geko/GekoUnits.h src/fx/creature/CousinCreature.h \
-  src/fx/creature/HaloCreature.h src/fx/LayerSystem.h \
-  src/fx/layer/SauteursLayer.h src/fx/layer/ColliderLayer.h \
-  src/fx/layer/FishSchoolLayer.h src/fx/layer/PoulpeLayer.h \
-  src/fx/layer/SlimeLayer.h src/fx/layer/WalkerLayer.h \
-  src/fx/layer/GearLayer.h src/fx/layer/LightningLayer.h \
-  src/fx/layer/PlantLayer.h src/fx/layer/FlytrapLayer.h \
-  src/fx/layer/FluidFloorLayer.h
+  src/fx/creature/HaloCreature.h src/fx/creature/BreakableCreature.h \
+  src/fx/LayerSystem.h src/fx/layer/SauteursLayer.h \
+  src/fx/layer/ColliderLayer.h src/fx/layer/FishSchoolLayer.h \
+  src/fx/layer/PoulpeLayer.h src/fx/layer/SlimeLayer.h \
+  src/fx/layer/WalkerLayer.h src/fx/layer/GearLayer.h \
+  src/fx/layer/LightningLayer.h src/fx/layer/PlantLayer.h \
+  src/fx/layer/FlytrapLayer.h src/fx/layer/FluidFloorLayer.h \
+  src/fx/creature/CousinCon.h src/fx/layer/MachineLayer.h \
+  src/fx/creature/DiggingCreature.h src/fx/layer/MachineAutoLayer.h \
+  src/fx/creature/CurtainCreature.h
 
 src/view/fenetres/2_vueSIDE/Scene2D_SIDE.h:
 
@@ -1232,6 +1235,8 @@ src/fx/creature/CousinCreature.h:
 
 src/fx/creature/HaloCreature.h:
 
+src/fx/creature/BreakableCreature.h:
+
 src/fx/LayerSystem.h:
 
 src/fx/layer/SauteursLayer.h:
@@ -1255,3 +1260,13 @@ src/fx/layer/PlantLayer.h:
 src/fx/layer/FlytrapLayer.h:
 
 src/fx/layer/FluidFloorLayer.h:
+
+src/fx/creature/CousinCon.h:
+
+src/fx/layer/MachineLayer.h:
+
+src/fx/creature/DiggingCreature.h:
+
+src/fx/layer/MachineAutoLayer.h:
+
+src/fx/creature/CurtainCreature.h:

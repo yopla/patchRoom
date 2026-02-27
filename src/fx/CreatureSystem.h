@@ -10,6 +10,7 @@
 #include "GekoManager.h" // <--- Remplacer GekoCreature.h par ça
 #include "CousinCreature.h" // <--- AJOUT
 #include "HaloCreature.h" // <--- AJOUT
+#include "BreakableCreature.h" // <--- AJOUT
 
 
 #include "LayerSystem.h"
@@ -36,6 +37,7 @@ public:
     void addDoublePendulum(float x, float y); // <--- 2. AJOUTER LA METHODE
     void addCousinCreature(float x, float y); // <--- AJOUT
     void addHalo(float x, float y); // <--- AJOUT
+    void addBreakableCreature(float x, float y); // <--- AJOUT
 
     ofImage sharedImage;
     ofImage sharedImage2;
@@ -52,4 +54,5 @@ std::vector<std::unique_ptr<WancoCreature>> wancos;
     std::vector<std::unique_ptr<DoublePendulumCreature>> pendulums; // <--- 3. AJOUTER LE VECTEUR
     std::vector<std::unique_ptr<CousinCreature>> cousins; // <--- AJOUT
     std::vector<std::unique_ptr<HaloCreature>> halos; // <--- AJOUT
+    std::vector<std::unique_ptr<BreakableCreature>> breakables; // <--- AJOUT
 };
