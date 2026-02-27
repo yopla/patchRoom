@@ -30,7 +30,7 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
     float simWidth = 2048.0f;
     float scale = totalSceneWidth / simWidth;
     float simHeight = 900.0f / scale;
-    colliderLayer->setup(simWidth, simHeight, scale);
+    colliderLayer->setup(simWidth, simHeight, scale, 1472.0f, 900.0f);
 
     // --- SETUP SUBSYSTEMS ---
     slimeLayer.setup(totalSceneWidth, 900.0f);
@@ -186,8 +186,14 @@ void Scene2DLayerManager::draw(const ofVec2f& m) {
     if (bDrawSauteurs) {
         ofPushMatrix();
         ofTranslate(0, 1472 - 900);
-        if(colliderLayer) colliderLayer->draw();
         sauteursLayer.draw();
+        ofPopMatrix();
+    }
+
+    if (bDrawColliders) {
+        ofPushMatrix();
+        ofTranslate(0, 1472 - 900);
+        if(colliderLayer) colliderLayer->draw();
         ofPopMatrix();
     }
 
@@ -269,7 +275,8 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
         case 's': case 'S': creatureSystem.addDoublePendulum(m.x, m.y); break;
         case 'y': case 'Y': creatureSystem.addHalo(m.x, m.y); break;
         case '3': creatureSystem.addSpringCreature(m.x, m.y); break;
-        case '5': creatureSystem.addDancingCreature(m.x, m.y); break;
+        case '5': bDrawColliders = !bDrawColliders; break;
+        case '6': creatureSystem.addDancingCreature(m.x, m.y);
     }
 
     // --- LAYER Toggles ---

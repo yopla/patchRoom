@@ -26,7 +26,7 @@ void RoomApp::setup(){
 
     // Initialisation du LightFlyRing (Un peu plus grand que le FluidRing)
     // Rayon 2600
-    lightFlyRing.setup(1600.0f, heightFrontBack, 800.0f);
+    lightFlyRing.setup(1600.0f, heightFrontBack+500, 800.0f);
 
     // 3. Allocation des FBOs (Sorties visuelles)
     fboFront.allocate(roomWidth, heightFrontBack, GL_RGB);

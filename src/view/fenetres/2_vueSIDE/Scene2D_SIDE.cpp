@@ -39,7 +39,7 @@ void Scene2D_SIDE::setup() {
     fboTopCour.allocate(wTopCour, hTopCour, GL_RGBA);
 
     // View Navigation Init
-    viewZoom = (float)ofGetWidth() / totalSceneWidth * 0.5f;
+    viewZoom = (float)ofGetWidth() / totalSceneWidth * 0.95f;
     viewPan.x = (ofGetWidth() - totalSceneWidth * viewZoom) / 2.0f;
     viewPan.y = (ofGetHeight() - hMax * viewZoom) / 2.0f;
 
@@ -150,6 +150,7 @@ void Scene2D_SIDE::draw() {
     ofDrawLine(0, hMax, totalSceneWidth, hMax);
     ofPopMatrix();
 
+    /*
     // Stats
     int nSardines = layerManager.getSardineCount();
     string stats = "ECOSYSTEME (Toggle H, J, K, L, M):\n";
@@ -166,8 +167,10 @@ void Scene2D_SIDE::draw() {
     stats += "\nDigging   [T]: " + ofToString(layerManager.bDrawDigging);
     stats += "\nAutoMach  [X]: " + ofToString(layerManager.bDrawMachineAuto);
     stats += "\nCurtain   [1]: " + ofToString(layerManager.bDrawCurtain);
+    stats += "\nColliders [5]: " + ofToString(layerManager.bDrawColliders);
 
     ofDrawBitmapStringHighlight(stats, 20, 30); 
+    */
 }
 
 
@@ -232,11 +235,29 @@ void Scene2D_SIDE::keyPressed(int key) {
     if (key == 'g' || key == 'G') bShowTextures = !bShowTextures;
     
     if (key == 'r' || key == 'R') {
-        viewZoom = (float)ofGetWidth() / totalSceneWidth * 0.5f;
+        viewZoom = (float)ofGetWidth() / totalSceneWidth * 0.95f;
         viewPan.x = (ofGetWidth() - totalSceneWidth * viewZoom) / 2.0f;
         viewPan.y = (ofGetHeight() - hMax * viewZoom) / 2.0f;
     }
     
+    if (key == OF_KEY_RETURN) {
+        ofFbo fboExp;
+        fboExp.allocate(totalSceneWidth, hMax, GL_RGBA);
+        fboExp.begin();
+        ofClear(0, 0, 0, 0);
+        ofPushMatrix();
+        // Alignement vertical identique à Scene2DLayerManager::draw
+        ofTranslate(0, 1472 - 900); 
+        if(layerManager.colliderLayer) {
+            layerManager.colliderLayer->draw();
+        }
+        ofPopMatrix();
+        fboExp.end();
+        ofPixels pix;
+        fboExp.readToPixels(pix);
+        ofSaveImage(pix, "colliders_export_" + ofGetTimestampString() + ".png");
+    }
+
     layerManager.keyPressed(key, getTransformedMouse());
 }
 

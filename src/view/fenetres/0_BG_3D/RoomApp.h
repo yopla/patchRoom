@@ -88,7 +88,7 @@ public:
     bool bDrawRipples = false; // Optionnel : pour activer/désactiver
     bool bDrawGab = true; // Remplaçant de bDrawWalls pour la texture "Gab"
     bool bDrawBeam = true; 
-    bool bDrawWorms = true;
+    bool bDrawWorms = false;
     bool bDrawWingedWorms = false; // Activé par touche 'W'
     bool bUseTexture = true;
     bool bDrawAtmosphere = true; // Pour contrôler l'atmosphère de l'ui

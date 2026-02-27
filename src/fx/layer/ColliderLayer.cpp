@@ -1,10 +1,12 @@
 #include "ColliderLayer.h"
 
 //--------------------------------------------------------------
-void ColliderLayer::setup(float simulationWidth, float simulationHeight, float displayScale) {
+void ColliderLayer::setup(float simulationWidth, float simulationHeight, float displayScale, float realH, float simH) {
     simWidth = simulationWidth;
     simHeight = simulationHeight;
     scale = displayScale;
+    realTotalHeight = realH;
+    realSimHeight = simH;
 
     generateWalls();
 }
@@ -12,14 +14,61 @@ void ColliderLayer::setup(float simulationWidth, float simulationHeight, float d
 //--------------------------------------------------------------
 void ColliderLayer::generateWalls() {
     walls.clear();
+    randomWalls.clear();
     wallMesh.clear();
     wallMesh.setMode(OF_PRIMITIVE_TRIANGLES);
 
+    // 1. Chargement de COLL.png et génération des colliders blancs
+    ofImage mapImg;
+    if(mapImg.load("COLL.png")) {
+        // --- LOGIQUE DE RECADRAGE AUTOMATIQUE ---
+        // Si on a les infos de dimensions réelles (passées via setup)
+        if (realTotalHeight > 0 && realSimHeight > 0) {
+            float sceneAspect = (simWidth * scale) / realTotalHeight; // Ratio de la scène complète
+            float imgAspect = mapImg.getWidth() / mapImg.getHeight();
+
+            // Si l'image a un ratio proche de la scène complète (et non de la simulation qui est très large)
+            // On en déduit qu'il faut cropper le bas.
+            if (abs(imgAspect - sceneAspect) < 0.5) {
+                ofLogNotice("ColliderLayer") << "COLL.png detecte comme Scene Complete. Recadrage du bas...";
+                
+                float cropRatio = realSimHeight / realTotalHeight; // ex: 900 / 1472
+                float cropH = mapImg.getHeight() * cropRatio;
+                float cropY = mapImg.getHeight() - cropH; // On prend le bas
+                
+                mapImg.crop(0, cropY, mapImg.getWidth(), cropH);
+            }
+        }
+        // ----------------------------------------
+
+        mapImg.resize(simWidth, simHeight);
+        mapPixels = mapImg.getPixels();
+        bHasMap = true;
+
+        int w = mapPixels.getWidth();
+        int h = mapPixels.getHeight();
+        
+        // Génération de rectangles horizontaux pour les pixels blancs
+        for(int y=0; y<h; y++) {
+            for(int x=0; x<w; x++) {
+                if(mapPixels.getColor(x,y).getBrightness() > 128) {
+                    int startX = x;
+                    while(x < w && mapPixels.getColor(x,y).getBrightness() > 128) x++;
+                    walls.push_back(ofRectangle(startX, y, x - startX, 1));
+                }
+            }
+        }
+    } else {
+        bHasMap = false;
+        ofLogWarning("ColliderLayer") << "COLL.png introuvable !";
+    }
+
     // Couleur des murs (Mauve comme dans ton ancien code Fish)
     ofColor wallColor(180, 100, 220, 200);
+    ofColor whiteColor(255, 255, 255, 255);
 
-    // On combine la logique : assez de murs pour les sauteurs, mais assez espacés pour les poissons
-    int numWalls = 75; 
+    // 2. Ajout des 20 murs violets aléatoires
+    int numWalls = 20; 
 
     for(int i=0; i<numWalls; i++) {
         float w = ofRandom(30, 50);
@@ -30,8 +79,22 @@ void ColliderLayer::generateWalls() {
 
         ofRectangle rect(x, y, w, h);
         walls.push_back(rect);
+        randomWalls.push_back(rect);
+    }
 
-        // Construction du Mesh pour le dessin (coordonnées REELLES = sim * scale)
+
+        // 3. Construction du Mesh (Murs blancs de l'image + Murs violets)
+    size_t numImageWalls = walls.size() - randomWalls.size();
+
+    for(size_t i=0; i<walls.size(); i++) {
+        ofRectangle& rect = walls[i];
+        ofColor c = (i < numImageWalls) ? whiteColor : wallColor;
+        
+        float x = rect.x;
+        float y = rect.y;
+        float w = rect.width;
+        float h = rect.height;
+
         float rx = x * scale;
         float ry = y * scale;
         float rw = w * scale;
@@ -46,7 +109,8 @@ void ColliderLayer::generateWalls() {
         wallMesh.addVertex(ofVec3f(rx + rw, ry + rh, 0));
         wallMesh.addVertex(ofVec3f(rx, ry + rh, 0));
 
-        for(int k=0; k<6; k++) wallMesh.addColor(wallColor);
+       // for(int k=0; k<6; k++) wallMesh.addColor(wallColor);
+        for(int k=0; k<6; k++) wallMesh.addColor(c);
     }
 }
 
@@ -59,8 +123,15 @@ bool ColliderLayer::isWall(float x, float y) {
     if (y >= simHeight) return true;   // Sol
 
     // 2. Vérifier les obstacles
-    // Pour 60 murs, une boucle simple est très rapide.
-    for(auto& w : walls) {
+    // Optimisation : Vérification directe des pixels pour l'image
+    if (bHasMap) {
+        if (x >= 0 && x < mapPixels.getWidth() && y >= 0 && y < mapPixels.getHeight()) {
+            if(mapPixels.getColor((int)x, (int)y).getBrightness() > 128) return true;
+        }
+    }
+
+    // Vérification des murs dynamiques (violets)
+    for(auto& w : randomWalls) {
         if(w.inside(x, y)) return true;
     }
     return false;

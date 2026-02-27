@@ -27,6 +27,7 @@ public:
     bool bDrawRoom = true;     
     bool bDrawZenit = true;    
     bool bDrawScene2D = true;  
+    bool bShowFullGab = true;
 
     OscManager oscManager;
      shared_ptr<RoomApp> roomApp; // Pointeur vers l'app 3D
@@ -73,7 +74,7 @@ void dragEvent(ofDragInfo dragInfo);
     float masterZoom;       
     ofVec2f lastMousePos;   
     bool isSpacePressed = false; 
-    bool bShowFullGab = true;
+    
 
     ofVec2f getTransformedMouse();
    

@@ -44,6 +44,7 @@ public:
     bool bDrawDigging = false;
     bool bDrawMachineAuto = false;
     bool bDrawCurtain = false;
+    bool bDrawColliders = false;
 
     // Layer objects
     CreatureSystem creatureSystem;
