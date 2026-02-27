@@ -1,29 +1,13 @@
 #include "Scene2D_SIDE.h"
-#include "PlantLayer.h"
-#include "MachineLayer.h"
-#include "DiggingCreature.h"
-#include "MachineAutoLayer.h"
-#include "CurtainCreature.h"
+#include "Scene2DLayerManager.h"
 
 //--------------------------------------------------------------
-static MachineLayer machineLayer;
-static bool bDrawMachine = false;
-static DiggingCreature diggingCreature;
-static bool bDrawDigging = false;
-static MachineAutoLayer machineAuto;
-static bool bDrawMachineAuto = false;
-static CurtainCreature curtain;
-static bool bDrawCurtain = false;
-
 void Scene2D_SIDE::setup() {
-    ofSetRandomSeed(42);
     localTime = 0.0f;
     
     // Chargement des images de fond
     imgJar.load("JAR.jpg"); imgFront.load("FRONT.jpg"); imgCour.load("COUR.jpg"); imgBack.load("BACK.jpg");
     imgSol.load("SOL.jpg"); imgTopJar.load("TOP_JAR.jpg"); imgTopCour.load("TOP_COUR.jpg");
-    imgConcombre.load("concombre.png");
-    imgRush.load("rushA.png");
 
     // Optimisation : Redimensionner les images à la taille des FBO pour alléger le rendu
     if(imgJar.isAllocated()) imgJar.resize(wJar, 784);
@@ -42,71 +26,8 @@ void Scene2D_SIDE::setup() {
 
     totalSceneWidth = srcX_Back + wFront; 
 
-    // --- SETUP CREATURE SYSTEM ---
-    creatureSystem.setup();
-    float centerX = srcX_Jar + wJar / 2.0f;
-    float centerY = 1080.0f; 
-
-    creatureSystem.addDoublePendulum(centerX+400, centerY-200);
-    creatureSystem.addWancoCreature(centerX+400, centerY-200);
-    creatureSystem.addFluidsCreature(centerX, centerY-700);
-    creatureSystem.addCreature(2400 * 0.33, 736);
-    creatureSystem.addRipple(2900 * 0.66, 736);
-    creatureSystem.addDancingCreature(srcX_Front + wFront/2, 600);
-    creatureSystem.addSpringCreature(srcX_Front + wFront/2, 712);
-    creatureSystem.addGekoCreature(srcX_Front + wFront/2 - 300, 600);
-    creatureSystem.addGekoCreature(centerX, centerY);       // Crée le Gecko Standard
-    creatureSystem.addGekoCreature(centerX - 50, centerY);  // Crée le Gecko Agile
-    creatureSystem.addGekoCreature(centerX + 50, centerY);  // Crée le Gecko Orbiter
-
-    // --- INIT COLLIDERS & LAYERS ---
-    colliderLayer = make_shared<ColliderLayer>();
-    float simWidth = 2048.0f;
-    float scale = totalSceneWidth / simWidth;
-    float simHeight = 900.0f / scale;
-    colliderLayer->setup(simWidth, simHeight, scale);
-
-    // --- SETUP SUBSYSTEMS ---
-    slimeLayer.setup(totalSceneWidth, 900.0f);
-    slimeLayer.setCollider(colliderLayer);
-    slimeLayer.setScale(scale);
-
-    sauteursLayer.setup(totalSceneWidth, 900.0f, colliderLayer);
-    fishSchoolLayer.setup(totalSceneWidth, 830.0f, colliderLayer);
-    poulpeLayer.setup(totalSceneWidth, 1472.0f);
-    walkerLayer.setup(totalSceneWidth, 830.0f);
-    walkerLayer.setScale(2.0f);
-
-    // --- SETUP GEARS ---
-    gearLayer.setup(totalSceneWidth, 1472.0f);
-
-// Ou plus simple, on passe la largeur totale, et le layer gère sa hauteur interne de 1500
-lightningLayer.setup(totalSceneWidth, 1500.0f);
-lightningLayer.setScale(1); // Utilisez le même scale que pour SlimeLayer ou SauteursLayer
-
-    // --- SETUP PLANTS ---
-    plantLayer.setup(totalSceneWidth, 1472.0f); // On les pose au niveau du sol (1472)
-
-    // --- SETUP FLYTRAPS ---
-    flytrapLayer.setup(totalSceneWidth, 1472.0f);
-
-    // --- SETUP FLUID FLOOR ---
-    // On prend toute la largeur, et une hauteur de 800px en bas (2x)
-    // Résolution X réduite (512) pour perf, Y (128)
-    fluidFloorLayer.setup(totalSceneWidth, 800.0f, 512, 128);
-
-    // --- SETUP MACHINE LAYER ---
-    // On initialise la machine animale
-    machineLayer.setup(totalSceneWidth, 1472.0f);
-
-    // --- SETUP DIGGING CREATURE ---
-    diggingCreature.setup(srcX_Front + wFront/2.0f, 1000.0f, imgRush);
-
-    // --- SETUP MACHINE AUTO ---
-    machineAuto.setup(totalSceneWidth, 1472.0f);
-
-    // --- SETUP CURTAIN (RIDEAU) ---
-    curtain.setup(srcX_Front + 200, 100, 600, 800, "garde.png");
+    // --- SETUP LAYER MANAGER ---
+    layerManager.setup(totalSceneWidth, wJar, srcX_Jar, wFront, srcX_Front);
 
     // Allocation FBOs
     fboJar.allocate(wJar, 784, GL_RGBA);
@@ -155,133 +76,7 @@ void Scene2D_SIDE::update() {
 
     ofVec2f m = getTransformedMouse();
 
-    // 3. MISE A JOUR CONDITIONNELLE DES LAYERS (Performance Toggles)
-
-if (bDrawLightning) {
-    lightningLayer.update(m.x, m.y);
-}
-
-    // Touche H : Créatures (Ondes, Jellys)
-    if (bDrawCreatures) {
-        creatureSystem.update(m);
-        for(auto& c : cousinCons) c->update(m.x, m.y);
-    }
-
-    if (bDrawWalker) {
-        // On mappe la souris Y relative à la zone du bas (1472 - 830)
-        // Pour que si la souris est en haut, le walker ne la suive pas forcément en Y (il reste au sol),
-        // mais il a besoin du X.
-        walkerLayer.update(m.x, m.y);
-    }
-
-    // Touche J : Poulpe
-    if (bDrawPoulpe) {
-        poulpeLayer.setTarget(m.x, m.y);
-        poulpeLayer.update(); // PoulpeLayer n'a pas changé de signature (pas hérité encore ?) ou gère ses propres args
-    }
-
-    // Touche K : Poissons (Lourd en CPU)
-    if (bDrawFish) {
-        // FishSchoolLayer a probablement aussi changé si tu as appliqué BaseLayer partout
-        // Si ça compile pour fish, c'est bon, sinon ajoute m.x, m.y
-        fishSchoolLayer.update(); 
-        
-        // Interaction Poissons (déplacée ici pour être synchro avec l'affichage)
-        float layerY = m.y - (1472 - 830); 
-        if(layerY > 0 && layerY < 830) {
-            if(ofGetMousePressed(0)) fishSchoolLayer.addSardine(m.x, layerY); 
-            if(ofGetMousePressed(2)) fishSchoolLayer.addShark(m.x, layerY); 
-        }
-    }
-
-    // Touche L : Sauteurs
-    if (bDrawSauteurs) {
-        // CORRECTION 1 : On passe m.x et m.y
-        sauteursLayer.update(m.x, m.y); 
-    }
-
-    // Touche M : Slime
-    if (bDrawSlime) {
-        // Interaction Slime
-        /* Note : Si tu as intégré l'interaction DANS SlimeLayer::update comme proposé précédemment,
-           tu peux supprimer ce bloc if(MousePressed) ici.
-           Sinon, garde-le. Dans le doute, je laisse l'appel update avec arguments.
-        */
-        /* if (ofGetMousePressed(0)) {
-            float offsetY = 1472.0f - 900.0f; 
-            float localSlimeY = m.y - offsetY;
-            slimeLayer.pour(m.x, localSlimeY, ofRandom(-2, 2), 5.0); 
-        } 
-        */
-        
-        // CORRECTION 2 : On passe m.x et m.y
-        slimeLayer.update(m.x, m.y);
-    }
-
-    // Touche P : Plantes
-    if (bDrawPlants) {
-        plantLayer.update(m.x, m.y);
-    }
-
-    // Touche O : Flytraps
-    if (bDrawFlytraps) {
-        flytrapLayer.update(m.x, m.y);
-    }
-
-    // Touche E : Gears
-    if (bDrawGears) {
-        gearLayer.update(m.x, m.y);
-        
-        // INTERACTION GEARS -> FLUID
-        if (bDrawFluidFloor) {
-            float fluidTopY = 1472.0f - 800.0f; // Position Y du haut du fluide
-            
-            for(const auto& s : gearLayer.squares) {
-                // Si le carré est dans la zone du fluide
-                if(s.pos.y > fluidTopY && s.pos.y < 1472.0f) {
-                    // Position locale dans le fluide
-                    float localX = s.pos.x;
-                    float localY = s.pos.y - fluidTopY;
-                    
-                    // On ajoute une force proportionnelle à la vitesse du carré
-                    // On divise par un facteur pour ne pas faire exploser la simu
-                    fluidFloorLayer.addForce(localX, localY, s.vel.x * 0.5f, s.vel.y * 0.5f);
-                }
-            }
-        }
-    }
-
-    // Touche V : Fluid Floor
-    if (bDrawFluidFloor) {
-        // On passe la souris relative au layer.
-        // Le layer est dessiné à Y = 1472 - 800 = 672.
-        fluidFloorLayer.update(m.x, m.y - (1472.0f - 800.0f));
-    }
-
-    // Touche U : Machine Animale
-    if (bDrawMachine) {
-        machineLayer.update(m.x, m.y);
-    }
-
-    // Touche T : Digging Creature
-    if (bDrawDigging) {
-        diggingCreature.toggle(); // Ensure state sync if needed, or just update
-        diggingCreature.update(m.x, m.y);
-    }
-
-    // Touche T : Digging Creature
-    if (bDrawDigging) {
-        diggingCreature.toggle(); // Ensure state sync if needed, or just update
-        diggingCreature.update(m.x, m.y);
-    }
-
-    if (bDrawMachineAuto) {
-        machineAuto.update();
-    }
-
-    if (bDrawCurtain) {
-        curtain.update(m.x, m.y);
-    }
+    layerManager.update(m);
 
     // 4. Animation Balle (Toujours active sauf si app désactivée)
     if (waypoints.size() > 1) {
@@ -318,126 +113,7 @@ if (bDrawLightning) {
 void Scene2D_SIDE::drawDynamicElements() {
     ofVec2f m = getTransformedMouse(); 
 
-    // 1. CREATURES (Touche H)
-    if (bDrawCreatures) {
-        creatureSystem.draw(m);
-        for(auto& c : cousinCons) c->draw();
-    }
-
-    // VISUALISER LE POINT D'ANCRAGE DE L ECLAIR EN ATTENTE
-    if (bDrawLightning && bLightningHasStart) {
-        ofPushStyle();
-        ofNoFill();
-        ofSetColor(255, 50, 50); // Rouge
-        ofSetLineWidth(2);
-        ofDrawCircle(lightningStartPos.x, lightningStartPos.y, 10); // Petit cercle cible        
-        // Ligne de prévisualisation vers la souris (optionnel)
-        ofSetColor(255, 255, 255, 100);
-        ofDrawLine(lightningStartPos, getTransformedMouse());
-        ofPopStyle();
-    }
-
-    if (bDrawLightning) {
-    ofPushMatrix();
-    // Positionnement vertical :
-    // Si la hauteur simulée est 1500 et qu'on veut que ça touche le sol (1472)
-    // On aligne le bas.
-    // 1472 est le sol dans le repère global.
-    // Le layer fait 1500 de haut (simulé).
-    // On translate pour caler le bas du layer sur le bas de la scène
-    
-   // float layerPixelHeight = 1500.0f * lightningLayer.getScale();    
-    // ofTranslate(0, 1472 - layerPixelHeight); // Option A: Posé au sol
-    ofTranslate(0, 0); // Option B: Part du plafond (0)
-    
-    lightningLayer.draw();
-    ofPopMatrix();
-    }
-
-    // 2. SLIME (Touche M)
-    if (bDrawSlime) {
-        ofPushMatrix();
-        ofTranslate(0, 1472 - 900);
-        slimeLayer.draw();
-        ofPopMatrix();
-    }
-
-    // 3. SAUTEURS & MURS (Touche L)
-    if (bDrawSauteurs) {
-        ofPushMatrix();
-        ofTranslate(0, 1472 - 900);
-        if(colliderLayer) colliderLayer->draw();
-        sauteursLayer.draw();
-        ofPopMatrix();
-    }
-
-    // 4. POISSONS (Touche K)
-    if (bDrawFish) {
-        ofPushMatrix();
-        ofTranslate(0, 1472 - 900);
-        fishSchoolLayer.draw();
-        ofPopMatrix();
-    }
-
-    // 5. POULPE (Touche J)
-    if (bDrawPoulpe) {
-        poulpeLayer.draw();
-    }
-
-    // 6. WALKER (Touche N)
-    if (bDrawWalker) {
-        ofPushMatrix();
-        // On le place dans la même zone que les poissons/slime (bas de l'écran)
-        // 1472 (hauteur totale) - 830 (hauteur simu walker)
-        ofTranslate(0, 1472 - 830); 
-        walkerLayer.draw();
-        ofPopMatrix();
-    }
-
-    // 7. PLANTES (Touche P)
-    if (bDrawPlants) {
-        plantLayer.draw();
-    }
-
-    // 8. FLYTRAPS (Touche O)
-    if (bDrawFlytraps) {
-        flytrapLayer.draw();
-    }
-
-    // 10. GEARS (Touche E) - Juste avant le Fluid Floor pour être derrière
-    if (bDrawGears) {
-        gearLayer.draw();
-    }
-
-    // 9. FLUID FLOOR (Touche V)
-    if (bDrawFluidFloor) {
-        // Dessiné tout en bas
-        fluidFloorLayer.draw(0, 1472.0f - 800.0f);
-    }
-
-    // 11. MACHINE (Touche U)
-    if (bDrawMachine) {
-        machineLayer.draw();
-    }
-
-    // 12. DIGGING CREATURE (Touche T)
-    if (bDrawDigging) {
-        diggingCreature.draw();
-    }
-
-    // 12. DIGGING CREATURE (Touche T)
-    if (bDrawDigging) {
-        diggingCreature.draw();
-    }
-
-    if (bDrawMachineAuto) {
-        machineAuto.draw();
-    }
-
-    // 13. CURTAIN (Touche 1) - Devant tout le reste
-    if (bDrawCurtain) {
-        curtain.draw();
-    }
+    layerManager.draw(m);
 
     // 6. BALLE (Toujours visible)
     ofPushStyle();
@@ -475,21 +151,21 @@ void Scene2D_SIDE::draw() {
     ofPopMatrix();
 
     // Stats
-    int nSardines = fishSchoolLayer.getSardineCount();
+    int nSardines = layerManager.getSardineCount();
     string stats = "ECOSYSTEME (Toggle H, J, K, L, M):\n";
-    stats += "Creatures [H]: " + ofToString(bDrawCreatures) + "\n";
-    stats += "Poulpe    [J]: " + ofToString(bDrawPoulpe) + "\n";
-    stats += "Poissons  [K]: " + ofToString(bDrawFish) + " (" + ofToString(nSardines) + ")\n";
-    stats += "Sauteurs  [L]: " + ofToString(bDrawSauteurs) + "\n";
-    stats += "Slime     [M]: " + ofToString(bDrawSlime) + "\n";
-    stats += "Plantes   [P]: " + ofToString(bDrawPlants);
-    stats += "\nFlytraps  [O]: " + ofToString(bDrawFlytraps);
-    stats += "\nFluidFloor[V]: " + ofToString(bDrawFluidFloor);
-    stats += "\nMachine   [U]: " + ofToString(bDrawMachine); 
-    stats += "\nGears     [E]: " + ofToString(bDrawGears);
-    stats += "\nDigging   [T]: " + ofToString(bDrawDigging);
-    stats += "\nAutoMach  [X]: " + ofToString(bDrawMachineAuto);
-    stats += "\nCurtain   [1]: " + ofToString(bDrawCurtain);
+    stats += "Creatures [H]: " + ofToString(layerManager.bDrawCreatures) + "\n";
+    stats += "Poulpe    [J]: " + ofToString(layerManager.bDrawPoulpe) + "\n";
+    stats += "Poissons  [K]: " + ofToString(layerManager.bDrawFish) + " (" + ofToString(nSardines) + ")\n";
+    stats += "Sauteurs  [L]: " + ofToString(layerManager.bDrawSauteurs) + "\n";
+    stats += "Slime     [M]: " + ofToString(layerManager.bDrawSlime) + "\n";
+    stats += "Plantes   [P]: " + ofToString(layerManager.bDrawPlants);
+    stats += "\nFlytraps  [O]: " + ofToString(layerManager.bDrawFlytraps);
+    stats += "\nFluidFloor[V]: " + ofToString(layerManager.bDrawFluidFloor);
+    stats += "\nMachine   [U]: " + ofToString(layerManager.bDrawMachine); 
+    stats += "\nGears     [E]: " + ofToString(layerManager.bDrawGears);
+    stats += "\nDigging   [T]: " + ofToString(layerManager.bDrawDigging);
+    stats += "\nAutoMach  [X]: " + ofToString(layerManager.bDrawMachineAuto);
+    stats += "\nCurtain   [1]: " + ofToString(layerManager.bDrawCurtain);
 
     ofDrawBitmapStringHighlight(stats, 20, 30); 
 }
@@ -513,7 +189,7 @@ void Scene2D_SIDE::captureSection(ofFbo& targetFbo, float worldX, float worldTop
             ofSetColor(255);
             ofPushMatrix();
                 ofTranslate(-worldX, -worldTopY);
-                drawDynamicElements();
+                drawDynamicElements(); // This now calls layerManager.draw()
             ofPopMatrix();
         }
         
@@ -535,47 +211,13 @@ void Scene2D_SIDE::mousePressed(int x, int y, int button) {
     
     if(!isSpacePressed) {
         ofVec2f m = getTransformedMouse();
-        
-        // Interaction Créatures (seulement si actif)
-        if(bDrawCreatures) creatureSystem.onPress(m.x, m.y);
-        if(bDrawCreatures) for(auto& c : cousinCons) c->onPress(m.x, m.y);
-       if(bDrawLightning) {
-        
-        if (!bLightningHasStart) {
-            // PREMIER CLIC : On marque le point de départ
-            lightningStartPos = m;
-            bLightningHasStart = true;
-            
-        } else {
-            // SECOND CLIC : On tire de Start vers M (Souris actuelle)
-            lightningLayer.trigger(lightningStartPos, m);
-            
-            // On reset pour le prochain éclair
-            bLightningHasStart = false; 
-        }
-    }
-
-    if (bDrawMachine) {
-        machineLayer.mousePressed(m.x, m.y, button);
-    }
-    
-    if (bDrawMachineAuto) {
-        machineAuto.mousePressed(m.x, m.y);
-    }
-
-    if (bDrawCurtain) {
-        curtain.mousePressed(m.x, m.y);
-    }
-        // Note: Les interactions Slime et Fish sont gérées dans update() 
-        // pour garantir qu'elles ne se produisent que si le layer est actif et mis à jour.
+        layerManager.mousePressed(m, button);
     }
 }
 
 void Scene2D_SIDE::mouseReleased(int x, int y, int button) {
     ofVec2f m = getTransformedMouse();
-    if(bDrawCreatures) creatureSystem.onRelease(m.x, m.y);
-    if(bDrawCreatures) for(auto& c : cousinCons) c->onRelease(m.x, m.y);
-    if(bDrawCurtain) curtain.mouseReleased(m.x, m.y);
+    layerManager.mouseReleased(m, button);
 }
 
 void Scene2D_SIDE::mouseDragged(int x, int y, int button) {
@@ -595,57 +237,7 @@ void Scene2D_SIDE::keyPressed(int key) {
         viewPan.y = (ofGetHeight() - hMax * viewZoom) / 2.0f;
     }
     
-
-    // Commandes Créatures
-    if(key == 'a' || key == 'A') {
-        ofVec2f m = getTransformedMouse();
-        creatureSystem.addCousinCreature(m.x, m.y);
-    }
-    // Touche Y : Halo Creature
-    if(key == 'y' || key == 'Y') {
-        ofVec2f m = getTransformedMouse();
-        creatureSystem.addHalo(m.x, m.y);
-    }
-    // Touche Z : CousinCon (Concombre)
-    if(key == 'z' || key == 'Z') {
-        ofVec2f m = getTransformedMouse();
-        cousinCons.push_back(make_shared<CousinCon>(m.x, m.y, &imgConcombre));
-    }
-    // Touche B : Breakable Creature
-    if(key == 'b' || key == 'B') {
-        ofVec2f m = getTransformedMouse();
-        creatureSystem.addBreakableCreature(m.x, m.y);
-    }
-
-    if(key == 'd' || key == 'D') { creatureSystem.removeLast(); if(!cousinCons.empty()) cousinCons.pop_back(); }
-    if(key == 'c' || key == 'C') { creatureSystem.clear(); cousinCons.clear(); }
-
-    // --- TOGGLES LAYERS ---
-    if(key == 'h' || key == 'H') bDrawCreatures = !bDrawCreatures;
-    
-    if(key == 'j' || key == 'J') bDrawPoulpe    = !bDrawPoulpe;
-    if(key == 'k' || key == 'K') bDrawFish      = !bDrawFish;
-    if(key == 'l' || key == 'L') bDrawSauteurs  = !bDrawSauteurs;
-    if(key == 'm' || key == 'M') bDrawSlime     = !bDrawSlime;
-    if(key == 'n' || key == 'N') bDrawWalker = !bDrawWalker;
-    if(key == 'i' || key == 'I') bDrawLightning = !bDrawLightning;
-    if(key == 'p' || key == 'P') bDrawPlants    = !bDrawPlants;
-    if(key == 'o' || key == 'O') bDrawFlytraps  = !bDrawFlytraps;
-    if(key == 'v' || key == 'V') bDrawFluidFloor = !bDrawFluidFloor;
-    if(key == 'e' || key == 'E') {
-        bDrawGears = !bDrawGears;
-        if(!bDrawGears) gearLayer.squares.clear();
-    }
-    if(key == 'w' || key == 'W') fluidFloorLayer.toggleBackground();
-    if(key == 'u' || key == 'U') bDrawMachine = !bDrawMachine;
-    if(key == 't' || key == 'T') {
-        bDrawDigging = !bDrawDigging;
-        if(bDrawDigging && !diggingCreature.isEnabled()) diggingCreature.toggle();
-    }
-    if(key == 'x' || key == 'X') bDrawMachineAuto = !bDrawMachineAuto;
-    if(key == '1') bDrawCurtain = !bDrawCurtain;
-
-
+    layerManager.keyPressed(key, getTransformedMouse());
 }
 
 void Scene2D_SIDE::keyReleased(int key) {

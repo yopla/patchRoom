@@ -398,7 +398,7 @@ obj/osx/Release/src/view/fenetres/0_BG_3D/atomsphere/ring/FluidRing.o: \
   ../../../libs/openFrameworks/3d/of3dUtils.h \
   ../../../libs/openFrameworks/3d/ofCamera.h \
   ../../../libs/openFrameworks/3d/ofEasyCam.h \
-  src/fx/layer/FluidFloorLayer.h
+  src/fx/layer/bgFx/FluidFloorLayer.h
 
 src/view/fenetres/0_BG_3D/atomsphere/ring/FluidRing.h:
 
@@ -1196,4 +1196,4 @@ src/view/fenetres/0_BG_3D/atomsphere/ring/FluidRing.h:
 
 ../../../libs/openFrameworks/3d/ofEasyCam.h:
 
-src/fx/layer/FluidFloorLayer.h:
+src/fx/layer/bgFx/FluidFloorLayer.h:

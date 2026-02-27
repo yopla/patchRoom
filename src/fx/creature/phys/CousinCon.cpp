@@ -20,7 +20,7 @@ CousinCon::CousinCon(float startX, float startY, ofImage* img) {
         hair.attSide = (ofRandom(1.0f) > 0.5f);
         
         float len = ofRandom(250, 550); 
-        int segs = 5 + (int)ofRandom(5);
+        int segs = 15 + (int)ofRandom(5);
         
         hair.setup(len, segs);
         
@@ -122,7 +122,11 @@ void CousinCon::updateBody() {
     for(i = 1; i < numSegments; i++) {
         float avgAngle = 0.5f * (angles[i+1] + angles[i]) * dtr;
         float diffAngle = 0.5f * (angles[i+1] - angles[i]) * dtr;
-        float dist = thickness[i] / cos(diffAngle);
+        
+        float cosAngle = cos(diffAngle);
+        if(abs(cosAngle) < 0.01f) cosAngle = (cosAngle < 0 ? -0.01f : 0.01f);
+        
+        float dist = thickness[i] / cosAngle;
         
         rx[i] = posx[i] - dist * sin(avgAngle);
         ry[i] = posy[i] + dist * cos(avgAngle);
@@ -201,7 +205,11 @@ void CousinCon::draw() {
         }
         
         // Rééchantillonnage pour avoir une courbe lisse
-        int smoothRes = 60; 
+        // On lisse d'abord la courbe brute pour éviter les micro-sauts
+        lPoly = lPoly.getSmoothed(3);
+        rPoly = rPoly.getSmoothed(3);
+        
+        int smoothRes = 300; 
         lPoly = lPoly.getResampledByCount(smoothRes);
         rPoly = rPoly.getResampledByCount(smoothRes);
         

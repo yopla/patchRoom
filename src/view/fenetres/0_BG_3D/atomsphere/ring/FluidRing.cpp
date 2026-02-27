@@ -13,10 +13,11 @@ void FluidRing::setup(float r, float topH, float botExt) {
     fluid.bUseImage = true;
 
     // Largeur texture = 2048 (pour boucler proprement), Hauteur = 1024
-    fluid.setup(2048, 1024, 256, 128);
+    fluid.setup(2048, 1024, 320, 240);
     
     // On s'assure que la texture boucle horizontalement
     fluid.fluidImage.getTexture().setTextureWrap(GL_REPEAT, GL_CLAMP_TO_EDGE);
+    fluid.fluidImage.getTexture().setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
 
     // On force le mode image pour avoir une base colorée si besoin, 
     // ou on laisse le pattern par défaut.

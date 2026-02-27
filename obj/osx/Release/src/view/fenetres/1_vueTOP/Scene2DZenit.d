@@ -398,7 +398,7 @@ obj/osx/Release/src/view/fenetres/1_vueTOP/Scene2DZenit.o: \
   ../../../libs/openFrameworks/3d/of3dUtils.h \
   ../../../libs/openFrameworks/3d/ofCamera.h \
   ../../../libs/openFrameworks/3d/ofEasyCam.h \
-  src/fx/layer/FishSchoolLayer.h src/fx/layer/ColliderLayer.h \
+  src/fx/layer/carac/FishSchoolLayer.h src/fx/layer/ColliderLayer.h \
   src/fx/LayerSystem.h
 
 src/view/fenetres/1_vueTOP/Scene2DZenit.h:
@@ -1197,7 +1197,7 @@ src/view/fenetres/1_vueTOP/Scene2DZenit.h:
 
 ../../../libs/openFrameworks/3d/ofEasyCam.h:
 
-src/fx/layer/FishSchoolLayer.h:
+src/fx/layer/carac/FishSchoolLayer.h:
 
 src/fx/layer/ColliderLayer.h:
 

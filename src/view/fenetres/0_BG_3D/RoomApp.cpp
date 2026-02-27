@@ -135,6 +135,10 @@ void RoomApp::drawSceneContent(bool showAtmosphere) {
     // 2. Dessiner le Plan Collé (Rush A)
     projection.drawPlanColle();
 
+    if (bDrawWingedWorms) {
+        wingedWormSystem.draw();
+    }
+
     // 3. Dessiner la Géométrie des Murs
     if(bDrawGab) {
         walls.draw(bShowRoof, wallAlpha);
@@ -142,10 +146,6 @@ void RoomApp::drawSceneContent(bool showAtmosphere) {
 
     if (bDrawWorms) {
         wormSystem.draw(walls);
-    }
-
-    if (bDrawWingedWorms) {
-        wingedWormSystem.draw();
     }
 
     if(bDrawRipples) {

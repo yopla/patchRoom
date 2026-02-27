@@ -1,19 +1,6 @@
 #pragma once
 #include "ofMain.h"
-#include "CreatureSystem.h" 
-#include "SauteursLayer.h"
-#include "FishSchoolLayer.h"
-#include "ColliderLayer.h"
-#include "PoulpeLayer.h"
-#include "SlimeLayer.h"
-#include "WalkerLayer.h" // <--- AJOUT
-
-#include "GearLayer.h" // <--- AJOUT
-#include "LightningLayer.h" // <--- AJOUT
-#include "PlantLayer.h"
-#include "FlytrapLayer.h"
-#include "FluidFloorLayer.h" // <--- AJOUT
-#include "CousinCon.h"
+#include "Scene2DLayerManager.h"
 
 class Scene2D_SIDE : public ofBaseApp {
 public:
@@ -33,42 +20,12 @@ public:
     bool bEnabled = true;
     void setEnabled(bool enable) { bEnabled = enable; }
     
-    bool bLightningHasStart = false; // Est-ce qu'on a déjà cliqué une fois ?
-    ofVec2f lightningStartPos;       // Position du premier clic
-    
     // Temps local pour pouvoir mettre en pause l'animation de la balle
     float localTime = 0.0f; 
 
-    // --- INTERRUPTEURS DE LAYERS (H, J, K, L, M) ---
-    bool bDrawCreatures = false; // Touche H (Jellys, Springs, Ripples)
-    bool bDrawPoulpe    = false; // Touche J
-    bool bDrawFish      = false; // Touche K
-    bool bDrawSauteurs  = false; // Touche L
-    bool bDrawSlime     = false; // Touche M
-    bool bDrawWalker    = false; // <--- AJOUT Toggle (N)
-    bool bDrawLightning = false; // <--- Toggle (Touche I par exemple)
-    bool bDrawPlants    = false; // <--- Toggle (P)
-    bool bDrawFlytraps  = false; // <--- Toggle (O)
-    bool bDrawFluidFloor = false; // <--- Toggle (V)
-    bool bDrawGears     = false; // <--- Toggle (E)
-
-    // --- SYSTEMES ---
-    CreatureSystem creatureSystem;
-    vector<shared_ptr<CousinCon>> cousinCons;
-    ofImage imgConcombre;
-    shared_ptr<ColliderLayer> colliderLayer;
-    SauteursLayer sauteursLayer;
-    FishSchoolLayer fishSchoolLayer;
-    PoulpeLayer poulpeLayer;
-    SlimeLayer slimeLayer;
-    WalkerLayer walkerLayer;    // <--- AJOUT Instance
-    LightningLayer lightningLayer; // <--- Instance
-    PlantLayer plantLayer;
-    FlytrapLayer flytrapLayer;
-    FluidFloorLayer fluidFloorLayer; // <--- AJOUT
-    GearLayer gearLayer; // <--- AJOUT
+    // --- MANAGER ---
+    Scene2DLayerManager layerManager;
     
-
     // FBOs de sortie
     ofFbo fboJar, fboFront, fboCour, fboBack;
     ofFbo fboSol, fboTopJar, fboTopCour;
@@ -81,7 +38,6 @@ private:
 
     ofImage imgJar, imgFront, imgCour, imgBack;
     ofImage imgSol, imgTopJar, imgTopCour;
-    ofImage imgRush;
     
     bool bShowTextures = true;
     

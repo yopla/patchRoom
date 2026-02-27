@@ -210,6 +210,6 @@ void PlanColleSystem::checkMouseIntersection(const ofCamera& cam) {
 
 void PlanColleSystem::keyPressed(int key) {
     if(key == 'c' || key == 'C') {
-        bSolidBackground = !bSolidBackground;
+       // bSolidBackground = !bSolidBackground;
     }
 }

@@ -396,14 +396,17 @@ obj/osx/Release/src/fx/CreatureSystem.o: src/fx/CreatureSystem.cpp \
   ../../../libs/openFrameworks/3d/of3dUtils.h \
   ../../../libs/openFrameworks/3d/ofCamera.h \
   ../../../libs/openFrameworks/3d/ofEasyCam.h \
-  src/fx/creature/JellyCreature.h src/fx/creature/RippleCreature.h \
-  src/fx/creature/SpringCreature.h \
-  src/fx/creature/DoublePendulumCreature.h \
-  src/fx/creature/FluidsCreature.h src/fx/creature/WancoCreature.h \
-  src/fx/creature/DancingCreature.h src/fx/creature/geko/GekoManager.h \
-  src/fx/creature/geko/GekoUnits.h src/fx/creature/CousinCreature.h \
-  src/fx/creature/HaloCreature.h src/fx/creature/BreakableCreature.h \
-  src/fx/LayerSystem.h
+  src/fx/creature/tableaux/JellyCreature.h \
+  src/fx/creature/tableaux/RippleCreature.h \
+  src/fx/creature/phys/SpringCreature.h \
+  src/fx/creature/phys/DoublePendulumCreature.h \
+  src/fx/creature/tableaux/FluidsCreature.h \
+  src/fx/creature/tableaux/WancoCreature.h \
+  src/fx/creature/phys/DancingCreature.h \
+  src/fx/creature/geko/GekoManager.h src/fx/creature/geko/GekoUnits.h \
+  src/fx/creature/phys/CousinCreature.h \
+  src/fx/creature/phys/HaloCreature.h \
+  src/fx/creature/tableaux/BreakableCreature.h src/fx/LayerSystem.h
 
 src/fx/CreatureSystem.h:
 
@@ -1201,28 +1204,28 @@ src/fx/CreatureSystem.h:
 
 ../../../libs/openFrameworks/3d/ofEasyCam.h:
 
-src/fx/creature/JellyCreature.h:
+src/fx/creature/tableaux/JellyCreature.h:
 
-src/fx/creature/RippleCreature.h:
+src/fx/creature/tableaux/RippleCreature.h:
 
-src/fx/creature/SpringCreature.h:
+src/fx/creature/phys/SpringCreature.h:
 
-src/fx/creature/DoublePendulumCreature.h:
+src/fx/creature/phys/DoublePendulumCreature.h:
 
-src/fx/creature/FluidsCreature.h:
+src/fx/creature/tableaux/FluidsCreature.h:
 
-src/fx/creature/WancoCreature.h:
+src/fx/creature/tableaux/WancoCreature.h:
 
-src/fx/creature/DancingCreature.h:
+src/fx/creature/phys/DancingCreature.h:
 
 src/fx/creature/geko/GekoManager.h:
 
 src/fx/creature/geko/GekoUnits.h:
 
-src/fx/creature/CousinCreature.h:
+src/fx/creature/phys/CousinCreature.h:
 
-src/fx/creature/HaloCreature.h:
+src/fx/creature/phys/HaloCreature.h:
 
-src/fx/creature/BreakableCreature.h:
+src/fx/creature/tableaux/BreakableCreature.h:
 
 src/fx/LayerSystem.h:

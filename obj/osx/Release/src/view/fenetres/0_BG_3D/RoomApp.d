@@ -409,10 +409,10 @@ obj/osx/Release/src/view/fenetres/0_BG_3D/RoomApp.o: \
   src/view/fenetres/0_BG_3D/proj/CursorSquareSystem.h \
   src/view/fenetres/0_BG_3D/proj/object/RippleSystem.h \
   src/view/fenetres/0_BG_3D/atomsphere/ring/FluidRing.h \
-  src/fx/layer/FluidFloorLayer.h \
+  src/fx/layer/bgFx/FluidFloorLayer.h \
   src/view/fenetres/0_BG_3D/RoomInputHandler.h \
   src/view/fenetres/0_BG_3D/atomsphere/ring/LightFlyRing.h \
-  src/fx/creature/HaloCreature.h
+  src/fx/creature/phys/HaloCreature.h
 
 src/view/fenetres/0_BG_3D/RoomApp.h:
 
@@ -1232,10 +1232,10 @@ src/view/fenetres/0_BG_3D/proj/object/RippleSystem.h:
 
 src/view/fenetres/0_BG_3D/atomsphere/ring/FluidRing.h:
 
-src/fx/layer/FluidFloorLayer.h:
+src/fx/layer/bgFx/FluidFloorLayer.h:
 
 src/view/fenetres/0_BG_3D/RoomInputHandler.h:
 
 src/view/fenetres/0_BG_3D/atomsphere/ring/LightFlyRing.h:
 
-src/fx/creature/HaloCreature.h:
+src/fx/creature/phys/HaloCreature.h:

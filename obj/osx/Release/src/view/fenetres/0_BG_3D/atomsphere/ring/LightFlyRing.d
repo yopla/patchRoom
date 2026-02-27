@@ -398,7 +398,7 @@ obj/osx/Release/src/view/fenetres/0_BG_3D/atomsphere/ring/LightFlyRing.o: \
   ../../../libs/openFrameworks/3d/of3dUtils.h \
   ../../../libs/openFrameworks/3d/ofCamera.h \
   ../../../libs/openFrameworks/3d/ofEasyCam.h \
-  src/fx/creature/HaloCreature.h
+  src/fx/creature/phys/HaloCreature.h
 
 src/view/fenetres/0_BG_3D/atomsphere/ring/LightFlyRing.h:
 
@@ -1196,4 +1196,4 @@ src/view/fenetres/0_BG_3D/atomsphere/ring/LightFlyRing.h:
 
 ../../../libs/openFrameworks/3d/ofEasyCam.h:
 
-src/fx/creature/HaloCreature.h:
+src/fx/creature/phys/HaloCreature.h:

@@ -410,25 +410,33 @@ obj/osx/Release/src/view/fenetres/3_PREVIZ3D/RoomPreview.o: \
   src/view/fenetres/0_BG_3D/proj/CursorSquareSystem.h \
   src/view/fenetres/0_BG_3D/proj/object/RippleSystem.h \
   src/view/fenetres/0_BG_3D/atomsphere/ring/FluidRing.h \
-  src/fx/layer/FluidFloorLayer.h \
+  src/fx/layer/bgFx/FluidFloorLayer.h \
   src/view/fenetres/0_BG_3D/RoomInputHandler.h \
   src/view/fenetres/0_BG_3D/atomsphere/ring/LightFlyRing.h \
-  src/fx/creature/HaloCreature.h src/view/CanvasManager.h \
-  src/view/fenetres/2_vueSIDE/Scene2D_SIDE.h src/fx/CreatureSystem.h \
-  src/fx/creature/JellyCreature.h src/fx/creature/RippleCreature.h \
-  src/fx/creature/SpringCreature.h \
-  src/fx/creature/DoublePendulumCreature.h \
-  src/fx/creature/FluidsCreature.h src/fx/creature/WancoCreature.h \
-  src/fx/creature/DancingCreature.h src/fx/creature/geko/GekoManager.h \
-  src/fx/creature/geko/GekoUnits.h src/fx/creature/CousinCreature.h \
-  src/fx/creature/BreakableCreature.h src/fx/LayerSystem.h \
-  src/fx/layer/SauteursLayer.h src/fx/layer/ColliderLayer.h \
-  src/fx/layer/FishSchoolLayer.h src/fx/layer/PoulpeLayer.h \
-  src/fx/layer/SlimeLayer.h src/fx/layer/WalkerLayer.h \
-  src/fx/layer/GearLayer.h src/fx/layer/LightningLayer.h \
-  src/fx/layer/PlantLayer.h src/fx/layer/FlytrapLayer.h \
-  src/fx/creature/CousinCon.h src/view/fenetres/1_vueTOP/Scene2DZenit.h \
-  src/OscManager.h ../../../addons/ofxOsc/src/ofxOsc.h \
+  src/fx/creature/phys/HaloCreature.h src/view/CanvasManager.h \
+  src/view/fenetres/2_vueSIDE/Scene2D_SIDE.h \
+  src/view/fenetres/2_vueSIDE/Scene2DLayerManager.h \
+  src/fx/CreatureSystem.h src/fx/creature/tableaux/JellyCreature.h \
+  src/fx/creature/tableaux/RippleCreature.h \
+  src/fx/creature/phys/SpringCreature.h \
+  src/fx/creature/phys/DoublePendulumCreature.h \
+  src/fx/creature/tableaux/FluidsCreature.h \
+  src/fx/creature/tableaux/WancoCreature.h \
+  src/fx/creature/phys/DancingCreature.h \
+  src/fx/creature/geko/GekoManager.h src/fx/creature/geko/GekoUnits.h \
+  src/fx/creature/phys/CousinCreature.h \
+  src/fx/creature/tableaux/BreakableCreature.h src/fx/LayerSystem.h \
+  src/fx/creature/phys/CousinCon.h src/fx/layer/ColliderLayer.h \
+  src/fx/layer/bgFx/SlimeLayer.h src/fx/layer/carac/SauteursLayer.h \
+  src/fx/layer/carac/FishSchoolLayer.h src/fx/layer/carac/PoulpeLayer.h \
+  src/fx/layer/carac/WalkerLayer.h src/fx/layer/carac/GearLayer.h \
+  src/fx/layer/bgFx/LightningLayer.h src/fx/layer/bgFx/PlantLayer.h \
+  src/fx/layer/bgFx/FlytrapLayer.h src/fx/layer/carac/MachineLayer.h \
+  src/fx/creature/tableaux/DiggingCreature.h \
+  src/fx/layer/carac/MachineAutoLayer.h \
+  src/fx/creature/CurtainCreature.h \
+  src/view/fenetres/1_vueTOP/Scene2DZenit.h src/OscManager.h \
+  ../../../addons/ofxOsc/src/ofxOsc.h \
   ../../../addons/ofxOsc/src/ofxOscArg.h \
   ../../../addons/ofxOsc/src/ofxOscMessage.h \
   ../../../addons/ofxOsc/src/ofxOscSender.h \
@@ -1266,65 +1274,75 @@ src/view/fenetres/0_BG_3D/proj/object/RippleSystem.h:
 
 src/view/fenetres/0_BG_3D/atomsphere/ring/FluidRing.h:
 
-src/fx/layer/FluidFloorLayer.h:
+src/fx/layer/bgFx/FluidFloorLayer.h:
 
 src/view/fenetres/0_BG_3D/RoomInputHandler.h:
 
 src/view/fenetres/0_BG_3D/atomsphere/ring/LightFlyRing.h:
 
-src/fx/creature/HaloCreature.h:
+src/fx/creature/phys/HaloCreature.h:
 
 src/view/CanvasManager.h:
 
 src/view/fenetres/2_vueSIDE/Scene2D_SIDE.h:
 
+src/view/fenetres/2_vueSIDE/Scene2DLayerManager.h:
+
 src/fx/CreatureSystem.h:
 
-src/fx/creature/JellyCreature.h:
+src/fx/creature/tableaux/JellyCreature.h:
 
-src/fx/creature/RippleCreature.h:
+src/fx/creature/tableaux/RippleCreature.h:
 
-src/fx/creature/SpringCreature.h:
+src/fx/creature/phys/SpringCreature.h:
 
-src/fx/creature/DoublePendulumCreature.h:
+src/fx/creature/phys/DoublePendulumCreature.h:
 
-src/fx/creature/FluidsCreature.h:
+src/fx/creature/tableaux/FluidsCreature.h:
 
-src/fx/creature/WancoCreature.h:
+src/fx/creature/tableaux/WancoCreature.h:
 
-src/fx/creature/DancingCreature.h:
+src/fx/creature/phys/DancingCreature.h:
 
 src/fx/creature/geko/GekoManager.h:
 
 src/fx/creature/geko/GekoUnits.h:
 
-src/fx/creature/CousinCreature.h:
+src/fx/creature/phys/CousinCreature.h:
 
-src/fx/creature/BreakableCreature.h:
+src/fx/creature/tableaux/BreakableCreature.h:
 
 src/fx/LayerSystem.h:
 
-src/fx/layer/SauteursLayer.h:
+src/fx/creature/phys/CousinCon.h:
 
 src/fx/layer/ColliderLayer.h:
 
-src/fx/layer/FishSchoolLayer.h:
+src/fx/layer/bgFx/SlimeLayer.h:
 
-src/fx/layer/PoulpeLayer.h:
+src/fx/layer/carac/SauteursLayer.h:
 
-src/fx/layer/SlimeLayer.h:
+src/fx/layer/carac/FishSchoolLayer.h:
 
-src/fx/layer/WalkerLayer.h:
+src/fx/layer/carac/PoulpeLayer.h:
 
-src/fx/layer/GearLayer.h:
+src/fx/layer/carac/WalkerLayer.h:
 
-src/fx/layer/LightningLayer.h:
+src/fx/layer/carac/GearLayer.h:
 
-src/fx/layer/PlantLayer.h:
+src/fx/layer/bgFx/LightningLayer.h:
 
-src/fx/layer/FlytrapLayer.h:
+src/fx/layer/bgFx/PlantLayer.h:
 
-src/fx/creature/CousinCon.h:
+src/fx/layer/bgFx/FlytrapLayer.h:
+
+src/fx/layer/carac/MachineLayer.h:
+
+src/fx/creature/tableaux/DiggingCreature.h:
+
+src/fx/layer/carac/MachineAutoLayer.h:
+
+src/fx/creature/CurtainCreature.h:
 
 src/view/fenetres/1_vueTOP/Scene2DZenit.h:
 

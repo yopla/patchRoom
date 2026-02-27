@@ -13,6 +13,7 @@ void ofApp::registerViewApp(shared_ptr<ViewApp> vApp){
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+    ofSetRandomSeed(42);
     ofSetFrameRate(60);
     bool molo = true;
     ofSetVerticalSync(molo);

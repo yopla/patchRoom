@@ -97,11 +97,11 @@ void FishSchoolLayer::addSardine(float realMouseX, float realMouseY) {
 
 //--------------------------------------------------------------
 void FishSchoolLayer::update() {
-    for(int k=0; k<2; k++) { 
-        updateGrid();
-        calculateNeighbors();
-        moveParticles();
-    }
+    // OPTIMISATION : Une seule passe de physique par frame suffit.
+    // Cela réduit de 50% la charge CPU de cette couche.
+    updateGrid();
+    calculateNeighbors();
+    moveParticles();
 }
 
 //--------------------------------------------------------------
@@ -310,10 +310,18 @@ void FishSchoolLayer::draw() {
     // Les murs sont dessinés par le ColliderLayer dans Scene2D.
     // On ne dessine que les poissons.
     
-    ofMesh sardineMesh;
-    sardineMesh.setMode(OF_PRIMITIVE_TRIANGLES);
-    ofMesh sharkMesh;
-    sharkMesh.setMode(OF_PRIMITIVE_TRIANGLES);
+    // OPTIMISATION : Utilisation de meshes statiques pour éviter l'allocation/désallocation
+    // de mémoire à chaque frame (très coûteux pour 1200+ particules).
+    static ofMesh sardineMesh;
+    static ofMesh sharkMesh;
+    
+    sardineMesh.clear(); // Reset les vertices mais garde la capacité mémoire
+    sharkMesh.clear();
+    
+    if(sardineMesh.getMode() != OF_PRIMITIVE_TRIANGLES) {
+        sardineMesh.setMode(OF_PRIMITIVE_TRIANGLES);
+        sharkMesh.setMode(OF_PRIMITIVE_TRIANGLES);
+    }
 
     for(auto& p : particles) {
         float x = p.pos.x * scale;
