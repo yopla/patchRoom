@@ -67,7 +67,7 @@ void LightFlyRing::update() {
     // 2. Render to FBO
     fbo.begin();
     //ofClear(38, 38, 38, 255); // Fond gris à 15%
-    ofClear(15, 15, 15, 255); // Fond gris à 15%
+    ofClear(0, 0, 0, 255); // Fond gris à 15%
     float w = fbo.getWidth();
     for(auto& c : creatures) {
         c->draw(scaleCorrectionX * globalScale, globalScale);

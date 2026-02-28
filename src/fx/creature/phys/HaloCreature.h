@@ -23,4 +23,5 @@ private:
     vector<HaloFly> flies;
     bool isHovering;
     ofFbo fbo;
+    float birthTime;
 };

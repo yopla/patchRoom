@@ -10,7 +10,7 @@ void ProjectionSystem::setup() {
 
 //--------------------------------------------------------------
 void ProjectionSystem::update() {
-    planColle.update();
+     if (bShowPlanColle) planColle.update();
     beam.update();
     beam2.update();
     beam3.update();
@@ -18,14 +18,16 @@ void ProjectionSystem::update() {
 
 //--------------------------------------------------------------
 void ProjectionSystem::drawPlanColle() {
-    planColle.draw();
+    if (bShowPlanColle) planColle.draw();
 }
 
 //--------------------------------------------------------------
 void ProjectionSystem::drawBeamProjection(RoomWalls& walls, bool showRoof) {
-    beam.drawProjection(walls, showRoof, -10.0f);  // Offset augmenté pour éviter le Z-fighting
-    beam2.drawProjection(walls, showRoof, -20.0f); // Offset plus fort pour le 2ème
-    beam3.drawProjection(walls, showRoof, -30.0f); // Offset encore plus fort pour le 3ème
+
+    float alpha = bShowBeams ? 255.0f : 0.0f;
+    beam.drawProjection(walls, showRoof, -10.0f, alpha);  // Offset augmenté pour éviter le Z-fighting
+    beam2.drawProjection(walls, showRoof, -20.0f, alpha); // Offset plus fort pour le 2ème
+    beam3.drawProjection(walls, showRoof, -30.0f, alpha); // Offset encore plus fort pour le 3ème
 }
 
 //--------------------------------------------------------------
@@ -57,6 +59,9 @@ void ProjectionSystem::updateTarget3(const ofCamera& viewCam, RoomWalls& walls) 
 
 //--------------------------------------------------------------
 void ProjectionSystem::keyPressed(int key) {
+    if (key == 't' || key == 'T') bShowBeams = !bShowBeams;
+    if (key == 'n' || key == 'N') bShowPlanColle = !bShowPlanColle;
+
     planColle.keyPressed(key);
     beam.keyPressed(key);
     beam2.keyPressed(key);

@@ -110,13 +110,12 @@ void Scene2DZenit::drawDynamicElements() {
     // Dessin dans le repère GLOBAL (0,0 = Coin Haut-Gauche du SOL)
     
     // 1. Dessin de la Balle
+     bool lastDebug = false;
+    if (lastDebug) {
     ofSetColor(0, 100, 255);
     ofDrawCircle(ballPos.x, ballPos.y, 80);
-
-    // 2. Dessin des Poissons sur le SOL
-    // Le SOL est positionné à (0,0) dans notre monde global, 
-    // donc on dessine directement le layer ici.
     ofSetColor(255); // Reset couleur
+    }
     fishSol.draw();
 }
 
@@ -129,8 +128,12 @@ void Scene2DZenit::captureView(ofFbo& fbo, ofImage& img, ofMatrix4x4 globalTrans
           ofSetColor(255, 255, 255, 180); // 80 = Transparence
         img.draw(0, 0, fbo.getWidth(), fbo.getHeight());
     } else {
-        ofNoFill(); ofSetColor(50); ofDrawRectangle(0, 0, fbo.getWidth(), fbo.getHeight()); ofFill();
+        bool lastDebug = false;
+        if (lastDebug) {
+            ofNoFill(); ofSetColor(50); ofDrawRectangle(0, 0, fbo.getWidth(), fbo.getHeight()); ofFill();
+        }
     }
+
             ofSetColor(255);
 
     ofPushMatrix();

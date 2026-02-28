@@ -155,7 +155,7 @@ void CursorSquareSystem::drawProjected(RoomWalls& walls) {
     // --- GESTION ALPHA ---
     ofPushStyle();
     if (bLowAlpha) { // Note: bLowAlpha est une variable membre publique (bool) à ajouter à la classe.
-        ofSetColor(255, 255, 255, 25.5); // 10% alpha
+        ofSetColor(255, 255, 255, 0.0); // 10% alpha
     } else {
         ofSetColor(255);
     }

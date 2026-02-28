@@ -116,10 +116,13 @@ void Scene2D_SIDE::drawDynamicElements() {
     layerManager.draw(m);
 
     // 6. BALLE (Toujours visible)
+    bool lastDebug = false;
+    if (lastDebug) {
     ofPushStyle();
     ofSetColor(255, 0, 0);
     ofDrawCircle(ballPos.x, ballPos.y, 80); 
     ofPopStyle();
+    }
 
 }
 
@@ -183,10 +186,14 @@ void Scene2D_SIDE::captureSection(ofFbo& targetFbo, float worldX, float worldTop
             ofSetColor(255, 255, 255, 180);
             img.draw(0, 0, targetFbo.getWidth(), targetFbo.getHeight());
         } else {
+             bool lastDebug = false;
+        if (lastDebug) {
             ofNoFill(); ofSetColor(100);
             ofDrawRectangle(0, 0, targetFbo.getWidth(), targetFbo.getHeight());
             ofFill();
         }
+    }
+
         
         if (bDrawDynamics) {
             ofSetColor(255);

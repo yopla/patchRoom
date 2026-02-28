@@ -10868,7 +10868,7 @@
 					"patching_rect" : [ 37.0, 302.0, 50.0, 22.0 ],
 					"presentation" : 1,
 					"presentation_rect" : [ 37.0, 302.0, 50.0, 22.0 ],
-					"text" : "5273"
+					"text" : "913"
 				}
 
 			}
@@ -15386,7 +15386,7 @@
 													"numoutlets" : 2,
 													"outlettype" : [ "signal", "float" ],
 													"patching_rect" : [ 94.0, 188.0, 56.0, 22.0 ],
-													"sig" : 4.0
+													"sig" : 3.68
 												}
 
 											}
@@ -15414,7 +15414,7 @@
 													"numoutlets" : 2,
 													"outlettype" : [ "signal", "float" ],
 													"patching_rect" : [ 24.0, 188.0, 56.0, 22.0 ],
-													"sig" : 500.0
+													"sig" : 350.0
 												}
 
 											}

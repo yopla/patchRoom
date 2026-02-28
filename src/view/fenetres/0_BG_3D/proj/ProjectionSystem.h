@@ -31,4 +31,7 @@ private:
     BeamSystem beam;
     BeamSystem beam2;
     BeamSystem beam3;
+
+    bool bShowBeams = false;
+    bool bShowPlanColle = true;
 };

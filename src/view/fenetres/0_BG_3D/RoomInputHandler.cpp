@@ -134,7 +134,7 @@ void RoomInputHandler::keyPressed(int key) {
     // This logic was in RoomApp::keyPressed()
     if(key == 'g' || key == 'G') {
         if (app->wallAlpha > 50.0f) {
-            app->wallAlpha = 5.5f;
+            app->wallAlpha = 0.0f;
         } else {
             app->wallAlpha = 100.0f;
         }

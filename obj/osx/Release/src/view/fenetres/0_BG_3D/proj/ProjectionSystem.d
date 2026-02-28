@@ -399,8 +399,8 @@ obj/osx/Release/src/view/fenetres/0_BG_3D/proj/ProjectionSystem.o: \
   ../../../libs/openFrameworks/3d/ofCamera.h \
   ../../../libs/openFrameworks/3d/ofEasyCam.h \
   src/view/fenetres/0_BG_3D/RoomWalls.h \
-  src/view/fenetres/0_BG_3D/proj/PlanColleSystem.h \
-  src/view/fenetres/0_BG_3D/proj/BeamSystem.h
+  src/view/fenetres/0_BG_3D/proj/object/PlanColleSystem.h \
+  src/view/fenetres/0_BG_3D/proj/object/BeamSystem.h
 
 src/view/fenetres/0_BG_3D/proj/ProjectionSystem.h:
 
@@ -1200,6 +1200,6 @@ src/view/fenetres/0_BG_3D/proj/ProjectionSystem.h:
 
 src/view/fenetres/0_BG_3D/RoomWalls.h:
 
-src/view/fenetres/0_BG_3D/proj/PlanColleSystem.h:
+src/view/fenetres/0_BG_3D/proj/object/PlanColleSystem.h:
 
-src/view/fenetres/0_BG_3D/proj/BeamSystem.h:
+src/view/fenetres/0_BG_3D/proj/object/BeamSystem.h:

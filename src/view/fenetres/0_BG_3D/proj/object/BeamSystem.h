@@ -7,7 +7,7 @@ class BeamSystem {
 public:
     void setup(string imgName = "iconeRZEF.png", float w = 520.0f, float h = 504.0f);
     void update();
-    void drawProjection(RoomWalls& walls, bool showRoof, float depthBias = -1.0f);
+    void drawProjection(RoomWalls& walls, bool showRoof, float depthBias = -1.0f, float alpha = 255.0f);
     void drawDebug(RoomWalls& walls);
     void updateTarget(const ofCamera& viewCam, RoomWalls& walls);
     void keyPressed(int key);

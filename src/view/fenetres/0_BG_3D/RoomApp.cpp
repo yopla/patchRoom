@@ -22,7 +22,7 @@ void RoomApp::setup(){
 
     // Initialisation de l'anneau fluide
     // Rayon agrandi pour être plus grand que la salle (2500 > 1200 demi-largeur)
-    fluidRing.setup(2500.0f, heightFrontBack, 800.0f);
+    fluidRing.setup(2500.0f, heightFrontBack+1000, 1200.0f);
 
     // Initialisation du LightFlyRing (Un peu plus grand que le FluidRing)
     // Rayon 2600
@@ -120,16 +120,16 @@ void RoomApp::drawSceneContent(bool showAtmosphere) {
         atmosphere.draw(bUseTexture);
     }
     
+    // 2. Dessin de l'anneau fluide (Devant le LightFlyRing)
+    if (bFluidRingEnabled) {
+        fluidRing.draw();
+    }
+
     // 1. Dessin du LightFlyRing (Le plus grand rayon = Arrière plan)
     // On le dessine en premier. Grâce au glDepthMask(GL_FALSE) dans sa méthode draw,
     // il ne bloquera pas le rendu des objets devant lui.
     if (bLightFlyRingEnabled) {
         lightFlyRing.draw();
-    }
-
-    // 2. Dessin de l'anneau fluide (Devant le LightFlyRing)
-    if (bFluidRingEnabled) {
-        fluidRing.draw();
     }
 
     // 2. Dessiner le Plan Collé (Rush A)

@@ -87,10 +87,11 @@ void BeamSystem::updateTarget(const ofCamera& viewCam, RoomWalls& walls) {
     currentDist = glm::distance((glm::vec3)projector.getPosition(), (glm::vec3)lastHitPoint);
 }
 
-void BeamSystem::drawProjection(RoomWalls& walls, bool showRoof, float depthBias) {
+void BeamSystem::drawProjection(RoomWalls& walls, bool showRoof, float depthBias, float alpha) {
     if(!imgBeam.isAllocated()) return;
     
     ofEnableAlphaBlending();
+    ofSetColor(255, 255, 255, alpha); // Application de l'alpha
     glDisable(GL_CULL_FACE);
     glDisable(GL_LIGHTING); // Sécurité : on s'assure que l'éclairage n'interfère pas
     glEnable(GL_POLYGON_OFFSET_FILL);
@@ -156,6 +157,7 @@ void BeamSystem::drawProjection(RoomWalls& walls, bool showRoof, float depthBias
     glDepthFunc(GL_LESS);
     glDepthMask(GL_TRUE); // On réactive l'écriture depth pour le reste
     glDisable(GL_POLYGON_OFFSET_FILL);
+    ofSetColor(255); // Reset couleur
 }
 
 void BeamSystem::drawDebug(RoomWalls& walls) {

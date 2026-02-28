@@ -151,6 +151,7 @@ void PlanColleSystem::draw() {
         ofSetColor(255);
         planContentFbo.draw(-250, -275, 500, 550);
         
+        /*
         if(isMouseOverPlan) {
             ofNoFill();
             ofSetLineWidth(5);
@@ -160,6 +161,7 @@ void PlanColleSystem::draw() {
             ofSetColor(255, 255, 0); 
             ofFill();
         }
+            */
         
     planColleNode.restoreTransformGL();
     if (!bSolidBackground)    glDepthMask(GL_TRUE);

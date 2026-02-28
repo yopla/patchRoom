@@ -29,19 +29,13 @@ void ofApp::setup(){
     creatureSystem.setup();
 
     // 3. Placement initial des créatures (Hardcoded selon tes anciens réglages)
-    // Front & Back
-   // creatureSystem.addCreature(2400 * 0.33, 736);
+    /*
     creatureSystem.addRipple(2400 * 0.66, 736);
-
-    // Cour & Jar
     creatureSystem.addRipple(2400 + (2624 * 0.33), 1544); 
-
-    // Sol (Grille 2x2)
     float sx = 0, sy = 2944, sw = 2400, sh = 2624;
     creatureSystem.addRipple(sx + sw * 0.25, sy + sh * 0.25);
     creatureSystem.addCreature(sx + sw * 0.75, sy + sh * 0.25);
-    //creatureSystem.addCreature(sx + sw * 0.25, sy + sh * 0.75);
-    //creatureSystem.addCreature(sx + sw * 0.75, sy + sh * 0.75);
+    */
 
     // 4. Configuration Caméra Master
     float scaleX = (float)ofGetWidth() / canvasManager.width;

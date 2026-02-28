@@ -218,7 +218,7 @@ void CousinCon::draw() {
 
         for(int i=0; i<count; i++) {
             // Mapping UV vertical le long du corps
-            float v = ofMap(i, 0, count-1, 0, texH);
+            float v = ofMap(i, 0, count-1, texH, 0);
             
             // Coté Gauche
             const auto& pL = lPoly[i];
