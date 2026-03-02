@@ -46,8 +46,13 @@ void ColliderLayer::generateWalls() {
         mapPixels = mapImg.getPixels();
         bHasMap = true;
 
-        int w = mapPixels.getWidth();
-        int h = mapPixels.getHeight();
+        // Optimisation : Mise en cache des dimensions pour éviter les appels dans isWall
+        mapW = mapPixels.getWidth();
+        mapH = mapPixels.getHeight();
+        mapC = mapPixels.getNumChannels();
+        
+        int w = mapW;
+        int h = mapH;
         
         // Génération de rectangles horizontaux pour les pixels blancs
         for(int y=0; y<h; y++) {
@@ -126,8 +131,14 @@ bool ColliderLayer::isWall(float x, float y) {
     // 2. Vérifier les obstacles
     // Optimisation : Vérification directe des pixels pour l'image
     if (bHasMap) {
-        if (x >= 0 && x < mapPixels.getWidth() && y >= 0 && y < mapPixels.getHeight()) {
-            if(mapPixels.getColor((int)x, (int)y).getBrightness() > 128) return true;
+        int ix = (int)x;
+        int iy = (int)y;
+        // Accès direct au pointeur brut pour éviter le coût de getColor()
+        if (ix >= 0 && ix < mapW && iy >= 0 && iy < mapH) {
+            const unsigned char* data = mapPixels.getData();
+            int index = (iy * mapW + ix) * mapC;
+            // On suppose que si c'est blanc/clair, c'est un mur (on check le canal R ou la brillance)
+            if (data[index] > 128) return true;
         }
     }
 

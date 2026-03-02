@@ -50,7 +50,7 @@ void CursorSquareSystem::updateRaycast(ofCamera& cam, RoomWalls& walls) {
         float denom = geoNormal.dot(rayDir);
         
         if (abs(denom) > 0.0001f) { 
-            float t = (v0 - (ofVec3f)rayOrigin).dot(geoNormal) / denom;
+            float t = (v0 - ofVec3f(rayOrigin)).dot(geoNormal) / denom;
             if (t > 0 && t < minDistance) {
                 ofVec3f hitP = (ofVec3f)rayOrigin + (ofVec3f)rayDir * t;
                 if(hitP.distance(mesh.getCentroid()) < 2500.0f) {

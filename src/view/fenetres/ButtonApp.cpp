@@ -3,6 +3,7 @@
 //--------------------------------------------------------------
 void ButtonApp::setup() {
     buttonWindow.setup(ofGetWidth(), ofGetHeight());
+    buttonWindow.setupWorms(12);
     
     // Init Navigation
     zoom = 1.0f;
@@ -91,6 +92,8 @@ void ButtonApp::mouseScrolled(int x, int y, float scrollX, float scrollY) {
 
 void ButtonApp::keyPressed(int key) { 
     if(key == ' ') isSpacePressed = true; 
+
+    if(key == 'v' || key == 'V') buttonWindow.toggleWorms();
 
     if(key == 'r' || key == 'R') {
         float contentW = buttonWindow.getWidth();

@@ -30,6 +30,7 @@ public:
     bool bGravity;
     ofColor color;
     float noiseOffset;
+    float foldedTimer;
 };
 
 class PuyoLayer {

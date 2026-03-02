@@ -452,6 +452,7 @@ obj/osx/Release/src/ofApp.o: src/ofApp.cpp src/ofApp.h \
   src/view/fenetres/ZOUT_4VIEW/ViewApp.h \
   src/view/fenetres/ZOUT_4VIEW/ViewLayerManager.h \
   src/view/fenetres/3_PREVIZ3D/RoomPreview.h \
+  src/view/fenetres/3_PREVIZ3D/InteractionVisualizer.h \
   ../../../libs/glfw/include/GLFW/glfw3.h
 
 src/ofApp.h:
@@ -1385,5 +1386,7 @@ src/view/fenetres/ZOUT_4VIEW/ViewApp.h:
 src/view/fenetres/ZOUT_4VIEW/ViewLayerManager.h:
 
 src/view/fenetres/3_PREVIZ3D/RoomPreview.h:
+
+src/view/fenetres/3_PREVIZ3D/InteractionVisualizer.h:
 
 ../../../libs/glfw/include/GLFW/glfw3.h:

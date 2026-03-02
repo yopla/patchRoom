@@ -137,7 +137,7 @@ void AtmosphereSystem::createDiscoBall(int res) {
             for (int x = 0; x < res; x++) {
                 auto project = [&](float u, float v) {
                     ofVec3f p = normal + axisA * (u * 2 - 1) + axisB * (v * 2 - 1);
-                    return p.normalized() * radius;
+                    return p.getNormalized() * radius;
                 };
 
                 ofVec3f v1 = project((float)x/res, (float)y/res);

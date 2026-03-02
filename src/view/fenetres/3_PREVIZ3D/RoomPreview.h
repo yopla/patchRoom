@@ -7,6 +7,7 @@ class Scene2D_SIDE;
 
 #include "RoomWalls.h"
 #include "CursorSquareSystem.h"
+#include "InteractionVisualizer.h"
 
 class RoomPreview : public ofBaseApp{
 
@@ -25,6 +26,7 @@ class RoomPreview : public ofBaseApp{
         
         RoomWalls walls;
         CursorSquareSystem cursorSquare;
+        InteractionVisualizer interactionVisualizer;
 
         // --- Dimensions de la pièce (Identiques à RoomApp) ---
         const float roomWidth = 2400.0f;

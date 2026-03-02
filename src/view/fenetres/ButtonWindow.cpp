@@ -73,16 +73,75 @@ void ButtonWindow::setup(float w, float h) {
 }
 
 //--------------------------------------------------------------
+void ButtonWindow::setupWorms(int count) {
+    worms.clear();
+    for(int i=0; i<count; i++) {
+        ButtonWorm w;
+        w.headPos.set(ofRandom(winW), ofRandom(winH));
+        w.angle = ofRandom(TWO_PI);
+        w.speed = ofRandom(2.0f, 5.0f);
+        w.vel.set(cos(w.angle)*w.speed, sin(w.angle)*w.speed);
+        w.numSegments = (int)ofRandom(5, 12);
+        w.segments.assign(w.numSegments, w.headPos);
+        w.color.setHsb(ofRandom(255), 200, 255);
+        worms.push_back(w);
+    }
+}
+
+//--------------------------------------------------------------
 void ButtonWindow::update(float mx, float my) {
     hoveredIndices.clear();
+    
+    // 1. Update Worms Logic
+    if(bDrawWorms) {
+        for(auto& w : worms) {
+            // Wander
+            w.angle += ofRandom(-0.2f, 0.2f);
+            w.vel.set(cos(w.angle)*w.speed, sin(w.angle)*w.speed);
+            w.headPos += w.vel;
+
+            // Bounce
+            if(w.headPos.x < 0) { w.headPos.x = 0; w.vel.x *= -1; w.angle = atan2(w.vel.y, w.vel.x); }
+            if(w.headPos.x > winW) { w.headPos.x = winW; w.vel.x *= -1; w.angle = atan2(w.vel.y, w.vel.x); }
+            if(w.headPos.y < 0) { w.headPos.y = 0; w.vel.y *= -1; w.angle = atan2(w.vel.y, w.vel.x); }
+            if(w.headPos.y > winH) { w.headPos.y = winH; w.vel.y *= -1; w.angle = atan2(w.vel.y, w.vel.x); }
+
+            // Segments follow
+            ofVec2f target = w.headPos;
+            for(int i=0; i<w.segments.size(); i++) {
+                ofVec2f dir = w.segments[i] - target;
+                float dist = dir.length();
+                float spacing = 15.0f;
+                if(dist > spacing) {
+                    w.segments[i] = target + dir.getNormalized() * spacing;
+                }
+                target = w.segments[i];
+            }
+        }
+    }
+
     for(int i=0; i<buttons.size(); i++) {
         auto& b = buttons[i];
-        // Détection du survol souris
-        if(b.rect.inside(mx, my)) {
-            b.targetAlpha = 200; // Plus intense
+        bool isHovered = false;
+        
+        // Mouse Check
+        if(b.rect.inside(mx, my)) isHovered = true;
+        
+        // Worms Check
+        if(bDrawWorms && !isHovered) {
+            for(auto& w : worms) {
+                if(b.rect.inside(w.headPos)) {
+                    isHovered = true;
+                    break;
+                }
+            }
+        }
+
+        if(isHovered) {
+            b.targetAlpha = 200;
             hoveredIndices.push_back(i);
         } else {
-            b.targetAlpha = 55; // Léger mais visible
+            b.targetAlpha = 55;
         }
         
         // Animation fluide de l'alpha
@@ -140,6 +199,19 @@ void ButtonWindow::draw() {
         
         ofSetColor(0); // Texte noir
         ofDrawBitmapString(ofToString(b.id), b.rect.x + b.rect.width/2 - 5, b.rect.y + b.rect.height/2 + 5);
+    }
+
+    // Dessin des Worms
+    if(bDrawWorms) {
+        ofNoFill();
+        ofSetLineWidth(2);
+        for(auto& w : worms) {
+            ofSetColor(w.color);
+            ofPolyline line;
+            line.addVertex(w.headPos.x, w.headPos.y);
+            for(auto& s : w.segments) line.addVertex(s.x, s.y);
+            line.getSmoothed(3).draw();
+        }
     }
     
     ofPopStyle();

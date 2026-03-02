@@ -161,13 +161,13 @@ void Scene2DZenit::draw() {
     ofSetColor(255); fboSol.draw(0,0); 
     fboFront.draw(0, -hFront);
     
-    ofPushMatrix(); ofTranslate(0, hSol + gapBack); ofRotateZ(-90);
+    ofPushMatrix(); ofTranslate(0, hSol + gapBack); ofRotateZDeg(-90);
     fboJar.draw(0, -hJar); fboTopJar.draw(0, -hJar - hTopJar); ofPopMatrix();
     
-    ofPushMatrix(); ofTranslate(wSol, 0); ofRotateZ(90);
+    ofPushMatrix(); ofTranslate(wSol, 0); ofRotateZDeg(90);
     fboCour.draw(0, -hCour); fboTopCour.draw(0, -hCour - hTopCour); ofPopMatrix();
     
-    ofPushMatrix(); ofTranslate(0, hSol + gapBack); ofTranslate(wBack, hBack); ofRotateZ(180);
+    ofPushMatrix(); ofTranslate(0, hSol + gapBack); ofTranslate(wBack, hBack); ofRotateZDeg(180);
     fboBack.draw(0, 0); ofPopMatrix();
 
     drawDynamicElements(); // Balle + Poissons

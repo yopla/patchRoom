@@ -126,7 +126,7 @@ void WingedWormSystem::draw() {
         ofVec3f up(0,1,0);
         ofVec3f axis = up.cross(vel);
         float angle = up.angle(vel);
-        ofRotate(angle, axis.x, axis.y, axis.z);
+        ofRotateDeg(angle, axis.x, axis.y, axis.z);
         
         // Yeux Blancs + Pupilles
         ofSetColor(255);

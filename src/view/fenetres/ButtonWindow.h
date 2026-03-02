@@ -18,6 +18,10 @@ public:
     vector<int> hoveredIndices;
     vector<ofVec3f> get3DPosForActiveButtons(float roomW, float roomSolD, float roomDepth);
 
+    void setupWorms(int count);
+    void toggleWorms() { bDrawWorms = !bDrawWorms; }
+    bool bDrawWorms = true;
+
 private:
     struct Button {
         ofRectangle rect;
@@ -27,6 +31,17 @@ private:
         ofColor color;
     };
 
+    struct ButtonWorm {
+        ofVec2f headPos;
+        ofVec2f vel;
+        vector<ofVec2f> segments;
+        int numSegments;
+        float speed;
+        ofColor color;
+        float angle;
+    };
+
+    vector<ButtonWorm> worms;
     vector<Button> buttons;
     ofImage bgImg;
     float winW, winH;

@@ -65,6 +65,9 @@ void GekoCreature::update(float mx, float my) {
         // On utilise un compteur simple pour passer de 0 -> 1 -> 2 -> 0...
         static int nextLegToMove = 0;
         
+        // Sécurité : Si le nombre de pattes a changé dynamiquement
+        if (nextLegToMove >= legs.size()) nextLegToMove = 0;
+        
         GekoLeg &leg = legs[nextLegToMove];
         
         // Calcul de la position idéale pour CETTE patte

@@ -6,7 +6,7 @@ void CanvasManager::setup(int w, int h) {
     canvas.allocate(width, height, GL_RGBA, 4);
     imgFullGab.load("GAB/_fuyllgab.jpg");
     bIsVideo = false;
-    canvas.begin(); ofClear(0); canvas.end();
+    canvas.begin(); ofClear(0, 0); canvas.end();
 }
 
 

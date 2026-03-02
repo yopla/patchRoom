@@ -255,15 +255,36 @@ void GearLayer::drawGear(const Gear& g) {
     // MODIFICATION: Dents plus fines pour plus d'écart
     float barThickness = (innerRadius * TWO_PI) / g.teethCount * 0.25f; // était 0.4f
     
-    ofSetRectMode(OF_RECTMODE_CENTER);
+    // OPTIMISATION: Utilisation d'un Mesh pour les dents au lieu de multiples drawRectangle + Rotate
+    // Cela réduit drastiquement les appels OpenGL et les changements de matrice.
+    // Utilisation de static pour éviter la réallocation mémoire à chaque frame
+    static ofMesh teethMesh;
+    teethMesh.clear();
+    teethMesh.setMode(OF_PRIMITIVE_TRIANGLES);
+    
+    float halfW = barLength * 0.5f;
+    float halfH = barThickness * 0.5f;
+
     for(int i=0; i<numBars; i++) {
-        ofPushMatrix();
-        float angleDeg = ofMap(i, 0, numBars, 0, 180);
-        ofRotateDeg(angleDeg);
-        ofDrawRectangle(0, 0, barLength, barThickness);
-        ofPopMatrix();
+        float angleRad = ofMap(i, 0, numBars, 0, PI); // 0 à 180 degrés en radians
+        float c = cos(angleRad);
+        float s = sin(angleRad);
+        
+        // Calcul manuel des 4 coins du rectangle après rotation
+        // Coin 1 (-w, -h)
+        teethMesh.addVertex(ofVec3f(-halfW * c - -halfH * s, -halfW * s + -halfH * c, 0));
+        // Coin 2 (w, -h)
+        teethMesh.addVertex(ofVec3f(halfW * c - -halfH * s, halfW * s + -halfH * c, 0));
+        // Coin 3 (-w, h)
+        teethMesh.addVertex(ofVec3f(-halfW * c - halfH * s, -halfW * s + halfH * c, 0));
+        
+        // Triangle 2
+        teethMesh.addVertex(ofVec3f(halfW * c - -halfH * s, halfW * s + -halfH * c, 0)); // Coin 2
+        teethMesh.addVertex(ofVec3f(halfW * c - halfH * s, halfW * s + halfH * c, 0));   // Coin 4 (w, h)
+        teethMesh.addVertex(ofVec3f(-halfW * c - halfH * s, -halfW * s + halfH * c, 0)); // Coin 3
     }
-    ofSetRectMode(OF_RECTMODE_CORNER);
+    
+    teethMesh.draw();
     
     // Trou central
     ofSetColor(50, 40, 30);

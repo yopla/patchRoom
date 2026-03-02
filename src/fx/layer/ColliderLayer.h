@@ -16,6 +16,7 @@ public:
     float simWidth;
     float simHeight;
     float scale;
+    int mapW, mapH, mapC;
 
 private:
     void generateWalls();

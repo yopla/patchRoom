@@ -1,8 +1,4 @@
 #include "PuyoLayer.h"
-#include <map>
-
-// Map statique pour suivre le temps de pliage de chaque Puyo (évite de modifier le .h)
-static std::map<Puyo*, float> foldedTimers;
 
 //--------------------------------------------------------------
 // PUYO OBJECT
@@ -12,6 +8,7 @@ void Puyo::setup(float x, float y, float r, bool gravity) {
     bGravity = gravity;
     center.set(x, y);
     noiseOffset = ofRandom(1000);
+    foldedTimer = 0.0f;
     
     // Couleur aléatoire avec opacité gérée au draw
     color = ofColor::fromHsb(ofRandom(255), 180, 255);
@@ -20,6 +17,7 @@ void Puyo::setup(float x, float y, float r, bool gravity) {
     float angleStep = TWO_PI / numNodes;
     
     // 1. Création des noeuds (Anneau + Centre)
+    nodes.reserve(numNodes + 1); // Réservation mémoire pour éviter les réallocations
     for(int i=0; i<numNodes; i++) {
         float angle = i * angleStep;
         PuyoNode n;
@@ -37,6 +35,7 @@ void Puyo::setup(float x, float y, float r, bool gravity) {
 
     // 2. Création des ressorts (Links)
     // Contour
+    links.reserve(numNodes * 2); // Réservation pour contour + rayons
     for(int i=0; i<numNodes; i++) {
         PuyoLink l;
         l.n1 = i;
@@ -109,7 +108,7 @@ void Puyo::update(float w, float h, shared_ptr<ColliderLayer> collider) {
     }
     
     // 2. Résolution des contraintes (Forme)
-    for(int k=0; k<20; k++) solveConstraints(); // Moins d'itérations pour plus de fluidité
+    for(int k=0; k<8; k++) solveConstraints(); // Optimisation : 8 itérations suffisent généralement pour cette rigidité
     
     // 3. Collisions avec le Collider (Murs)
     if(collider) {
@@ -148,8 +147,8 @@ void Puyo::update(float w, float h, shared_ptr<ColliderLayer> collider) {
     
     // 5. Regonflement automatique après 3 secondes de pliage
     if(isFolded()) {
-        foldedTimers[this] += ofGetLastFrameTime();
-        if(foldedTimers[this] > 3.0f) {
+        foldedTimer += ofGetLastFrameTime();
+        if(foldedTimer > 3.0f) {
             // Réinitialisation de la forme (Cercle parfait comme à l'origine)
             int ringSize = nodes.size() - 1;
             float angleStep = TWO_PI / ringSize;
@@ -162,10 +161,10 @@ void Puyo::update(float w, float h, shared_ptr<ColliderLayer> collider) {
             nodes.back().pos = center;
             nodes.back().oldPos = center;
             
-            foldedTimers[this] = 0.0f;
+            foldedTimer = 0.0f;
         }
     } else {
-        foldedTimers[this] = 0.0f;
+        foldedTimer = 0.0f;
     }
 }
 
@@ -225,26 +224,31 @@ void Puyo::draw(float scale) {
     
     // Fond couleur plus opaque pour l'aspect "épais"
     ofSetColor(color.r, color.g, color.b, 220);
-    ofFill();
-    ofBeginShape();
-    // Dessin avec Splines (CurveVertex) pour la douceur
+    
+    // OPTIMISATION: Construction de la forme une seule fois via ofPolyline
+    // Utilisation de static pour réutiliser la mémoire du vecteur interne
+    static ofPolyline shape;
+    shape.clear();
     int ringSize = nodes.size() - 1;
+    
+    // On ajoute les points pour fermer la courbe proprement (wrapping)
     for(int i=0; i<ringSize + 3; i++) {
         int idx = (i + ringSize - 1) % ringSize;
-        ofCurveVertex(nodes[idx].pos);
+        shape.curveTo(glm::vec3(nodes[idx].pos.x, nodes[idx].pos.y, 0));
     }
+    
+    // 1. Remplissage
+    ofFill();
+    ofBeginShape();
+    const auto& vertices = shape.getVertices();
+    for(const auto& v : vertices) ofVertex(v);
     ofEndShape();
     
     // Contour Filaire Blanc
     ofSetColor(255);
     ofNoFill();
     ofSetLineWidth(12); // Trait très épais (x4)
-    ofBeginShape();
-    for(int i=0; i<ringSize + 3; i++) {
-        int idx = (i + ringSize - 1) % ringSize;
-        ofCurveVertex(nodes[idx].pos);
-    }
-    ofEndShape();
+    shape.draw(); // ofPolyline gère le dessin du contour efficacement
     
     ofPopMatrix();
 }

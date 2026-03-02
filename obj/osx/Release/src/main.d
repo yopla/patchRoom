@@ -452,6 +452,7 @@ obj/osx/Release/src/main.o: src/main.cpp \
   src/view/fenetres/ZOUT_4VIEW/ViewApp.h \
   src/view/fenetres/ZOUT_4VIEW/ViewLayerManager.h \
   src/view/fenetres/3_PREVIZ3D/RoomPreview.h \
+  src/view/fenetres/3_PREVIZ3D/InteractionVisualizer.h \
   src/view/fenetres/ButtonApp.h src/view/fenetres/ButtonWindow.h
 
 ../../../libs/openFrameworks/ofMain.h:
@@ -1385,6 +1386,8 @@ src/view/fenetres/ZOUT_4VIEW/ViewApp.h:
 src/view/fenetres/ZOUT_4VIEW/ViewLayerManager.h:
 
 src/view/fenetres/3_PREVIZ3D/RoomPreview.h:
+
+src/view/fenetres/3_PREVIZ3D/InteractionVisualizer.h:
 
 src/view/fenetres/ButtonApp.h:
 
