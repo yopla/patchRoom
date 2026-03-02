@@ -23,6 +23,9 @@ public:
     void mouseReleased(int x, int y, int button);
     void dragEvent(ofDragInfo dragInfo);
 
+    ofVec3f cursor3DPos;
+    ofVec3f lastCreatedHalo3DPos;
+
 private:
     void updateKeyStates();
     void handleCameraAndProjection();

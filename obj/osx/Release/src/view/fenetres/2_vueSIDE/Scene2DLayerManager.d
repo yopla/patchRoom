@@ -418,7 +418,7 @@ obj/osx/Release/src/view/fenetres/2_vueSIDE/Scene2DLayerManager.o: \
   src/fx/layer/carac/MachineLayer.h \
   src/fx/creature/tableaux/DiggingCreature.h \
   src/fx/layer/carac/MachineAutoLayer.h \
-  src/fx/creature/CurtainCreature.h
+  src/fx/creature/CurtainCreature.h src/fx/layer/carac/PuyoLayer.h
 
 src/view/fenetres/2_vueSIDE/Scene2DLayerManager.h:
 
@@ -1275,3 +1275,5 @@ src/fx/creature/tableaux/DiggingCreature.h:
 src/fx/layer/carac/MachineAutoLayer.h:
 
 src/fx/creature/CurtainCreature.h:
+
+src/fx/layer/carac/PuyoLayer.h:

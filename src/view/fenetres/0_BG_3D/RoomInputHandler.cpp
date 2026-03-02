@@ -118,6 +118,7 @@ void RoomInputHandler::updateLightFlyInteraction() {
         if(t > 0) {
             ofVec3f hit = rayOrigin + rayDir * t;
             if(hit.y <= app->lightFlyRing.height && hit.y >= -app->lightFlyRing.bottomExt) {
+                cursor3DPos = hit;
                 float angle = atan2(hit.z, hit.x);
                 if(angle < 0) angle += TWO_PI;
                 u = angle / TWO_PI;
@@ -178,6 +179,7 @@ void RoomInputHandler::keyPressed(int key) {
             // On récupère les coordonnées UV calculées dans updateLightFlyInteraction
             // via une astuce ou en recalculant, mais ici on utilise la pos stockée dans le ring
             app->lightFlyRing.addLightAt(app->lightFlyRing.interactPos.x / app->lightFlyRing.fbo.getWidth(), app->lightFlyRing.interactPos.y / app->lightFlyRing.fbo.getHeight());
+            lastCreatedHalo3DPos = cursor3DPos;
         }
     }
 

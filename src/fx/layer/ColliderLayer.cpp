@@ -2,6 +2,7 @@
 
 //--------------------------------------------------------------
 void ColliderLayer::setup(float simulationWidth, float simulationHeight, float displayScale, float realH, float simH) {
+       ofSetRandomSeed(42);
     simWidth = simulationWidth;
     simHeight = simulationHeight;
     scale = displayScale;

@@ -432,7 +432,7 @@ obj/osx/Release/src/view/CanvasManager.o: src/view/CanvasManager.cpp \
   src/fx/layer/bgFx/FlytrapLayer.h src/fx/layer/carac/MachineLayer.h \
   src/fx/creature/tableaux/DiggingCreature.h \
   src/fx/layer/carac/MachineAutoLayer.h \
-  src/fx/creature/CurtainCreature.h \
+  src/fx/creature/CurtainCreature.h src/fx/layer/carac/PuyoLayer.h \
   src/view/fenetres/1_vueTOP/Scene2DZenit.h
 
 src/view/CanvasManager.h:
@@ -1322,5 +1322,7 @@ src/fx/creature/tableaux/DiggingCreature.h:
 src/fx/layer/carac/MachineAutoLayer.h:
 
 src/fx/creature/CurtainCreature.h:
+
+src/fx/layer/carac/PuyoLayer.h:
 
 src/view/fenetres/1_vueTOP/Scene2DZenit.h:

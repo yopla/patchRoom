@@ -432,7 +432,7 @@ obj/osx/Release/src/ofApp.o: src/ofApp.cpp src/ofApp.h \
   src/fx/layer/bgFx/FlytrapLayer.h src/fx/layer/carac/MachineLayer.h \
   src/fx/creature/tableaux/DiggingCreature.h \
   src/fx/layer/carac/MachineAutoLayer.h \
-  src/fx/creature/CurtainCreature.h \
+  src/fx/creature/CurtainCreature.h src/fx/layer/carac/PuyoLayer.h \
   src/view/fenetres/1_vueTOP/Scene2DZenit.h src/OscManager.h \
   ../../../addons/ofxOsc/src/ofxOsc.h \
   ../../../addons/ofxOsc/src/ofxOscArg.h \
@@ -1343,6 +1343,8 @@ src/fx/creature/tableaux/DiggingCreature.h:
 src/fx/layer/carac/MachineAutoLayer.h:
 
 src/fx/creature/CurtainCreature.h:
+
+src/fx/layer/carac/PuyoLayer.h:
 
 src/view/fenetres/1_vueTOP/Scene2DZenit.h:
 

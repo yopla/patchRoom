@@ -69,6 +69,9 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
 
     // --- SETUP CURTAIN (RIDEAU) ---
     curtain.setup(frontX + 200, 100, 600, 800, "garde.png");
+    
+    // --- SETUP PUYO LAYER ---
+    puyoLayer.setup(simWidth, simHeight, scale, colliderLayer);
 }
 
 void Scene2DLayerManager::update(const ofVec2f& m) {
@@ -79,6 +82,7 @@ void Scene2DLayerManager::update(const ofVec2f& m) {
     if (bDrawCreatures) {
         creatureSystem.update(m);
         for(auto& c : cousinCons) c->update(m.x, m.y);
+        for(auto& h : halos) h->update(m.x, m.y);
     }
 
     if (bDrawWalker) {
@@ -150,12 +154,17 @@ void Scene2DLayerManager::update(const ofVec2f& m) {
     if (bDrawCurtain) {
         curtain.update(m.x, m.y);
     }
+    
+    if (bDrawPuyo) {
+        puyoLayer.update(m.x, m.y - (1472 - 900)); // Offset Y pour correspondre au collider
+    }
 }
 
 void Scene2DLayerManager::draw(const ofVec2f& m) {
     if (bDrawCreatures) {
         creatureSystem.draw(m);
         for(auto& c : cousinCons) c->draw();
+        for(auto& h : halos) h->draw();
     }
 
     if (bDrawLightning && bLightningHasStart) {
@@ -246,6 +255,13 @@ void Scene2DLayerManager::draw(const ofVec2f& m) {
     if (bDrawCurtain) {
         curtain.draw();
     }
+    
+    if (bDrawPuyo) {
+        ofPushMatrix();
+        ofTranslate(0, 1472 - 900);
+        puyoLayer.draw();
+        ofPopMatrix();
+    }
 }
 
 void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
@@ -255,28 +271,33 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
         case 'd': case 'D': // remove last
             creatureSystem.removeLast();
             if (!cousinCons.empty()) cousinCons.pop_back();
+            if (!halos.empty()) halos.pop_back();
             return;
         case 'c': case 'C': // clean creature
             creatureSystem.clear();
             cousinCons.clear();
+            halos.clear();
             return;
     }
 
     // --- CREATURE Spawning ---
     switch (key) {
         case 'o': case 'O': creatureSystem.addRipple(m.x, m.y, 0); break;
-        case '4': creatureSystem.addCreature(m.x, m.y); break; // Jelly
-        case '2': creatureSystem.addFluidsCreature(m.x, m.y); break;
+      
         case 'q': case 'Q': creatureSystem.addWancoCreature(m.x, m.y); break;
         case 'b': case 'B': creatureSystem.addBreakableCreature(m.x, m.y); break;
         case 'f': case 'F': creatureSystem.addGekoCreature(m.x, m.y); break;
         case 'a': case 'A': creatureSystem.addCousinCreature(m.x, m.y); break; // cousinHairWire
         case 'z': case 'Z': cousinCons.push_back(make_shared<CousinCon>(m.x, m.y, &imgConcombre)); break; // cousinCon
         case 's': case 'S': creatureSystem.addDoublePendulum(m.x, m.y); break;
-        case 'y': case 'Y': creatureSystem.addHalo(m.x, m.y); break;
+        case 'y': case 'Y': halos.push_back(make_shared<HaloCreature>(m.x, m.y)); break;
+      
+        case '2': creatureSystem.addFluidsCreature(m.x, m.y); break;
         case '3': creatureSystem.addSpringCreature(m.x, m.y); break;
+        case '4': creatureSystem.addCreature(m.x, m.y); break; // Jelly 
         case '5': bDrawColliders = !bDrawColliders; break;
-        case '6': creatureSystem.addDancingCreature(m.x, m.y);
+        case '6': creatureSystem.addDancingCreature(m.x, m.y); break;
+        case '7': bDrawPuyo = !bDrawPuyo; break;
     }
 
     // --- LAYER Toggles ---

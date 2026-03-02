@@ -397,9 +397,10 @@ obj/osx/Release/src/view/fenetres/3_PREVIZ3D/RoomPreview.o: \
   ../../../libs/openFrameworks/video/ofVideoPlayer.h \
   ../../../libs/openFrameworks/3d/of3dUtils.h \
   ../../../libs/openFrameworks/3d/ofCamera.h \
-  ../../../libs/openFrameworks/3d/ofEasyCam.h src/ofApp.h \
-  src/view/fenetres/0_BG_3D/RoomApp.h \
+  ../../../libs/openFrameworks/3d/ofEasyCam.h \
   src/view/fenetres/0_BG_3D/RoomWalls.h \
+  src/view/fenetres/0_BG_3D/proj/CursorSquareSystem.h src/ofApp.h \
+  src/view/fenetres/0_BG_3D/RoomApp.h \
   src/view/fenetres/0_BG_3D/proj/ProjectionSystem.h \
   src/view/fenetres/0_BG_3D/proj/object/PlanColleSystem.h \
   src/view/fenetres/0_BG_3D/proj/object/BeamSystem.h \
@@ -407,7 +408,6 @@ obj/osx/Release/src/view/fenetres/3_PREVIZ3D/RoomPreview.o: \
   src/view/fenetres/0_BG_3D/proj/object/PosterSystem.h \
   src/view/fenetres/0_BG_3D/proj/object/WormSystem.h \
   src/view/fenetres/0_BG_3D/proj/object/WingedWormSystem.h \
-  src/view/fenetres/0_BG_3D/proj/CursorSquareSystem.h \
   src/view/fenetres/0_BG_3D/proj/object/RippleSystem.h \
   src/view/fenetres/0_BG_3D/atomsphere/ring/FluidRing.h \
   src/fx/layer/bgFx/FluidFloorLayer.h \
@@ -434,7 +434,7 @@ obj/osx/Release/src/view/fenetres/3_PREVIZ3D/RoomPreview.o: \
   src/fx/layer/bgFx/FlytrapLayer.h src/fx/layer/carac/MachineLayer.h \
   src/fx/creature/tableaux/DiggingCreature.h \
   src/fx/layer/carac/MachineAutoLayer.h \
-  src/fx/creature/CurtainCreature.h \
+  src/fx/creature/CurtainCreature.h src/fx/layer/carac/PuyoLayer.h \
   src/view/fenetres/1_vueTOP/Scene2DZenit.h src/OscManager.h \
   ../../../addons/ofxOsc/src/ofxOsc.h \
   ../../../addons/ofxOsc/src/ofxOscArg.h \
@@ -450,7 +450,10 @@ obj/osx/Release/src/view/fenetres/3_PREVIZ3D/RoomPreview.o: \
   ../../../addons/ofxOsc/src/ofxOscReceiver.h \
   ../../../addons/ofxOsc/libs/oscpack/src/osc/OscPacketListener.h \
   ../../../addons/ofxOsc/libs/oscpack/src/osc/OscReceivedElements.h \
-  ../../../addons/ofxOsc/libs/oscpack/src/osc/../ip/PacketListener.h
+  ../../../addons/ofxOsc/libs/oscpack/src/osc/../ip/PacketListener.h \
+  src/view/fenetres/3_PREVIZ3D/../ButtonApp.h \
+  src/view/fenetres/ButtonWindow.h \
+  src/view/fenetres/3_PREVIZ3D/../2_vueSIDE/Scene2D_SIDE.h
 
 src/view/fenetres/3_PREVIZ3D/RoomPreview.h:
 
@@ -1248,11 +1251,13 @@ src/view/fenetres/3_PREVIZ3D/RoomPreview.h:
 
 ../../../libs/openFrameworks/3d/ofEasyCam.h:
 
+src/view/fenetres/0_BG_3D/RoomWalls.h:
+
+src/view/fenetres/0_BG_3D/proj/CursorSquareSystem.h:
+
 src/ofApp.h:
 
 src/view/fenetres/0_BG_3D/RoomApp.h:
-
-src/view/fenetres/0_BG_3D/RoomWalls.h:
 
 src/view/fenetres/0_BG_3D/proj/ProjectionSystem.h:
 
@@ -1267,8 +1272,6 @@ src/view/fenetres/0_BG_3D/proj/object/PosterSystem.h:
 src/view/fenetres/0_BG_3D/proj/object/WormSystem.h:
 
 src/view/fenetres/0_BG_3D/proj/object/WingedWormSystem.h:
-
-src/view/fenetres/0_BG_3D/proj/CursorSquareSystem.h:
 
 src/view/fenetres/0_BG_3D/proj/object/RippleSystem.h:
 
@@ -1344,6 +1347,8 @@ src/fx/layer/carac/MachineAutoLayer.h:
 
 src/fx/creature/CurtainCreature.h:
 
+src/fx/layer/carac/PuyoLayer.h:
+
 src/view/fenetres/1_vueTOP/Scene2DZenit.h:
 
 src/OscManager.h:
@@ -1377,3 +1382,9 @@ src/OscManager.h:
 ../../../addons/ofxOsc/libs/oscpack/src/osc/OscReceivedElements.h:
 
 ../../../addons/ofxOsc/libs/oscpack/src/osc/../ip/PacketListener.h:
+
+src/view/fenetres/3_PREVIZ3D/../ButtonApp.h:
+
+src/view/fenetres/ButtonWindow.h:
+
+src/view/fenetres/3_PREVIZ3D/../2_vueSIDE/Scene2D_SIDE.h:

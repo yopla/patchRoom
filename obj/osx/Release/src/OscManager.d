@@ -447,7 +447,7 @@ obj/osx/Release/src/OscManager.o: src/OscManager.cpp src/OscManager.h \
   src/fx/layer/bgFx/FlytrapLayer.h src/fx/layer/carac/MachineLayer.h \
   src/fx/creature/tableaux/DiggingCreature.h \
   src/fx/layer/carac/MachineAutoLayer.h \
-  src/fx/creature/CurtainCreature.h \
+  src/fx/creature/CurtainCreature.h src/fx/layer/carac/PuyoLayer.h \
   src/view/fenetres/1_vueTOP/Scene2DZenit.h \
   src/view/fenetres/ZOUT_4VIEW/ViewApp.h \
   src/view/fenetres/ZOUT_4VIEW/ViewLayerManager.h
@@ -1373,6 +1373,8 @@ src/fx/creature/tableaux/DiggingCreature.h:
 src/fx/layer/carac/MachineAutoLayer.h:
 
 src/fx/creature/CurtainCreature.h:
+
+src/fx/layer/carac/PuyoLayer.h:
 
 src/view/fenetres/1_vueTOP/Scene2DZenit.h:
 

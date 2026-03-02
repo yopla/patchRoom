@@ -3,6 +3,10 @@
 
 // Forward declaration pour dire que ofApp existe
 class ofApp; 
+class Scene2D_SIDE;
+
+#include "RoomWalls.h"
+#include "CursorSquareSystem.h"
 
 class RoomPreview : public ofBaseApp{
 
@@ -17,7 +21,11 @@ class RoomPreview : public ofBaseApp{
         
         // Lien vers l'app principale pour lire le Canvas
         shared_ptr<ofApp> mainApp;
+        shared_ptr<Scene2D_SIDE> sceneSide;
         
+        RoomWalls walls;
+        CursorSquareSystem cursorSquare;
+
         // --- Dimensions de la pièce (Identiques à RoomApp) ---
         const float roomWidth = 2400.0f;
         const float roomDepth = 2624.0f;

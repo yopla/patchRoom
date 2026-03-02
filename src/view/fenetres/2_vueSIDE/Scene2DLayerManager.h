@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "CreatureSystem.h"
 #include "CousinCon.h"
+#include "HaloCreature.h"
 #include "ColliderLayer.h"
 #include "SlimeLayer.h"
 #include "SauteursLayer.h"
@@ -18,6 +19,7 @@
 #include "DiggingCreature.h"
 #include "MachineAutoLayer.h"
 #include "CurtainCreature.h"
+#include "PuyoLayer.h"
 
 class Scene2DLayerManager {
 public:
@@ -45,10 +47,12 @@ public:
     bool bDrawMachineAuto = false;
     bool bDrawCurtain = false;
     bool bDrawColliders = false;
+    bool bDrawPuyo = false;
 
     // Layer objects
     CreatureSystem creatureSystem;
     vector<shared_ptr<CousinCon>> cousinCons;
+    vector<shared_ptr<HaloCreature>> halos;
     
     shared_ptr<ColliderLayer> colliderLayer;
     SlimeLayer slimeLayer;
@@ -65,6 +69,7 @@ public:
     DiggingCreature diggingCreature;
     MachineAutoLayer machineAuto;
     CurtainCreature curtain;
+    PuyoLayer puyoLayer;
 
     // State for lightning
     bool bLightningHasStart = false;

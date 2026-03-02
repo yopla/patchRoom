@@ -16,9 +16,10 @@ public:
     void update(float mx, float my);
     void draw(float scaleX = 1.0f, float scaleY = 1.0f);
     bool isInside(float mx, float my);
+      glm::vec2 pos;
 
 private:
-    glm::vec2 pos;
+  
     float haloRadius;
     vector<HaloFly> flies;
     bool isHovering;

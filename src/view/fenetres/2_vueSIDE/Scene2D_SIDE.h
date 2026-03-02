@@ -30,6 +30,7 @@ public:
     ofFbo fboJar, fboFront, fboCour, fboBack;
     ofFbo fboSol, fboTopJar, fboTopCour;
 
+    ofVec3f get3DPos(float x, float y);
 
 
 private:

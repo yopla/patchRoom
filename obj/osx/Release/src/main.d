@@ -432,7 +432,7 @@ obj/osx/Release/src/main.o: src/main.cpp \
   src/fx/layer/bgFx/FlytrapLayer.h src/fx/layer/carac/MachineLayer.h \
   src/fx/creature/tableaux/DiggingCreature.h \
   src/fx/layer/carac/MachineAutoLayer.h \
-  src/fx/creature/CurtainCreature.h \
+  src/fx/creature/CurtainCreature.h src/fx/layer/carac/PuyoLayer.h \
   src/view/fenetres/1_vueTOP/Scene2DZenit.h src/OscManager.h \
   ../../../addons/ofxOsc/src/ofxOsc.h \
   ../../../addons/ofxOsc/src/ofxOscArg.h \
@@ -451,7 +451,8 @@ obj/osx/Release/src/main.o: src/main.cpp \
   ../../../addons/ofxOsc/libs/oscpack/src/osc/../ip/PacketListener.h \
   src/view/fenetres/ZOUT_4VIEW/ViewApp.h \
   src/view/fenetres/ZOUT_4VIEW/ViewLayerManager.h \
-  src/view/fenetres/3_PREVIZ3D/RoomPreview.h
+  src/view/fenetres/3_PREVIZ3D/RoomPreview.h \
+  src/view/fenetres/ButtonApp.h src/view/fenetres/ButtonWindow.h
 
 ../../../libs/openFrameworks/ofMain.h:
 
@@ -1343,6 +1344,8 @@ src/fx/layer/carac/MachineAutoLayer.h:
 
 src/fx/creature/CurtainCreature.h:
 
+src/fx/layer/carac/PuyoLayer.h:
+
 src/view/fenetres/1_vueTOP/Scene2DZenit.h:
 
 src/OscManager.h:
@@ -1382,3 +1385,7 @@ src/view/fenetres/ZOUT_4VIEW/ViewApp.h:
 src/view/fenetres/ZOUT_4VIEW/ViewLayerManager.h:
 
 src/view/fenetres/3_PREVIZ3D/RoomPreview.h:
+
+src/view/fenetres/ButtonApp.h:
+
+src/view/fenetres/ButtonWindow.h:

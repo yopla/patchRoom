@@ -20,6 +20,7 @@
 // Forward declaration pour éviter la boucle d'include
 class ViewApp; 
 class RoomPreview;  // <--- AJOUTE CETTE LIGNE (Forward Declaration)
+class ButtonApp;
 
 class ofApp : public ofBaseApp {
 public:
@@ -39,6 +40,7 @@ public:
 
     // AJOUT : Pointeur vers l'app Preview (tu l'as peut-être déjà ou pas, sinon ajoute-le)
     shared_ptr<RoomPreview> roomPreviewApp;
+    shared_ptr<ButtonApp> buttonApp;
 
     
     void setup();

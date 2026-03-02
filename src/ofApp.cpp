@@ -13,6 +13,7 @@ void ofApp::registerViewApp(shared_ptr<ViewApp> vApp){
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+    
     ofSetRandomSeed(42);
     ofSetFrameRate(60);
     bool molo = true;
@@ -55,6 +56,11 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 }
 // ----------------------------------------------------
 void ofApp::update(){
+    // --- CORRECTION : Lier scene2D à RoomPreview si ce n'est pas fait ---
+    if(roomPreviewApp && scene2D && !roomPreviewApp->sceneSide) {
+        roomPreviewApp->sceneSide = scene2D;
+    }
+
     ofVec2f m = getTransformedMouse();
     creatureSystem.update(m);
     canvasManager.update();

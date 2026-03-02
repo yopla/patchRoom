@@ -209,6 +209,18 @@ void RoomApp::draw(){
     ofDrawBitmapString("ATMO [B]: " + ofToString(bDrawAtmosphere), 20, 65); 
     ofDrawBitmapString("LIGHT FLY [H]: " + ofToString(bLightFlyRingEnabled), 20, 80);
     
+    if(cursorSquare.isVisible) {
+        ofDrawBitmapString("CURSOR 3D: " + ofToString(cursorSquare.getCurrentPos()), 20, 145);
+    }
+    
+    if(bLightFlyRingEnabled) {
+        bool bDrawCoordDebug = false;
+        if (bDrawCoordDebug) {
+            ofDrawBitmapString("HALO CURSOR 3D: " + ofToString(inputHandler.cursor3DPos), 20, 160);
+            ofDrawBitmapString("LAST HALO POS: " + ofToString(inputHandler.lastCreatedHalo3DPos), 20, 175);
+        }
+    }
+
     // Petit feedback visuel pour savoir quel mode est actif
     bool isLeftShift  = ofGetKeyPressed(OF_KEY_LEFT_SHIFT);
     bool isRightShift = ofGetKeyPressed(OF_KEY_RIGHT_SHIFT);

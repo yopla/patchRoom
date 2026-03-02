@@ -179,7 +179,7 @@ void GearLayer::solveGearConstraints() {
     // Propagation du mouvement entre engrenages connectés
     // On suppose qu'ils sont en chaîne : 0 <-> 1 <-> 2 <-> 3
     
-    float stiffness = 0.2f; // Rigidité de la transmission (0.1 = mou, 1.0 = rigide)
+    float stiffness = 0.9f; // Rigidité de la transmission (0.1 = mou, 1.0 = rigide)
 
     for(size_t i = 0; i < gears.size() - 1; i++) {
         Gear& gA = gears[i];

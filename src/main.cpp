@@ -5,6 +5,7 @@
 #include "RoomApp.h"
 #include "RoomPreview.h" // Si vous avez gardé la preview précédente
 #include "Scene2DZenit.h" // <--- AJOUT
+#include "view/fenetres/ButtonApp.h"
 
 // Classe dérivée pour gérer l'enregistrement de la Vue 3
 class RecordingViewApp : public ViewApp {
@@ -38,12 +39,25 @@ public:
     }
 };
 
+// Forward declaration pour la connexion
+class ButtonApp;
+
 // Classe dérivée pour gérer l'enregistrement de la RoomPreview (Vue ESC)
 class RecordingRoomPreview : public RoomPreview {
 public:
+    shared_ptr<ButtonApp> buttonAppPtr; // Pointeur vers l'app des boutons
     bool bRecording = false;
     string folderName;
     int frameCount = 0;
+
+    void draw() override {
+        RoomPreview::draw(); // Dessin de base de la RoomPreview
+
+        if(bRecording){
+            ofSaveScreen(folderName + "/frame_" + ofToString(frameCount, 5, '0') + ".jpg");
+            frameCount++;
+        }
+    }
 
     void keyPressed(int key) override {
         RoomPreview::keyPressed(key);
@@ -61,13 +75,6 @@ public:
         }
     }
 
-    void draw() override {
-        RoomPreview::draw();
-        if(bRecording){
-            ofSaveScreen(folderName + "/frame_" + ofToString(frameCount, 5, '0') + ".jpg");
-            frameCount++;
-        }
-    }
 };
 
 int main( ){
@@ -155,6 +162,7 @@ int main( ){
     settings.setPosition(ofVec2f(700, 300));
     settings.resizable = true;
     settings.title = "Scene2D";
+    settings.shareContextWith = mainWindow; // Explicite pour la sécurité
     shared_ptr<ofAppBaseWindow> scene2DWindow = ofCreateWindow(settings);
 
 
@@ -163,7 +171,16 @@ int main( ){
     settings.setPosition(ofVec2f(1000, 50));
     settings.resizable = true;
     settings.title = "Scene2D Zenit";
+    settings.shareContextWith = mainWindow; // Explicite pour la sécurité
     shared_ptr<ofAppBaseWindow> zenitWindow = ofCreateWindow(settings);
+
+    // Fenêtre Bouton
+    settings.setSize(550, 550);
+    settings.setPosition(ofVec2f(850, 50));
+    settings.resizable = true;
+    settings.title = "Boutons";
+    settings.shareContextWith = mainWindow;
+    shared_ptr<ofAppBaseWindow> buttonWindow = ofCreateWindow(settings);
 
 
 
@@ -182,11 +199,13 @@ int main( ){
     if(bEnableView4) viewApp4 = make_shared<ViewApp>();
 
     shared_ptr<RoomApp> roomApp(new RoomApp);
-    shared_ptr<RoomPreview> roomPreview(new RecordingRoomPreview);
+    shared_ptr<RecordingRoomPreview> recordingRoomPreview(new RecordingRoomPreview);
+    shared_ptr<RoomPreview> roomPreview = recordingRoomPreview;
 
     shared_ptr<Scene2D_SIDE> scene2DApp(new Scene2D_SIDE);
     shared_ptr<Scene2DZenit> zenitApp(new Scene2DZenit);
-
+    shared_ptr<ButtonApp> buttonApp(new ButtonApp);
+    
     // ------------------------------------------------
     // 3. CONNEXIONS
     // ------------------------------------------------
@@ -218,6 +237,10 @@ int main( ){
     mainApp->sceneZenit = zenitApp; // On connecte Zenit au MainApp
     mainApp->scene2D = scene2DApp; // Passer la référence à ofApp
     roomPreview->mainApp = mainApp;       // (Déjà existant)
+    
+    mainApp->buttonApp = buttonApp; // On donne l'app des boutons à ofApp
+    // Connexion du buttonApp à la RoomPreview pour le dessin 3D
+    recordingRoomPreview->buttonAppPtr = buttonApp;
     
     mainApp->roomPreviewApp = roomPreview; // On donne l'app à ofApp
     mainApp->previewWindowPtr = previewWindow; // On donne la fenêtre à ofApp
@@ -257,6 +280,7 @@ int main( ){
     ofRunApp(previewWindow, roomPreview);
     ofRunApp(scene2DWindow, scene2DApp);
     ofRunApp(zenitWindow, zenitApp); // Lancement fenêtre Zenit
+    ofRunApp(buttonWindow, buttonApp); // Lancement fenêtre Boutons
     
 ofRunApp(mainWindow, dynamic_pointer_cast<ofBaseApp>(mainApp));
     

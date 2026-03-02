@@ -115,7 +115,7 @@ void Scene2D_SIDE::drawDynamicElements() {
 
     layerManager.draw(m);
 
-    // 6. BALLE (Toujours visible)
+    // 6. BALLE (Toujours visible)g
     bool lastDebug = false;
     if (lastDebug) {
     ofPushStyle();
@@ -151,7 +151,25 @@ void Scene2D_SIDE::draw() {
 
     ofSetColor(255, 255, 255, 50);
     ofDrawLine(0, hMax, totalSceneWidth, hMax);
+
+    // Affichage des coordonnées 3D pour les Halos
+    bool drawCoordDebug = false;
+    if (drawCoordDebug) {   
+        for(auto& h : layerManager.halos) {
+            ofVec3f p3 = get3DPos(h->pos.x, h->pos.y);
+            ofDrawBitmapStringHighlight("3D: " + ofToString(p3), h->pos.x, h->pos.y);
+        }
+    }
+    
+
     ofPopMatrix();
+
+    if (layerManager.bDrawPuyo) {
+        int folded = 0;
+        int complete = 0;
+        layerManager.puyoLayer.getStats(folded, complete);
+        ofDrawBitmapStringHighlight("Puyos: " + ofToString(complete) + " OK / " + ofToString(folded) + " Folded", 20, ofGetHeight() - 50);
+    }
 
     /*
     // Stats
@@ -276,4 +294,83 @@ ofVec2f Scene2D_SIDE::getTransformedMouse() {
     float mx = (ofGetMouseX() - viewPan.x) / viewZoom;
     float my = (ofGetMouseY() - viewPan.y) / viewZoom;
     return ofVec2f(mx, my);
+}
+
+//--------------------------------------------------------------
+ofVec3f Scene2D_SIDE::get3DPos(float x, float y) {
+    float w2 = 1200.0f; // roomWidth/2
+    float d2 = 1312.0f; // roomDepth/2
+    
+    // JAR (Mur Gauche)
+    if (x >= srcX_Jar && x < srcX_Jar + wJar) {
+        if (y >= 688 && y <= 688 + 784) { // Mur Vertical
+            float u = (x - srcX_Jar) / wJar;
+            float v = (y - 688) / 784.0f;
+            float z = d2 - u * (2*d2); // Z va de d2 à -d2
+            float y3d = 784.0f * (1.0f - v);
+            return ofVec3f(-w2, y3d, z);
+        }
+        else if (y < 688) { // Toit Jar
+            float u = (x - srcX_Jar) / wJar;
+            float v = (y - (-912)) / 1600.0f;
+            ofVec3f pBack(252, 1452, 1312); 
+            ofVec3f pFront(252, 1452, -1312); 
+            ofVec3f wJB(-1200, 784, 1312);
+            ofVec3f wJF(-1200, 784, -1312);
+            ofVec3f top = pBack.getInterpolated(pFront, u);
+            ofVec3f bot = wJB.getInterpolated(wJF, u);
+            return top.getInterpolated(bot, v);
+        }
+    }
+    
+    // FRONT (Mur Fond)
+    if (x >= srcX_Front && x < srcX_Front + wFront) {
+        if (y >= 0 && y <= 1472) { // Mur Vertical
+            float u = (x - srcX_Front) / wFront;
+            float v = y / 1472.0f;
+            float x3d = -w2 + u * (2*w2);
+            float y3d = 1472.0f * (1.0f - v);
+            return ofVec3f(x3d, y3d, -d2);
+        }
+        else if (y > 1472) { // Sol
+            float u = (x - srcX_Front) / wFront;
+            float v = (y - 1472) / 2368.0f;
+            float x3d = -w2 + u * (2*w2);
+            float z3d = -d2 + v * 2368.0f;
+            return ofVec3f(x3d, 0, z3d);
+        }
+    }
+    
+    // COUR (Mur Droit)
+    if (x >= srcX_Cour && x < srcX_Cour + wJar) {
+         if (y >= 400 && y <= 400 + 1072) { // Mur Vertical
+            float u = (x - srcX_Cour) / wJar;
+            float v = (y - 400) / 1072.0f;
+            float z = -d2 + u * (2*d2); // Z va de -d2 à d2
+            float y3d = 1072.0f * (1.0f - v);
+            return ofVec3f(w2, y3d, z);
+         }
+         else if (y < 400) { // Toit Cour
+            float u = (x - srcX_Cour) / wJar;
+            float v = (y - (-608)) / 1008.0f;
+            ofVec3f pFront(252, 1452, -1312);
+            ofVec3f pBack(252, 1452, 1312);
+            ofVec3f wCF(1200, 1072, -1312);
+            ofVec3f wCB(1200, 1072, 1312);
+            ofVec3f top = pFront.getInterpolated(pBack, u);
+            ofVec3f bot = wCF.getInterpolated(wCB, u);
+            return top.getInterpolated(bot, v);
+         }
+    }
+    
+    // BACK (Mur Arrière)
+    if (x >= srcX_Back && x < srcX_Back + wFront) {
+        float u = (x - srcX_Back) / wFront;
+        float v = y / 1472.0f;
+        float x3d = w2 - u * (2*w2); // X va de w2 à -w2
+        float y3d = 1472.0f * (1.0f - v);
+        return ofVec3f(x3d, y3d, d2);
+    }
+
+    return ofVec3f(0,0,0);
 }

@@ -25,6 +25,9 @@ public:
     float squareSize = 500.0f;
     bool isVisible = false;
  bool bLowAlpha = false;
+
+    ofVec3f getCurrentPos() const { return currentPos; }
+
 private:
     ofVec3f currentPos;
     ofVec3f currentNormal;
