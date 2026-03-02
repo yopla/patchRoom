@@ -215,14 +215,15 @@ bool bCallFocus = false; // pour plus tard
 
 // TOUCHE V : PREVIEW (Celle qui crashait)
     if(key == 'v' || key == 'V'){
-         bool newState = !roomPreviewApp->bPaused;
         if(roomPreviewApp){
+            bool newState = !roomPreviewApp->bPaused;
             roomPreviewApp->setPaused(newState);           
-        }
-        if(previewWindowPtr && !newState){
-            auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(previewWindowPtr);
-            if(glfwWin) {
-                glfwFocusWindow(glfwWin->getGLFWWindow());
+            
+            if(previewWindowPtr && !newState){
+                auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(previewWindowPtr);
+                if(glfwWin) {
+                    glfwFocusWindow(glfwWin->getGLFWWindow());
+                }
             }
         }
     }

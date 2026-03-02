@@ -1,6 +1,6 @@
 #include "RoomPreview.h"
 #include "ofApp.h" // Nécessaire pour accéder à mainApp->canvas
-#include "../2_vueSIDE/Scene2D_SIDE.h"
+#include "Scene2D_SIDE.h"
 
 
 //--------------------------------------------------------------

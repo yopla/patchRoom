@@ -1,7 +1,7 @@
 #include "InteractionVisualizer.h"
 #include "ofApp.h"
-#include "../ButtonApp.h"
-#include "../2_vueSIDE/Scene2D_SIDE.h"
+#include "ButtonApp.h"
+#include "Scene2D_SIDE.h"
 
 void InteractionVisualizer::draw(shared_ptr<ofApp> mainApp, shared_ptr<Scene2D_SIDE> sceneSide, float roomWidth, float roomDepth, float roomSolDepth) {
     if(!mainApp || !mainApp->buttonApp) return;

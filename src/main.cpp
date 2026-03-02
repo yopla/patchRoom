@@ -5,7 +5,7 @@
 #include "RoomApp.h"
 #include "RoomPreview.h" // Si vous avez gardé la preview précédente
 #include "Scene2DZenit.h" // <--- AJOUT
-#include "view/fenetres/ButtonApp.h"
+#include "ButtonApp.h"
 
 // Classe dérivée pour gérer l'enregistrement de la Vue 3
 class RecordingViewApp : public ViewApp {
@@ -127,7 +127,7 @@ int main( ){
 
     // Fenêtre Vue 3 ---
     if(bEnableView3) {
-        settings.setSize(5024, 5312); // Full Gabarit
+        settings.setSize(4024, 4312); // Full Gabarit
         settings.resizable = false;
         settings.decorated = true;
         settings.setPosition(ofVec2f(900, 150));
