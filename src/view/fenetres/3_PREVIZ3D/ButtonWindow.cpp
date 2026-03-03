@@ -262,6 +262,19 @@ void ButtonWindow::drawPreview(float x, float y, float z, float w, float h) {
         ofDrawBitmapString(ofToString(b.id), r.x + r.width/2 - 5, r.y + r.height/2 + 5);
     }
     
+    // Dessin des Worms (Ajouté pour la preview)
+    if(bDrawWorms) {
+        ofNoFill();
+        ofSetLineWidth(2);
+        for(auto& w : worms) {
+            ofSetColor(w.color);
+            ofPolyline line;
+            line.addVertex(w.headPos.x * scaleX, w.headPos.y * scaleY);
+            for(auto& s : w.segments) line.addVertex(s.x * scaleX, s.y * scaleY);
+            line.getSmoothed(3).draw();
+        }
+    }
+
     ofPopMatrix();
     ofPopStyle();
 }

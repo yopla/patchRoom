@@ -13,16 +13,17 @@ struct HaloFly {
 class HaloCreature {
 public:
     HaloCreature(float x, float y);
-    void update(float mx, float my);
+    void update();
     void draw(float scaleX = 1.0f, float scaleY = 1.0f);
     bool isInside(float mx, float my);
-      glm::vec2 pos;
+    void setHovering(bool hovering);
+    glm::vec2 pos;
 
 private:
   
     float haloRadius;
     vector<HaloFly> flies;
-    bool isHovering;
+    bool isHovering = false;
     ofFbo fbo;
     float birthTime;
 };

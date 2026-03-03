@@ -165,7 +165,9 @@ void RoomPreview::draw(){
 
         cursorSquare.drawProjected(walls);
         
-        interactionVisualizer.draw(mainApp, sceneSide, roomWidth, roomDepth, roomSolDepth);
+        if(bDrawInteraction) {
+            interactionVisualizer.draw(mainApp, sceneSide, roomWidth, roomDepth, roomSolDepth);
+        }
         
         // Petit repère visuel
         ofSetColor(255, 0, 255); ofDrawSphere(0, 600, 0, 30);
@@ -192,5 +194,8 @@ void RoomPreview::keyPressed(int key){
         if(mainApp && mainApp->roomApp) {
             mainApp->roomApp->bShowRoof = !mainApp->roomApp->bShowRoof;
         }
+    }
+    if(key == 'b' || key == 'B'){
+        bDrawInteraction = !bDrawInteraction;
     }
 }

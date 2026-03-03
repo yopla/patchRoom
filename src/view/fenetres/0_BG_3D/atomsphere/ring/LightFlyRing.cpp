@@ -40,12 +40,8 @@ void LightFlyRing::setup(float r, float topH, float botExt) {
 //--------------------------------------------------------------
 void LightFlyRing::update() {
     // 1. Update Creatures
-    // On passe la position d'interaction (souris projetée sur le cylindre)
-    float mx = isInteracting ? interactPos.x : -10000.0f;
-    float my = isInteracting ? interactPos.y : -10000.0f;
-
     for(auto& c : creatures) {
-        c->update(mx, my);
+        c->update();
     }
 
     // Calcul de la correction d'aspect ratio pour que les halos soient ronds sur le cylindre

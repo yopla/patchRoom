@@ -56,7 +56,8 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
     flytrapLayer.setup(totalSceneWidth, 1472.0f);
 
     // --- SETUP FLUID FLOOR ---
-    fluidFloorLayer.setup(totalSceneWidth, 800.0f, 512, 128);
+    fluidFloorLayer.setup(totalSceneWidth, 800.0f, 640, 256);
+    fluidFloorLayer.setCollider(colliderLayer);
 
     // --- SETUP MACHINE LAYER ---
     machineLayer.setup(totalSceneWidth, 1472.0f);
@@ -72,9 +73,16 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
     
     // --- SETUP PUYO LAYER ---
     puyoLayer.setup(simWidth, simHeight, scale, colliderLayer);
+
+    // --- SETUP BUBBLE LAYER ---
+    // Le layer de bulles doit couvrir toute la hauteur de la scène (1472px)
+    float bubbleSimHeight = 1472.0f / scale;
+    // On note le décalage vertical du layer de collision pour l'envoyer aux bulles
+    float colliderYOffset = 1472.0f - 900.0f;
+    bubbleLayer.setup(simWidth, bubbleSimHeight, scale, colliderLayer, colliderYOffset);
 }
 
-void Scene2DLayerManager::update(const ofVec2f& m) {
+void Scene2DLayerManager::update(const ofVec2f& m, bool isSpacePressed) {
     if (bDrawLightning) {
         lightningLayer.update(m.x, m.y);
     }
@@ -82,7 +90,7 @@ void Scene2DLayerManager::update(const ofVec2f& m) {
     if (bDrawCreatures) {
         creatureSystem.update(m);
         for(auto& c : cousinCons) c->update(m.x, m.y);
-        for(auto& h : halos) h->update(m.x, m.y);
+        for(auto& h : halos) h->update();
     }
 
     if (bDrawWalker) {
@@ -90,7 +98,9 @@ void Scene2DLayerManager::update(const ofVec2f& m) {
     }
 
     if (bDrawPoulpe) {
-        poulpeLayer.setTarget(m.x, m.y);
+        if (isSpacePressed) {
+            poulpeLayer.setTarget(m.x, m.y);
+        }
         poulpeLayer.update();
     }
 
@@ -158,6 +168,10 @@ void Scene2DLayerManager::update(const ofVec2f& m) {
     if (bDrawPuyo) {
         puyoLayer.update(m.x, m.y - (1472 - 900)); // Offset Y pour correspondre au collider
     }
+
+    if (bDrawBubbles) {
+        bubbleLayer.update(m.x, m.y); // Le layer fonctionne maintenant dans les coordonnées du monde
+    }
 }
 
 void Scene2DLayerManager::draw(const ofVec2f& m) {
@@ -199,12 +213,6 @@ void Scene2DLayerManager::draw(const ofVec2f& m) {
         ofPopMatrix();
     }
 
-    if (bDrawColliders) {
-        ofPushMatrix();
-        ofTranslate(0, 1472 - 900);
-        if(colliderLayer) colliderLayer->draw();
-        ofPopMatrix();
-    }
 
     if (bDrawFish) {
         ofPushMatrix();
@@ -262,6 +270,18 @@ void Scene2DLayerManager::draw(const ofVec2f& m) {
         puyoLayer.draw();
         ofPopMatrix();
     }
+
+    if (bDrawBubbles) {
+        // Le dessin se fait maintenant directement dans les coordonnées du monde
+        bubbleLayer.draw();
+    }
+
+     if (bDrawColliders) {
+        ofPushMatrix();
+        ofTranslate(0, 1472 - 900);
+        if(colliderLayer) colliderLayer->draw();
+        ofPopMatrix();
+    }
 }
 
 void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
@@ -298,6 +318,7 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
         case '5': bDrawColliders = !bDrawColliders; break;
         case '6': creatureSystem.addDancingCreature(m.x, m.y); break;
         case '7': bDrawPuyo = !bDrawPuyo; break;
+        case '8': bDrawBubbles = !bDrawBubbles; break;
     }
 
     // --- LAYER Toggles ---

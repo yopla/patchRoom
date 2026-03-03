@@ -72,7 +72,7 @@ gekoManager.update(mouseWorld.x, mouseWorld.y);
     }
     
     for(auto& h : halos) {
-        h->update(mouseWorld.x, mouseWorld.y);
+        h->update();
     }
     
     for(auto& b : breakables) {

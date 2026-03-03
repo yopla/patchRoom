@@ -23,6 +23,7 @@ void ButtonApp::setup() {
 
 //--------------------------------------------------------------
 void ButtonApp::update() {
+    if(!bEnabled) return;
     // On met à jour en continu pour assurer la fluidité des animations (Lerp alpha)
     // même si la souris ne bouge pas.
     ofVec2f m = getTransformedMouse(ofGetMouseX(), ofGetMouseY());
@@ -31,6 +32,11 @@ void ButtonApp::update() {
 
 //--------------------------------------------------------------
 void ButtonApp::draw() {
+    if(!bEnabled) {
+        ofBackground(0);
+        return;
+    }
+
     ofBackground(20); // Fond gris foncé
     
     ofPushMatrix();

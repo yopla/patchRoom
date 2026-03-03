@@ -76,7 +76,7 @@ void Scene2D_SIDE::update() {
 
     ofVec2f m = getTransformedMouse();
 
-    layerManager.update(m);
+    layerManager.update(m, isSpacePressed);
 
     // 4. Animation Balle (Toujours active sauf si app désactivée)
     if (waypoints.size() > 1) {

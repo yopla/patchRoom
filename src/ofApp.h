@@ -8,6 +8,7 @@
 #include "Scene2D_SIDE.h"
 #include "Scene2DZenit.h"
 #include "OscManager.h"
+#include "PerceptionSystem.h"
 
 // send host (aka ip address)
 #define HOST "127.0.0.1"
@@ -28,6 +29,7 @@ public:
     bool bDrawRoom = true;     
     bool bDrawZenit = true;    
     bool bDrawScene2D = true;  
+    bool bDrawButtons = true;
     bool bShowFullGab = true;
 
     OscManager oscManager;
@@ -37,6 +39,8 @@ public:
     shared_ptr<ofAppBaseWindow> previewWindowPtr;
     shared_ptr<ofAppBaseWindow> roomWindowPtr;    // <--- AJOUTE ÇA
     shared_ptr<ofAppBaseWindow> scene2DWindowPtr; // <--- AJOUTE ÇA
+    shared_ptr<ofAppBaseWindow> zenitWindowPtr;   // <--- AJOUT POUR ZENIT
+    shared_ptr<ofAppBaseWindow> buttonWindowPtr;  // <--- AJOUT POUR BUTTONS
 
     // AJOUT : Pointeur vers l'app Preview (tu l'as peut-être déjà ou pas, sinon ajoute-le)
     shared_ptr<RoomPreview> roomPreviewApp;
@@ -59,6 +63,7 @@ void dragEvent(ofDragInfo dragInfo);
     // --- Modules ---
     CanvasManager canvasManager;
     CreatureSystem creatureSystem;
+    PerceptionSystem perceptionSystem;
     shared_ptr<Scene2D_SIDE> scene2D; 
     shared_ptr<Scene2DZenit> sceneZenit; 
     

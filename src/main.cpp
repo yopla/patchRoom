@@ -247,7 +247,9 @@ int main( ){
 // --- AJOUTE CES LIGNES POUR LE FOCUS ---
     mainApp->roomWindowPtr = roomWindow;
     mainApp->scene2DWindowPtr = scene2DWindow;
+    mainApp->zenitWindowPtr = zenitWindow; // Connexion de la fenêtre Zenit
     mainApp->previewWindowPtr = previewWindow; // Déjà présent
+    mainApp->buttonWindowPtr = buttonWindow;
 
     // ------------------------------------------------
     // 4. CONFIGURATION DES CROPS (LAYERS)

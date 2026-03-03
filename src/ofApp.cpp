@@ -1,6 +1,7 @@
 #include "ofApp.h"
 #include "ViewApp.h" // INDISPENSABLE : Pour accéder à moveWindow
 #include "RoomPreview.h"      // <--- INDISPENSABLE pour accéder à setPaused
+#include "ButtonApp.h"        // <--- INDISPENSABLE pour accéder à setEnabled
 #include "ofAppGLFWWindow.h"  // <--- INDISPENSABLE pour accéder à setVisible
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h" // <--- AJOUTEZ CETTE LIGNE
@@ -16,7 +17,7 @@ void ofApp::setup(){
     
     ofSetRandomSeed(42);
     ofSetFrameRate(60);
-    bool molo = true;
+    bool molo = false; // <--- PASSEZ CECI À 'false' POUR LE TEST
     ofSetVerticalSync(molo);
     ofDisableArbTex();
     
@@ -28,6 +29,7 @@ void ofApp::setup(){
 
     // 2. Initialisation du Système de Créatures
     creatureSystem.setup();
+    perceptionSystem.setup();
 
     // 3. Placement initial des créatures (Hardcoded selon tes anciens réglages)
     /*
@@ -64,6 +66,9 @@ void ofApp::update(){
     ofVec2f m = getTransformedMouse();
     creatureSystem.update(m);
     canvasManager.update();
+    
+    // Mise à jour centralisée de la perception (Halos vs Boutons)
+    perceptionSystem.update(buttonApp, scene2D, roomApp);
 
     // --- GESTION OSC (Réception & Envoi Frame) ---
     oscManager.update(this);
@@ -187,28 +192,53 @@ bool bCallFocus = false; // pour plus tard
     if(key == 'w' || key == 'W') {
          bDrawRoom = !bDrawRoom; 
          if(roomApp) roomApp->setEnabled(bDrawRoom); 
-        if(roomWindowPtr && bDrawRoom && bCallFocus){
+        if(roomWindowPtr){
             auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(roomWindowPtr);
-            if(glfwWin) glfwFocusWindow(glfwWin->getGLFWWindow());
+            if(glfwWin) {
+                if(bDrawRoom) {
+                    glfwShowWindow(glfwWin->getGLFWWindow());
+                    glfwFocusWindow(glfwWin->getGLFWWindow());
+                    auto mainWin = dynamic_pointer_cast<ofAppGLFWWindow>(ofGetCurrentWindow());
+                    if(mainWin) glfwFocusWindow(mainWin->getGLFWWindow());
+                } else {
+                   // glfwHideWindow(glfwWin->getGLFWWindow());
+                }
+            }
         }
     }
    
     if(key == 'x' || key == 'X') { 
         bDrawZenit = !bDrawZenit; 
         if(sceneZenit) sceneZenit->setEnabled(bDrawZenit); 
-        if(scene2DWindowPtr && sceneZenit && bCallFocus){
-            auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(scene2DWindowPtr);
-            if(glfwWin) glfwFocusWindow(glfwWin->getGLFWWindow());
+        if(zenitWindowPtr){
+            auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(zenitWindowPtr);
+            if(glfwWin) {
+                if(bDrawZenit) {
+                    glfwShowWindow(glfwWin->getGLFWWindow());
+                    glfwFocusWindow(glfwWin->getGLFWWindow());
+                    auto mainWin = dynamic_pointer_cast<ofAppGLFWWindow>(ofGetCurrentWindow());
+                    if(mainWin) glfwFocusWindow(mainWin->getGLFWWindow());
+                } else {
+                   // glfwHideWindow(glfwWin->getGLFWWindow());
+                }
+            }
         }
     }
     
         if(key == 'c' || key == 'C') {
          bDrawScene2D = !bDrawScene2D; 
          if(scene2D) scene2D->setEnabled(bDrawScene2D); 
-         if(previewWindowPtr && bDrawScene2D && bCallFocus){
-            auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(previewWindowPtr);
+         if(scene2DWindowPtr){
+            auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(scene2DWindowPtr);
             if(glfwWin) {
-                glfwFocusWindow(glfwWin->getGLFWWindow());
+                if(bDrawScene2D) {
+                    glfwShowWindow(glfwWin->getGLFWWindow());
+                    glfwFocusWindow(glfwWin->getGLFWWindow());
+                    auto mainWin = dynamic_pointer_cast<ofAppGLFWWindow>(ofGetCurrentWindow());
+                    if(mainWin) glfwFocusWindow(mainWin->getGLFWWindow());
+                } else {
+                    //glfwHideWindow(glfwWin->getGLFWWindow());
+                }
             }
         }
         }
@@ -216,13 +246,39 @@ bool bCallFocus = false; // pour plus tard
 // TOUCHE V : PREVIEW (Celle qui crashait)
     if(key == 'v' || key == 'V'){
         if(roomPreviewApp){
-            bool newState = !roomPreviewApp->bPaused;
-            roomPreviewApp->setPaused(newState);           
+            bool bShow = roomPreviewApp->bPaused; // Si c'était en pause (caché), on veut afficher
+            roomPreviewApp->setPaused(!bShow);           
             
-            if(previewWindowPtr && !newState){
+            if(previewWindowPtr){
                 auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(previewWindowPtr);
                 if(glfwWin) {
+                    if(bShow) {
+                        glfwShowWindow(glfwWin->getGLFWWindow());
+                        glfwFocusWindow(glfwWin->getGLFWWindow());
+                        auto mainWin = dynamic_pointer_cast<ofAppGLFWWindow>(ofGetCurrentWindow());
+                        if(mainWin) glfwFocusWindow(mainWin->getGLFWWindow());
+                    } else {
+                        //glfwHideWindow(glfwWin->getGLFWWindow());
+                    }
+                }
+            }
+        }
+    }
+
+    if(key == 'b' || key == 'B'){
+        bDrawButtons = !bDrawButtons;
+        if(buttonApp) buttonApp->setEnabled(bDrawButtons);
+
+        if(buttonWindowPtr){
+            auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(buttonWindowPtr);
+            if(glfwWin) {
+                if(bDrawButtons) {
+                    glfwShowWindow(glfwWin->getGLFWWindow());
                     glfwFocusWindow(glfwWin->getGLFWWindow());
+                    auto mainWin = dynamic_pointer_cast<ofAppGLFWWindow>(ofGetCurrentWindow());
+                    if(mainWin) glfwFocusWindow(mainWin->getGLFWWindow());
+                } else {
+                    //glfwHideWindow(glfwWin->getGLFWWindow());
                 }
             }
         }

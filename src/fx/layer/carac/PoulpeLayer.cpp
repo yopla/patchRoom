@@ -148,6 +148,7 @@ void PoulpeLayer::setup(float width, float height) {
 void PoulpeLayer::setTarget(float x, float y) {
     targetX = x;
     targetY = y;
+    bExternalControl = true;
 }
 
 // Utilitaire pour calculer la distance signée la plus courte sur un axe qui boucle

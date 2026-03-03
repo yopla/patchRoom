@@ -1,4 +1,5 @@
 #include "FluidFloorLayer.h"
+#include "ColliderLayer.h"
 
 //--------------------------------------------------------------
 void FluidFloorLayer::setup(float w, float h, int resX, int resY) {
@@ -17,6 +18,7 @@ void FluidFloorLayer::setup(float w, float h, int resX, int resY) {
 
     fluidImage.allocate(gridWidth, gridHeight, OF_IMAGE_COLOR_ALPHA);
     fluidImage.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+    fluidImage.getTexture().setTextureWrap(GL_REPEAT, GL_CLAMP_TO_EDGE);
 
     // Chargement de l'image
     if(!bgImage.isAllocated()) bgImage.load("bg2.png");
@@ -86,6 +88,32 @@ void FluidFloorLayer::colorFromImage() {
             
             // Stockage dans la mémoire pour la régénération
             initialColors[idx] = c;
+        }
+    }
+}
+
+//--------------------------------------------------------------
+void FluidFloorLayer::setCollider(shared_ptr<ColliderLayer> colliders) {
+    this->colliderLayer = colliders;
+    if (!colliderLayer) return;
+
+    // Calage vertical entre le layer Fluide et le layer Collider dans Scene2D
+    // Fluide commence à Y=672 (1472-800), Collider à Y=572 (1472-900)
+    // Le fluide est donc décalé de 100px vers le bas par rapport au collider.
+    float yOffset = 100.0f;
+
+    for (int j = 1; j <= gridHeight; j++) {
+        for (int i = 1; i <= gridWidth; i++) {
+            // Coordonnées locales du fluide
+            float fluidX = (i - 0.5f) * scaleX;
+            float fluidY = (j - 0.5f) * scaleY;
+
+            // Conversion vers l'espace de simulation du Collider
+            float simX = fluidX / colliderLayer->scale;
+            float simY = (fluidY + yOffset) / colliderLayer->scale;
+
+            int idx = getIndex(i, j);
+            cells[idx].isWall = colliderLayer->isWall(simX, simY);
         }
     }
 }
@@ -208,6 +236,14 @@ void FluidFloorLayer::advect() {
     for (int j = 1; j <= gridHeight; j++) {
         for (int i = 1; i <= gridWidth; i++) {
             int idx = getIndex(i, j);
+            
+            // Si c'est un mur, pas de mouvement
+            if (cells[idx].isWall) {
+                cells[idx].vx = 0;
+                cells[idx].vy = 0;
+                continue;
+            }
+            
             FloorFluidCell& c = cells[idx];
             FloorFluidCell& old = prevCells[idx];
             
@@ -267,10 +303,18 @@ void FluidFloorLayer::project() {
     for (int j = 1; j <= gridHeight; j++) {
         for (int i = 1; i <= gridWidth; i++) {
             int idx = getIndex(i, j);
+            if (cells[idx].isWall) continue;
+
             int l = getIndex(i-1, j); int r = getIndex(i+1, j);
             int t = getIndex(i, j-1); int b = getIndex(i, j+1);
             
-            prevCells[idx].vx = -0.5f * (cells[r].vx - cells[l].vx + cells[b].vy - cells[t].vy);
+            // Gestion des voisins murs pour la divergence
+            float v_r = cells[r].isWall ? 0 : cells[r].vx;
+            float v_l = cells[l].isWall ? 0 : cells[l].vx;
+            float v_b = cells[b].isWall ? 0 : cells[b].vy;
+            float v_t = cells[t].isWall ? 0 : cells[t].vy;
+            
+            prevCells[idx].vx = -0.5f * (v_r - v_l + v_b - v_t);
             prevCells[idx].vy = 0; 
         }
     }
@@ -279,10 +323,18 @@ void FluidFloorLayer::project() {
         for (int j = 1; j <= gridHeight; j++) {
             for (int i = 1; i <= gridWidth; i++) {
                 int idx = getIndex(i, j);
+                if (cells[idx].isWall) continue;
+
                 int l = getIndex(i-1, j); int r = getIndex(i+1, j);
                 int t = getIndex(i, j-1); int b = getIndex(i, j+1);
                 
-                prevCells[idx].vy = (prevCells[idx].vx + prevCells[l].vy + prevCells[r].vy + prevCells[t].vy + prevCells[b].vy) * 0.25f;
+                // Gestion de la pression aux frontières (Neumann: pression voisine = pression courante)
+                float p_l = cells[l].isWall ? prevCells[idx].vy : prevCells[l].vy;
+                float p_r = cells[r].isWall ? prevCells[idx].vy : prevCells[r].vy;
+                float p_t = cells[t].isWall ? prevCells[idx].vy : prevCells[t].vy;
+                float p_b = cells[b].isWall ? prevCells[idx].vy : prevCells[b].vy;
+
+                prevCells[idx].vy = (prevCells[idx].vx + p_l + p_r + p_t + p_b) * 0.25f;
             }
         }
     }
@@ -290,11 +342,23 @@ void FluidFloorLayer::project() {
     for (int j = 1; j <= gridHeight; j++) {
         for (int i = 1; i <= gridWidth; i++) {
             int idx = getIndex(i, j);
+            if (cells[idx].isWall) {
+                cells[idx].vx = 0;
+                cells[idx].vy = 0;
+                continue;
+            }
+
             int l = getIndex(i-1, j); int r = getIndex(i+1, j);
             int t = getIndex(i, j-1); int b = getIndex(i, j+1);
             
-            cells[idx].vx -= 0.5f * (prevCells[r].vy - prevCells[l].vy);
-            cells[idx].vy -= 0.5f * (prevCells[b].vy - prevCells[t].vy);
+            float p_c = prevCells[idx].vy;
+            float p_l = cells[l].isWall ? p_c : prevCells[l].vy;
+            float p_r = cells[r].isWall ? p_c : prevCells[r].vy;
+            float p_t = cells[t].isWall ? p_c : prevCells[t].vy;
+            float p_b = cells[b].isWall ? p_c : prevCells[b].vy;
+            
+            cells[idx].vx -= 0.5f * (p_r - p_l);
+            cells[idx].vy -= 0.5f * (p_b - p_t);
         }
     }
 }

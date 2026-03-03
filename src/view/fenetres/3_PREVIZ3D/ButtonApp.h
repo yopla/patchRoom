@@ -18,6 +18,9 @@ public:
     
     ButtonWindow buttonWindow;
     
+    bool bEnabled = true;
+    void setEnabled(bool enable) { bEnabled = enable; }
+
     // Navigation
     ofVec2f pan;
     float zoom;

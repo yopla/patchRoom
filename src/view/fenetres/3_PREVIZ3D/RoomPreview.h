@@ -19,6 +19,7 @@ class RoomPreview : public ofBaseApp{
         void keyPressed(int key); // <--- AJOUTER CETTE LIGNE
         bool bPaused = false;
         void setPaused(bool paused) { bPaused = paused; }
+        bool bDrawInteraction = true;
         
         // Lien vers l'app principale pour lire le Canvas
         shared_ptr<ofApp> mainApp;

@@ -31,12 +31,14 @@ public:
     ofFbo fboSol, fboTopJar, fboTopCour;
 
     ofVec3f get3DPos(float x, float y);
-
+    
+    // Public dimensions needed by other systems
+    const float wFront = 2400.0f;
+    const float wJar   = 2624.0f;
 
 private:
     void captureSection(ofFbo& targetFbo, float worldX, float worldTopY, ofImage& img, bool bDrawDynamics = true);
     void drawDynamicElements(); 
-
     ofImage imgJar, imgFront, imgCour, imgBack;
     ofImage imgSol, imgTopJar, imgTopCour;
     
@@ -44,8 +46,6 @@ private:
     
     // Positions et dimensions
     float srcX_Jar, srcX_Front, srcX_Cour, srcX_Back;
-    const float wFront = 2400.0f;
-    const float wJar   = 2624.0f;
     const float hMax   = 1472.0f; 
     const float wSol = 2400.0f;
     const float hSol = 2368.0f;

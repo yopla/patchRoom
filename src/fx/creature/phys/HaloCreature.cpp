@@ -21,10 +21,7 @@ HaloCreature::HaloCreature(float x, float y) {
     fbo.allocate(800, 800, GL_RGBA);
 }
 
-void HaloCreature::update(float mx, float my) {
-    float d = ofDist(mx, my, pos.x, pos.y);
-    isHovering = (d < haloRadius + 80); 
-
+void HaloCreature::update() {
     float fpsRec = 60.0f;
     float time = ofGetFrameNum() / fpsRec;
 
@@ -172,4 +169,8 @@ void HaloCreature::draw(float scaleX, float scaleY) {
 
 bool HaloCreature::isInside(float mx, float my) {
     return ofDist(mx, my, pos.x, pos.y) < haloRadius;
+}
+
+void HaloCreature::setHovering(bool hovering) {
+    isHovering = hovering;
 }

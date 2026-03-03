@@ -20,11 +20,12 @@
 #include "MachineAutoLayer.h"
 #include "CurtainCreature.h"
 #include "PuyoLayer.h"
+#include "BubbleLayer.h"
 
 class Scene2DLayerManager {
 public:
     void setup(float totalWidth, float jarW, float jarX, float frontW, float frontX);
-    void update(const ofVec2f& mouse);
+    void update(const ofVec2f& mouse, bool isSpacePressed = false);
     void draw(const ofVec2f& mouse);
     void keyPressed(int key, const ofVec2f& mouse);
     void mousePressed(const ofVec2f& mouse, int button);
@@ -48,6 +49,7 @@ public:
     bool bDrawCurtain = false;
     bool bDrawColliders = false;
     bool bDrawPuyo = false;
+    bool bDrawBubbles = false;
 
     // Layer objects
     CreatureSystem creatureSystem;
@@ -70,6 +72,7 @@ public:
     MachineAutoLayer machineAuto;
     CurtainCreature curtain;
     PuyoLayer puyoLayer;
+    BubbleLayer bubbleLayer;
 
     // State for lightning
     bool bLightningHasStart = false;

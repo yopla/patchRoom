@@ -30,8 +30,11 @@ class PoulpeLayer : public BaseLayer {
 public:
     void setup(float width, float height);
     void update(float mouseX, float mouseY) override {
-        setTarget(mouseX, mouseY); // On utilise les coords passées par le manager
+        if (!bExternalControl) {
+            setTarget(mouseX, mouseY); // On utilise les coords passées par le manager
+        }
         update(); // Appel de ta logique interne
+        bExternalControl = false;
     };
     
     void update(); // Ta méthode interne
@@ -39,6 +42,9 @@ public:
     
     // Permet de définir une cible manuellement (ex: la souris transformée de Scene2D)
     void setTarget(float x, float y);
+
+    ofVec2f getHeadPos() const { return headPos; }
+    bool bExternalControl = false;
 
 private:
     float simWidth;

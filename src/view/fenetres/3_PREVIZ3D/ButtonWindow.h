@@ -15,21 +15,25 @@ public:
     float getWidth() { return winW; }
     float getHeight() { return winH; }
 
-    vector<int> hoveredIndices;
-    vector<ofVec3f> get3DPosForActiveButtons(float roomW, float roomSolD, float roomDepth);
-
-    void setupWorms(int count);
-    void toggleWorms() { bDrawWorms = !bDrawWorms; }
-    bool bDrawWorms = true;
-
-private:
-    struct Button {
+        struct Button {
         ofRectangle rect;
         int id;
         float currentAlpha;
         float targetAlpha;
         ofColor color;
     };
+    vector<Button> buttons;
+
+    vector<int> hoveredIndices;
+    vector<ofVec3f> get3DPosForActiveButtons(float roomW, float roomSolD, float roomDepth);
+
+    void setupWorms(int count);
+    void toggleWorms() { bDrawWorms = !bDrawWorms; }
+    bool bDrawWorms = true;
+    
+
+private:
+
 
     struct ButtonWorm {
         ofVec2f headPos;
@@ -42,7 +46,6 @@ private:
     };
 
     vector<ButtonWorm> worms;
-    vector<Button> buttons;
     ofImage bgImg;
     float winW, winH;
 };
