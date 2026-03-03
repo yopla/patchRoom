@@ -18,6 +18,8 @@
 
 #define PORT 12345
 
+#define APP_FPS 55
+
 // Forward declaration pour éviter la boucle d'include
 class ViewApp; 
 class RoomPreview;  // <--- AJOUTE CETTE LIGNE (Forward Declaration)
@@ -31,6 +33,11 @@ public:
     bool bDrawScene2D = true;  
     bool bDrawButtons = true;
     bool bShowFullGab = true;
+
+    // --- PAUSE & TIME ---
+    bool bGlobalPause = false; // Pause active par défaut
+    float localTime = 0.0f;
+    float oscTime = 0.0f;
 
     OscManager oscManager;
      shared_ptr<RoomApp> roomApp; // Pointeur vers l'app 3D

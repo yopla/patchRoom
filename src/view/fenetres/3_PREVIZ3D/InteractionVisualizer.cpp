@@ -20,6 +20,9 @@ void InteractionVisualizer::draw(shared_ptr<ofApp> mainApp, shared_ptr<Scene2D_S
     // 1. Récupérer TOUS les boutons (actifs et inactifs) pour la logique de proximité
     float winW = mainApp->buttonApp->buttonWindow.getWidth();
     float winH = mainApp->buttonApp->buttonWindow.getHeight();
+    
+    if (winW <= 0.001f || winH <= 0.001f) return; // Sécurité division par zéro
+    
     vector<pair<glm::vec3, bool>> allButtons;
     for(const auto& b : mainApp->buttonApp->buttonWindow.buttons) {
         ofVec2f center = b.rect.getCenter();

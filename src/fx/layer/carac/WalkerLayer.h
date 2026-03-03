@@ -14,7 +14,7 @@ public:
     void setup(float w, float h);
     
     // Implémentation de BaseLayer
-    void update(float mouseX, float mouseY) override;
+    void update(float mouseX, float mouseY, float time) override;
     void draw() override;
     
     // Setters spécifiques

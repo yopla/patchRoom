@@ -21,7 +21,7 @@ struct MConstraint {
 class MachineLayer : public BaseLayer {
 public:
     void setup(float w, float h);
-    void update(float mouseX, float mouseY) override;
+    void update(float mouseX, float mouseY, float time) override;
     void draw() override;
     void mousePressed(float x, float y, int button) override;
 

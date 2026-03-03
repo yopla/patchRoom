@@ -16,7 +16,7 @@ struct BubbleLink {
 class Bubble {
 public:
     void setup(float x, float y, float r);
-    void update(float w, float h, shared_ptr<ColliderLayer> collider, float yOffset_sim);
+    void update(float w, float h, shared_ptr<ColliderLayer> collider, float yOffset_sim, float time);
     void draw();
     
     void solveConstraints();
@@ -32,7 +32,7 @@ public:
 class BubbleLayer {
 public:
     void setup(float w, float h, float s, shared_ptr<ColliderLayer> col, float yOff = 0);
-    void update(float mx, float my);
+    void update(float mx, float my, float time);
     void draw();
     void addBubble(float x, float y);
     

@@ -38,10 +38,10 @@ void LightFlyRing::setup(float r, float topH, float botExt) {
 }
 
 //--------------------------------------------------------------
-void LightFlyRing::update() {
+void LightFlyRing::update(float time) {
     // 1. Update Creatures
     for(auto& c : creatures) {
-        c->update();
+        c->update(time);
     }
 
     // Calcul de la correction d'aspect ratio pour que les halos soient ronds sur le cylindre

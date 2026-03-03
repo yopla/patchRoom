@@ -70,12 +70,10 @@ void RoomApp::windowResized(int w, int h){}
 //--------------------------------------------------------------
 void RoomApp::update(){
     if(!bEnabled) return; // <-- Coupe les calculs si désactivé
-    
-    float fpsRec = 60.0f;
-    float time = ofGetFrameNum() / fpsRec;
+    if(bPaused) return;   // <-- Pause générale
 
     // Animation légère de la position du rig (caméras Off-Axis)
-    if (respire) rigPosition.y = 600 + sin(time*0.5)*100;
+    if (respire) rigPosition.y = 600 + sin(localTime*0.5)*100;
     
     // Mise à jour des caméras Off-Axis (en utilisant les points géométriques de "walls")
     camFront.setPosition(rigPosition); camFront.setupOffAxisViewPortal(walls.pFront[0], walls.pFront[1], walls.pFront[2]);
@@ -96,18 +94,19 @@ void RoomApp::update(){
     // Mise à jour de la logique des modules
     poster.update();
     projection.update();
+    atmosphere.update(localTime); // <--- Pass localTime
     if (bDrawWorms) {
         wormSystem.update(walls);
     }
 
     if (bDrawWingedWorms) {
-        wingedWormSystem.update();
+        wingedWormSystem.update(localTime); // <--- Pass localTime
     }
 
     ripples.update(walls); // <--- AJOUT : Update des ripples avec référence aux murs
 
     if(bLightFlyRingEnabled) {
-        lightFlyRing.update();
+        lightFlyRing.update(localTime); // <--- Pass localTime
     }
 }
 

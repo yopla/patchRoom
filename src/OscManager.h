@@ -10,7 +10,7 @@ public:
     void update(ofApp* app);
 
     // Fonctions d'envoi spécifiques
-    void sendFrameNum();
+    void sendFrameNum(ofApp* app);
     void sendHoverState(bool state, float radius, float elevation, float azimuth);
 
 private:

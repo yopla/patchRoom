@@ -30,7 +30,7 @@ void CreatureSystem::setup() {
 }
 
 //--------------------------------------------------------------
-void CreatureSystem::update(ofVec2f mouseWorld) {
+void CreatureSystem::update(ofVec2f mouseWorld, float time) {
     
     // Mise à jour de toutes les listes
     
@@ -39,7 +39,7 @@ void CreatureSystem::update(ofVec2f mouseWorld) {
     }
 
     for(auto& c : dancingCreatures) {
-        c->update(mouseWorld.x, mouseWorld.y);
+        c->update(mouseWorld.x, mouseWorld.y, time);
     }
 
     for(auto& r : ripples) {
@@ -72,7 +72,7 @@ gekoManager.update(mouseWorld.x, mouseWorld.y);
     }
     
     for(auto& h : halos) {
-        h->update();
+        h->update(time);
     }
     
     for(auto& b : breakables) {

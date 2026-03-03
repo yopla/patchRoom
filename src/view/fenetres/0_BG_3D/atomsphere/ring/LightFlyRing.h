@@ -5,7 +5,7 @@
 class LightFlyRing {
 public:
     void setup(float r, float topH, float botExt);
-    void update();
+    void update(float time);
     void draw();
     
     // Interaction methods

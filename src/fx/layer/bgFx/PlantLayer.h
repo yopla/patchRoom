@@ -18,7 +18,7 @@ public:
 class PlantLayer {
 public:
     void setup(float w, float h);
-    void update(float mx, float my);
+    void update(float mx, float my, float time);
     void draw();
 
     vector<PlantStem> stems;

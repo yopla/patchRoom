@@ -7,7 +7,7 @@ public:
     virtual ~BaseLayer() {}
     
     // On force tous les layers à accepter la souris
-    virtual void update(float mouseX, float mouseY) = 0;
+    virtual void update(float mouseX, float mouseY, float time) = 0;
     virtual void draw() = 0;
 
     // Gestion de l'état
@@ -29,9 +29,9 @@ public:
         layers.push_back(layer);
     }
 
-    void update(float mouseX, float mouseY) {
+    void update(float mouseX, float mouseY, float time) {
         for(auto& l : layers) {
-            if(l->bActive) l->update(mouseX, mouseY);
+            if(l->bActive) l->update(mouseX, mouseY, time);
         }
     }
 

@@ -1,4 +1,5 @@
 #include "RippleSystem.h"
+#include "ofApp.h"
 
 //--------------------------------------------------------------
 void RippleSystem::setup(int count) {
@@ -121,7 +122,7 @@ void RippleSystem::spawnAgent(RippleAgent& agent, RoomWalls& walls) {
 
 //--------------------------------------------------------------
 void RippleSystem::update(RoomWalls& walls) {
-    float dt = 1.0f / 60.0f; // Delta time fixe approximatif
+    float dt = 1.0f / (float)APP_FPS; // Delta time fixe approximatif
     
     for(auto& agent : agents) {
         agent.age += dt;

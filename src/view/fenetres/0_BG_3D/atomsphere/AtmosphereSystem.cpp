@@ -40,8 +40,10 @@ void AtmosphereSystem::setup() {
 }
 
 //--------------------------------------------------------------
-void AtmosphereSystem::update() {
-    // Logique d'animation si nécessaire
+void AtmosphereSystem::update(float time) {
+    if (rot) {
+        autoRotY = time * 2.0f;
+    }
 }
 
 //--------------------------------------------------------------
@@ -56,10 +58,11 @@ if (bShow360) {
             // 2. On applique les rotations contrôlées par le clavier
             ofRotateYDeg(rotY);
             ofRotateXDeg(rotX);
+            ofRotateZDeg(rotZ);
 
             // 3. Si le mode auto est ON, on ajoute une rotation continue sur Y
             if (rot) {
-                ofRotateYDeg(ofGetFrameNum() * (2.0 / 60.0));
+                ofRotateYDeg(autoRotY);
             }
             
             ofScale(-1, 1, 1); 
@@ -76,7 +79,7 @@ if (bShow360) {
     // --- 2. RENDU DE LA DISCO BALL ---
     if (bShowDiscoBall) {
         ofPushMatrix();
-            ofRotateYDeg(ofGetFrameNum() * (10.0 / 60.0)); // Rotation lente
+            ofRotateYDeg(autoRotY * 5.0f); // Rotation lente
             ofScale(-1, -1, -1); // Inverser pour voir l'intérieur
             meshDiscoBall.draw();
         ofPopMatrix();
@@ -93,7 +96,7 @@ if (bShow360) {
             float angle; ofVec3f axis;
             inclinaison.getRotate(angle, axis);
             ofRotateDeg(angle, axis.x, axis.y, axis.z);
-            ofRotateYDeg(ofGetFrameNum() * (2.0 / 60.0));
+            ofRotateYDeg(autoRotY);
             ofScale(-1, -1, -1); 
 
             if (useTexture) {
@@ -224,5 +227,11 @@ float speed = 2.0; // Vitesse de rotation par touche pressée
     }
     if(key == OF_KEY_DOWN) {
         rotX += speed;
+    }
+    if(key == '1') {
+        rotZ -= speed;
+    }
+    if(key == '2') {
+        rotZ += speed;
     }
 }

@@ -19,6 +19,9 @@ public:
     // --- GESTION ACTIVATION / PAUSE ---
     bool bEnabled = true;
     void setEnabled(bool enable) { bEnabled = enable; }
+
+    bool bPaused = false;
+    void setPaused(bool paused) { bPaused = paused; }
     
     // Temps local pour pouvoir mettre en pause l'animation de la balle
     float localTime = 0.0f; 

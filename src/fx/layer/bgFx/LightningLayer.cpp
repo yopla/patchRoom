@@ -50,7 +50,7 @@ void LightningLayer::createBoltPoints(ofVec2f p1, ofVec2f p2, float displacement
 }
 
 //--------------------------------------------------------------
-void LightningLayer::update(float mouseX, float mouseY) {
+void LightningLayer::update(float mouseX, float mouseY, float time) {
     // Mise à jour des éclairs
     for(int i = bolts.size() - 1; i >= 0; i--) {
         bolts[i].life -= bolts[i].decay;

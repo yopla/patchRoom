@@ -18,7 +18,7 @@ struct AutoConstraint {
 class MachineAutoLayer {
 public:
     void setup(float w, float h);
-    void update();
+    void update(float time);
     void draw();
     void mousePressed(float x, float y);
 

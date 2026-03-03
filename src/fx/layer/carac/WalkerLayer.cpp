@@ -29,7 +29,7 @@ float WalkerLayer::getShortestDist(float current, float target, float w) {
 }
 
 //--------------------------------------------------------------
-void WalkerLayer::update(float mouseX, float mouseY) {
+void WalkerLayer::update(float mouseX, float mouseY, float time) {
     // 1. Calcul de la distance vers la souris (avec Wrapping)
     // Le "0.1" est le easing factor du script original
     float dx = getShortestDist(pos.x, mouseX, simWidth) * 0.05f; 

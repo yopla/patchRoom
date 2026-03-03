@@ -3,7 +3,7 @@
 HaloCreature::HaloCreature(float x, float y) {
     pos = glm::vec2(x, y);
     haloRadius = 120.0f;
-    birthTime = ofGetElapsedTimef();
+    // birthTime est initialisé à -1.0f dans le header pour attendre le temps local
     
     int numFlies = 15;
     for(int i=0; i<numFlies; i++) {
@@ -21,9 +21,9 @@ HaloCreature::HaloCreature(float x, float y) {
     fbo.allocate(800, 800, GL_RGBA);
 }
 
-void HaloCreature::update() {
-    float fpsRec = 60.0f;
-    float time = ofGetFrameNum() / fpsRec;
+void HaloCreature::update(float time) {
+    if(birthTime < 0.0f) birthTime = time;
+    animTime = time;
 
     for(auto& f : flies) {
         glm::vec3 target;
@@ -48,7 +48,7 @@ void HaloCreature::update() {
 
 void HaloCreature::draw(float scaleX, float scaleY) {
     // Animation d'apparition "Ting!" (Elastic Out)
-    float age = ofGetElapsedTimef() - birthTime;
+    float age = animTime - birthTime;
     float duration = 0.8f;
     if(age < duration) {
         float t = age / duration;
@@ -58,8 +58,7 @@ void HaloCreature::draw(float scaleX, float scaleY) {
         scaleY *= animScale;
     }
 
-    float fpsRec = 60.0f;
-    float time = ofGetFrameNum() / fpsRec;
+    float time = animTime;
     float pulse = 1.0f + 0.05f * sin(time * 3.0f);
     float currentRadius = haloRadius * pulse;
     float radiationRadius = currentRadius * 2.0f; // Rayonnement beaucoup plus long

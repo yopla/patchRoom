@@ -20,9 +20,7 @@ void Flytrap::setup(float x, float y) {
     color.set(100 + ofRandom(50), 180 + ofRandom(50), 50);
 }
 
-void Flytrap::update(float mx, float my) {
-    float fpsRec = 60.0f;
-    float time = ofGetFrameNum() / fpsRec;
+void Flytrap::update(float mx, float my, float time) {
     
     // 1. Détermination de la cible (Souris ou Repos)
     ofVec2f target;
@@ -170,9 +168,9 @@ void FlytrapLayer::setup(float w, float h) {
     }
 }
 
-void FlytrapLayer::update(float mx, float my) {
+void FlytrapLayer::update(float mx, float my, float time) {
     for(auto& t : traps) {
-        t.update(mx, my);
+        t.update(mx, my, time);
     }
 }
 

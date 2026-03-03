@@ -1,13 +1,11 @@
 #include "ColliderLayer.h"
 
 //--------------------------------------------------------------
-void ColliderLayer::setup(float simulationWidth, float simulationHeight, float displayScale, float realH, float simH) {
+void ColliderLayer::setup(float simulationWidth, float simulationHeight, float displayScale) {
        ofSetRandomSeed(42);
     simWidth = simulationWidth;
     simHeight = simulationHeight;
     scale = displayScale;
-    realTotalHeight = realH;
-    realSimHeight = simH;
 
     generateWalls();
 }
@@ -22,26 +20,6 @@ void ColliderLayer::generateWalls() {
     // 1. Chargement de COLL.png et génération des colliders blancs
     ofImage mapImg;
     if(mapImg.load("COLL.png")) {
-        // --- LOGIQUE DE RECADRAGE AUTOMATIQUE ---
-        // Si on a les infos de dimensions réelles (passées via setup)
-        if (realTotalHeight > 0 && realSimHeight > 0) {
-            float sceneAspect = (simWidth * scale) / realTotalHeight; // Ratio de la scène complète
-            float imgAspect = mapImg.getWidth() / mapImg.getHeight();
-
-            // Si l'image a un ratio proche de la scène complète (et non de la simulation qui est très large)
-            // On en déduit qu'il faut cropper le bas.
-            if (abs(imgAspect - sceneAspect) < 0.5) {
-                ofLogNotice("ColliderLayer") << "COLL.png detecte comme Scene Complete. Recadrage du bas...";
-                
-                float cropRatio = realSimHeight / realTotalHeight; // ex: 900 / 1472
-                float cropH = mapImg.getHeight() * cropRatio;
-                float cropY = mapImg.getHeight() - cropH; // On prend le bas
-                
-                mapImg.crop(0, cropY, mapImg.getWidth(), cropH);
-            }
-        }
-        // ----------------------------------------
-
         mapImg.resize(simWidth, simHeight);
         mapPixels = mapImg.getPixels();
         bHasMap = true;
@@ -70,8 +48,8 @@ void ColliderLayer::generateWalls() {
     }
 
     // Couleur des murs (Mauve comme dans ton ancien code Fish)
-    ofColor wallColor(180, 100, 220, 200);
-    ofColor whiteColor(255, 255, 255, 255);
+    ofColor wallColor(180, 100, 220, 127);
+    ofColor whiteColor(255, 255, 255, 127);
 
     // 2. Ajout des 20 murs violets aléatoires
     int numWalls = 20; 

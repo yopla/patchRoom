@@ -25,7 +25,7 @@ struct FallingSquare {
 class GearLayer {
 public:
     void setup(float w, float h);
-    void update(float mouseX, float mouseY);
+    void update(float mouseX, float mouseY, float time);
     void draw();
 
     void addSquare(); // Fait tomber un carré manuellement ou auto

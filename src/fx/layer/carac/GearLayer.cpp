@@ -74,7 +74,7 @@ void GearLayer::addSquare() {
 }
 
 //--------------------------------------------------------------
-void GearLayer::update(float mouseX, float mouseY) {
+void GearLayer::update(float mouseX, float mouseY, float time) {
     
     // 1. Spawn automatique de carrés
     if(ofRandom(1.0) < 0.015) { // 0.5% de chance par frame (Moins fréquent)

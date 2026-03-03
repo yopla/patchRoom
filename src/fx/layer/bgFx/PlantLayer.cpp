@@ -83,11 +83,9 @@ void PlantLayer::setup(float w, float h) {
     }
 }
 
-void PlantLayer::update(float mx, float my) {
-    float fpsRec = 60.0f;
-    float t = ofGetFrameNum() / fpsRec;
+void PlantLayer::update(float mx, float my, float time) {
     for(auto& s : stems) {
-        s.update(t, mx, my);
+        s.update(time, mx, my);
     }
 }
 

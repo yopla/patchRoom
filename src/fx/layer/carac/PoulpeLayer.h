@@ -18,7 +18,7 @@ struct Limb {
 class Tentacle {
 public:
     void setup(float x, float y, float angleOffset, float lengthScale);
-    void update(float headX, float headY, float simWidth, float simHeight);
+    void update(float headX, float headY, float simWidth, float simHeight, float time);
 void draw(float offsetX, float offsetY, ofColor col, float extraWidth, float simWidth);
 
     vector<Limb> segments;
@@ -29,15 +29,15 @@ void draw(float offsetX, float offsetY, ofColor col, float extraWidth, float sim
 class PoulpeLayer : public BaseLayer {
 public:
     void setup(float width, float height);
-    void update(float mouseX, float mouseY) override {
+    void update(float mouseX, float mouseY, float time) override {
         if (!bExternalControl) {
             setTarget(mouseX, mouseY); // On utilise les coords passées par le manager
         }
-        update(); // Appel de ta logique interne
+        update(time); // Appel de ta logique interne
         bExternalControl = false;
     };
     
-    void update(); // Ta méthode interne
+    void update(float time); // Ta méthode interne
     void draw() override;
     
     // Permet de définir une cible manuellement (ex: la souris transformée de Scene2D)

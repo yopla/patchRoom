@@ -21,7 +21,7 @@ public:
     DancingCreature(float x, float y);
     ~DancingCreature();
 
-    void update(float mx, float my);
+    void update(float mx, float my, float time);
     void draw();
 
     // Interaction
@@ -29,7 +29,7 @@ public:
 
 private:
     void solveConstraints();
-    void applySpasm(float intensity);
+    void applySpasm(float intensity, float time);
 
     vector<RagdollNode> nodes;
     vector<RagdollLimb> limbs;

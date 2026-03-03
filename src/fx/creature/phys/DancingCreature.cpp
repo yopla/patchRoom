@@ -70,7 +70,7 @@ DancingCreature::~DancingCreature() {
 }
 
 //--------------------------------------------------------------
-void DancingCreature::update(float mx, float my) {
+void DancingCreature::update(float mx, float my, float time) {
     
     // 1. Detection Survol
     // On considère la zone autour de l'ancre
@@ -96,7 +96,7 @@ void DancingCreature::update(float mx, float my) {
     }
 
     // 4. Application du SPASME (Forces aléatoires type "noise")
-    applySpasm(spasmForce);
+    applySpasm(spasmForce, time);
 
     // 5. Résolution des contraintes (Garder les os solides)
     // On itère plusieurs fois pour rigidifier le corps
@@ -106,9 +106,7 @@ void DancingCreature::update(float mx, float my) {
 }
 
 //--------------------------------------------------------------
-void DancingCreature::applySpasm(float intensity) {
-    float fpsRec = 60.0f;
-    float time = ofGetFrameNum() / fpsRec;
+void DancingCreature::applySpasm(float intensity, float time) {
     
     for (int i = 0; i < nodes.size(); i++) {
         if(nodes[i].isLocked) continue;

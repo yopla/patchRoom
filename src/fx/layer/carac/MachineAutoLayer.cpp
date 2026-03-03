@@ -89,10 +89,10 @@ void MachineAutoLayer::addConstraint(int i1, int i2, float stiffness, bool visib
 }
 
 //--------------------------------------------------------------
-void MachineAutoLayer::update() {
+void MachineAutoLayer::update(float time) {
     // 1. MOTEUR ORGANIQUE
     // Variation de vitesse (fatigue/énergie)
-    float noise = ofNoise(ofGetFrameNum() * 0.01f);
+    float noise = ofNoise(time * 0.6f);
     float currentSpeed = motorSpeed * (0.8f + noise * 0.4f);
     
     motorAngle += currentSpeed * direction;
@@ -110,7 +110,7 @@ void MachineAutoLayer::update() {
     // 2. COMPORTEMENT (Regard)
     if(headIdx != -1) {
         // La tête oscille un peu pour "chercher"
-        float lookY = sin(ofGetFrameNum() * 0.05f) * 2.0f;
+        float lookY = sin(time * 3.0f) * 2.0f;
         particles[headIdx].force.y += lookY;
     }
     

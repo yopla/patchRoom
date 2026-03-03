@@ -11,11 +11,18 @@ void OscManager::setup(string host, int sendPort, int receivePort){
     ofLog() << "OscManager listening on port " << receivePort << " | sending to " << host << ":" << sendPort;
 }
 
-void OscManager::sendFrameNum(){
+void OscManager::sendFrameNum(ofApp* app){
     ofxOscMessage m;
     m.setAddress("/frame");
     m.addIntArg(ofGetFrameNum());
     sender.sendMessage(m, false);
+
+    if(app) {
+        ofxOscMessage mLocal;
+        mLocal.setAddress("/localFrame");
+        mLocal.addIntArg((int)(app->localTime * (float)APP_FPS));
+        sender.sendMessage(mLocal, false);
+    }
 }
 
 void OscManager::sendHoverState(bool state, float radius, float elevation, float azimuth){
@@ -49,7 +56,7 @@ void OscManager::checkAndSendHoverState(ofApp* app) {
 
 void OscManager::update(ofApp* app){
     // 1. Envoi systématique du numéro de frame
-    sendFrameNum();
+    sendFrameNum(app);
 
     // 2. Envoi conditionnel de l'état du survol
     checkAndSendHoverState(app);
@@ -93,6 +100,14 @@ void OscManager::update(ofApp* app){
 
             app->bDrawZenit = state;
             if(app->sceneZenit) app->sceneZenit->setEnabled(state);
+        }
+
+        // Commande: /time [float]
+        else if(address == "/time"){
+            if(mess.getArgType(0) == OFXOSC_TYPE_FLOAT || mess.getArgType(0) == OFXOSC_TYPE_INT32) {
+                // On interprète l'argument comme un numéro de FRAME et on convertit en secondes
+                app->oscTime = mess.getArgAsFloat(0) / (float)APP_FPS;
+            }
         }
 
         // Mouse position

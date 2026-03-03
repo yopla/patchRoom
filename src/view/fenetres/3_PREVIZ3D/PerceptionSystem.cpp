@@ -285,16 +285,20 @@ void PerceptionSystem::updatePoulpe(shared_ptr<Scene2D_SIDE> sceneSide,
         const float srcX_Back = wJar + wFront + wJar;
 
         // Use Perlin noise for a smoothly moving random height
-        float noise_val = ofNoise(ofGetElapsedTimef() * 0.5f, bestBtn3D.x * 0.01f);
+        float time = 0.0f;
+        if(roomApp) time = roomApp->localTime;
+        else if(sceneSide) time = sceneSide->localTime;
+
+        float noise_val = ofNoise(time * 0.5f, bestBtn3D.x * 0.01f);
         float random_y3d = 0;
 
         if (minDistWall == distFront) {
-            random_y3d = noise_val * heightFrontBack;
+            random_y3d = noise_val * heightJar;//heightFrontBack;
             float u = (bestBtn3D.x + w2) / rW;
             targetX = srcX_Front + u * wFront;
             targetY = heightFrontBack - random_y3d;
         } else if (minDistWall == distBack) {
-            random_y3d = noise_val * heightFrontBack;
+            random_y3d = noise_val * heightJar;//heightFrontBack;
             float u = (w2 - bestBtn3D.x) / rW;
             targetX = srcX_Back + u * wFront;
             targetY = heightFrontBack - random_y3d;

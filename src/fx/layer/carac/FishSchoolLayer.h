@@ -31,7 +31,7 @@ public:
     // On passe le pointeur vers les colliders dans le setup
     void setup(float realSceneWidth, float targetRealHeight, shared_ptr<ColliderLayer> colliders);
     
-    void update(float mouseX, float mouseY) override {
+    void update(float mouseX, float mouseY, float time) override {
         update(); 
     }
 

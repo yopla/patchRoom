@@ -13,7 +13,7 @@ struct HaloFly {
 class HaloCreature {
 public:
     HaloCreature(float x, float y);
-    void update();
+    void update(float time);
     void draw(float scaleX = 1.0f, float scaleY = 1.0f);
     bool isInside(float mx, float my);
     void setHovering(bool hovering);
@@ -25,5 +25,6 @@ private:
     vector<HaloFly> flies;
     bool isHovering = false;
     ofFbo fbo;
-    float birthTime;
+    float birthTime = -1.0f;
+    float animTime = 0.0f;
 };

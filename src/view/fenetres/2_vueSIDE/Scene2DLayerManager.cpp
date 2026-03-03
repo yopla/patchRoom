@@ -29,16 +29,17 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
     colliderLayer = make_shared<ColliderLayer>();
     float simWidth = 2048.0f;
     float scale = totalSceneWidth / simWidth;
-    float simHeight = 900.0f / scale;
-    colliderLayer->setup(simWidth, simHeight, scale, 1472.0f, 900.0f);
+    // On utilise une seule simulation qui couvre toute la hauteur de l'image (1472px)
+    float simHeight = 1472.0f / scale;
+    colliderLayer->setup(simWidth, simHeight, scale);
 
     // --- SETUP SUBSYSTEMS ---
-    slimeLayer.setup(totalSceneWidth, 900.0f);
+    slimeLayer.setup(totalSceneWidth, 1472.0f);
     slimeLayer.setCollider(colliderLayer);
     slimeLayer.setScale(scale);
 
-    sauteursLayer.setup(totalSceneWidth, 900.0f, colliderLayer);
-    fishSchoolLayer.setup(totalSceneWidth, 830.0f, colliderLayer);
+    sauteursLayer.setup(totalSceneWidth, 1472.0f, colliderLayer);
+    fishSchoolLayer.setup(totalSceneWidth, 1472.0f, colliderLayer);
     poulpeLayer.setup(totalSceneWidth, 1472.0f);
     walkerLayer.setup(totalSceneWidth, 830.0f);
     walkerLayer.setScale(2.0f);
@@ -56,7 +57,7 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
     flytrapLayer.setup(totalSceneWidth, 1472.0f);
 
     // --- SETUP FLUID FLOOR ---
-    fluidFloorLayer.setup(totalSceneWidth, 800.0f, 640, 256);
+    fluidFloorLayer.setup(simWidth, simHeight, scale, 720, 256);
     fluidFloorLayer.setCollider(colliderLayer);
 
     // --- SETUP MACHINE LAYER ---
@@ -75,102 +76,98 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
     puyoLayer.setup(simWidth, simHeight, scale, colliderLayer);
 
     // --- SETUP BUBBLE LAYER ---
-    // Le layer de bulles doit couvrir toute la hauteur de la scène (1472px)
-    float bubbleSimHeight = 1472.0f / scale;
-    // On note le décalage vertical du layer de collision pour l'envoyer aux bulles
-    float colliderYOffset = 1472.0f - 900.0f;
-    bubbleLayer.setup(simWidth, bubbleSimHeight, scale, colliderLayer, colliderYOffset);
+    // Le layer de bulles utilise maintenant le collider principal, qui est déjà pleine hauteur.
+    // L'offset de collision (dernier paramètre) reste à 0.0f.
+    bubbleLayer.setup(simWidth, simHeight, scale, colliderLayer, 0.0f);
 }
 
-void Scene2DLayerManager::update(const ofVec2f& m, bool isSpacePressed) {
+void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePressed) {
     if (bDrawLightning) {
-        lightningLayer.update(m.x, m.y);
+        lightningLayer.update(m.x, m.y, time);
     }
 
     if (bDrawCreatures) {
-        creatureSystem.update(m);
-        for(auto& c : cousinCons) c->update(m.x, m.y);
-        for(auto& h : halos) h->update();
+        creatureSystem.update(m, time);
+        for(auto& c : cousinCons) c->update(m.x, m.y); // CousinCon doesn't use time in update signature yet, but uses internal time
+        for(auto& h : halos) h->update(time);
     }
 
     if (bDrawWalker) {
-        walkerLayer.update(m.x, m.y);
+        walkerLayer.update(m.x, m.y, time);
     }
 
     if (bDrawPoulpe) {
         if (isSpacePressed) {
             poulpeLayer.setTarget(m.x, m.y);
         }
-        poulpeLayer.update();
+        poulpeLayer.update(0, 0, time); // PoulpeLayer::update overrides BaseLayer, so it needs args
     }
 
     if (bDrawFish) {
-        fishSchoolLayer.update(); 
+        fishSchoolLayer.update(m.x, m.y, time); 
         
-        float layerY = m.y - (1472 - 830); 
-        if(layerY > 0 && layerY < 830) {
-            if(ofGetMousePressed(0)) fishSchoolLayer.addSardine(m.x, layerY); 
-            if(ofGetMousePressed(2)) fishSchoolLayer.addShark(m.x, layerY); 
-        }
+        // Les layers sont maintenant en pleine hauteur, on passe les coordonnées de la souris directement.
+        if(ofGetMousePressed(0)) fishSchoolLayer.addSardine(m.x, m.y);
+        if(ofGetMousePressed(2)) fishSchoolLayer.addShark(m.x, m.y);
     }
 
     if (bDrawSauteurs) {
-        sauteursLayer.update(m.x, m.y); 
+        sauteursLayer.update(m.x, m.y, time); 
     }
 
     if (bDrawSlime) {
-        slimeLayer.update(m.x, m.y);
+        slimeLayer.update(m.x, m.y, time);
     }
 
     if (bDrawPlants) {
-        plantLayer.update(m.x, m.y);
+        plantLayer.update(m.x, m.y, time); 
     }
 
     if (bDrawFlytraps) {
-        flytrapLayer.update(m.x, m.y);
+        flytrapLayer.update(m.x, m.y, time); 
     }
 
     if (bDrawGears) {
-        gearLayer.update(m.x, m.y);
+        gearLayer.update(m.x, m.y, time);
         
         if (bDrawFluidFloor) {
-            float fluidTopY = 1472.0f - 800.0f;
             for(const auto& s : gearLayer.squares) {
-                if(s.pos.y > fluidTopY && s.pos.y < 1472.0f) {
-                    float localX = s.pos.x;
-                    float localY = s.pos.y - fluidTopY;
-                    fluidFloorLayer.addForce(localX, localY, s.vel.x * 0.5f, s.vel.y * 0.5f);
-                }
+                // Conversion World -> Sim pour l'interaction
+                float simX = s.pos.x / fluidFloorLayer.scale;
+                float simY = s.pos.y / fluidFloorLayer.scale;
+                float simVelX = s.vel.x / fluidFloorLayer.scale;
+                float simVelY = s.vel.y / fluidFloorLayer.scale;
+                fluidFloorLayer.addForce(simX, simY, simVelX * 0.5f, simVelY * 0.5f);
             }
         }
     }
 
     if (bDrawFluidFloor) {
-        fluidFloorLayer.update(m.x, m.y - (1472.0f - 800.0f));
+        fluidFloorLayer.update(m.x, m.y); // FluidFloorLayer not BaseLayer
     }
 
     if (bDrawMachine) {
-        machineLayer.update(m.x, m.y);
+        machineLayer.update(m.x, m.y, time);
     }
 
     if (bDrawDigging) {
-        diggingCreature.update(m.x, m.y);
+        diggingCreature.update(m.x, m.y); // DiggingCreature not BaseLayer
     }
 
     if (bDrawMachineAuto) {
-        machineAuto.update();
+        machineAuto.update(time); 
     }
 
     if (bDrawCurtain) {
-        curtain.update(m.x, m.y);
+        curtain.update(m.x, m.y); // CurtainCreature not BaseLayer
     }
     
     if (bDrawPuyo) {
-        puyoLayer.update(m.x, m.y - (1472 - 900)); // Offset Y pour correspondre au collider
+        puyoLayer.update(m.x, m.y, time); 
     }
 
     if (bDrawBubbles) {
-        bubbleLayer.update(m.x, m.y); // Le layer fonctionne maintenant dans les coordonnées du monde
+        bubbleLayer.update(m.x, m.y, time); // BubbleLayer uses time
     }
 }
 
@@ -200,25 +197,16 @@ void Scene2DLayerManager::draw(const ofVec2f& m) {
     }
 
     if (bDrawSlime) {
-        ofPushMatrix();
-        ofTranslate(0, 1472 - 900);
         slimeLayer.draw();
-        ofPopMatrix();
     }
 
     if (bDrawSauteurs) {
-        ofPushMatrix();
-        ofTranslate(0, 1472 - 900);
         sauteursLayer.draw();
-        ofPopMatrix();
     }
 
 
     if (bDrawFish) {
-        ofPushMatrix();
-        ofTranslate(0, 1472 - 900);
         fishSchoolLayer.draw();
-        ofPopMatrix();
     }
 
     if (bDrawPoulpe) {
@@ -245,7 +233,7 @@ void Scene2DLayerManager::draw(const ofVec2f& m) {
     }
 
     if (bDrawFluidFloor) {
-        fluidFloorLayer.draw(0, 1472.0f - 800.0f);
+        fluidFloorLayer.draw(0, 0);
     }
 
     if (bDrawMachine) {
@@ -265,10 +253,7 @@ void Scene2DLayerManager::draw(const ofVec2f& m) {
     }
     
     if (bDrawPuyo) {
-        ofPushMatrix();
-        ofTranslate(0, 1472 - 900);
         puyoLayer.draw();
-        ofPopMatrix();
     }
 
     if (bDrawBubbles) {
@@ -277,10 +262,7 @@ void Scene2DLayerManager::draw(const ofVec2f& m) {
     }
 
      if (bDrawColliders) {
-        ofPushMatrix();
-        ofTranslate(0, 1472 - 900);
         if(colliderLayer) colliderLayer->draw();
-        ofPopMatrix();
     }
 }
 

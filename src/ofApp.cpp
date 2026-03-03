@@ -16,7 +16,7 @@ void ofApp::registerViewApp(shared_ptr<ViewApp> vApp){
 void ofApp::setup(){
     
     ofSetRandomSeed(42);
-    ofSetFrameRate(60);
+    ofSetFrameRate(APP_FPS);
     bool molo = false; // <--- PASSEZ CECI À 'false' POUR LE TEST
     ofSetVerticalSync(molo);
     ofDisableArbTex();
@@ -63,19 +63,50 @@ void ofApp::update(){
         roomPreviewApp->sceneSide = scene2D;
     }
 
-    ofVec2f m = getTransformedMouse();
-    creatureSystem.update(m);
-    canvasManager.update();
-    
-    // Mise à jour centralisée de la perception (Halos vs Boutons)
-    perceptionSystem.update(buttonApp, scene2D, roomApp);
-
     // --- GESTION OSC (Réception & Envoi Frame) ---
     oscManager.update(this);
+
+    // --- LOGIQUE PAUSE & TEMPS ---
+    bool shouldUpdate = !bGlobalPause;
+    
+    // Si en pause mais que le temps local est en retard sur le temps OSC, on avance
+    if(bGlobalPause) {
+        if(localTime < oscTime - 0.001f) { // Petite tolérance pour éviter le jitter
+            shouldUpdate = true;
+        } else if(localTime > oscTime + 0.1f) {
+            // Si le temps OSC est loin derrière (Rewind), on force le temps local
+            localTime = oscTime;
+        }
+    }
+
+    if(shouldUpdate) {
+        localTime += 1.0f / (float)APP_FPS; // Incrément fixe
+
+        ofVec2f m = getTransformedMouse();
+        creatureSystem.update(m, localTime);
+        canvasManager.update();
+        
+        // Mise à jour centralisée de la perception (Halos vs Boutons)
+        perceptionSystem.update(buttonApp, scene2D, roomApp);
+
+        // Propagation du temps et de la pause aux sous-systèmes
+        if(roomApp) {
+            roomApp->setLocalTime(localTime);
+        }
+        if(sceneZenit) {
+            sceneZenit->setLocalTime(localTime);
+        }
+    }
+
+    if(scene2D) scene2D->setPaused(!shouldUpdate);
+    if(roomApp) roomApp->setPaused(!shouldUpdate);
+    if(sceneZenit) sceneZenit->setPaused(!shouldUpdate);
 
     ofSetWindowTitle("Master View | FPS: " + ofToString(ofGetFrameRate(), 1) 
                     + " | ms: " + ofToString(ofGetLastFrameTime() * 1000.0, 2)
                      + " | Frame: " + ofToString(ofGetFrameNum())
+                     + " | Time: " + ofToString(localTime, 2)
+                     + " | Local Frame: " + ofToString((int)(localTime * (float)APP_FPS))
                     );
 }
 
@@ -169,6 +200,13 @@ void ofApp::mouseMoved(int x, int y){}
 void ofApp::keyPressed(int key){
 
 bool bCallFocus = false; // pour plus tard
+
+    if(key == OF_KEY_ESC) {
+        bGlobalPause = !bGlobalPause;
+        if(bGlobalPause) {
+            oscTime = localTime;
+        }
+    }
 
     if(key == ' ') isSpacePressed = true;
     if(key == 'g' || key == 'G') bShowFullGab = !bShowFullGab;

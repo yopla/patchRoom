@@ -24,7 +24,7 @@ struct WingedAgent {
 class WingedWormSystem {
 public:
     void setup(int count);
-    void update();
+    void update(float time);
     void draw();
     
     vector<WingedAgent> agents;

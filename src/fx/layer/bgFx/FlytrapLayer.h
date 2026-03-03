@@ -4,7 +4,7 @@
 class Flytrap {
 public:
     void setup(float x, float y);
-    void update(float mx, float my);
+    void update(float mx, float my, float time);
     void draw();
 
     ofVec2f basePos;
@@ -27,7 +27,7 @@ public:
 class FlytrapLayer {
 public:
     void setup(float w, float h);
-    void update(float mx, float my);
+    void update(float mx, float my, float time);
     void draw();
 
     vector<Flytrap> traps;

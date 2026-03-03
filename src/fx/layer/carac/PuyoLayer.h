@@ -16,7 +16,7 @@ struct PuyoLink {
 class Puyo {
 public:
     void setup(float x, float y, float r, bool gravity);
-    void update(float w, float h, shared_ptr<ColliderLayer> collider);
+    void update(float w, float h, shared_ptr<ColliderLayer> collider, float time);
     void draw(float scale);
     
     void solveConstraints();
@@ -36,7 +36,7 @@ public:
 class PuyoLayer {
 public:
     void setup(float w, float h, float s, shared_ptr<ColliderLayer> collider);
-    void update(float mx, float my);
+    void update(float mx, float my, float time);
     void draw();
     
     void addPuyo(float x, float y);

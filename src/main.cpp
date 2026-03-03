@@ -13,6 +13,7 @@ public:
     bool bRecording = false;
     string folderName;
     int frameCount = 0;
+    shared_ptr<ofApp> mainApp;
 
     void keyPressed(int key) override {
         ViewApp::keyPressed(key);
@@ -22,7 +23,6 @@ public:
                 folderName = "export/" + ofGetTimestampString();
                 ofDirectory dir(folderName);
                 dir.create(true);
-                frameCount = ofGetFrameNum();
                 ofLogNotice() << "Start Recording View 3 to " << folderName;
             } else {
                 ofLogNotice() << "Stop Recording View 3";
@@ -33,8 +33,10 @@ public:
     void draw() override {
         ViewApp::draw();
         if(bRecording){
-            ofSaveScreen(folderName + "/frame_" + ofToString(frameCount, 5, '0') + ".jpg");
-            frameCount++;
+            long currentFrame = frameCount;
+            if(mainApp) currentFrame = (long)(mainApp->localTime * (float)APP_FPS);
+            else frameCount++;
+            ofSaveScreen(folderName + "/frame_" + ofToString(currentFrame, 5, '0') + ".jpg");
         }
     }
 };
@@ -54,23 +56,35 @@ public:
         RoomPreview::draw(); // Dessin de base de la RoomPreview
 
         if(bRecording){
-            ofSaveScreen(folderName + "/frame_" + ofToString(frameCount, 5, '0') + ".jpg");
-            frameCount++;
+            long currentFrame = frameCount;
+            if(mainApp) currentFrame = (long)(mainApp->localTime * (float)APP_FPS);
+            else frameCount++;
+            ofSaveScreen(folderName + "/frame_" + ofToString(currentFrame, 5, '0') + ".jpg");
         }
     }
 
     void keyPressed(int key) override {
         RoomPreview::keyPressed(key);
-        if(key == OF_KEY_ESC){
+        // On utilise RETURN pour l'enregistrement (comme RecordingViewApp) pour libérer ESC
+        if(key == OF_KEY_RETURN){
             bRecording = !bRecording;
             if(bRecording) {
                 folderName = "export/preview_" + ofGetTimestampString();
                 ofDirectory dir(folderName);
                 dir.create(true);
-                frameCount = ofGetFrameNum();
                 ofLogNotice() << "Start Recording RoomPreview to " << folderName;
             } else {
                 ofLogNotice() << "Stop Recording RoomPreview";
+            }
+        }
+        
+        // On propage la pause générale sur ESC
+        if(key == OF_KEY_ESC){
+            if(mainApp) {
+                mainApp->bGlobalPause = !mainApp->bGlobalPause;
+                if(mainApp->bGlobalPause) {
+                    mainApp->oscTime = mainApp->localTime;
+                }
             }
         }
     }
@@ -211,6 +225,11 @@ int main( ){
     // ------------------------------------------------
 
     // le timer de setWindowMovement est dans ViewApp.update()
+    if(bEnableView3) {
+        auto recApp = dynamic_pointer_cast<RecordingViewApp>(viewApp3);
+        if(recApp) recApp->mainApp = mainApp;
+    }
+
     if(bEnableView1) {
         viewApp1->setupView(mainApp);
         viewApp1->setWindowMovement(viewWindow1, 1300, 100, 4096, 2160); 
@@ -286,6 +305,6 @@ int main( ){
     
 ofRunApp(mainWindow, dynamic_pointer_cast<ofBaseApp>(mainApp));
     
-    ofSetFrameRate(60);
+    ofSetFrameRate(APP_FPS);
     ofRunMainLoop();
 }

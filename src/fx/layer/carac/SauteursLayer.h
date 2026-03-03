@@ -19,7 +19,7 @@ public:
     void setup(float realSceneWidth, float targetRealHeight, shared_ptr<ColliderLayer> colliders); 
     
     // IMPÉRATIF : La signature doit correspondre exactement à celle de BaseLayer
-    void update(float mouseX, float mouseY) override;
+    void update(float mouseX, float mouseY, float time) override;
     
     // IMPÉRATIF : Override du draw
     void draw() override; 

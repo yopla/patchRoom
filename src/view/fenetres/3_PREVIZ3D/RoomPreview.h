@@ -20,6 +20,7 @@ class RoomPreview : public ofBaseApp{
         bool bPaused = false;
         void setPaused(bool paused) { bPaused = paused; }
         bool bDrawInteraction = true;
+        bool bShowCursor = true;
         
         // Lien vers l'app principale pour lire le Canvas
         shared_ptr<ofApp> mainApp;

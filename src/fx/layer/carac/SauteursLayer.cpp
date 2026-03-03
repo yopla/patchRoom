@@ -23,7 +23,7 @@ void SauteursLayer::setup(float realSceneWidth, float targetRealHeight, shared_p
 }
 
 //--------------------------------------------------------------
-void SauteursLayer::update(float mouseX, float mouseY) {
+void SauteursLayer::update(float mouseX, float mouseY, float time) {
     if(!colliderLayer) return;
 
     for(auto& s : sauteurs) {

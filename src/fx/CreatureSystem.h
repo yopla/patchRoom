@@ -18,7 +18,7 @@
 class CreatureSystem {
 public:
     void setup();
-    void update(ofVec2f mouseWorld);
+    void update(ofVec2f mouseWorld, float time);
     void draw(ofVec2f mouseWorld);
     
     void onPress(float x, float y);

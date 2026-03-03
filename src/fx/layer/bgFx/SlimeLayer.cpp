@@ -14,19 +14,15 @@ void SlimeLayer::setup(float w, float h) {
 
 //--------------------------------------------------------------
 // <--- 4. Adaptation de la signature update
-void SlimeLayer::update(float mouseX, float mouseY) {
+void SlimeLayer::update(float mouseX, float mouseY, float time) {
     
     // GESTION INTERNE DE L'INTERACTION (Optionnel mais pratique)
     // Si on clique gauche, on verse du slime
     if (ofGetMousePressed(0)) {
-        // Calcul de la position locale (Basé sur ton code Scene2D_SIDE)
-        // Offset Y : Le slime est dessiné plus bas (1472 - 900 = 572)
-        float offsetY = 1472.0f - 900.0f; 
-        float localY = mouseY - offsetY;
-
+        // Correction : Utilisation directe des coordonnées souris (déjà transformées)
         // On vérifie qu'on est bien dans la zone du slime avant de verser
-        if (localY >= 0 && localY <= height) {
-             pour(mouseX, localY, ofRandom(-2, 2), 5.0); 
+        if (mouseY >= 0 && mouseY <= height) {
+             pour(mouseX, mouseY, ofRandom(-2, 2), 5.0); 
         }
     }
 

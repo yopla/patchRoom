@@ -57,6 +57,11 @@ public:
     bool bEnabled = true;
     void setEnabled(bool enable) { bEnabled = enable; }
 
+    bool bPaused = false;
+    void setPaused(bool paused) { bPaused = paused; }
+    float localTime = 0.0f;
+    void setLocalTime(float t) { localTime = t; }
+
     // --- Dimensions de la pièce (références pour les caméras) ---
     const float roomWidth = 2400.0f;
     const float roomDepth = 2624.0f;

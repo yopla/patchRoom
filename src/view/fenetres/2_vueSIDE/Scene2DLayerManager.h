@@ -25,7 +25,7 @@
 class Scene2DLayerManager {
 public:
     void setup(float totalWidth, float jarW, float jarX, float frontW, float frontX);
-    void update(const ofVec2f& mouse, bool isSpacePressed = false);
+    void update(const ofVec2f& mouse, float time, bool isSpacePressed = false);
     void draw(const ofVec2f& mouse);
     void keyPressed(int key, const ofVec2f& mouse);
     void mousePressed(const ofVec2f& mouse, int button);

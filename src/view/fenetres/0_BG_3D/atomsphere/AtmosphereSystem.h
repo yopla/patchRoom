@@ -4,7 +4,7 @@
 class AtmosphereSystem {
 public:
     void setup();
-    void update();
+    void update(float time);
     void draw(bool useTexture);
     void keyPressed(int key);
 void loadTexture(string path);
@@ -27,7 +27,9 @@ private:
     ofMesh meshDiscoBall;
     float rotX = 0; // Rotation horizontale
     float rotY = 0; // Rotation verticale
+    float rotZ = 0; // Rotation profondeur (Roll)
 bool rot=true;
+    float autoRotY = 0.0f;
     // Fonctions de génération interne
     void setupCheckerboard(int size, int numChecks);
     void createColoredSphere();

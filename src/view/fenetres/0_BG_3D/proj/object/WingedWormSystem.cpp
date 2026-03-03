@@ -24,8 +24,7 @@ void WingedWormSystem::setup(int count) {
     }
 }
 
-void WingedWormSystem::update() {
-    float time = ofGetElapsedTimef();
+void WingedWormSystem::update(float time) {
     ofVec3f boundsMin(-1200, 0, -1200);
     ofVec3f boundsMax(1200, 1400, 1200);
 

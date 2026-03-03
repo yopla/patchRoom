@@ -95,7 +95,7 @@ void MachineLayer::addConstraint(int i1, int i2, float stiff, bool visible) {
 }
 
 //--------------------------------------------------------------
-void MachineLayer::update(float mouseX, float mouseY) {
+void MachineLayer::update(float mouseX, float mouseY, float time) {
     
     // 1. Animation du Moteur (Cinématique)
     motorAngle += motorSpeed;

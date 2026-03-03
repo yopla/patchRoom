@@ -15,7 +15,7 @@ struct Bolt {
 class LightningLayer : public BaseLayer {
 public:
     void setup(float w, float h);
-    void update(float mouseX, float mouseY) override;
+    void update(float mouseX, float mouseY, float time) override;
     void draw() override;
     
     // MODIFICATION : On prend maintenant le point de départ et d'arrivée

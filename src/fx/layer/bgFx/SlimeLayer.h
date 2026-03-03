@@ -19,7 +19,7 @@ public:
     void setup(float w, float h);
 
     // <--- 3. Override des méthodes virtuelles
-    void update(float mouseX, float mouseY) override;
+    void update(float mouseX, float mouseY, float time) override;
     void draw() override;
     
     // Méthode spécifique conservée

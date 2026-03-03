@@ -58,13 +58,12 @@ void Scene2DZenit::setup() {
 //--------------------------------------------------------------
 void Scene2DZenit::update() {
     if(!bEnabled) return; // <-- Coupe les calculs
+    if(bPaused) return;
 
     // 1. Animation Balle (Inchangé)
     if (waypoints.size() > 1) {
         float totalDuration = 20.0f; 
-        float fpsRec = 60.0f;
-        float time = ofGetFrameNum() / fpsRec;
-        float cycleTime = fmod(time, totalDuration);
+        float cycleTime = fmod(localTime, totalDuration);
         float progress = cycleTime / totalDuration;
         
         float scaledProgress = progress * (waypoints.size() - 1);

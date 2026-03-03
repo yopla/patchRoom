@@ -28,10 +28,10 @@ void Tentacle::setup(float x, float y, float ang, float lengthScale) {
     }
 }
 
-void Tentacle::update(float headX, float headY, float simWidth, float simHeight) {
+void Tentacle::update(float headX, float headY, float simWidth, float simHeight, float time) {
     // Calcul de la position idéale de la base du tentacule (autour de la tête)
     // On ajoute du mouvement "organique" avec sin/cos
-    float wave = ofGetFrameNum() * (2.0f / 60.0f);
+    float wave = time * 2.0f;
     float baseX = headX + (stretchMult * cos(angleOffset + wave * 0.1));
     float baseY = headY + (stretchMult * sin(angleOffset + wave * 0.1));
 
@@ -50,8 +50,8 @@ void Tentacle::update(float headX, float headY, float simWidth, float simHeight)
 
         // Ajout du bruit de Perlin (comme dans le code original)
         // Note: adaptation des constantes pour OF
-        float noiseX = (ofNoise((targetX + ofGetFrameNum()) * 0.008f, segments[i].noiseOffset) - 0.5f) * 20.0f;
-        float noiseY = (ofNoise(segments[i].noiseOffset, (targetY + ofGetFrameNum()) * 0.008f) - 0.5f) * 20.0f;
+        float noiseX = (ofNoise((targetX + time * 60.0f) * 0.008f, segments[i].noiseOffset) - 0.5f) * 20.0f;
+        float noiseY = (ofNoise(segments[i].noiseOffset, (targetY + time * 60.0f) * 0.008f) - 0.5f) * 20.0f;
         
         targetX += noiseX;
         targetY += noiseY;
@@ -80,7 +80,8 @@ void Tentacle::update(float headX, float headY, float simWidth, float simHeight)
 // --------------------------------------------------------
 void Tentacle::draw(float offsetX, float offsetY, ofColor col, float extraWidth, float simWidth) {
     
-    for(int i=0; i<segments.size()-1; i++) {
+    if (segments.size() < 2) return; // Sécurité anti-crash si le tentacule n'est pas setup
+    for(int i=0; i < (int)segments.size()-1; i++) {
         ofSetColor(col);
 
         // L'épaisseur = taille du segment + épaisseur extra
@@ -159,14 +160,14 @@ float PoulpeLayer::getShortestDist(float current, float target, float w) {
     return dx;
 }
 
-void PoulpeLayer::update() {
+void PoulpeLayer::update(float time) {
     // 1. Déplacement de la Tête avec Shortest Path
     float dx = getShortestDist(currentPos.x, targetX, simWidth);
     float dy = targetY - currentPos.y; // Pas de wrap vertical en général, sinon idem
 
     // Ajout d'un bruit sur la tête aussi (comme original frameCount noise)
-    float noiseHeadX = (-0.5 + ofNoise((targetX + ofGetFrameNum() - 50) * 0.008f, 0)) * 120.0f;
-    float noiseHeadY = (-0.5 + ofNoise(0, (targetY + ofGetFrameNum() - 50) * 0.008f)) * 120.0f;
+    float noiseHeadX = (-0.5 + ofNoise((targetX + time * 60.0f - 50) * 0.008f, 0)) * 120.0f;
+    float noiseHeadY = (-0.5 + ofNoise(0, (targetY + time * 60.0f - 50) * 0.008f)) * 120.0f;
 
     // Application de la force vers la cible + bruit
     // Note: easing * 0.3 pour ralentir un peu comme dans l'original
@@ -184,7 +185,7 @@ void PoulpeLayer::update() {
 
     // 2. Mise à jour des tentacules
     for(auto& t : tentacles) {
-        t.update(headPos.x, headPos.y, simWidth, simHeight);
+        t.update(headPos.x, headPos.y, simWidth, simHeight, time);
     }
 }
 void PoulpeLayer::draw() {

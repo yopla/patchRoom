@@ -13,7 +13,7 @@ struct FloorFluidCell {
 
 class FluidFloorLayer {
 public:
-    void setup(float w, float h, int resX = 256, int resY = 64);
+    void setup(float w, float h, float scale, int resX = 256, int resY = 64);
     void setCollider(shared_ptr<ColliderLayer> colliders);
     void update(float mx, float my);
     void draw(float x, float y);
@@ -28,13 +28,14 @@ public:
      ofImage fluidImage;
          ofImage bgImage;
              bool bUseImage = false;
+                 float scaleX, scaleY, scale;
   void checkInput(float mx, float my);
   
 private:
    
     shared_ptr<ColliderLayer> colliderLayer;
     int gridWidth, gridHeight;
-    float scaleX, scaleY;
+
     
     vector<FloorFluidCell> cells;
     vector<FloorFluidCell> prevCells;

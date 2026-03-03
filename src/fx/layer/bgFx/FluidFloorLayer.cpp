@@ -2,9 +2,10 @@
 #include "ColliderLayer.h"
 
 //--------------------------------------------------------------
-void FluidFloorLayer::setup(float w, float h, int resX, int resY) {
+void FluidFloorLayer::setup(float w, float h, float s, int resX, int resY) {
     width = w;
     height = h;
+    scale = s;
     gridWidth = resX;
     gridHeight = resY;
     
@@ -17,7 +18,7 @@ void FluidFloorLayer::setup(float w, float h, int resX, int resY) {
     initialColors.resize(size);
 
     fluidImage.allocate(gridWidth, gridHeight, OF_IMAGE_COLOR_ALPHA);
-    fluidImage.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+    fluidImage.getTexture().setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
     fluidImage.getTexture().setTextureWrap(GL_REPEAT, GL_CLAMP_TO_EDGE);
 
     // Chargement de l'image
@@ -97,20 +98,15 @@ void FluidFloorLayer::setCollider(shared_ptr<ColliderLayer> colliders) {
     this->colliderLayer = colliders;
     if (!colliderLayer) return;
 
-    // Calage vertical entre le layer Fluide et le layer Collider dans Scene2D
-    // Fluide commence à Y=672 (1472-800), Collider à Y=572 (1472-900)
-    // Le fluide est donc décalé de 100px vers le bas par rapport au collider.
-    float yOffset = 100.0f;
-
     for (int j = 1; j <= gridHeight; j++) {
         for (int i = 1; i <= gridWidth; i++) {
             // Coordonnées locales du fluide
             float fluidX = (i - 0.5f) * scaleX;
             float fluidY = (j - 0.5f) * scaleY;
 
-            // Conversion vers l'espace de simulation du Collider
-            float simX = fluidX / colliderLayer->scale;
-            float simY = (fluidY + yOffset) / colliderLayer->scale;
+            // Le fluide est maintenant dans le même espace que le collider (Sim Space)
+            float simX = fluidX;
+            float simY = fluidY;
 
             int idx = getIndex(i, j);
             cells[idx].isWall = colliderLayer->isWall(simX, simY);
@@ -126,12 +122,8 @@ void FluidFloorLayer::toggleBackground() {
 
 //--------------------------------------------------------------
 void FluidFloorLayer::update(float mx, float my) {
-    // Conversion souris globale vers locale
-    // On suppose que le layer est dessiné à (0, sceneHeight - height)
-    // Mais ici on passe mx, my globaux, on ajustera dans checkInput si besoin
-    // Pour simplifier, on considère que mx/my sont relatifs au layer dans checkInput
-    
-    checkInput(mx, my); // mx et my doivent être relatifs au coin haut-gauche du layer
+    // Conversion souris Monde -> Sim
+    checkInput(mx / scale, my / scale);
     
     advect();
     project();
@@ -156,8 +148,12 @@ void FluidFloorLayer::update(float mx, float my) {
 
 //--------------------------------------------------------------
 void FluidFloorLayer::draw(float x, float y) {
+    ofPushMatrix();
+    ofTranslate(x, y);
+    ofScale(scale, scale);
     ofSetColor(255);
-    fluidImage.draw(x, y, width, height);
+    fluidImage.draw(0, 0, width, height);
+    ofPopMatrix();
 }
 
 //--------------------------------------------------------------

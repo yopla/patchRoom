@@ -49,12 +49,12 @@ void Bubble::setup(float x, float y, float r) {
     }
 }
 
-void Bubble::update(float w, float h, shared_ptr<ColliderLayer> collider, float yOffset_sim) {
+void Bubble::update(float w, float h, shared_ptr<ColliderLayer> collider, float yOffset_sim, float time) {
+    if (nodes.size() < 2) return; // Sécurité critique (évite div/0 et crash accès mémoire)
+
     // Verlet Integration
     center.set(0,0);
     int count = 0;
-    
-    float time = ofGetFrameNum() * 0.01f;
     
     for(auto& n : nodes) {
         ofVec2f vel = (n.pos - n.oldPos) * 0.99f; // Friction
@@ -154,12 +154,13 @@ void Bubble::solveConstraints() {
 }
 
 void Bubble::draw() {
+    if (nodes.size() < 2) return;
     // Remplissage
     ofSetColor(color);
     ofFill();
     ofBeginShape();
     // On utilise une courbe pour lisser les noeuds
-    for(int i=0; i<nodes.size()-1; i++) {
+    for(int i=0; i < (int)nodes.size()-1; i++) {
         // Astuce pour lisser : curveVertex. 
         // Pour bien fermer, il faut répéter les points début/fin ou utiliser une boucle
         // Ici on fait simple avec vertex pour la performance, ou curveVertex si besoin
@@ -173,7 +174,7 @@ void Bubble::draw() {
     ofNoFill();
     ofSetLineWidth(5);
     ofBeginShape();
-    for(int i=0; i<nodes.size()-1; i++) {
+    for(int i=0; i < (int)nodes.size()-1; i++) {
         ofVertex(nodes[i].pos);
     }
     ofVertex(nodes[0].pos);
@@ -208,14 +209,14 @@ void BubbleLayer::addBubble(float x, float y) {
     bubbles.push_back(b);
 }
 
-void BubbleLayer::update(float mx, float my) {
+void BubbleLayer::update(float mx, float my, float time) {
     // Génération continue pour maintenir la densité
     if(bubbles.size() < 100 && ofRandom(1.0) < 0.2) {
         addBubble(ofRandom(simWidth), simHeight - 20);
     }
 
     for(auto& b : bubbles) {
-        b->update(simWidth, simHeight, collider, colliderYOffset_sim);
+        b->update(simWidth, simHeight, collider, colliderYOffset_sim, time);
         
         // Interaction Souris (Repousse les bulles)
         float d = b->center.distance(ofVec2f(mx/scale, my/scale)); // Conversion souris

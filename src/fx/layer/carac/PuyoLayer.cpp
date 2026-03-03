@@ -1,4 +1,5 @@
 #include "PuyoLayer.h"
+#include "ofApp.h"
 
 //--------------------------------------------------------------
 // PUYO OBJECT
@@ -56,15 +57,15 @@ void Puyo::setup(float x, float y, float r, bool gravity) {
     }
 }
 
-void Puyo::update(float w, float h, shared_ptr<ColliderLayer> collider) {
+void Puyo::update(float w, float h, shared_ptr<ColliderLayer> collider, float time) {
     // 1. Verlet Integration & Forces
     center.set(0,0);
     int count = 0;
     
     // Calcul du bruit global pour tout le Puyo (évite la déformation interne / tortillements)
-    float time = ofGetFrameNum() * 0.005f;
-    float nx = ofSignedNoise(time, noiseOffset);
-    float ny = ofSignedNoise(noiseOffset, time);
+    float t = time * 0.3f;
+    float nx = ofSignedNoise(t, noiseOffset);
+    float ny = ofSignedNoise(noiseOffset, t);
     
     for(auto& n : nodes) {
         ofVec2f vel = (n.pos - n.oldPos) * 0.98f; // Friction
@@ -147,7 +148,7 @@ void Puyo::update(float w, float h, shared_ptr<ColliderLayer> collider) {
     
     // 5. Regonflement automatique après 3 secondes de pliage
     if(isFolded()) {
-        foldedTimer += ofGetLastFrameTime();
+        foldedTimer += 1.0f / (float)APP_FPS;
         if(foldedTimer > 3.0f) {
             // Réinitialisation de la forme (Cercle parfait comme à l'origine)
             int ringSize = nodes.size() - 1;
@@ -290,13 +291,13 @@ void PuyoLayer::getStats(int& folded, int& complete) {
     }
 }
 
-void PuyoLayer::update(float mx, float my) {
+void PuyoLayer::update(float mx, float my, float time) {
     // Conversion souris Monde -> Sim
     float simMx = mx / scale;
     float simMy = my / scale; // Attention offset Y géré dans Scene2DLayerManager
 
     for(auto& p : puyos) {
-        p->update(simWidth, simHeight, collider);
+        p->update(simWidth, simHeight, collider, time);
         
         // Interaction Souris (Répulsion simple)
         if(ofGetMousePressed()) {

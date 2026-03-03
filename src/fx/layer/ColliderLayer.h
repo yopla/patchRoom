@@ -3,7 +3,7 @@
 
 class ColliderLayer {
 public:
-    void setup(float simulationWidth, float simulationHeight, float displayScale, float realTotalHeight = 0, float realSimHeight = 0);
+    void setup(float simulationWidth, float simulationHeight, float displayScale);
     void draw();
     
     // Méthode rapide pour savoir si une position touche un mur (pour les Sauteurs)
@@ -27,6 +27,4 @@ private:
     bool bHasMap = false;
     ofMesh wallMesh;
 
-    float realTotalHeight = 0;
-    float realSimHeight = 0;
 };

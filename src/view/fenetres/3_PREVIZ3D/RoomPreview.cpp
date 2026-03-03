@@ -90,7 +90,7 @@ void RoomPreview::setup(){
 void RoomPreview::update(){
     if (bPaused) return;
 
-    cursorSquare.updateRaycast(camGlobal, walls);
+    if(bShowCursor) cursorSquare.updateRaycast(camGlobal, walls);
 
     // --- C'EST ICI QU'ON RECUPERE LES TEXTURES DU CANVAS ---
     if(mainApp && mainApp->canvas.isAllocated()){
@@ -163,7 +163,7 @@ void RoomPreview::draw(){
         drawRoomGeometry();
         ofDisableDepthTest();
 
-        cursorSquare.drawProjected(walls);
+        if(bShowCursor) cursorSquare.drawProjected(walls);
         
         if(bDrawInteraction) {
             interactionVisualizer.draw(mainApp, sceneSide, roomWidth, roomDepth, roomSolDepth);
@@ -177,7 +177,7 @@ void RoomPreview::draw(){
     ofDrawBitmapString("PREVIEW RECOMPOSEE", 20, 20);
     ofDrawBitmapString("Textures issues du Canvas", 20, 40);
 
-    if(cursorSquare.isVisible) {
+    if(bShowCursor && cursorSquare.isVisible) {
         ofDrawBitmapString("CURSOR PREVIEW: " + ofToString(cursorSquare.getCurrentPos()), 20, 60);
     }
 }
@@ -197,5 +197,8 @@ void RoomPreview::keyPressed(int key){
     }
     if(key == 'b' || key == 'B'){
         bDrawInteraction = !bDrawInteraction;
+    }
+    if(key == 's' || key == 'S'){
+        bShowCursor = !bShowCursor;
     }
 }

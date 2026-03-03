@@ -1,5 +1,6 @@
 #include "Scene2D_SIDE.h"
 #include "Scene2DLayerManager.h"
+#include "ofApp.h"
 
 //--------------------------------------------------------------
 void Scene2D_SIDE::setup() {
@@ -69,14 +70,14 @@ void Scene2D_SIDE::setup() {
 void Scene2D_SIDE::update() {
     // 1. HARD PAUSE : Si désactivé, on coupe tout calcul CPU
     if(!bEnabled) return;
+    if(bPaused) return; // Pause générale (image figée)
 
     // 2. Gestion du Temps Local (Pour reprendre l'animation exactement où elle était)
-    float fpsRec = 60.0f;
-    localTime += 1.0f / fpsRec;
+    localTime += 1.0f / (float)APP_FPS;
 
     ofVec2f m = getTransformedMouse();
 
-    layerManager.update(m, isSpacePressed);
+    layerManager.update(m, localTime, isSpacePressed);
 
     // 4. Animation Balle (Toujours active sauf si app désactivée)
     if (waypoints.size() > 1) {
