@@ -5,7 +5,15 @@
 #include "ViewApp.h" // Nécessaire pour app->viewApps[i]->moveWindow
 
 
-// Fonction centralisée de traitement des messages
+
+void OscManager::setup(string host, int sendPort, int receivePort){
+    sender.setup(host, sendPort);
+    receiver.setup(receivePort);
+    ofLog() << "OscManager listening on port " << receivePort << " | sending to " << host << ":" << sendPort;
+}
+
+
+// Fonction centralisée de traitement des messages reçus
 void OscManager::processOscMessage(ofxOscMessage& mess, ofApp* app) {
     string address = mess.getAddress();
 
@@ -43,11 +51,20 @@ void OscManager::processOscMessage(ofxOscMessage& mess, ofApp* app) {
         if(app->sceneZenit) app->sceneZenit->setEnabled(state);
     }
 
+    // Commande: /scene2D/fish [0 ou 1]
+    else if(address == "/scene2D/fish"){
+        bool state = false;
+        if(mess.getArgType(0) == OFXOSC_TYPE_INT32 || mess.getArgType(0) == OFXOSC_TYPE_FLOAT) state = mess.getArgAsFloat(0) > 0;
+        else if(mess.getArgType(0) == OFXOSC_TYPE_STRING) state = (mess.getArgAsString(0) == "on");
+
+        if(app->scene2D) app->scene2D->layerManager.bDrawFish = state;
+    }
+
     // Commande: /time [float]
     else if(address == "/time"){
         if(mess.getArgType(0) == OFXOSC_TYPE_FLOAT || mess.getArgType(0) == OFXOSC_TYPE_INT32) {
-            // On interprète l'argument comme un numéro de FRAME et on convertit en secondes
-            app->oscTime = mess.getArgAsFloat(0) / (float)APP_FPS;
+            // On interprète l'argument comme un numéro de FRAME (plus de conversion)
+            app->oscTime = mess.getArgAsFloat(0);
         }
     }
 
@@ -65,6 +82,13 @@ void OscManager::processOscMessage(ofxOscMessage& mess, ofApp* app) {
         if(app->viewApps.size() > 3 && mess.getNumArgs() == 2) app->viewApps[3]->moveWindow(mess.getArgAsInt(0), mess.getArgAsInt(1));
     }
     
+
+
+
+
+
+
+    
     // Commande Spéciale: Ajout de créature
     else if(address == "/MainCanevas/addRandomCreature"){
         if(mess.getNumArgs() >= 2){
@@ -73,27 +97,15 @@ void OscManager::processOscMessage(ofxOscMessage& mess, ofApp* app) {
             app->creatureSystem.addRandomCreature(x, y);
         }
     }
+
+
+
+
+
+
+
 }
 
-void OscManager::setup(string host, int sendPort, int receivePort){
-    sender.setup(host, sendPort);
-    receiver.setup(receivePort);
-    ofLog() << "OscManager listening on port " << receivePort << " | sending to " << host << ":" << sendPort;
-}
-
-void OscManager::sendFrameNum(ofApp* app){
-    ofxOscMessage m;
-    m.setAddress("/frame");
-    m.addIntArg(ofGetFrameNum());
-    sender.sendMessage(m, false);
-
-    if(app) {
-        ofxOscMessage mLocal;
-        mLocal.setAddress("/localFrame");
-        mLocal.addIntArg((int)(app->localTime * (float)APP_FPS));
-        sender.sendMessage(mLocal, false);
-    }
-}
 
 void OscManager::sendHoverState(bool state, float radius, float elevation, float azimuth){
     ofxOscMessage mHover;
@@ -124,6 +136,10 @@ void OscManager::checkAndSendHoverState(ofApp* app) {
     }
 }
 
+
+
+
+
 void OscManager::update(ofApp* app){
     // 1. Envoi systématique du numéro de frame
     if(app && app->localTime != lastLocalTime) {
@@ -134,7 +150,8 @@ void OscManager::update(ofApp* app){
     // 2. Envoi conditionnel de l'état du survol
     checkAndSendHoverState(app);
 
-    int currentFrame = (int)(app->localTime * (float)APP_FPS);
+    // CORRECTION : localTime est maintenant en frames, on arrondit juste
+    int currentFrame = (int)round(app->localTime);
 
     // 3. Traitement des messages reçus
     while(receiver.hasWaitingMessages()){
@@ -210,4 +227,21 @@ bool OscManager::areMessagesEqual(const ofxOscMessage& a, const ofxOscMessage& b
         }
     }
     return true;
+}
+
+
+
+void OscManager::sendFrameNum(ofApp* app){
+    ofxOscMessage m;
+    m.setAddress("/frame");
+    m.addIntArg(ofGetFrameNum());
+    sender.sendMessage(m, false);
+
+    if(app) {
+        ofxOscMessage mLocal;
+        mLocal.setAddress("/localFrame");
+        // CORRECTION : Envoi direct de la frame locale
+        mLocal.addIntArg((int)round(app->localTime));
+        sender.sendMessage(mLocal, false);
+    }
 }

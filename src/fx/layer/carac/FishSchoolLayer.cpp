@@ -3,6 +3,7 @@
 
 //--------------------------------------------------------------
 void FishSchoolLayer::setup(float realSceneWidth, float targetRealHeight, shared_ptr<ColliderLayer> colliders) {
+    ofSetRandomSeed(42);
     this->colliderLayer = colliders;
 
     // --- CORRECTION MAJEURE : SYNCHRONISATION DES ESPACES ---

@@ -34,7 +34,7 @@ public:
         ViewApp::draw();
         if(bRecording){
             long currentFrame = frameCount;
-            if(mainApp) currentFrame = (long)(mainApp->localTime * (float)APP_FPS);
+            if(mainApp) currentFrame = (long)(mainApp->localTime);
             else frameCount++;
             ofSaveScreen(folderName + "/frame_" + ofToString(currentFrame, 5, '0') + ".jpg");
         }
@@ -57,7 +57,7 @@ public:
 
         if(bRecording){
             long currentFrame = frameCount;
-            if(mainApp) currentFrame = (long)(mainApp->localTime * (float)APP_FPS);
+            if(mainApp) currentFrame = (long)(mainApp->localTime);
             else frameCount++;
             ofSaveScreen(folderName + "/frame_" + ofToString(currentFrame, 5, '0') + ".jpg");
         }
@@ -304,8 +304,8 @@ int main( ){
     ofRunApp(zenitWindow, zenitApp); // Lancement fenêtre Zenit
     ofRunApp(buttonWindow, buttonApp); // Lancement fenêtre Boutons
     
-ofRunApp(mainWindow, dynamic_pointer_cast<ofBaseApp>(mainApp));
+    ofRunApp(mainWindow, dynamic_pointer_cast<ofBaseApp>(mainApp));
     
-    ofSetFrameRate(APP_FPS);
+    //ofSetFrameRate(APP_FPS);
     ofRunMainLoop();
 }

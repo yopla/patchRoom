@@ -29,7 +29,7 @@ public:
     bool bShowFullGab = true;
 
     // --- PAUSE & TIME ---
-    bool bGlobalPause = false; // Pause active par défaut
+    bool bGlobalPause = true; // Pause active par défaut
     float localTime = 0.0f;
     float oscTime = 0.0f;
 

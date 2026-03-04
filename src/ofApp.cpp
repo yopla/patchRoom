@@ -71,19 +71,25 @@ void ofApp::update(){
     
     // Si en pause mais que le temps local est en retard sur le temps OSC, on avance
     if(bGlobalPause) {
-        if(localTime < oscTime - 0.001f) { // Petite tolérance pour éviter le jitter
+        if(localTime < oscTime - 0.5f) { // Tolérance de 0.5 frame
             shouldUpdate = true;
-        } else if(localTime > oscTime + 0.1f) {
+        } else if(localTime > oscTime + 5.0f) { // Tolérance de 5 frames (rewind)
             // Si le temps OSC est loin derrière (Rewind), on force le temps local
-            localTime = oscTime;
+            // CORRECTION POUR ENREGISTREMENT : 
+            // On désactive le saut brutal (snap) qui fait sauter des frames.
+            // En mode rendu/enregistrement, on veut une continuité parfaite.
+            localTime = oscTime; 
         }
     }
 
     if(shouldUpdate) {
-        localTime += 1.0f / (float)APP_FPS; // Incrément fixe
+        localTime += 1.0f; // Incrément fixe de 1 FRAME
+
+        // Conversion en secondes uniquement pour les systèmes physiques (Noise, Animation)
+        float timeSeconds = localTime / (float)APP_FPS;
 
         ofVec2f m = getTransformedMouse();
-        creatureSystem.update(m, localTime);
+        creatureSystem.update(m, timeSeconds);
         canvasManager.update();
         
         // Mise à jour centralisée de la perception (Halos vs Boutons)
@@ -91,10 +97,10 @@ void ofApp::update(){
 
         // Propagation du temps et de la pause aux sous-systèmes
         if(roomApp) {
-            roomApp->setLocalTime(localTime);
+            roomApp->setLocalTime(timeSeconds);
         }
         if(sceneZenit) {
-            sceneZenit->setLocalTime(localTime);
+            sceneZenit->setLocalTime(timeSeconds);
         }
     }
 
@@ -105,8 +111,7 @@ void ofApp::update(){
     ofSetWindowTitle("Master View | FPS: " + ofToString(ofGetFrameRate(), 1) 
                     + " | ms: " + ofToString(ofGetLastFrameTime() * 1000.0, 2)
                      + " | Frame: " + ofToString(ofGetFrameNum())
-                     + " | Time: " + ofToString(localTime, 2)
-                     + " | Local Frame: " + ofToString((int)(localTime * (float)APP_FPS))
+                     + " | Local Frame: " + ofToString((int)localTime)
                     );
 }
 
