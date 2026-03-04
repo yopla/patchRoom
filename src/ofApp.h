@@ -10,19 +10,13 @@
 #include "OscManager.h"
 #include "PerceptionSystem.h"
 
-// send host (aka ip address)
 #define HOST "127.0.0.1"
-
-/// send port
 #define SENDPORT 12346
-
 #define PORT 12345
-
 #define APP_FPS 55
 
-// Forward declaration pour éviter la boucle d'include
 class ViewApp; 
-class RoomPreview;  // <--- AJOUTE CETTE LIGNE (Forward Declaration)
+class RoomPreview; 
 class ButtonApp;
 
 class ofApp : public ofBaseApp {
@@ -57,7 +51,7 @@ public:
     void setup();
     void update();
     void draw();
-void dragEvent(ofDragInfo dragInfo);
+    void dragEvent(ofDragInfo dragInfo);
 
     void keyPressed(int key);
     void keyReleased(int key);

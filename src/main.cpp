@@ -101,6 +101,7 @@ int main( ){
     ofGLFWWindowSettings settings;
     //settings.setGLVersion(3, 2);
     ofSetEscapeQuitsApp(false);
+   
     // Fenêtre Maître (Canvas)
     settings.setSize(800, 600); 
     settings.resizable = true;

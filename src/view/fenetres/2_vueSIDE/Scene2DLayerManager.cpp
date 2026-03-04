@@ -293,7 +293,8 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
         case 'z': case 'Z': cousinCons.push_back(make_shared<CousinCon>(m.x, m.y, &imgConcombre)); break; // cousinCon
         case 's': case 'S': creatureSystem.addDoublePendulum(m.x, m.y); break;
         case 'y': case 'Y': halos.push_back(make_shared<HaloCreature>(m.x, m.y)); break;
-      
+        
+        case '1': bDrawCurtain = !bDrawCurtain; break;
         case '2': creatureSystem.addFluidsCreature(m.x, m.y); break;
         case '3': creatureSystem.addSpringCreature(m.x, m.y); break;
         case '4': creatureSystem.addCreature(m.x, m.y); break; // Jelly 
@@ -328,7 +329,6 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
             bDrawDigging = !bDrawDigging;
             if (bDrawDigging && !diggingCreature.isEnabled()) diggingCreature.toggle();
             break;
-        case '1': bDrawCurtain = !bDrawCurtain; break;
         case 'w': case 'W': fluidFloorLayer.toggleBackground(); break;
     }
 }
