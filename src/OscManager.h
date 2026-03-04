@@ -16,7 +16,13 @@ public:
 private:
     void checkAndSendHoverState(ofApp* app);
 
+    void processOscMessage(ofxOscMessage& mess, ofApp* app);
+    bool areMessagesEqual(const ofxOscMessage& a, const ofxOscMessage& b);
+
     ofxOscSender sender;
     ofxOscReceiver receiver;
     bool lastHoverState = false; // Pour ne pas spammer l'OSC
+    float lastLocalTime = -1.0f;
+
+    std::vector<std::pair<int, ofxOscMessage>> bufferOscTimed;
 };

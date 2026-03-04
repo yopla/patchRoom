@@ -2,8 +2,78 @@
 #include "ofApp.h"
 #include "RoomApp.h" // Nécessaire pour app->roomApp
 #include "ProjectionSystem.h" // Nécessaire pour app->roomApp->projection
-
 #include "ViewApp.h" // Nécessaire pour app->viewApps[i]->moveWindow
+
+
+// Fonction centralisée de traitement des messages
+void OscManager::processOscMessage(ofxOscMessage& mess, ofApp* app) {
+    string address = mess.getAddress();
+
+    // Commande: /roomApp [0 ou 1] OU "on"/"off"
+    if(address == "/roomApp"){
+        bool state = false;
+        if(mess.getArgType(0) == OFXOSC_TYPE_INT32 || mess.getArgType(0) == OFXOSC_TYPE_FLOAT){
+            state = mess.getArgAsFloat(0) > 0;
+        }
+        else if(mess.getArgType(0) == OFXOSC_TYPE_STRING){
+            state = (mess.getArgAsString(0) == "on");
+        }
+        
+        app->bDrawRoom = state;
+        if(app->roomApp) app->roomApp->setEnabled(state);
+    }
+
+    // Commande: /scene2D [0 ou 1]
+    else if(address == "/scene2D"){
+        bool state = false;
+        if(mess.getArgType(0) == OFXOSC_TYPE_INT32 || mess.getArgType(0) == OFXOSC_TYPE_FLOAT) state = mess.getArgAsFloat(0) > 0;
+        else if(mess.getArgType(0) == OFXOSC_TYPE_STRING) state = (mess.getArgAsString(0) == "on");
+
+        app->bDrawScene2D = state;
+        if(app->scene2D) app->scene2D->setEnabled(state);
+    }
+
+    // Commande: /scene2DZenit [0 ou 1]
+    else if(address == "/scene2DZenit"){
+        bool state = false;
+        if(mess.getArgType(0) == OFXOSC_TYPE_INT32 || mess.getArgType(0) == OFXOSC_TYPE_FLOAT) state = mess.getArgAsFloat(0) > 0;
+        else if(mess.getArgType(0) == OFXOSC_TYPE_STRING) state = (mess.getArgAsString(0) == "on");
+
+        app->bDrawZenit = state;
+        if(app->sceneZenit) app->sceneZenit->setEnabled(state);
+    }
+
+    // Commande: /time [float]
+    else if(address == "/time"){
+        if(mess.getArgType(0) == OFXOSC_TYPE_FLOAT || mess.getArgType(0) == OFXOSC_TYPE_INT32) {
+            // On interprète l'argument comme un numéro de FRAME et on convertit en secondes
+            app->oscTime = mess.getArgAsFloat(0) / (float)APP_FPS;
+        }
+    }
+
+    // ViewApps positions
+    else if(address == "/viewApp1/pos"){
+        if(app->viewApps.size() > 0 && mess.getNumArgs() == 2) app->viewApps[0]->moveWindow(mess.getArgAsInt(0), mess.getArgAsInt(1));
+    }
+    else if(address == "/viewApp2/pos"){
+        if(app->viewApps.size() > 1 && mess.getNumArgs() == 2) app->viewApps[1]->moveWindow(mess.getArgAsInt(0), mess.getArgAsInt(1));
+    }
+    else if(address == "/viewApp3/pos"){
+        if(app->viewApps.size() > 2 && mess.getNumArgs() == 2) app->viewApps[2]->moveWindow(mess.getArgAsInt(0), mess.getArgAsInt(1));
+    }
+    else if(address == "/viewApp4/pos"){
+        if(app->viewApps.size() > 3 && mess.getNumArgs() == 2) app->viewApps[3]->moveWindow(mess.getArgAsInt(0), mess.getArgAsInt(1));
+    }
+    
+    // Commande Spéciale: Ajout de créature
+    else if(address == "/MainCanevas/addRandomCreature"){
+        if(mess.getNumArgs() >= 2){
+            float x = (mess.getArgType(0) == OFXOSC_TYPE_INT32) ? (float)mess.getArgAsInt(0) : mess.getArgAsFloat(0);
+            float y = (mess.getArgType(1) == OFXOSC_TYPE_INT32) ? (float)mess.getArgAsInt(1) : mess.getArgAsFloat(1);
+            app->creatureSystem.addRandomCreature(x, y);
+        }
+    }
+}
 
 void OscManager::setup(string host, int sendPort, int receivePort){
     sender.setup(host, sendPort);
@@ -56,78 +126,88 @@ void OscManager::checkAndSendHoverState(ofApp* app) {
 
 void OscManager::update(ofApp* app){
     // 1. Envoi systématique du numéro de frame
-    sendFrameNum(app);
+    if(app && app->localTime != lastLocalTime) {
+        sendFrameNum(app);
+        lastLocalTime = app->localTime;
+    }
 
     // 2. Envoi conditionnel de l'état du survol
     checkAndSendHoverState(app);
+
+    int currentFrame = (int)(app->localTime * (float)APP_FPS);
 
     // 3. Traitement des messages reçus
     while(receiver.hasWaitingMessages()){
         ofxOscMessage mess;
         receiver.getNextMessage(mess);
         
-        string address = mess.getAddress();
-
-        // Commande: /roomApp [0 ou 1] OU "on"/"off"
-        if(address == "/roomApp"){
-            bool state = false;
-            if(mess.getArgType(0) == OFXOSC_TYPE_INT32 || mess.getArgType(0) == OFXOSC_TYPE_FLOAT){
-                state = mess.getArgAsFloat(0) > 0;
+        if(mess.getAddress() == "/timed") {
+            // Format: /timed [frame] [address] [args...]
+            if(mess.getNumArgs() >= 2) {
+                // Robustesse : Accepte Int ou Float pour le numéro de frame
+                int targetFrame = (mess.getArgType(0) == OFXOSC_TYPE_INT32) ? mess.getArgAsInt(0) : (int)mess.getArgAsFloat(0);
+                string targetAddr = mess.getArgAsString(1);
+                
+                // Reconstruction du message cible
+                ofxOscMessage mStored;
+                mStored.setAddress(targetAddr);
+                for(int i=2; i<mess.getNumArgs(); i++){
+                    if(mess.getArgType(i) == OFXOSC_TYPE_INT32) mStored.addIntArg(mess.getArgAsInt(i));
+                    else if(mess.getArgType(i) == OFXOSC_TYPE_FLOAT) mStored.addFloatArg(mess.getArgAsFloat(i));
+                    else if(mess.getArgType(i) == OFXOSC_TYPE_STRING) mStored.addStringArg(mess.getArgAsString(i));
+                }
+                
+                // Deduplication: On vérifie si le message existe déjà pour cette frame
+                bool duplicate = false;
+                for(auto& it : bufferOscTimed) {
+                    if(it.first == targetFrame && areMessagesEqual(it.second, mStored)) {
+                        duplicate = true;
+                        break;
+                    }
+                }
+                
+                if(!duplicate) {
+                    bufferOscTimed.push_back({targetFrame, mStored});
+                }
             }
-            else if(mess.getArgType(0) == OFXOSC_TYPE_STRING){
-                state = (mess.getArgAsString(0) == "on");
-            }
-            
-            app->bDrawRoom = state;
-            if(app->roomApp) app->roomApp->setEnabled(state);
-        }
-
-        // Commande: /scene2D [0 ou 1]
-        else if(address == "/scene2D"){
-            bool state = false;
-            if(mess.getArgType(0) == OFXOSC_TYPE_INT32 || mess.getArgType(0) == OFXOSC_TYPE_FLOAT) state = mess.getArgAsFloat(0) > 0;
-            else if(mess.getArgType(0) == OFXOSC_TYPE_STRING) state = (mess.getArgAsString(0) == "on");
-
-            app->bDrawScene2D = state;
-            if(app->scene2D) app->scene2D->setEnabled(state);
-        }
-
-        // Commande: /scene2DZenit [0 ou 1]
-        else if(address == "/scene2DZenit"){
-            bool state = false;
-            if(mess.getArgType(0) == OFXOSC_TYPE_INT32 || mess.getArgType(0) == OFXOSC_TYPE_FLOAT) state = mess.getArgAsFloat(0) > 0;
-            else if(mess.getArgType(0) == OFXOSC_TYPE_STRING) state = (mess.getArgAsString(0) == "on");
-
-            app->bDrawZenit = state;
-            if(app->sceneZenit) app->sceneZenit->setEnabled(state);
-        }
-
-        // Commande: /time [float]
-        else if(address == "/time"){
-            if(mess.getArgType(0) == OFXOSC_TYPE_FLOAT || mess.getArgType(0) == OFXOSC_TYPE_INT32) {
-                // On interprète l'argument comme un numéro de FRAME et on convertit en secondes
-                app->oscTime = mess.getArgAsFloat(0) / (float)APP_FPS;
-            }
-        }
-
-        // Mouse position
-        else if(address == "/mouse/position"){
-            // float mouseXf = mess.getArgAsFloat(0);
-            // float mouseYf = mess.getArgAsFloat(1);
-        }
-
-        // ViewApps positions
-        else if(address == "/viewApp1/pos"){
-            if(app->viewApps.size() > 0 && mess.getNumArgs() == 2) app->viewApps[0]->moveWindow(mess.getArgAsInt(0), mess.getArgAsInt(1));
-        }
-        else if(address == "/viewApp2/pos"){
-            if(app->viewApps.size() > 1 && mess.getNumArgs() == 2) app->viewApps[1]->moveWindow(mess.getArgAsInt(0), mess.getArgAsInt(1));
-        }
-        else if(address == "/viewApp3/pos"){
-            if(app->viewApps.size() > 2 && mess.getNumArgs() == 2) app->viewApps[2]->moveWindow(mess.getArgAsInt(0), mess.getArgAsInt(1));
-        }
-        else if(address == "/viewApp4/pos"){
-            if(app->viewApps.size() > 3 && mess.getNumArgs() == 2) app->viewApps[3]->moveWindow(mess.getArgAsInt(0), mess.getArgAsInt(1));
+        } else {
+            // Message immédiat
+            processOscMessage(mess, app);
         }
     }
+    
+    // 4. Traitement du buffer Timed
+    for(auto it = bufferOscTimed.begin(); it != bufferOscTimed.end(); ) {
+        int frame = it->first;
+        
+        // MODIFICATION : On utilise <= pour gérer les sauts de frames (lag ou dt > 1 frame)
+        // Si on utilisait < pour supprimer, on perdrait les événements sautés.
+        if(frame <= currentFrame) {
+            processOscMessage(it->second, app);
+            it = bufferOscTimed.erase(it);
+        }
+        else {
+            // Message futur -> On garde
+            ++it;
+        }
+    }
+}
+
+
+
+// Helper pour comparer deux messages OSC (Deduplication)
+bool OscManager::areMessagesEqual(const ofxOscMessage& a, const ofxOscMessage& b) {
+    if(a.getAddress() != b.getAddress()) return false;
+    if(a.getNumArgs() != b.getNumArgs()) return false;
+    for(int i=0; i<a.getNumArgs(); i++) {
+        if(a.getArgType(i) != b.getArgType(i)) return false;
+        if(a.getArgType(i) == OFXOSC_TYPE_INT32) {
+            if(a.getArgAsInt(i) != b.getArgAsInt(i)) return false;
+        } else if(a.getArgType(i) == OFXOSC_TYPE_FLOAT) {
+            if(abs(a.getArgAsFloat(i) - b.getArgAsFloat(i)) > 0.0001f) return false;
+        } else if(a.getArgType(i) == OFXOSC_TYPE_STRING) {
+            if(a.getArgAsString(i) != b.getArgAsString(i)) return false;
+        }
+    }
+    return true;
 }
