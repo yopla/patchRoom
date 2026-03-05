@@ -6,6 +6,7 @@
 #include "LightFlyRing.h"
 #include "FluidFloorLayer.h"
 #include "FluidRing.h"
+#include "FishSchoolLayer.h"
 #include <algorithm>
 
 void PerceptionSystem::setup() {
@@ -36,6 +37,12 @@ void PerceptionSystem::update(shared_ptr<ButtonApp> buttonApp,
     float winW = buttonApp->buttonWindow.getWidth();
     float winH = buttonApp->buttonWindow.getHeight();
 
+    static vector<bool> lastButtonStates;
+    if (lastButtonStates.size() != buttonApp->buttonWindow.buttons.size()) {
+        lastButtonStates.resize(buttonApp->buttonWindow.buttons.size(), false);
+    }
+    int btnIdx = 0;
+
     for(const auto& b : buttonApp->buttonWindow.buttons) {
         ofVec2f center = b.rect.getCenter();
         
@@ -51,6 +58,37 @@ void PerceptionSystem::update(shared_ptr<ButtonApp> buttonApp,
         glm::vec3 pos(x3d, 2.0f, z3d);
         bool isActive = (b.targetAlpha > 100); // Seuil arbitraire pour considérer actif (hovered)
         
+        // Trigger Shark on activation
+        if (isActive && !lastButtonStates[btnIdx]) {
+            if (sceneSide) {
+                float w2 = rW / 2.0f;
+                // d2 est deja defini au dessus
+
+                const float wFront = sceneSide->wFront;
+                const float wJar = sceneSide->wJar;
+                float srcX_Front = sceneSide->wJar;
+                const float srcX_Back = wJar + wFront + wJar;
+                const float srcX_Cour = wJar + wFront;
+
+                float distFront = abs(pos.z - (-d2));
+                float distBack = abs(pos.z - d2);
+                float distJar = abs(pos.x - (-w2));
+                float distCour = abs(pos.x - w2);
+                float minDistWall = std::min({distFront, distBack, distJar, distCour});
+
+                float sceneX = 0;
+                if (minDistWall == distFront)      sceneX = srcX_Front + ((pos.x + w2) / rW) * wFront;
+                else if (minDistWall == distBack)  sceneX = srcX_Back + ((w2 - pos.x) / rW) * wFront;
+                else if (minDistWall == distJar)   sceneX = 0 + ((d2 - pos.z) / rD) * wJar;
+                else                               sceneX = srcX_Cour + ((pos.z + d2) / rD) * wJar;
+
+                // le point d'origne est en haut à gauche
+                sceneSide->layerManager.fishSchoolLayer.addShark(sceneX, ofRandom(700, 1400));
+            }
+        }
+        lastButtonStates[btnIdx] = isActive;
+        btnIdx++;
+
         allButtons.push_back({pos, isActive});
         if(isActive) activeButtons.push_back(pos);
     }
@@ -188,16 +226,18 @@ void PerceptionSystem::updateFluids(const vector<glm::vec3>& activeButtons3DPosi
             else if (minDistWall == distJar)   sceneX = 0 + ((d2 - btnPos.z) / rD) * wJar;
             else                               sceneX = srcX_Cour + ((btnPos.z + d2) / rD) * wJar;
 
-            // Interaction avec Y aléatoire
-            float fluidY = ofRandom(sceneSide->layerManager.fluidFloorLayer.height);
+            // Conversion Scene Space -> Sim Space
+            float scale = sceneSide->layerManager.fluidFloorLayer.scale;
+            float simX = sceneX / scale;
+            float simY = sceneSide->layerManager.fluidFloorLayer.height - 2.0f; // Bas de la simulation
             
             // d. Créer une force (réduite pour éviter l'instabilité)
-            ofVec2f force(ofRandom(-1.0f, 1.0f), ofRandom(-1.0f, 1.0f));
+            ofVec2f force(ofRandom(-0.5f, 0.5f), ofRandom(-1.0f, -0.2f)); // Vers le haut
             force.normalize();
-            force *= 5.0f; // Renforcé (était 0.5f)
+            force *= 0.7f; 
 
             // e. Appliquer la force
-            sceneSide->layerManager.fluidFloorLayer.addForce(sceneX, fluidY, force.x, force.y);
+            sceneSide->layerManager.fluidFloorLayer.addForce(simX, simY, force.x, force.y);
         }
     }
 

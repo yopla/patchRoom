@@ -130,6 +130,34 @@ void InteractionVisualizer::draw(shared_ptr<ofApp> mainApp, shared_ptr<Scene2D_S
             }
         }
 
+        // --- AJOUT : Visualisation Shark (Orange) ---
+        if (sceneSide) {
+             ofPushStyle();
+             ofSetColor(255, 165, 0); // Orange
+             ofSetLineWidth(2);
+             
+             float w2 = roomWidth / 2.0f;
+             float d2 = roomDepth / 2.0f;
+             float targetY = 1000.0f; // Hauteur moyenne d'apparition
+
+             for(const auto& btnPos : btnPositions) {
+                float distFront = abs(btnPos.z - (-d2));
+                float distBack = abs(btnPos.z - d2);
+                float distJar = abs(btnPos.x - (-w2));
+                float distCour = abs(btnPos.x - w2);
+                float minDistWall = std::min({distFront, distBack, distJar, distCour});
+                
+                ofVec3f wallPos;
+                if (minDistWall == distFront)      wallPos.set(btnPos.x, targetY, -d2);
+                else if (minDistWall == distBack)  wallPos.set(btnPos.x, targetY, d2);
+                else if (minDistWall == distJar)   wallPos.set(-w2, targetY, btnPos.z);
+                else                               wallPos.set(w2, targetY, btnPos.z);
+                
+                ofDrawLine(btnPos, wallPos);
+             }
+             ofPopStyle();
+        }
+
         // --- AJOUT : Visualisation des liens vers les fluides (Cyan) ---
         ofPushStyle();
         ofSetColor(ofColor::cyan);

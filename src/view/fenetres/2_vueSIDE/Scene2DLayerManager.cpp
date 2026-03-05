@@ -342,7 +342,16 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
         case '4': creatureSystem.addCreature(m.x, m.y); break; // Jelly 
         case '5': bDrawColliders = !bDrawColliders; break;
         case '6': creatureSystem.addDancingCreature(m.x, m.y); break;
-        case '7': bDrawPuyo = !bDrawPuyo; break;
+        case '7':           
+            if (bDrawPuyo){
+             puyoLayer.puyos.clear();
+            } else {
+            for(int i=0; i<15; i++) {
+                puyoLayer.addPuyo(ofRandom(puyoLayer.simWidth), puyoLayer.simHeight - ofRandom(50, 150));
+            }
+            }
+            bDrawPuyo = !bDrawPuyo; 
+            break;
         case '8': bDrawBubbles = !bDrawBubbles; break;
         case '9': bDrawKani = !bDrawKani; break;
     }

@@ -213,10 +213,12 @@ bool Puyo::isFolded() {
     float lambdaMax = (trace + disc) * 0.5f; // Grand axe (longueur)
     float lambdaMin = (trace - disc) * 0.5f; // Petit axe (largeur)
     
-    if(lambdaMax < 0.001f) return false; // Trop petit pour être jugé
+    // Si la variance est très faible (< 10.0), l'objet est écrasé en un point -> Folded
+    if(lambdaMax < 10.0f) return true; 
     
-    // Ratio d'aspect : Si < 0.1, la largeur est négligeable devant la longueur -> Ligne
-    return (lambdaMin / lambdaMax < 0.1f);
+    // Ratio d'aspect : Si < 0.25, la largeur est négligeable devant la longueur -> Ligne
+    // Seuil augmenté pour détecter les lignes courbes
+    return (lambdaMin / lambdaMax < 0.25f);
 }
 
 void Puyo::draw(float scale) {
@@ -265,7 +267,7 @@ void PuyoLayer::setup(float w, float h, float s, shared_ptr<ColliderLayer> col) 
     
     // Ajout de quelques Puyos au départ
     for(int i=0; i<15; i++) { // Moins de puyos car ils sont plus gros
-        addPuyo(ofRandom(simWidth), ofRandom(simHeight * 0.5));
+        addPuyo(ofRandom(simWidth), simHeight - ofRandom(50, 150));
     }
 }
 
@@ -323,12 +325,30 @@ void PuyoLayer::update(float mx, float my, float time) {
                 ofVec2f dir = (p1->center - p2->center).getNormalized();
                 float overlap = minDist - dist;
                 
-                // 1. Séparation douce des centres (pour éviter l'interpénétration totale)
-                ofVec2f force = dir * overlap * 0.4f; // Séparation plus franche pour éviter l'écrasement
+                // 1. Séparation globale FAIBLE (pour permettre le rapprochement des centres et l'écrasement)
+                // On réduit la force pour que les centres puissent se rapprocher
+                ofVec2f centerForce = dir * overlap * 0.05f; 
                 
-                for(auto& n : p1->nodes) n.pos += force;
-                for(auto& n : p2->nodes) n.pos -= force;
+                for(auto& n : p1->nodes) n.pos += centerForce;
+                for(auto& n : p2->nodes) n.pos -= centerForce;
                 
+                // 2. Déformation locale (Aplatissement des noeuds au contact)
+                // On repousse les noeuds de P1 qui sont dans P2
+                for(auto& n : p1->nodes) {
+                    float d = n.pos.distance(p2->center);
+                    if(d < p2->radius) {
+                        float penetration = p2->radius - d;
+                        n.pos += (n.pos - p2->center).getNormalized() * penetration * 0.8f;
+                    }
+                }
+                // On repousse les noeuds de P2 qui sont dans P1
+                for(auto& n : p2->nodes) {
+                    float d = n.pos.distance(p1->center);
+                    if(d < p1->radius) {
+                        float penetration = p1->radius - d;
+                        n.pos += (n.pos - p1->center).getNormalized() * penetration * 0.8f;
+                    }
+                }
             }
         }
     }
