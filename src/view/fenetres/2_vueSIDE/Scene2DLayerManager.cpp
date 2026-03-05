@@ -79,6 +79,15 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
     // Le layer de bulles utilise maintenant le collider principal, qui est déjà pleine hauteur.
     // L'offset de collision (dernier paramètre) reste à 0.0f.
     bubbleLayer.setup(simWidth, simHeight, scale, colliderLayer, 0.0f);
+    
+    // --- SETUP KANI LAYER ---
+    kaniLayer.setup(totalSceneWidth, 1472.0f, colliderLayer);
+
+    // --- SETUP TEAA LAYER ---
+    teaaLayer.setup(totalSceneWidth, 1472.0f, colliderLayer);
+
+    // --- SETUP BALLET LAYER ---
+    balletLayer.setup(totalSceneWidth, 1472.0f);
 }
 
 void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePressed) {
@@ -168,6 +177,18 @@ void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePress
 
     if (bDrawBubbles) {
         bubbleLayer.update(m.x, m.y, time); // BubbleLayer uses time
+    }
+    
+    if (bDrawKani) {
+        kaniLayer.update(m.x, m.y, time);
+    }
+
+    if (bDrawTeaa) {
+        teaaLayer.update(time);
+    }
+
+    if (bDrawBallet) {
+        balletLayer.update(time);
     }
 }
 
@@ -260,6 +281,18 @@ void Scene2DLayerManager::draw(const ofVec2f& m) {
         // Le dessin se fait maintenant directement dans les coordonnées du monde
         bubbleLayer.draw();
     }
+    
+    if (bDrawKani) {
+        kaniLayer.draw();
+    }
+    
+    if (bDrawTeaa) {
+        teaaLayer.draw();
+    }
+    
+    if (bDrawBallet) {
+        balletLayer.draw();
+    }
 
      if (bDrawColliders) {
         if(colliderLayer) colliderLayer->draw();
@@ -294,14 +327,24 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
         case 's': case 'S': creatureSystem.addDoublePendulum(m.x, m.y); break;
         case 'y': case 'Y': halos.push_back(make_shared<HaloCreature>(m.x, m.y)); break;
         
-        case '1': bDrawCurtain = !bDrawCurtain; break;
-        case '2': creatureSystem.addFluidsCreature(m.x, m.y); break;
+
+
+        case '1': bDrawTeaa = !bDrawTeaa; teaaLayer.bActive = bDrawTeaa; if(bDrawTeaa) teaaLayer.generate(); 
+        //bDrawCurtain = !bDrawCurtain; 
+        break; // Generates new floor on toggle
+        
+        case '2': 
+        creatureSystem.addFluidsCreature(m.x, m.y); 
+        bDrawBallet = !bDrawBallet; balletLayer.bActive = bDrawBallet;
+        break;
+       
         case '3': creatureSystem.addSpringCreature(m.x, m.y); break;
         case '4': creatureSystem.addCreature(m.x, m.y); break; // Jelly 
         case '5': bDrawColliders = !bDrawColliders; break;
         case '6': creatureSystem.addDancingCreature(m.x, m.y); break;
         case '7': bDrawPuyo = !bDrawPuyo; break;
         case '8': bDrawBubbles = !bDrawBubbles; break;
+        case '9': bDrawKani = !bDrawKani; break;
     }
 
     // --- LAYER Toggles ---
@@ -350,6 +393,7 @@ void Scene2DLayerManager::mousePressed(const ofVec2f& m, int button) {
     if (bDrawMachine) machineLayer.mousePressed(m.x, m.y, button);
     if (bDrawMachineAuto) machineAuto.mousePressed(m.x, m.y);
     if (bDrawCurtain) curtain.mousePressed(m.x, m.y);
+    if (bDrawTeaa) teaaLayer.mousePressed(m.x, m.y, button);
 }
 
 void Scene2DLayerManager::mouseReleased(const ofVec2f& m, int button) {

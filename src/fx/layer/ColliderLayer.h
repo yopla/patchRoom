@@ -17,6 +17,10 @@ public:
     float simHeight;
     float scale;
     int mapW, mapH, mapC;
+    
+    // Gestion des murs procéduraux (TeaaLayer)
+    void setCustomWalls(const vector<ofRectangle>& newWalls);
+    void clearCustomWalls();
 
 private:
     void generateWalls();
@@ -26,5 +30,6 @@ private:
     ofPixels mapPixels;              // Pour optimisation isWall
     bool bHasMap = false;
     ofMesh wallMesh;
+    vector<ofRectangle> customWalls;
 
 };

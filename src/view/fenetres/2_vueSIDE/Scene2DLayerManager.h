@@ -21,6 +21,9 @@
 #include "CurtainCreature.h"
 #include "PuyoLayer.h"
 #include "BubbleLayer.h"
+#include "KaniLayer.h"
+#include "TeaaLayer.h"
+#include "BalletLayer.h"
 
 class Scene2DLayerManager {
 public:
@@ -50,6 +53,9 @@ public:
     bool bDrawColliders = false;
     bool bDrawPuyo = false;
     bool bDrawBubbles = false;
+    bool bDrawKani = false;
+    bool bDrawTeaa = false;
+    bool bDrawBallet = false;
 
     // Layer objects
     CreatureSystem creatureSystem;
@@ -73,6 +79,9 @@ public:
     CurtainCreature curtain;
     PuyoLayer puyoLayer;
     BubbleLayer bubbleLayer;
+    KaniLayer kaniLayer;
+    TeaaLayer teaaLayer;
+    BalletLayer balletLayer;
 
     // State for lightning
     bool bLightningHasStart = false;

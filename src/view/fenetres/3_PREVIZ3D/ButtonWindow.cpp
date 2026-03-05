@@ -1,7 +1,16 @@
 #include "ButtonWindow.h"
+#include <map>
+
+// Stockage global des états OSC pour les boutons
+static std::map<int, bool> g_oscButtonStates;
+
+void setButtonOscState(int id, bool state) {
+    g_oscButtonStates[id] = state;
+}
 
 //--------------------------------------------------------------
 void ButtonWindow::setup(float w, float h) {
+    
     // Chargement de l'image de fond
     // On gère le cas de l'extension .jog (typo probable pour .jpg)
     bool bLoaded = false;
@@ -74,6 +83,7 @@ void ButtonWindow::setup(float w, float h) {
 
 //--------------------------------------------------------------
 void ButtonWindow::setupWorms(int count) {
+
     worms.clear();
     for(int i=0; i<count; i++) {
         ButtonWorm w;
@@ -126,6 +136,9 @@ void ButtonWindow::update(float mx, float my) {
         
         // Mouse Check
         if(b.rect.inside(mx, my)) isHovered = true;
+
+        // OSC Check
+        if(g_oscButtonStates[b.id]) isHovered = true;
         
         // Worms Check
         if(bDrawWorms && !isHovered) {

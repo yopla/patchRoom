@@ -2,6 +2,7 @@
 
 //--------------------------------------------------------------
 void ButtonApp::setup() {
+     ofSetRandomSeed(42);
     buttonWindow.setup(ofGetWidth(), ofGetHeight());
     buttonWindow.setupWorms(12);
     

@@ -29,7 +29,7 @@ public:
 
     void setupWorms(int count);
     void toggleWorms() { bDrawWorms = !bDrawWorms; }
-    bool bDrawWorms = true;
+    bool bDrawWorms = false;
     
 
 private:

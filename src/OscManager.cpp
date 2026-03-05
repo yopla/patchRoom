@@ -4,6 +4,8 @@
 #include "ProjectionSystem.h" // Nécessaire pour app->roomApp->projection
 #include "ViewApp.h" // Nécessaire pour app->viewApps[i]->moveWindow
 
+// Déclaration de la fonction externe définie dans ButtonWindow.cpp
+void setButtonOscState(int id, bool state);
 
 
 void OscManager::setup(string host, int sendPort, int receivePort){
@@ -80,6 +82,20 @@ void OscManager::processOscMessage(ofxOscMessage& mess, ofApp* app) {
     }
     else if(address == "/viewApp4/pos"){
         if(app->viewApps.size() > 3 && mess.getNumArgs() == 2) app->viewApps[3]->moveWindow(mess.getArgAsInt(0), mess.getArgAsInt(1));
+    }
+
+    // Commande: /button/[id] [state] (ex: /button/1 1 ou /button/12 on)
+    else if(address.find("/button/") == 0){
+        string idStr = address.substr(8); // Longueur de "/button/"
+        int id = ofToInt(idStr);
+        bool state = false;
+        if(mess.getNumArgs() > 0){
+            if(mess.getArgType(0) == OFXOSC_TYPE_INT32 || mess.getArgType(0) == OFXOSC_TYPE_FLOAT) 
+                state = mess.getArgAsFloat(0) > 0;
+            else if(mess.getArgType(0) == OFXOSC_TYPE_STRING) 
+                state = (mess.getArgAsString(0) == "on");
+        }
+        setButtonOscState(id, state);
     }
     
 

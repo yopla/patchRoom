@@ -31,7 +31,11 @@ public:
     void setup(float width, float height);
     void update(float mouseX, float mouseY, float time) override {
         if (!bExternalControl) {
-            setTarget(mouseX, mouseY); // On utilise les coords passées par le manager
+            if (mouseX == 0 && mouseY == 0) {
+                setTarget(simWidth * 0.5f, simHeight * 0.5f);
+            } else {
+                setTarget(mouseX, mouseY); // On utilise les coords passées par le manager
+            }
         }
         update(time); // Appel de ta logique interne
         bExternalControl = false;
