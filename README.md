@@ -1,5 +1,5 @@
 # About emptyExample
-
+190
 pour débolquer la quarantaine osx  :
 xattr -cr /chemin/vers/votre_app.app
 
