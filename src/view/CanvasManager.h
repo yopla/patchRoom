@@ -16,7 +16,7 @@ public:
 void drawBackground(shared_ptr<RoomApp> room, 
                         shared_ptr<Scene2D_SIDE> scene2D, 
                         shared_ptr<Scene2DZenit> sceneZenit, 
-                        bool showGab,
+                        int gabAlpha,
                         bool bDrawRoom,    // <--- Ajout
                         bool bDrawZenit,   // <--- Ajout (Attention à l'ordre des args)
                         bool bDrawScene2D  // <--- Ajout

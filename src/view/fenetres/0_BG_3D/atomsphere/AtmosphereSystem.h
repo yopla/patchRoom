@@ -22,6 +22,8 @@ private:
     
     // Texture 360
     ofImage texture360; // <--- NOUVEAU
+    ofVideoPlayer video360;
+    bool bIsVideo = false;
     
     // Boule à facettes
     ofMesh meshDiscoBall;

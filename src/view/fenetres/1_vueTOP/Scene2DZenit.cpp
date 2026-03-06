@@ -44,15 +44,18 @@ void Scene2DZenit::setup() {
     colliderSol = make_shared<ColliderLayer>();
     colliderSol->setup(wSol, hSol, 1.0f); // Scale 1.0 car on est en taille réelle
 
-    // On configure les poissons
-    fishSol.setup(wSol, hSol, colliderSol);
+    if (bFish) {
+        // On configure les poissons
+        fishSol.setup(wSol, hSol, colliderSol);
 
-    // On ajoute quelques sardines pour voir quelque chose tout de suite
-    for(int i=0; i<50; i++) {
-        fishSol.addSardine(ofRandom(wSol), ofRandom(hSol));
-    }
-    // Et un requin pour l'ambiance
-    fishSol.addShark(wSol/2, hSol/2);
+        // On ajoute quelques sardines pour voir quelque chose tout de suite
+        for(int i=0; i<50; i++) {
+            fishSol.addSardine(ofRandom(wSol), ofRandom(hSol));
+        }
+        // Et un requin pour l'ambiance
+        fishSol.addShark(wSol/2, hSol/2);
+        }
+  
 }
 
 //--------------------------------------------------------------
@@ -74,7 +77,9 @@ void Scene2DZenit::update() {
     }
 
     // --- 2. UPDATE POISSONS ---
-    fishSol.update();
+     if (bFish) {  
+          fishSol.update();
+     }
 
     // 3. Captures FBO (Inchangé - utilise drawDynamicElements)
     ofMatrix4x4 mSol; 
@@ -115,7 +120,10 @@ void Scene2DZenit::drawDynamicElements() {
     ofDrawCircle(ballPos.x, ballPos.y, 80);
     ofSetColor(255); // Reset couleur
     }
-    fishSol.draw();
+
+     if (bFish) { 
+           fishSol.draw();
+     }
 }
 
 //--------------------------------------------------------------

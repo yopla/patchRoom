@@ -45,7 +45,7 @@ void CanvasManager::loadFile(string path) {
 void CanvasManager::drawBackground(shared_ptr<RoomApp> room, 
                                    shared_ptr<Scene2D_SIDE> scene2D, 
                                    shared_ptr<Scene2DZenit> sceneZenit, 
-                                   bool showGab,
+                                   int gabAlpha,
                                    bool bDrawRoom, 
                                    bool bDrawZenit, 
                                    bool bDrawScene2D) {    
@@ -69,8 +69,8 @@ void CanvasManager::drawBackground(shared_ptr<RoomApp> room,
         if (room->fboTopCour.isAllocated()) room->fboTopCour.draw(2400, 0);
     }
   
-   if (showGab) {
-        ofSetColor(255);
+   if (gabAlpha > 0) {
+        ofSetColor(255, gabAlpha);
         
         if (bIsVideo && videoPlayer.isLoaded()) {
             // Dessine la vidéo étirée à la taille du canvas

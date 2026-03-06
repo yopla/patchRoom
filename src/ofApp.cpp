@@ -119,6 +119,14 @@ void ofApp::update(){
 void ofApp::draw(){
     ofVec2f m = getTransformedMouse();
 
+    int gabAlpha = 0;
+    switch(gabMode) {
+        case 0: gabAlpha = 255; break;       // 100%
+        case 1: gabAlpha = 90; break;        // 33%
+        case 2: gabAlpha = 42; break;        // 10%
+        case 3: gabAlpha = 0; break;         // OFF
+    }
+
     // 1. Rendu dans le FBO Géant
     canvasManager.canvas.begin();
     
@@ -126,7 +134,7 @@ void ofApp::draw(){
         roomApp, 
         scene2D, 
         sceneZenit, 
-        bShowFullGab,
+        gabAlpha,
         bDrawRoom,    // W
         bDrawZenit,   // X
         bDrawScene2D  // C
@@ -214,7 +222,10 @@ void ofApp::keyPressed(int key){
     }
 
     if(key == ' ') isSpacePressed = true;
-    if(key == 'g' || key == 'G') bShowFullGab = !bShowFullGab;
+    if(key == 'g' || key == 'G') {
+        gabMode++;
+        if(gabMode > 3) gabMode = 0;
+    }
     
     // Reset Navigation
     if(key == 'r' || key == 'R') {

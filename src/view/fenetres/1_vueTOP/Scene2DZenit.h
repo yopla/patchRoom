@@ -8,7 +8,7 @@ public:
     void setup();
     void update();
     void draw();
-    
+    bool bFish = true;
     // ... (méthodes souris/clavier inchangées) ...
     void mouseScrolled(int x, int y, float scrollX, float scrollY);
     void mousePressed(int x, int y, int button);

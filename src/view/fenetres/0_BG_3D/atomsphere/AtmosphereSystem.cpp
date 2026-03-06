@@ -3,7 +3,22 @@
 void AtmosphereSystem::loadTexture(string path) {
     ofDisableArbTex(); // Indispensable pour que le mapping sphérique fonctionne bien
     
-    bool success = texture360.load(path);
+    ofFile file(path);
+    string ext = ofToUpper(file.getExtension());
+    bool success = false;
+
+    if(ext == "MOV" || ext == "MP4") {
+        if(video360.isLoaded()) video360.close();
+        success = video360.load(path);
+        if(success) {
+            video360.play();
+            bIsVideo = true;
+        }
+    } else {
+        if(video360.isLoaded()) video360.stop();
+        success = texture360.load(path);
+        if(success) bIsVideo = false;
+    }
     
     if(success) {
         //ofLog() << "Nouvelle texture 360 chargée : " << path;
@@ -44,6 +59,9 @@ void AtmosphereSystem::update(float time) {
     if (rot) {
         autoRotY = time * 2.0f;
     }
+    if(bIsVideo && video360.isLoaded()) {
+        video360.update();
+    }
 }
 
 //--------------------------------------------------------------
@@ -67,9 +85,17 @@ if (bShow360) {
             
             ofScale(-1, 1, 1); 
             
-            texture360.bind();
+            if(bIsVideo && video360.isLoaded()) {
+                video360.getTexture().bind();
+            } else {
+                texture360.bind();
+            }
             sphereEnvironnement.draw();
-            texture360.unbind();
+            if(bIsVideo && video360.isLoaded()) {
+                video360.getTexture().unbind();
+            } else {
+                texture360.unbind();
+            }
         ofPopMatrix();
         
         ofPopStyle();

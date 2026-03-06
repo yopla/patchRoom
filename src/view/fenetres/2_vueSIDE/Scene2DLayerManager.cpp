@@ -1,4 +1,5 @@
 #include "Scene2DLayerManager.h"
+#include "SwingLayer.h"
 
 void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float frontW, float frontX) {
     totalSceneWidth = totalWidth;
@@ -121,6 +122,12 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
 
     // --- SETUP CHAIN CREA ---
     chainCreaLayer.setup(totalSceneWidth, 1472.0f);
+
+    // --- SETUP WALL WALKER ---
+    wallWalkerLayer.setup(simWidth, simHeight, scale, colliderLayer);
+
+    // --- SETUP SWING LAYER ---
+    swingLayer.setup(simWidth, simHeight, scale, colliderLayer);
 }
 
 void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePressed) {
@@ -266,6 +273,14 @@ void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePress
 
     if (bDrawChainCrea) {
         chainCreaLayer.update(m.x, m.y, time);
+    }
+
+    if (bDrawWallWalker) {
+        wallWalkerLayer.update(m.x, m.y, time);
+    }
+
+    if (bDrawSwing) {
+        swingLayer.update(m.x, m.y, time);
     }
 }
 
@@ -418,6 +433,14 @@ void Scene2DLayerManager::draw(const ofVec2f& m) {
     if (bDrawChainCrea) {
         chainCreaLayer.draw();
     }
+
+    if (bDrawWallWalker) {
+        wallWalkerLayer.draw();
+    }
+
+    if (bDrawSwing) {
+        swingLayer.draw();
+    }
 }
 
 void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
@@ -454,15 +477,18 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
             //bDrawBallet = !bDrawBallet; balletLayer.bActive = bDrawBallet;
             //creatureSystem.addSpringCreature(m.x, m.y);
             //   bDrawKundelich = !bDrawKundelich;
+            // bDrawPinceFoire = !bDrawPinceFoire;
+                     //bDrawTeaa = !bDrawTeaa; teaaLayer.bActive = bDrawTeaa; if(bDrawTeaa) teaaLayer.generate(); 
+            //bDrawCurtain = !bDrawCurtain; 
+            //bDrawMultiPendulum = !bDrawMultiPendulum;
+            // bDrawWhaa = !bDrawWhaa;
 
         case '1': 
-             //bDrawTeaa = !bDrawTeaa; teaaLayer.bActive = bDrawTeaa; if(bDrawTeaa) teaaLayer.generate(); 
-            //bDrawCurtain = !bDrawCurtain; 
-            bDrawPinceFoire = !bDrawPinceFoire;
+           bDrawWallWalker = !bDrawWallWalker;
         break; // Generates new floor on toggle
         
         case '2': 
-            bDrawWhaa = !bDrawWhaa;
+           bDrawSwing = !bDrawSwing;
         break;
        
         case '3':
@@ -475,8 +501,8 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
         break; // Jelly 
         
         case '5': 
-            //bDrawColliders = !bDrawColliders; 
-            bDrawMultiPendulum = !bDrawMultiPendulum;
+            bDrawColliders = !bDrawColliders; 
+            
         break;
         
         case '6': 

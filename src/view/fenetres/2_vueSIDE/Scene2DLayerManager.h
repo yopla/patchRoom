@@ -35,6 +35,8 @@
 #include "PinceFoireLayer.h"
 #include "WhaaLayer.h"
 #include "ChainCrea.h"
+#include "WallWalkerLayer.h"
+#include "SwingLayer.h"
 
 class Scene2DLayerManager {
 public:
@@ -78,6 +80,8 @@ public:
     bool bDrawPinceFoire = false;
     bool bDrawWhaa = false;
     bool bDrawChainCrea = false;
+    bool bDrawWallWalker = false;
+    bool bDrawSwing = false;
 
     // Layer objects
     CreatureSystem creatureSystem;
@@ -115,6 +119,8 @@ public:
     PinceFoireLayer pinceFoireLayer;
     WhaaLayer whaaLayer;
     ChainCrea chainCreaLayer;
+    WallWalkerLayer wallWalkerLayer;
+    SwingLayer swingLayer;
 
     // State for lightning
     bool bLightningHasStart = false;

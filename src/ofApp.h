@@ -26,7 +26,7 @@ public:
     bool bDrawZenit = true;    
     bool bDrawScene2D = true;  
     bool bDrawButtons = true;
-    bool bShowFullGab = true;
+    int gabMode = 0; // 0:100%, 1:75%, 2:33%, 3:10%, 4:OFF
 
     // --- PAUSE & TIME ---
     bool bGlobalPause = false; // Pause active par défaut
