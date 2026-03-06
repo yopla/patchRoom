@@ -16,6 +16,7 @@ public:
     string name = "Layer";
 
     virtual void mousePressed(float x, float y, int button) {}
+    virtual void mouseReleased(float x, float y, int button) {}
 };
 
 // 2. LE MANAGER
@@ -53,6 +54,12 @@ public:
     void mousePressed(float x, float y, int button) {
         for(auto& l : layers) {
             if(l->bActive) l->mousePressed(x, y, button);
+        }
+    }
+
+    void mouseReleased(float x, float y, int button) {
+        for(auto& l : layers) {
+            if(l->bActive) l->mouseReleased(x, y, button);
         }
     }
 };

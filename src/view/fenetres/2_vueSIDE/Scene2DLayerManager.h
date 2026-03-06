@@ -22,8 +22,19 @@
 #include "PuyoLayer.h"
 #include "BubbleLayer.h"
 #include "KaniLayer.h"
+#include "Slime2Layer.h"
 #include "TeaaLayer.h"
 #include "BalletLayer.h"
+#include "KundelichLayer.h"
+#include "KineShad.h"
+#include "MultiPendulumLayer.h"
+#include "PancarteLayer.h"
+#include "PendulumLayer.h"
+#include "PinceLayer.h"
+#include "PinceBraLayer.h"
+#include "PinceFoireLayer.h"
+#include "WhaaLayer.h"
+#include "ChainCrea.h"
 
 class Scene2DLayerManager {
 public:
@@ -54,8 +65,19 @@ public:
     bool bDrawPuyo = false;
     bool bDrawBubbles = false;
     bool bDrawKani = false;
+    bool bDrawSlime2 = false;
     bool bDrawTeaa = false;
     bool bDrawBallet = false;
+    bool bDrawKundelich = false;
+    bool bDrawKineShad = false;
+    bool bDrawMultiPendulum = false;
+    bool bDrawPancarte = false;
+    bool bDrawPendulum = false;
+    bool bDrawPince = false;
+    bool bDrawPinceBra = false;
+    bool bDrawPinceFoire = false;
+    bool bDrawWhaa = false;
+    bool bDrawChainCrea = false;
 
     // Layer objects
     CreatureSystem creatureSystem;
@@ -80,8 +102,19 @@ public:
     PuyoLayer puyoLayer;
     BubbleLayer bubbleLayer;
     KaniLayer kaniLayer;
+    Slime2Layer slime2Layer;
     TeaaLayer teaaLayer;
     BalletLayer balletLayer;
+    KundelichLayer kundelichLayer;
+    KineShad kineShadLayer;
+    MultiPendulumLayer multiPendulumLayer;
+    PancarteLayer pancarteLayer;
+    PendulumLayer pendulumLayer;
+    PinceLayer pinceLayer;
+    PinceBraLayer pinceBraLayer;
+    PinceFoireLayer pinceFoireLayer;
+    WhaaLayer whaaLayer;
+    ChainCrea chainCreaLayer;
 
     // State for lightning
     bool bLightningHasStart = false;

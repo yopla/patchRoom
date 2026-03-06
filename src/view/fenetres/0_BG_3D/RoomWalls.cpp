@@ -80,9 +80,16 @@ void RoomWalls::setup() {
 }
 
 void RoomWalls::draw(bool showRoof, float alpha) {
+    ofPushStyle();
     ofEnableAlphaBlending(); 
     ofSetColor(255, 255, 255, alpha);
-    glDepthMask(GL_TRUE); 
+
+    // CORRECTION: Pour que la transparence fonctionne, on ne doit pas écrire dans le
+    // buffer de profondeur (z-buffer) si les murs sont transparents.
+    // Sinon, ils masquent les objets qui se trouvent derrière eux.
+    if (alpha < 255.0f) {
+        glDepthMask(GL_FALSE);
+    }
 
     imgFront.bind(); meshFront.draw(); imgFront.unbind();
     imgBack.bind();  meshBack.draw();  imgBack.unbind();
@@ -95,7 +102,7 @@ void RoomWalls::draw(bool showRoof, float alpha) {
         imgTopJar.bind();  meshTopJar.draw();  imgTopJar.unbind(); 
     }
 
-    ofSetColor(255);
-    ofDisableAlphaBlending();
-    glDepthMask(GL_FALSE);
+    // On restaure l'état par défaut pour le reste du rendu.
+    glDepthMask(GL_TRUE);
+    ofPopStyle();
 }

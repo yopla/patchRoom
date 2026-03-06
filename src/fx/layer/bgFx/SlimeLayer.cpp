@@ -109,7 +109,8 @@ void SlimeLayer::update(float mouseX, float mouseY, float time) {
 //--------------------------------------------------------------
 void SlimeLayer::draw() {
     ofPushStyle();
-    
+        ofFill(); // Force le remplissage pour éviter l'effet filaire hérité
+
     // Le mode ADD permet aux couleurs de s'additionner -> effet lumineux/néon
     ofEnableBlendMode(OF_BLENDMODE_ADD);
     

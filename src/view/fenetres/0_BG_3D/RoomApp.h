@@ -13,6 +13,9 @@
 #include "FluidRing.h"
 #include "RoomInputHandler.h"
 #include "LightFlyRing.h"
+#include "UndulatingFloor.h"
+#include "KrakenSystem.h" // <--- AJOUT
+#include "ExternalKrakenSystem.h" // <--- AJOUT
 
 class RoomApp : public ofBaseApp {
 
@@ -37,6 +40,9 @@ public:
     RippleSystem ripples; 
     FluidRing fluidRing;
     LightFlyRing lightFlyRing;
+    UndulatingFloor undulatingFloor;
+    KrakenSystem kraken; // <--- AJOUT
+    ExternalKrakenSystem externalKraken; // <--- AJOUT
 
     // Position X globale sur le périmètre (de 0 à TotalPerimeter)
     float posterGlobalX; 
@@ -52,7 +58,14 @@ public:
 
     
     // La fonction qui centralise le rendu pour tous les FBOs
-    void drawSceneContent(bool showAtmosphere = true); // Ajoute le paramètre ici
+    void drawSceneContent(bool showAtmosphere = true, bool isGlobalView = false); 
+
+    // Oscillation de la Room (Effet Bateau)
+    bool bOscillateRoom = true;
+    ofVec3f roomPosOffset;
+    ofVec3f roomRotOffset;
+    void applyRoomTransform();
+    void applyInverseRoomTransform();
     
     bool bEnabled = true;
     void setEnabled(bool enable) { bEnabled = enable; }
@@ -99,6 +112,9 @@ public:
     bool bDrawAtmosphere = true; // Pour contrôler l'atmosphère de l'ui
     bool bFluidRingEnabled = false;
     bool bLightFlyRingEnabled = true;
+    bool bDrawUndulatingFloor = false;
+    bool bDrawKraken = false; // <--- AJOUT
+    bool bDrawExternalKraken = false; // <--- AJOUT
 
 private:
     RoomInputHandler inputHandler;

@@ -114,6 +114,12 @@ void CursorSquareSystem::drawProjected(RoomWalls& walls) {
     projector.setAspectRatio(1.0f);
 
     ofEnableAlphaBlending();
+    
+    // CORRECTION : On désactive l'écriture dans le Z-Buffer.
+    // Sinon, le carré (qui est une texture majoritairement transparente) écrit sa profondeur
+    // et masque les objets situés derrière le mur survolé.
+    glDepthMask(GL_FALSE);
+
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(-10.0, -10.0); 
 
@@ -220,5 +226,6 @@ void CursorSquareSystem::drawProjected(RoomWalls& walls) {
     
     cursorImg.getTexture().unbind();
     glDisable(GL_POLYGON_OFFSET_FILL);
+    glDepthMask(GL_TRUE); // On réactive l'écriture Z-Buffer pour la suite
     ofDisableAlphaBlending();
 }

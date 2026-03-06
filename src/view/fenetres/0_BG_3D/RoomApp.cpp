@@ -43,6 +43,13 @@ void RoomApp::setup(){
     camGlobal.lookAt(ofVec3f(0, 600, 0));
     
     rigPosition.set(0, 600, 0);
+
+    // Initialisation du sol ondulant (Largeur pièce, Z début, Z fin)
+    undulatingFloor.setup(60000.0f, -30000.0f, 30000.0f);
+    
+    // Initialisation du Kraken
+    kraken.setup(); // <--- AJOUT
+    externalKraken.setup(); // <--- AJOUT
 }
 
 void RoomApp::dragEvent(ofDragInfo dragInfo){
@@ -75,6 +82,16 @@ void RoomApp::update(){
     // Animation légère de la position du rig (caméras Off-Axis)
     if (respire) rigPosition.y = 600 + sin(localTime*0.5)*100;
     
+    // Calcul de l'oscillation de la pièce (Effet Bateau sur l'eau)
+    if (bOscillateRoom) {
+        float t = localTime * 0.5f; 
+        roomPosOffset.set(0, sin(t * 0.7f) * 100.0f, 0); // Heave (Montée/Descente)
+        roomRotOffset.set(sin(t * 0.4f) * 2.0f, sin(t * 0.25f) * 1.0f, sin(t * 0.3f) * 1.5f); // Pitch, Yaw, Roll
+    } else {
+        roomPosOffset.set(0);
+        roomRotOffset.set(0);
+    }
+
     // Mise à jour des caméras Off-Axis (en utilisant les points géométriques de "walls")
     camFront.setPosition(rigPosition); camFront.setupOffAxisViewPortal(walls.pFront[0], walls.pFront[1], walls.pFront[2]);
     camBack.setPosition(rigPosition);  camBack.setupOffAxisViewPortal(walls.pBack[0], walls.pBack[1], walls.pBack[2]);
@@ -108,37 +125,75 @@ void RoomApp::update(){
     if(bLightFlyRingEnabled) {
         lightFlyRing.update(localTime); // <--- Pass localTime
     }
+
+    if(bDrawUndulatingFloor) {
+        undulatingFloor.update(localTime);
+    }
+    
+    if(bDrawKraken) { // <--- AJOUT
+        kraken.update(localTime);
+    }
+    
+    if(bDrawExternalKraken) { // <--- AJOUT
+        externalKraken.update(localTime);
+    }
 }
 
 //--------------------------------------------------------------
-void RoomApp::drawSceneContent(bool showAtmosphere) {
+void RoomApp::applyRoomTransform() {
+    ofTranslate(roomPosOffset);
+    ofRotateXDeg(roomRotOffset.x);
+    ofRotateYDeg(roomRotOffset.y);
+    ofRotateZDeg(roomRotOffset.z);
+}
+
+void RoomApp::applyInverseRoomTransform() {
+    ofRotateZDeg(-roomRotOffset.z);
+    ofRotateYDeg(-roomRotOffset.y);
+    ofRotateXDeg(-roomRotOffset.x);
+    ofTranslate(-roomPosOffset);
+}
+
+//--------------------------------------------------------------
+void RoomApp::drawSceneContent(bool showAtmosphere, bool isGlobalView) {
     ofEnableDepthTest();
 
-    // 1. Dessiner l'Ambiance (Disco Ball ou Sphère Damier)
+    // --- 0. DESSIN DE L'ATMOSPHERE (NON ATTACHÉ) ---
+    // On le dessine en premier (Fond) et détaché de l'oscillation de la room
     if (showAtmosphere) {
+        ofPushMatrix();
+        if (!isGlobalView) {
+            applyInverseRoomTransform();
+        }
         atmosphere.draw(bUseTexture);
+        ofPopMatrix();
     }
+
+    // --- 1. TRANSFORMATION DE LA ROOM ---
+    // Si on est en vue globale (Preview), la Room bouge et le sol est fixe.
+    if (isGlobalView) {
+        ofPushMatrix();
+        applyRoomTransform();
+    }
+    // Si on est en vue locale (Projecteurs), la Room est fixe (attachée à la caméra) 
+    // et le sol bougera inversement plus bas.
+
+    // --- 2. DESSIN DU CONTENU ATTACHÉ À LA ROOM ---
     
-    // 2. Dessin de l'anneau fluide (Devant le LightFlyRing)
     if (bFluidRingEnabled) {
         fluidRing.draw();
     }
 
-    // 1. Dessin du LightFlyRing (Le plus grand rayon = Arrière plan)
-    // On le dessine en premier. Grâce au glDepthMask(GL_FALSE) dans sa méthode draw,
-    // il ne bloquera pas le rendu des objets devant lui.
     if (bLightFlyRingEnabled) {
         lightFlyRing.draw();
     }
 
-    // 2. Dessiner le Plan Collé (Rush A)
     projection.drawPlanColle();
 
     if (bDrawWingedWorms) {
         wingedWormSystem.draw();
     }
 
-    // 3. Dessiner la Géométrie des Murs
     if(bDrawGab) {
         walls.draw(bShowRoof, wallAlpha);
     }
@@ -150,6 +205,14 @@ void RoomApp::drawSceneContent(bool showAtmosphere) {
     if(bDrawRipples) {
         ripples.draw(walls);
     }
+    
+    if(bDrawKraken) { // <--- AJOUT
+        kraken.draw();
+    }
+    
+    if(bDrawExternalKraken) { // <--- AJOUT
+        externalKraken.draw();
+    }
 
     bool posterOk = false;
     if (posterOk) poster.draw(roomWidth, roomDepth); 
@@ -157,9 +220,26 @@ void RoomApp::drawSceneContent(bool showAtmosphere) {
 
     cursorSquare.drawProjected(walls);
 
-    // 4. Dessiner la Projection (Beam) sur la géométrie
     if(bDrawBeam) {
         projection.drawBeamProjection(walls, bShowRoof);
+    }
+
+    // --- 3. FIN TRANSFORMATION ROOM ---
+    if (isGlobalView) {
+        ofPopMatrix();
+    }
+
+    // --- 4. DESSIN DU SOL ONDULANT (NON ATTACHÉ) ---
+    // Le sol est dessiné à la fin (transparence)
+    if(bDrawUndulatingFloor) {
+        ofPushMatrix();
+        if (!isGlobalView) {
+            // En vue locale (depuis la room), le sol doit bouger à l'inverse de la room
+            // pour donner l'illusion que c'est la room qui flotte.
+            applyInverseRoomTransform();
+        }
+        undulatingFloor.draw();
+        ofPopMatrix();
     }
 
     ofDisableDepthTest();
@@ -188,7 +268,7 @@ void RoomApp::draw(){
     ofViewport(0, 0, ofGetWidth(), ofGetHeight());
 
     camGlobal.begin(); 
-        drawSceneContent(bDrawAtmosphere); 
+        drawSceneContent(bDrawAtmosphere, true); // TRUE = Vue Globale (Room bouge)
         
         // Debug : Visualisation du projecteur
        if(bDrawBeam) { 
@@ -207,6 +287,8 @@ void RoomApp::draw(){
     ofDrawBitmapString("WINGED [W]: " + ofToString(bDrawWingedWorms), 20, 50);
     ofDrawBitmapString("ATMO [B]: " + ofToString(bDrawAtmosphere), 20, 65); 
     ofDrawBitmapString("LIGHT FLY [H]: " + ofToString(bLightFlyRingEnabled), 20, 80);
+    ofDrawBitmapString("KRAKEN [3]: " + ofToString(bDrawKraken), 20, 95); // <--- AJOUT
+    ofDrawBitmapString("EXT KRAKEN [4]: " + ofToString(bDrawExternalKraken), 20, 110); // <--- AJOUT
     
     if(cursorSquare.isVisible) {
         ofDrawBitmapString("CURSOR 3D: " + ofToString(cursorSquare.getCurrentPos()), 20, 145);

@@ -204,7 +204,7 @@ void ofApp::mouseMoved(int x, int y){}
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
-bool bCallFocus = false; // pour plus tard
+// bool bCallFocus = false; // pour plus tard
 
     if(key == OF_KEY_ESC) {
         bGlobalPause = !bGlobalPause;

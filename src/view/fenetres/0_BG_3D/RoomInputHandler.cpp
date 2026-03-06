@@ -133,6 +133,25 @@ void RoomInputHandler::updateLightFlyInteraction() {
 void RoomInputHandler::keyPressed(int key) {
     if (!app) return;
     // This logic was in RoomApp::keyPressed()
+    if(key == '1') {
+        app->bDrawUndulatingFloor = !app->bDrawUndulatingFloor;
+    }
+    if(key == '2') {
+        app->bOscillateRoom = !app->bOscillateRoom;
+    }
+    if(key == '3') { // <--- AJOUT
+        app->bDrawKraken = !app->bDrawKraken;
+        if(app->bDrawKraken) {
+            app->kraken.start(app->localTime);
+        }
+    }
+    if(key == '4') { // <--- AJOUT
+        app->bDrawExternalKraken = !app->bDrawExternalKraken;
+        if (app->bDrawExternalKraken) {
+            app->externalKraken.start(app->localTime);
+        }
+    }
+
     if(key == 'g' || key == 'G') {
         if (app->wallAlpha > 50.0f) {
             app->wallAlpha = 0.0f;
