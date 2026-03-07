@@ -11,8 +11,10 @@
 #include "CousinCreature.h" // <--- AJOUT
 #include "HaloCreature.h" // <--- AJOUT
 #include "BreakableCreature.h" // <--- AJOUT
+#include "OtarieCreature.h" // <--- AJOUT
 
 
+#include "ColliderLayer.h"
 #include "LayerSystem.h"
 
 class CreatureSystem {
@@ -38,6 +40,8 @@ public:
     void addCousinCreature(float x, float y); // <--- AJOUT
     void addHalo(float x, float y); // <--- AJOUT
     void addBreakableCreature(float x, float y); // <--- AJOUT
+    void addOtarieCreature(float x, float y); // <--- AJOUT
+    void setCollider(shared_ptr<ColliderLayer> c);
 
     ofImage sharedImage;
     ofImage sharedImage2;
@@ -55,4 +59,6 @@ std::vector<std::unique_ptr<WancoCreature>> wancos;
     std::vector<std::unique_ptr<CousinCreature>> cousins; // <--- AJOUT
     std::vector<std::unique_ptr<HaloCreature>> halos; // <--- AJOUT
     std::vector<std::unique_ptr<BreakableCreature>> breakables; // <--- AJOUT
+    std::vector<std::unique_ptr<OtarieCreature>> otaries; // <--- AJOUT
+    shared_ptr<ColliderLayer> colliderLayer;
 };

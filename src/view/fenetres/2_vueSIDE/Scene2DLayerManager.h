@@ -37,6 +37,12 @@
 #include "ChainCrea.h"
 #include "WallWalkerLayer.h"
 #include "SwingLayer.h"
+#include "FluidLayer.h"
+#include "FluidDeuxLayer.h"
+#include "FluidTroisLayer.h"
+#include "FireALayer.h"
+#include "FireBLayer.h"
+#include "FireCLayer.h"
 
 class Scene2DLayerManager {
 public:
@@ -82,6 +88,12 @@ public:
     bool bDrawChainCrea = false;
     bool bDrawWallWalker = false;
     bool bDrawSwing = false;
+    bool bDrawFluid = false;
+    bool bDrawFluidDeux = false;
+    bool bDrawFluidTrois = false;
+    bool bDrawFireA = false;
+    bool bDrawFireB = false;
+    bool bDrawFireC = false;
 
     // Layer objects
     CreatureSystem creatureSystem;
@@ -121,6 +133,12 @@ public:
     ChainCrea chainCreaLayer;
     WallWalkerLayer wallWalkerLayer;
     SwingLayer swingLayer;
+    FluidLayer fluidLayer;
+    FluidDeuxLayer fluidDeuxLayer;
+    FluidTroisLayer fluidTroisLayer;
+    FireALayer fireALayer;
+    FireBLayer fireBLayer;
+    FireCLayer fireCLayer;
 
     // State for lightning
     bool bLightningHasStart = false;
