@@ -72,6 +72,7 @@ void AtmosphereSystem::draw(bool useTexture) {
 if (bShow360) {
         ofSetColor(255);
         ofPushMatrix();
+            ofTranslate(0, offsetY, 0);
             // 1. On se place au centre
             // 2. On applique les rotations contrôlées par le clavier
             ofRotateYDeg(rotY);
@@ -259,5 +260,11 @@ float speed = 2.0; // Vitesse de rotation par touche pressée
     }
     if(key == '2') {
         rotZ += speed;
+    }
+    if(key == '3') {
+        offsetY -= speed * 10.0; // Monter
+    }
+    if(key == '4') {
+        offsetY += speed * 10.0; // Descendre
     }
 }

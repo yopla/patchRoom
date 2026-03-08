@@ -43,6 +43,7 @@
 #include "FireALayer.h"
 #include "FireBLayer.h"
 #include "FireCLayer.h"
+#include "MongolfierLayer.h"
 
 class Scene2DLayerManager {
 public:
@@ -94,6 +95,7 @@ public:
     bool bDrawFireA = false;
     bool bDrawFireB = false;
     bool bDrawFireC = false;
+    bool bDrawMongolfier = false;
 
     // Layer objects
     CreatureSystem creatureSystem;
@@ -139,6 +141,7 @@ public:
     FireALayer fireALayer;
     FireBLayer fireBLayer;
     FireCLayer fireCLayer;
+    MongolfierLayer mongolfierLayer;
 
     // State for lightning
     bool bLightningHasStart = false;

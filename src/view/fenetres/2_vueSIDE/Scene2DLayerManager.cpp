@@ -12,20 +12,6 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
     float centerX = jarX + jarW / 2.0f;
     float centerY = 1080.0f; 
 
-    /*
-    creatureSystem.addDoublePendulum(centerX+400, centerY-200);
-    creatureSystem.addWancoCreature(centerX+400, centerY-200);
-    creatureSystem.addFluidsCreature(centerX, centerY-700);
-    creatureSystem.addCreature(2400 * 0.33, 736);
-    creatureSystem.addRipple(2900 * 0.66, 736);
-    creatureSystem.addDancingCreature(frontX + frontW/2, 600);
-    creatureSystem.addSpringCreature(frontX + frontW/2, 712);
-    creatureSystem.addGekoCreature(frontX + frontW/2 - 300, 600);
-    creatureSystem.addGekoCreature(centerX, centerY);       // Crée le Gecko Standard
-    creatureSystem.addGekoCreature(centerX - 50, centerY);  // Crée le Gecko Agile
-    creatureSystem.addGekoCreature(centerX + 50, centerY);  // Crée le Gecko Orbiter
-    */
-
     // --- INIT COLLIDERS & LAYERS ---
     colliderLayer = make_shared<ColliderLayer>();
     float simWidth = 2048.0f;
@@ -78,8 +64,6 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
     puyoLayer.setup(simWidth, simHeight, scale, colliderLayer);
 
     // --- SETUP BUBBLE LAYER ---
-    // Le layer de bulles utilise maintenant le collider principal, qui est déjà pleine hauteur.
-    // L'offset de collision (dernier paramètre) reste à 0.0f.
     bubbleLayer.setup(simWidth, simHeight, scale, colliderLayer, 0.0f);
     
     // --- SETUP KANI LAYER ---
@@ -150,12 +134,13 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
 
     // --- SETUP FIRE C LAYER ---
     fireCLayer.setup(totalSceneWidth, 1472.0f);
+    
+    // --- SETUP MONGOLFIER LAYER ---
+    mongolfierLayer.setup(totalSceneWidth, 1472.0f);
 }
 
 void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePressed) {
-    if (bDrawLightning) {
-        lightningLayer.update(m.x, m.y, time);
-    }
+    if (bDrawLightning) lightningLayer.update(m.x, m.y, time);
 
     if (bDrawCreatures) {
         creatureSystem.update(m, time);
@@ -163,40 +148,23 @@ void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePress
         for(auto& h : halos) h->update(time);
     }
 
-    if (bDrawWalker) {
-        walkerLayer.update(m.x, m.y, time);
-    }
+    if (bDrawWalker) walkerLayer.update(m.x, m.y, time);
 
     if (bDrawPoulpe) {
-        if (isSpacePressed) {
-            poulpeLayer.setTarget(m.x, m.y);
-        }
+        if (isSpacePressed) poulpeLayer.setTarget(m.x, m.y);
         poulpeLayer.update(0, 0, time); // PoulpeLayer::update overrides BaseLayer, so it needs args
     }
 
     if (bDrawFish) {
         fishSchoolLayer.update(m.x, m.y, time); 
-        
-        // Les layers sont maintenant en pleine hauteur, on passe les coordonnées de la souris directement.
         if(ofGetMousePressed(0)) fishSchoolLayer.addSardine(m.x, m.y);
         if(ofGetMousePressed(2)) fishSchoolLayer.addShark(m.x, m.y);
     }
 
-    if (bDrawSauteurs) {
-        sauteursLayer.update(m.x, m.y, time); 
-    }
-
-    if (bDrawSlime) {
-        slimeLayer.update(m.x, m.y, time);
-    }
-
-    if (bDrawPlants) {
-        plantLayer.update(m.x, m.y, time); 
-    }
-
-    if (bDrawFlytraps) {
-        flytrapLayer.update(m.x, m.y, time); 
-    }
+    if (bDrawSauteurs) sauteursLayer.update(m.x, m.y, time); 
+    if (bDrawSlime) slimeLayer.update(m.x, m.y, time);
+    if (bDrawPlants) plantLayer.update(m.x, m.y, time); 
+    if (bDrawFlytraps) flytrapLayer.update(m.x, m.y, time); 
 
     if (bDrawGears) {
         gearLayer.update(m.x, m.y, time);
@@ -206,128 +174,41 @@ void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePress
                 // Conversion World -> Sim pour l'interaction
                 float simX = s.pos.x / fluidFloorLayer.scale;
                 float simY = s.pos.y / fluidFloorLayer.scale;
-                float simVelX = s.vel.x / fluidFloorLayer.scale;
-                float simVelY = s.vel.y / fluidFloorLayer.scale;
-                fluidFloorLayer.addForce(simX, simY, simVelX * 0.5f, simVelY * 0.5f);
+                fluidFloorLayer.addForce(simX, simY, s.vel.x / fluidFloorLayer.scale * 0.5f, s.vel.y / fluidFloorLayer.scale * 0.5f);
             }
         }
     }
 
-    if (bDrawFluidFloor) {
-        fluidFloorLayer.update(m.x, m.y); // FluidFloorLayer not BaseLayer
-    }
-
-    if (bDrawMachine) {
-        machineLayer.update(m.x, m.y, time);
-    }
-
-    if (bDrawDigging) {
-        diggingCreature.update(m.x, m.y); // DiggingCreature not BaseLayer
-    }
-
-    if (bDrawMachineAuto) {
-        machineAuto.update(time); 
-    }
-
-    if (bDrawCurtain) {
-        curtain.update(m.x, m.y); // CurtainCreature not BaseLayer
-    }
-    
-    if (bDrawPuyo) {
-        puyoLayer.update(m.x, m.y, time); 
-    }
-
-    if (bDrawBubbles) {
-        bubbleLayer.update(m.x, m.y, time); // BubbleLayer uses time
-    }
-    
-    if (bDrawKani) {
-        kaniLayer.update(m.x, m.y, time);
-    }
-
-    if (bDrawSlime2) {
-        slime2Layer.update(time);
-    }
-
-    if (bDrawTeaa) {
-        teaaLayer.update(time);
-    }
-
-    if (bDrawBallet) {
-        balletLayer.update(time);
-    }
-    
-    if (bDrawKundelich) {
-        kundelichLayer.update(m.x, m.y, time);
-    }
-
-    if (bDrawKineShad) {
-        kineShadLayer.update(m, time);
-    }
-    
-    if (bDrawMultiPendulum) {
-        multiPendulumLayer.update(m.x, m.y, time);
-    }
-
-    if (bDrawPancarte) {
-        pancarteLayer.update(m.x, m.y, time);
-    }
-    
-    if (bDrawPendulum) {
-        pendulumLayer.update(m.x, m.y);
-    }
-    
-    if (bDrawPince) {
-        pinceLayer.update(m.x, m.y, time);
-    }
-
-    if (bDrawPinceBra) {
-        pinceBraLayer.update(m.x, m.y, time);
-    }
-    
-    if (bDrawPinceFoire) {
-        pinceFoireLayer.update(m.x, m.y, time);
-    }
-    
-    if (bDrawWhaa) {
-        whaaLayer.update(m.x, m.y);
-    }
-
-    if (bDrawChainCrea) {
-        chainCreaLayer.update(m.x, m.y, time);
-    }
-
-    if (bDrawWallWalker) {
-        wallWalkerLayer.update(m.x, m.y, time);
-    }
-
-    if (bDrawSwing) {
-        swingLayer.update(m.x, m.y, time);
-    }
-
-    if (bDrawFluid) {
-        fluidLayer.update(m.x, m.y, time);
-    }
-
-    if (bDrawFluidDeux) {
-        fluidDeuxLayer.update(m.x, m.y, time);
-    }
-
-    if (bDrawFluidTrois) {
-        fluidTroisLayer.update(m.x, m.y, time);
-    }
-    
-    if (bDrawFireA) {
-        fireALayer.update(m.x, m.y);
-    }
-
-    if (bDrawFireB) {
-        fireBLayer.update(m.x, m.y, time);
-    }
-
-    if (bDrawFireC) {
-        fireCLayer.update(m.x, m.y);
-    }
+    if (bDrawFluidFloor) fluidFloorLayer.update(m.x, m.y);
+    if (bDrawMachine) machineLayer.update(m.x, m.y, time);
+    if (bDrawDigging) diggingCreature.update(m.x, m.y);
+    if (bDrawMachineAuto) machineAuto.update(time); 
+    if (bDrawCurtain) curtain.update(m.x, m.y);
+    if (bDrawPuyo) puyoLayer.update(m.x, m.y, time); 
+    if (bDrawBubbles) bubbleLayer.update(m.x, m.y, time);
+    if (bDrawKani) kaniLayer.update(m.x, m.y, time);
+    if (bDrawSlime2) slime2Layer.update(time);
+    if (bDrawTeaa) teaaLayer.update(time);
+    if (bDrawBallet) balletLayer.update(time);
+    if (bDrawKundelich) kundelichLayer.update(m.x, m.y, time);
+    if (bDrawKineShad) kineShadLayer.update(m, time);
+    if (bDrawMultiPendulum) multiPendulumLayer.update(m.x, m.y, time);
+    if (bDrawPancarte) pancarteLayer.update(m.x, m.y, time);
+    if (bDrawPendulum) pendulumLayer.update(m.x, m.y);
+    if (bDrawPince) pinceLayer.update(m.x, m.y, time);
+    if (bDrawPinceBra) pinceBraLayer.update(m.x, m.y, time);
+    if (bDrawPinceFoire) pinceFoireLayer.update(m.x, m.y, time);
+    if (bDrawWhaa) whaaLayer.update(m.x, m.y);
+    if (bDrawChainCrea) chainCreaLayer.update(m.x, m.y, time);
+    if (bDrawWallWalker) wallWalkerLayer.update(m.x, m.y, time);
+    if (bDrawSwing) swingLayer.update(m.x, m.y, time);
+    if (bDrawFluid) fluidLayer.update(m.x, m.y, time);
+    if (bDrawFluidDeux) fluidDeuxLayer.update(m.x, m.y, time);
+    if (bDrawFluidTrois) fluidTroisLayer.update(m.x, m.y, time);
+    if (bDrawFireA) fireALayer.update(m.x, m.y);
+    if (bDrawFireB) fireBLayer.update(m.x, m.y, time);
+    if (bDrawFireC) fireCLayer.update(m.x, m.y);
+    if (bDrawMongolfier) mongolfierLayer.update(m.x, m.y);
 }
 
 void Scene2DLayerManager::draw(const ofVec2f& m) {
@@ -348,29 +229,11 @@ void Scene2DLayerManager::draw(const ofVec2f& m) {
         ofPopStyle();
     }
 
-    if (bDrawLightning) {
-        ofPushMatrix();
-        ofTranslate(0, 0);
-        lightningLayer.draw();
-        ofPopMatrix();
-    }
-
-    if (bDrawSlime) {
-        slimeLayer.draw();
-    }
-
-    if (bDrawSauteurs) {
-        sauteursLayer.draw();
-    }
-
-
-    if (bDrawFish) {
-        fishSchoolLayer.draw();
-    }
-
-    if (bDrawPoulpe) {
-        poulpeLayer.draw();
-    }
+    if (bDrawLightning) lightningLayer.draw();
+    if (bDrawSlime) slimeLayer.draw();
+    if (bDrawSauteurs) sauteursLayer.draw();
+    if (bDrawFish) fishSchoolLayer.draw();
+    if (bDrawPoulpe) poulpeLayer.draw();
 
     if (bDrawWalker) {
         ofPushMatrix();
@@ -379,138 +242,40 @@ void Scene2DLayerManager::draw(const ofVec2f& m) {
         ofPopMatrix();
     }
 
-    if (bDrawPlants) {
-        plantLayer.draw();
-    }
-
-    if (bDrawFlytraps) {
-        flytrapLayer.draw();
-    }
-
-    if (bDrawGears) {
-        gearLayer.draw();
-    }
-
-    if (bDrawFluidFloor) {
-        fluidFloorLayer.draw(0, 0);
-    }
-
-    if (bDrawMachine) {
-        machineLayer.draw();
-    }
-
-    if (bDrawDigging) {
-        diggingCreature.draw();
-    }
-
-    if (bDrawMachineAuto) {
-        machineAuto.draw();
-    }
-
-    if (bDrawCurtain) {
-        curtain.draw();
-    }
-    
-    if (bDrawPuyo) {
-        puyoLayer.draw();
-    }
-
-    if (bDrawBubbles) {
-        // Le dessin se fait maintenant directement dans les coordonnées du monde
-        bubbleLayer.draw();
-    }
-    
-    if (bDrawKani) {
-        kaniLayer.draw();
-    }
-
-    if (bDrawSlime2) {
-        slime2Layer.draw();
-    }
-    
-    if (bDrawTeaa) {
-        teaaLayer.draw();
-    }
-    
-    if (bDrawBallet) {
-        balletLayer.draw();
-    }
-    
-    if (bDrawKundelich) {
-        kundelichLayer.draw();
-    }
-
-    if (bDrawKineShad) {
-        kineShadLayer.draw();
-    }
-    
-    if (bDrawMultiPendulum) {
-        multiPendulumLayer.draw();
-    }
-
-     if (bDrawColliders) {
-        if(colliderLayer) colliderLayer->draw();
-    }
-
-    if (bDrawPancarte) {
-        pancarteLayer.draw();
-    }
-    
-    if (bDrawPendulum) {
-        pendulumLayer.draw();
-    }
-    
-    if (bDrawPince) {
-        pinceLayer.draw();
-    }
-
-    if (bDrawPinceBra) {
-        pinceBraLayer.draw();
-    }
-    
-    if (bDrawPinceFoire) {
-        pinceFoireLayer.draw();
-    }
-    
-    if (bDrawWhaa) {
-        whaaLayer.draw();
-    }
-
-    if (bDrawChainCrea) {
-        chainCreaLayer.draw();
-    }
-
-    if (bDrawWallWalker) {
-        wallWalkerLayer.draw();
-    }
-
-    if (bDrawSwing) {
-        swingLayer.draw();
-    }
-
-    if (bDrawFluid) {
-        fluidLayer.draw();
-    }
-
-    if (bDrawFluidDeux) {
-        fluidDeuxLayer.draw();
-    }
-
-    if (bDrawFluidTrois) {
-        fluidTroisLayer.draw();
-    }
-    
-    if (bDrawFireA) {
-        fireALayer.draw();
-    }
-
-    if (bDrawFireB) {
-        fireBLayer.draw();
-    }
-
-    if (bDrawFireC) {
-        fireCLayer.draw();
-    }
+    if (bDrawPlants) plantLayer.draw();
+    if (bDrawFlytraps) flytrapLayer.draw();
+    if (bDrawGears) gearLayer.draw();
+    if (bDrawFluidFloor) fluidFloorLayer.draw(0, 0);
+    if (bDrawMachine) machineLayer.draw();
+    if (bDrawDigging) diggingCreature.draw();
+    if (bDrawMachineAuto) machineAuto.draw();
+    if (bDrawCurtain) curtain.draw();
+    if (bDrawPuyo) puyoLayer.draw();
+    if (bDrawBubbles) bubbleLayer.draw();
+    if (bDrawKani) kaniLayer.draw();
+    if (bDrawSlime2) slime2Layer.draw();
+    if (bDrawTeaa) teaaLayer.draw();
+    if (bDrawBallet) balletLayer.draw();
+    if (bDrawKundelich) kundelichLayer.draw();
+    if (bDrawKineShad) kineShadLayer.draw();
+    if (bDrawMultiPendulum) multiPendulumLayer.draw();
+    if (bDrawColliders && colliderLayer) colliderLayer->draw();
+    if (bDrawPancarte) pancarteLayer.draw();
+    if (bDrawPendulum) pendulumLayer.draw();
+    if (bDrawPince) pinceLayer.draw();
+    if (bDrawPinceBra) pinceBraLayer.draw();
+    if (bDrawPinceFoire) pinceFoireLayer.draw();
+    if (bDrawWhaa) whaaLayer.draw();
+    if (bDrawChainCrea) chainCreaLayer.draw();
+    if (bDrawWallWalker) wallWalkerLayer.draw();
+    if (bDrawSwing) swingLayer.draw();
+    if (bDrawFluid) fluidLayer.draw();
+    if (bDrawFluidDeux) fluidDeuxLayer.draw();
+    if (bDrawFluidTrois) fluidTroisLayer.draw();
+    if (bDrawFireA) fireALayer.draw();
+    if (bDrawFireB) fireBLayer.draw();
+    if (bDrawFireC) fireCLayer.draw();
+    if (bDrawMongolfier) mongolfierLayer.draw();
 }
 
 void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
@@ -551,6 +316,7 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
             //bDrawTeaa = !bDrawTeaa; teaaLayer.bActive = bDrawTeaa; if(bDrawTeaa) teaaLayer.generate(); 
             //bDrawCurtain = !bDrawCurtain; 
             //bDrawMultiPendulum = !bDrawMultiPendulum;
+            
             //bDrawWhaa = !bDrawWhaa;
             //creatureSystem.addDancingCreature(m.x, m.y);
             //creatureSystem.addCreature(m.x, m.y); 
@@ -564,23 +330,25 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
             
             //bDrawFluid = !bDrawFluid;
             //bDrawFluidDeux = !bDrawFluidDeux;
-            // bDrawFluidTrois = !bDrawFluidTrois;
+            //bDrawFluidTrois = !bDrawFluidTrois;
 
             //bDrawFireA = !bDrawFireA;
             //bDrawFireB = !bDrawFireB;
             //bDrawFireC = !bDrawFireC;
 
+            //creatureSystem.addOtarieCreature(m.x, m.y);
 
 
 
         case '1': 
-            creatureSystem.addOtarieCreature(m.x, m.y);
+            
         break; 
         
         case '2': 
         break;
        
         case '3':
+            bDrawMongolfier = !bDrawMongolfier;
         break;
 
         case '4':                  

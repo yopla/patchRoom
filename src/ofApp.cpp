@@ -14,7 +14,8 @@ void ofApp::registerViewApp(shared_ptr<ViewApp> vApp){
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    
+        geminiGen.setup("AIzaSyBwPAqZdfZcSVk6JINyC02pt-eNjt0zkHM");
+
     ofSetRandomSeed(42);
     ofSetFrameRate(APP_FPS);
     bool molo = false; // <--- PASSEZ CECI À 'false' POUR LE TEST
@@ -103,6 +104,15 @@ void ofApp::update(){
             sceneZenit->setLocalTime(timeSeconds);
         }
     }
+    
+    // Mise à jour du générateur (pour le polling vidéo)
+    geminiGen.update();
+    
+    // --- CHECK VIDEO GENERATION ---
+    if(geminiGen.hasNewVideo()) {
+        ofLogNotice("ofApp") << "Nouvelle vidéo disponible, chargement dans CanvasManager...";
+        canvasManager.loadFile(geminiGen.getVideoPath());
+    }
 
     if(scene2D) scene2D->setPaused(!shouldUpdate);
     if(roomApp) roomApp->setPaused(!shouldUpdate);
@@ -160,6 +170,17 @@ void ofApp::draw(){
     // UI
     ofSetColor(255);
     ofDrawBitmapString("ESPACE + DRAG pour bouger | MOLETTE pour zoomer", 20, 20);
+
+    // --- DEBUG GEMINI ---
+    // Si une image est chargée, on l'affiche en haut à gauche (taille 300x300)
+    if(geminiGen.getImage().isAllocated()) {
+        ofSetColor(255);
+        geminiGen.getImage().draw(0, 0, 300, 300);
+    }
+    // Feedback visuel pendant le chargement
+    if(geminiGen.isGenerating()) {
+        ofDrawBitmapStringHighlight("Generation IA en cours...", 20, 50, ofColor(255, 0, 0), ofColor(255));
+    }
 }
 
 //--------------------------------------------------------------
@@ -227,6 +248,16 @@ void ofApp::keyPressed(int key){
         if(gabMode > 3) gabMode = 0;
     }
     
+    // TOUCHE I : Générer une image IA
+    if(key == 'i' || key == 'I') {
+        geminiGen.generateImage("A futuristic mechanical octopus with neon lights, digital art style");
+    }
+    
+    // TOUCHE O : Générer une vidéo IA (Veo)
+    if(key == 'o' || key == 'O') {
+        geminiGen.generateVideo("Cinematic drone shot of a futuristic cyberpunk city, neon lights, rain, 4k, highly detailed");
+    }
+
     // Reset Navigation
     if(key == 'r' || key == 'R') {
         float scaleX = (float)ofGetWidth() / canvasManager.width;

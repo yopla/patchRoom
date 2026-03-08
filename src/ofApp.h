@@ -9,11 +9,13 @@
 #include "Scene2DZenit.h"
 #include "OscManager.h"
 #include "PerceptionSystem.h"
+#include "GeminiImageGenerator.h"
+
 
 #define HOST "127.0.0.1"
 #define SENDPORT 12346
 #define PORT 12345
-#define APP_FPS 55
+#define APP_FPS 75
 
 class ViewApp; 
 class RoomPreview; 
@@ -21,6 +23,9 @@ class ButtonApp;
 
 class ofApp : public ofBaseApp {
 public:
+GeminiImageGenerator geminiGen;
+
+
     // --- FLAGS D'AFFICHAGE ---
     bool bDrawRoom = true;     
     bool bDrawZenit = true;    

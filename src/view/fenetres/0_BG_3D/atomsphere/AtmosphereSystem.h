@@ -30,6 +30,7 @@ private:
     float rotX = 0; // Rotation horizontale
     float rotY = 0; // Rotation verticale
     float rotZ = 0; // Rotation profondeur (Roll)
+    float offsetY = 0; // Position verticale
 bool rot=true;
     float autoRotY = 0.0f;
     // Fonctions de génération interne
