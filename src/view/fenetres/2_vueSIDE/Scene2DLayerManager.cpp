@@ -19,6 +19,7 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
     // On utilise une seule simulation qui couvre toute la hauteur de l'image (1472px)
     float simHeight = 1472.0f / scale;
     colliderLayer->setup(simWidth, simHeight, scale);
+    creatureSystem.setCollider(colliderLayer);
 
     // --- SETUP SUBSYSTEMS ---
     slimeLayer.setup(totalSceneWidth, 1472.0f);
@@ -112,7 +113,6 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
 
     // --- SETUP SWING LAYER ---
     swingLayer.setup(simWidth, simHeight, scale, colliderLayer);
-<<<<<<< HEAD
 
     // --- SETUP FLUID LAYER ---
     fluidLayer.setup(simWidth, simHeight, scale);
@@ -137,8 +137,6 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
     
     // --- SETUP MONGOLFIER LAYER ---
     mongolfierLayer.setup(totalSceneWidth, 1472.0f);
-=======
->>>>>>> parent of be17470 (v197)
 }
 
 void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePressed) {
@@ -181,7 +179,6 @@ void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePress
         }
     }
 
-<<<<<<< HEAD
     if (bDrawFluidFloor) fluidFloorLayer.update(m.x, m.y);
     if (bDrawMachine) machineLayer.update(m.x, m.y, time);
     if (bDrawDigging) diggingCreature.update(m.x, m.y);
@@ -212,99 +209,6 @@ void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePress
     if (bDrawFireB) fireBLayer.update(m.x, m.y, time);
     if (bDrawFireC) fireCLayer.update(m.x, m.y);
     if (bDrawMongolfier) mongolfierLayer.update(m.x, m.y);
-=======
-    if (bDrawFluidFloor) {
-        fluidFloorLayer.update(m.x, m.y); // FluidFloorLayer not BaseLayer
-    }
-
-    if (bDrawMachine) {
-        machineLayer.update(m.x, m.y, time);
-    }
-
-    if (bDrawDigging) {
-        diggingCreature.update(m.x, m.y); // DiggingCreature not BaseLayer
-    }
-
-    if (bDrawMachineAuto) {
-        machineAuto.update(time); 
-    }
-
-    if (bDrawCurtain) {
-        curtain.update(m.x, m.y); // CurtainCreature not BaseLayer
-    }
-    
-    if (bDrawPuyo) {
-        puyoLayer.update(m.x, m.y, time); 
-    }
-
-    if (bDrawBubbles) {
-        bubbleLayer.update(m.x, m.y, time); // BubbleLayer uses time
-    }
-    
-    if (bDrawKani) {
-        kaniLayer.update(m.x, m.y, time);
-    }
-
-    if (bDrawSlime2) {
-        slime2Layer.update(time);
-    }
-
-    if (bDrawTeaa) {
-        teaaLayer.update(time);
-    }
-
-    if (bDrawBallet) {
-        balletLayer.update(time);
-    }
-    
-    if (bDrawKundelich) {
-        kundelichLayer.update(m.x, m.y, time);
-    }
-
-    if (bDrawKineShad) {
-        kineShadLayer.update(m, time);
-    }
-    
-    if (bDrawMultiPendulum) {
-        multiPendulumLayer.update(m.x, m.y, time);
-    }
-
-    if (bDrawPancarte) {
-        pancarteLayer.update(m.x, m.y, time);
-    }
-    
-    if (bDrawPendulum) {
-        pendulumLayer.update(m.x, m.y);
-    }
-    
-    if (bDrawPince) {
-        pinceLayer.update(m.x, m.y, time);
-    }
-
-    if (bDrawPinceBra) {
-        pinceBraLayer.update(m.x, m.y, time);
-    }
-    
-    if (bDrawPinceFoire) {
-        pinceFoireLayer.update(m.x, m.y, time);
-    }
-    
-    if (bDrawWhaa) {
-        whaaLayer.update(m.x, m.y);
-    }
-
-    if (bDrawChainCrea) {
-        chainCreaLayer.update(m.x, m.y, time);
-    }
-
-    if (bDrawWallWalker) {
-        wallWalkerLayer.update(m.x, m.y, time);
-    }
-
-    if (bDrawSwing) {
-        swingLayer.update(m.x, m.y, time);
-    }
->>>>>>> parent of be17470 (v197)
 }
 
 void Scene2DLayerManager::draw(const ofVec2f& m) {
@@ -338,7 +242,6 @@ void Scene2DLayerManager::draw(const ofVec2f& m) {
         ofPopMatrix();
     }
 
-<<<<<<< HEAD
     if (bDrawPlants) plantLayer.draw();
     if (bDrawFlytraps) flytrapLayer.draw();
     if (bDrawGears) gearLayer.draw();
@@ -373,116 +276,6 @@ void Scene2DLayerManager::draw(const ofVec2f& m) {
     if (bDrawFireB) fireBLayer.draw();
     if (bDrawFireC) fireCLayer.draw();
     if (bDrawMongolfier) mongolfierLayer.draw();
-=======
-    if (bDrawPlants) {
-        plantLayer.draw();
-    }
-
-    if (bDrawFlytraps) {
-        flytrapLayer.draw();
-    }
-
-    if (bDrawGears) {
-        gearLayer.draw();
-    }
-
-    if (bDrawFluidFloor) {
-        fluidFloorLayer.draw(0, 0);
-    }
-
-    if (bDrawMachine) {
-        machineLayer.draw();
-    }
-
-    if (bDrawDigging) {
-        diggingCreature.draw();
-    }
-
-    if (bDrawMachineAuto) {
-        machineAuto.draw();
-    }
-
-    if (bDrawCurtain) {
-        curtain.draw();
-    }
-    
-    if (bDrawPuyo) {
-        puyoLayer.draw();
-    }
-
-    if (bDrawBubbles) {
-        // Le dessin se fait maintenant directement dans les coordonnées du monde
-        bubbleLayer.draw();
-    }
-    
-    if (bDrawKani) {
-        kaniLayer.draw();
-    }
-
-    if (bDrawSlime2) {
-        slime2Layer.draw();
-    }
-    
-    if (bDrawTeaa) {
-        teaaLayer.draw();
-    }
-    
-    if (bDrawBallet) {
-        balletLayer.draw();
-    }
-    
-    if (bDrawKundelich) {
-        kundelichLayer.draw();
-    }
-
-    if (bDrawKineShad) {
-        kineShadLayer.draw();
-    }
-    
-    if (bDrawMultiPendulum) {
-        multiPendulumLayer.draw();
-    }
-
-     if (bDrawColliders) {
-        if(colliderLayer) colliderLayer->draw();
-    }
-
-    if (bDrawPancarte) {
-        pancarteLayer.draw();
-    }
-    
-    if (bDrawPendulum) {
-        pendulumLayer.draw();
-    }
-    
-    if (bDrawPince) {
-        pinceLayer.draw();
-    }
-
-    if (bDrawPinceBra) {
-        pinceBraLayer.draw();
-    }
-    
-    if (bDrawPinceFoire) {
-        pinceFoireLayer.draw();
-    }
-    
-    if (bDrawWhaa) {
-        whaaLayer.draw();
-    }
-
-    if (bDrawChainCrea) {
-        chainCreaLayer.draw();
-    }
-
-    if (bDrawWallWalker) {
-        wallWalkerLayer.draw();
-    }
-
-    if (bDrawSwing) {
-        swingLayer.draw();
-    }
->>>>>>> parent of be17470 (v197)
 }
 
 void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
@@ -518,12 +311,11 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
             //creatureSystem.addFluidsCreature(m.x, m.y); 
             //bDrawBallet = !bDrawBallet; balletLayer.bActive = bDrawBallet;
             //creatureSystem.addSpringCreature(m.x, m.y);
-            //   bDrawKundelich = !bDrawKundelich;
-            // bDrawPinceFoire = !bDrawPinceFoire;
-                     //bDrawTeaa = !bDrawTeaa; teaaLayer.bActive = bDrawTeaa; if(bDrawTeaa) teaaLayer.generate(); 
+            //bDrawKundelich = !bDrawKundelich;
+            //bDrawPinceFoire = !bDrawPinceFoire;
+            //bDrawTeaa = !bDrawTeaa; teaaLayer.bActive = bDrawTeaa; if(bDrawTeaa) teaaLayer.generate(); 
             //bDrawCurtain = !bDrawCurtain; 
             //bDrawMultiPendulum = !bDrawMultiPendulum;
-<<<<<<< HEAD
             
             //bDrawWhaa = !bDrawWhaa;
             //creatureSystem.addDancingCreature(m.x, m.y);
@@ -551,59 +343,40 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
         case '1': 
             
         break; 
-=======
-            // bDrawWhaa = !bDrawWhaa;
-
-        case '1': 
-           bDrawWallWalker = !bDrawWallWalker;
-        break; // Generates new floor on toggle
->>>>>>> parent of be17470 (v197)
         
         case '2': 
-           bDrawSwing = !bDrawSwing;
         break;
        
         case '3':
-<<<<<<< HEAD
             bDrawMongolfier = !bDrawMongolfier;
-=======
-           bDrawChainCrea = !bDrawChainCrea;
->>>>>>> parent of be17470 (v197)
         break;
 
-        case '4': 
-            bDrawKineShad = !bDrawKineShad;
-            //creatureSystem.addCreature(m.x, m.y); 
-        break; // Jelly 
+        case '4':                  
+        break; 
         
         case '5': 
-            bDrawColliders = !bDrawColliders; 
-            
+        bDrawColliders = !bDrawColliders;           
         break;
         
-        case '6': 
-            //creatureSystem.addDancingCreature(m.x, m.y);
-            bDrawPancarte = !bDrawPancarte;
+        case '6':            
         break;
         
         case '7':           
             if (bDrawPuyo){
-             puyoLayer.puyos.clear();
+                puyoLayer.puyos.clear();
             } else {
-            for(int i=0; i<15; i++) {
-                puyoLayer.addPuyo(ofRandom(puyoLayer.simWidth), puyoLayer.simHeight - ofRandom(50, 150));
-            }
+                for(int i=0; i<15; i++) {
+                    puyoLayer.addPuyo(ofRandom(puyoLayer.simWidth), puyoLayer.simHeight - ofRandom(50, 150));
+                }
             }
             bDrawPuyo = !bDrawPuyo; 
-            break;
+        break;
         
         case '8': 
-          //bDrawBubbles = !bDrawBubbles;
            bDrawPendulum = !bDrawPendulum;
         break;
         
         case '9': 
-            //bDrawKani = !bDrawKani; 
             bDrawPince = !bDrawPince;
         break;
 
@@ -670,6 +443,12 @@ void Scene2DLayerManager::mousePressed(const ofVec2f& m, int button) {
     if (bDrawPinceBra) pinceBraLayer.mousePressed(m.x, m.y, button);
     if (bDrawPinceFoire) pinceFoireLayer.mousePressed(m.x, m.y, button);
     if (bDrawWhaa) whaaLayer.mousePressed(m.x, m.y);
+    if (bDrawFluid) fluidLayer.mousePressed(m.x, m.y, button);
+    if (bDrawFluidDeux) fluidDeuxLayer.mousePressed(m.x, m.y, button);
+    if (bDrawFluidTrois) fluidTroisLayer.mousePressed(m.x, m.y, button);
+    if (bDrawFireA) fireALayer.mousePressed(m.x, m.y);
+    if (bDrawFireB) fireBLayer.mousePressed(m.x, m.y, button);
+    if (bDrawFireC) fireCLayer.mousePressed(m.x, m.y);
 }
 
 void Scene2DLayerManager::mouseReleased(const ofVec2f& m, int button) {
@@ -682,6 +461,10 @@ void Scene2DLayerManager::mouseReleased(const ofVec2f& m, int button) {
     if (bDrawPendulum) pendulumLayer.mouseReleased(m.x, m.y);
     if (bDrawPinceFoire) pinceFoireLayer.mouseReleased(m.x, m.y, button);
     if (bDrawWhaa) whaaLayer.mouseReleased(m.x, m.y);
+    if (bDrawFluid) fluidLayer.mouseReleased(m.x, m.y, button);
+    if (bDrawFluidDeux) fluidDeuxLayer.mouseReleased(m.x, m.y, button);
+    if (bDrawFluidTrois) fluidTroisLayer.mouseReleased(m.x, m.y, button);
+    if (bDrawFireA) fireALayer.mouseReleased(m.x, m.y);
 }
 
 int Scene2DLayerManager::getSardineCount() {
