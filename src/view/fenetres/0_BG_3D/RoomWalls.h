@@ -5,6 +5,7 @@ class RoomWalls {
 public:
     void setup();
 void draw(bool showRoof, float alpha);
+    ofColor getPixelFromRay(const ofVec3f& origin, const ofVec3f& dir);
 
     // Dimensions
     const float roomWidth = 2400.0f;
@@ -29,4 +30,5 @@ void draw(bool showRoof, float alpha);
 private:
     ofImage imgFront, imgBack, imgCour, imgJar, imgSol, imgTopCour, imgTopJar;
     float peakX, peakY;
+    bool rayTriangleIntersect(const ofVec3f &orig, const ofVec3f &dir, const ofVec3f &v0, const ofVec3f &v1, const ofVec3f &v2, float &t, float &u, float &v);
 };

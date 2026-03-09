@@ -319,3 +319,50 @@ void RoomApp::draw(){
 void RoomApp::keyPressed(int key){
     inputHandler.keyPressed(key);
 }
+
+//--------------------------------------------------------------
+void RoomApp::generateEquirectangularImage() {
+    int w = 3840;
+    int h = 2160;
+    
+    ofLogNotice("RoomApp") << "Debut generation image 360 (" << w << "x" << h << ")... Cela peut prendre quelques secondes.";
+    
+    ofPixels pixels;
+    pixels.allocate(w, h, OF_IMAGE_COLOR_ALPHA);
+    
+    // Centre de projection (Centre de la pièce / Rig)
+    // On utilise 600 en Y car c'est la hauteur moyenne des yeux/caméras dans le setup
+    ofVec3f center(0, 600, 0); 
+
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            // 1. Coordonnées UV normalisées [0, 1]
+            float u = (float)x / (float)w;
+            float v = (float)y / (float)h;
+            
+            // 2. Conversion Equirectangulaire -> Sphérique
+            // Longitude (theta) : -PI à PI (Horizontal)
+            // Latitude (phi) : -PI/2 à PI/2 (Vertical)
+            float theta = (u - 0.5f) * TWO_PI; 
+            float phi = (0.5f - v) * PI;
+            
+            // 3. Vecteur Direction 3D
+            // Note: Dans OF/OpenGL, Y est souvent Up ou Down selon la matrice.
+            // Ici on assume un repère standard Y-Up pour la géométrie 3D.
+            // On inverse X pour correspondre au mapping "interne" de la sphère (scale -1,1,1)
+            float dx = cos(phi) * cos(theta - HALF_PI); // -HALF_PI pour aligner le centre de l'image avec le mur du fond (Z)
+            float dy = sin(phi);
+            float dz = cos(phi) * sin(theta - HALF_PI);
+            
+            ofVec3f dir(dx, dy, dz);
+            dir.normalize();
+            
+            // 4. Raycast
+            ofColor col = walls.getPixelFromRay(center, dir);
+            pixels.setColor(x, y, col);
+        }
+    }
+    
+    ofSaveImage(pixels, "export_360_room.png");
+    ofLogNotice("RoomApp") << "Image 360 sauvegardee : bin/data/export_360_room.png";
+}

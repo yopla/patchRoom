@@ -151,6 +151,9 @@ void RoomInputHandler::keyPressed(int key) {
             app->externalKraken.start(app->localTime);
         }
     }
+    if(key == '5') { // <--- AJOUT GENERATION 360
+        app->generateEquirectangularImage();
+    }
 
     if(key == 'g' || key == 'G') {
         if (app->wallAlpha > 50.0f) {

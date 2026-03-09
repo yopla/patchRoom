@@ -320,10 +320,9 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
             //bDrawWhaa = !bDrawWhaa;
             //creatureSystem.addDancingCreature(m.x, m.y);
             //creatureSystem.addCreature(m.x, m.y); 
-            //bDrawBubbles = !bDrawBubbles;
             //bDrawKani = !bDrawKani; 
             //bDrawWallWalker = !bDrawWallWalker;
-            //bDrawSwing = !bDrawSwing;
+            
             //bDrawChainCrea = !bDrawChainCrea;
             //bDrawKineShad = !bDrawKineShad;  
             //bDrawPancarte = !bDrawPancarte;
@@ -337,18 +336,22 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
             //bDrawFireC = !bDrawFireC;
 
             //creatureSystem.addOtarieCreature(m.x, m.y);
+            //bDrawSwing = !bDrawSwing;
+            //bDrawMongolfier = !bDrawMongolfier;
 
-
+            //bDrawPendulum = !bDrawPendulum;
+            //bDrawPince = !bDrawPince;
+            //bDrawPinceBra = !bDrawPinceBra;
 
         case '1': 
-            
+          bDrawBubbles = !bDrawBubbles; 
         break; 
         
         case '2': 
         break;
        
         case '3':
-            bDrawMongolfier = !bDrawMongolfier;
+            
         break;
 
         case '4':                  
@@ -373,15 +376,15 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
         break;
         
         case '8': 
-           bDrawPendulum = !bDrawPendulum;
+           
         break;
         
         case '9': 
-            bDrawPince = !bDrawPince;
+            
         break;
 
         case '0':
-            bDrawPinceBra = !bDrawPinceBra;
+            
         break;
     }
 

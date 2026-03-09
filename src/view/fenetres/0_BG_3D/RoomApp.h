@@ -59,9 +59,10 @@ public:
     
     // La fonction qui centralise le rendu pour tous les FBOs
     void drawSceneContent(bool showAtmosphere = true, bool isGlobalView = false); 
+    void generateEquirectangularImage(); // <--- AJOUT
 
     // Oscillation de la Room (Effet Bateau)
-    bool bOscillateRoom = true;
+   
     ofVec3f roomPosOffset;
     ofVec3f roomRotOffset;
     void applyRoomTransform();
@@ -102,7 +103,7 @@ public:
     // --- Flags de contrôle ---
     bool bShowRoof = true;
     float wallAlpha = 100.0f;
-    bool respire = true;
+    bool respire = false;
     bool bDrawRipples = false; // Optionnel : pour activer/désactiver
     bool bDrawGab = true; // Remplaçant de bDrawWalls pour la texture "Gab"
     bool bDrawBeam = true; 
@@ -115,6 +116,8 @@ public:
     bool bDrawUndulatingFloor = false;
     bool bDrawKraken = false; // <--- AJOUT
     bool bDrawExternalKraken = false; // <--- AJOUT
+   
+    bool bOscillateRoom = false;
 
 private:
     RoomInputHandler inputHandler;

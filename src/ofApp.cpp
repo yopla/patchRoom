@@ -14,7 +14,7 @@ void ofApp::registerViewApp(shared_ptr<ViewApp> vApp){
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-        geminiGen.setup("AIzaSyBwPAqZdfZcSVk6JINyC02pt-eNjt0zkHM");
+        geminiGen.setup("AIzaSyAPewZm85rPUC79yVLGsbdV6FZ8OuZqluw");
 
     ofSetRandomSeed(42);
     ofSetFrameRate(APP_FPS);
@@ -255,7 +255,7 @@ void ofApp::keyPressed(int key){
     
     // TOUCHE O : Générer une vidéo IA (Veo)
     if(key == 'o' || key == 'O') {
-        geminiGen.generateVideo("Cinematic drone shot of a futuristic cyberpunk city, neon lights, rain, 4k, highly detailed");
+        geminiGen.generateVideo("Panomarmic Hdri image 360° VR (Equirectangular projection) (donc avec texture bouclé) D’une bete poilu dans un marais enchanté");
     }
 
     // Reset Navigation

@@ -52,6 +52,9 @@ void AtmosphereSystem::setup() {
     bool success = texture360.load("VR0.jpg");
     if(success) ofLog() << "Texture 360 chargee avec succes !";
     else ofLog(OF_LOG_ERROR, "Erreur chargement Alexs_Apt_8k.jpg");
+
+    // On aligne la sphère avec la position du Rig (0, 600, 0)
+    offsetY = 600.0f;
 }
 
 //--------------------------------------------------------------
@@ -86,16 +89,18 @@ if (bShow360) {
             
             ofScale(-1, 1, 1); 
             
-            if(bIsVideo && video360.isLoaded()) {
+            bool bVideoReady = bIsVideo && video360.isLoaded() && video360.getTexture().isAllocated();
+
+            if(bVideoReady) {
                 video360.getTexture().bind();
             } else {
-                texture360.bind();
+                if(texture360.isAllocated()) texture360.bind();
             }
             sphereEnvironnement.draw();
-            if(bIsVideo && video360.isLoaded()) {
+            if(bVideoReady) {
                 video360.getTexture().unbind();
             } else {
-                texture360.unbind();
+                if(texture360.isAllocated()) texture360.unbind();
             }
         ofPopMatrix();
         

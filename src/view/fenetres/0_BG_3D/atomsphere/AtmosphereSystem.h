@@ -31,7 +31,7 @@ private:
     float rotY = 0; // Rotation verticale
     float rotZ = 0; // Rotation profondeur (Roll)
     float offsetY = 0; // Position verticale
-bool rot=true;
+    bool rot=false;
     float autoRotY = 0.0f;
     // Fonctions de génération interne
     void setupCheckerboard(int size, int numChecks);

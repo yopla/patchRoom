@@ -130,6 +130,8 @@ void GeminiImageGenerator::generateVideo(string prompt) {
     json["instances"][0]["prompt"] = prompt;
     json["parameters"]["sampleCount"] = 1;
     json["parameters"]["aspectRatio"] = "16:9"; // Format vidéo
+    //json["parameters"]["resolution"] = "4k"; // Format vidéo
+
     //json["parameters"]["outputOptions"]["mimeType"] = "video/mp4";
 
     ofHttpRequest request;

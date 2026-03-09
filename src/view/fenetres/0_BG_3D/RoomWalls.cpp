@@ -106,3 +106,96 @@ void RoomWalls::draw(bool showRoof, float alpha) {
     glDepthMask(GL_TRUE);
     ofPopStyle();
 }
+
+//--------------------------------------------------------------
+// Algorithme d'intersection Rayon-Triangle (Möller–Trumbore)
+bool RoomWalls::rayTriangleIntersect(const ofVec3f &orig, const ofVec3f &dir,
+                                     const ofVec3f &v0, const ofVec3f &v1, const ofVec3f &v2,
+                                     float &t, float &u, float &v) {
+    ofVec3f v0v1 = v1 - v0;
+    ofVec3f v0v2 = v2 - v0;
+    ofVec3f pvec = dir.getCrossed(v0v2);
+    float det = v0v1.dot(pvec);
+
+    // Si le déterminant est proche de 0, le rayon est parallèle au triangle
+    if (fabs(det) < 0.00001) return false;
+
+    float invDet = 1.0 / det;
+    ofVec3f tvec = orig - v0;
+    u = tvec.dot(pvec) * invDet;
+    if (u < 0 || u > 1) return false;
+
+    ofVec3f qvec = tvec.getCrossed(v0v1);
+    v = dir.dot(qvec) * invDet;
+    if (v < 0 || u + v > 1) return false;
+
+    t = v0v2.dot(qvec) * invDet;
+    return true;
+}
+
+//--------------------------------------------------------------
+ofColor RoomWalls::getPixelFromRay(const ofVec3f& origin, const ofVec3f& dir) {
+    float minT = 100000.0f; // Distance infinie
+    ofColor finalColor(0, 0, 0, 0); // Transparent par défaut
+    bool hit = false;
+
+    // Liste des meshes et textures associées à tester
+    struct WallObj { ofMesh* m; ofImage* i; };
+    vector<WallObj> walls = {
+        {&meshFront, &imgFront}, {&meshBack, &imgBack},
+        {&meshCour, &imgCour}, {&meshJar, &imgJar},
+        {&meshSol, &imgSol}, {&meshTopCour, &imgTopCour},
+        {&meshTopJar, &imgTopJar}
+    };
+
+    for(auto& w : walls) {
+        if(w.m->getNumVertices() < 3) continue;
+
+        // On assume que les meshes sont des Triangle Fans (Rectangles = 2 triangles : 0-1-2 et 0-2-3)
+        // ou simplement une liste de triangles.
+        // Pour un FAN à 4 sommets (0,1,2,3) -> Triangles (0,1,2) et (0,2,3)
+        
+        int numTris = w.m->getNumVertices() - 2; // Pour un FAN
+        
+        for(int i = 0; i < numTris; i++) {
+            int idx0 = 0;
+            int idx1 = i + 1;
+            int idx2 = i + 2;
+
+            ofVec3f v0 = w.m->getVertex(idx0);
+            ofVec3f v1 = w.m->getVertex(idx1);
+            ofVec3f v2 = w.m->getVertex(idx2);
+
+            float t, u, v;
+            if(rayTriangleIntersect(origin, dir, v0, v1, v2, t, u, v)) {
+                if(t > 0 && t < minT) {
+                    minT = t;
+                    hit = true;
+
+                    // Interpolation des coordonnées de texture (Barycentric)
+                    // UV = w*uv0 + u*uv1 + v*uv2, avec w = 1-u-v
+                    ofVec2f uv0 = w.m->getTexCoord(idx0);
+                    ofVec2f uv1 = w.m->getTexCoord(idx1);
+                    ofVec2f uv2 = w.m->getTexCoord(idx2);
+
+                    float w_bary = 1.0f - u - v;
+                    ofVec2f texCoord = uv0 * w_bary + uv1 * u + uv2 * v;
+
+                    // Sampling de la texture
+                    // On s'assure que les coords sont entre 0 et 1
+                    float tx = ofClamp(texCoord.x, 0.0f, 1.0f);
+                    float ty = ofClamp(texCoord.y, 0.0f, 1.0f);
+                    
+                    // Conversion en pixels
+                    float px = tx * w.i->getWidth();
+                    float py = ty * w.i->getHeight();
+                    
+                    // On récupère la couleur (getColor fait le clamp interne)
+                    finalColor = w.i->getColor(px, py);
+                }
+            }
+        }
+    }
+
+    return finalColor;
+}
