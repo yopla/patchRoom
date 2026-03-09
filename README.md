@@ -3,6 +3,7 @@
 pour débolquer la quarantaine osx  :
 xattr -cr /chemin/vers/votre_app.app
 
+pour compiler cmd+shit+. pouir afficher les fichiers, et mettre un point au dossier vscode
 
 ![Screenshot of emptyExample](emptyExample.png)
 
