@@ -14,17 +14,6 @@ public:
     ofVec2f targetSize;
     bool bMoved = false;
 
-    // --- FLOU ---
-    ofShader shaderBlurX;
-    ofShader shaderBlurY;
-    ofFbo fboPing, fboPong;
-    bool bBlur = false;
-
-    void setup() override {
-        shaderBlurX.load("shaders/shaderBlurX");
-        shaderBlurY.load("shaders/shaderBlurY");
-    }
-
     void setupView(shared_ptr<ofApp> app) { mainApp = app; }
     
     void setWindowMovement(shared_ptr<ofAppBaseWindow> win, int x, int y, int w, int h) {
@@ -54,47 +43,11 @@ public:
         }
     }
 
-    void draw() override {
-        if (bBlur) {
-            // Allocation dynamique si nécessaire
-            if (!fboPing.isAllocated() || fboPing.getWidth() != ofGetWidth() || fboPing.getHeight() != ofGetHeight()) {
-                fboPing.allocate(ofGetWidth(), ofGetHeight());
-                fboPong.allocate(ofGetWidth(), ofGetHeight());
-            }
-
-            // 1. Rendu de la scène dans FBO Ping
-            fboPing.begin();
-            ofClear(0);
-            if (mainApp) {
-                layerManager.draw(mainApp->canvas.getTexture());
-            }
-            fboPing.end();
-
-            // 2. Blur Horizontal : Ping -> Pong
-            fboPong.begin();
-            ofClear(0);
-            shaderBlurX.begin();
-            shaderBlurX.setUniform1f("blurAmnt", 2.0);
-            shaderBlurX.setUniform1f("texwidth", fboPing.getWidth());
-            fboPing.draw(0, 0);
-            shaderBlurX.end();
-            fboPong.end();
-
-            // 3. Blur Vertical : Pong -> Ecran
-            shaderBlurY.begin();
-            shaderBlurY.setUniform1f("blurAmnt", 2.0);
-            shaderBlurY.setUniform1f("texheight", fboPong.getHeight());
-            fboPong.draw(0, 0);
-            shaderBlurY.end();
-            
-            ofDrawBitmapStringHighlight("BLUR ON (F)", 10, 60, ofColor::red, ofColor::white);
-        } else {
-            ofBackground(0);
-            if (mainApp) {
-                layerManager.draw(mainApp->canvas.getTexture());
-            }
+    void draw() {
+        ofBackground(0);
+        if(mainApp) {
+            layerManager.draw(mainApp->canvas.getTexture());
         }
-
         // Afficher la position actuelle pour debug
         if(myWindow){
             ofVec2f pos = myWindow->getWindowPosition();
@@ -103,10 +56,7 @@ public:
         ofDrawBitmapStringHighlight("View FPS: " + ofToString(ofGetFrameRate(), 0), 10, 20);
     }
 
-    void keyPressed(int key) override {
+    void keyPressed(int key) {
         layerManager.keyPressed(key);
-        if(key == 'f' || key == 'F') {
-            bBlur = !bBlur;
-        }
     }
 };

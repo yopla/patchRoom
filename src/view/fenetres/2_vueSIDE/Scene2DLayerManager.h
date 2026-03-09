@@ -37,6 +37,7 @@
 #include "ChainCrea.h"
 #include "WallWalkerLayer.h"
 #include "SwingLayer.h"
+<<<<<<< HEAD
 #include "FluidLayer.h"
 #include "FluidDeuxLayer.h"
 #include "FluidTroisLayer.h"
@@ -44,6 +45,8 @@
 #include "FireBLayer.h"
 #include "FireCLayer.h"
 #include "MongolfierLayer.h"
+=======
+>>>>>>> parent of be17470 (v197)
 
 class Scene2DLayerManager {
 public:
@@ -89,6 +92,7 @@ public:
     bool bDrawChainCrea = false;
     bool bDrawWallWalker = false;
     bool bDrawSwing = false;
+<<<<<<< HEAD
     bool bDrawFluid = false;
     bool bDrawFluidDeux = false;
     bool bDrawFluidTrois = false;
@@ -96,6 +100,8 @@ public:
     bool bDrawFireB = false;
     bool bDrawFireC = false;
     bool bDrawMongolfier = false;
+=======
+>>>>>>> parent of be17470 (v197)
 
     // Layer objects
     CreatureSystem creatureSystem;
@@ -135,6 +141,7 @@ public:
     ChainCrea chainCreaLayer;
     WallWalkerLayer wallWalkerLayer;
     SwingLayer swingLayer;
+<<<<<<< HEAD
     FluidLayer fluidLayer;
     FluidDeuxLayer fluidDeuxLayer;
     FluidTroisLayer fluidTroisLayer;
@@ -142,6 +149,8 @@ public:
     FireBLayer fireBLayer;
     FireCLayer fireCLayer;
     MongolfierLayer mongolfierLayer;
+=======
+>>>>>>> parent of be17470 (v197)
 
     // State for lightning
     bool bLightningHasStart = false;

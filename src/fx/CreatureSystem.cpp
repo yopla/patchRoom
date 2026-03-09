@@ -78,10 +78,6 @@ gekoManager.update(mouseWorld.x, mouseWorld.y);
     for(auto& b : breakables) {
         b->update(mouseWorld.x, mouseWorld.y);
     }
-
-    for(auto& o : otaries) {
-        o->update(mouseWorld.x, mouseWorld.y);
-    }
     
     // Nettoyage automatique : on retire les créatures qui sont brisées et dont tous les morceaux ont disparu
     breakables.erase(std::remove_if(breakables.begin(), breakables.end(),
@@ -119,9 +115,6 @@ void CreatureSystem::draw(ofVec2f mouseWorld) {
     
     // 6. Breakables
     for(const auto& b : breakables) b->draw();
-
-    // 7. Otaries
-    for(const auto& o : otaries) o->draw();
 }
 
 //--------------------------------------------------------------
@@ -254,19 +247,6 @@ void CreatureSystem::addBreakableCreature(float x, float y) {
     breakables.push_back(std::make_unique<BreakableCreature>(x - w/2, y - h/2, w, h, &sharedImage));
 }
 
-void CreatureSystem::addOtarieCreature(float x, float y) {
-    auto o = std::make_unique<OtarieCreature>(x, y);
-    if(colliderLayer) o->setCollider(colliderLayer);
-    otaries.push_back(std::move(o));
-}
-
-void CreatureSystem::setCollider(shared_ptr<ColliderLayer> c) {
-    colliderLayer = c;
-    for(auto& o : otaries) {
-        o->setCollider(c);
-    }
-}
-
 //--------------------------------------------------------------
 // GESTION LISTE
 //--------------------------------------------------------------
@@ -285,8 +265,6 @@ void CreatureSystem::removeLast() {
         pendulums.pop_back();
     } else if (!breakables.empty()) {
         breakables.pop_back();
-    } else if (!otaries.empty()) {
-        otaries.pop_back();
     } else if (!gekoManager.gekos.empty()) { // Accès direct au vecteur si public
         gekoManager.removeLast();
     } else if (!dancingCreatures.empty()) {
@@ -312,5 +290,4 @@ gekoManager.clear();
     cousins.clear();
     halos.clear();
     breakables.clear();
-    otaries.clear();
 }
