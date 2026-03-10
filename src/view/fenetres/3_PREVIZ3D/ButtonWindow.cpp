@@ -14,10 +14,8 @@ void ButtonWindow::setup(float w, float h) {
     // Chargement de l'image de fond
     // On gère le cas de l'extension .jog (typo probable pour .jpg)
     bool bLoaded = false;
-    if(!bgImg.load("GAB/SOL.jpg")) {
-        if(!bgImg.load("GAB/SOL.png")) {
-            // Fallback si le fichier s'appelle vraiment .jog
-            if(bgImg.load("GAB/SOL.jog")) bLoaded = true;
+    if(!bgImg.load("GAB1/SOL.jpg")) {
+        if(!bgImg.load("GAB1/SOL.png")) {
         } else bLoaded = true;
     } else bLoaded = true;
 

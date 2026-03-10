@@ -19,7 +19,7 @@ void ColliderLayer::generateWalls() {
 
     // 1. Chargement de COLL.png et génération des colliders blancs
     ofImage mapImg;
-    if(mapImg.load("COLL.png")) {
+    if(mapImg.load("GAB0/COLL.png")) {
         mapImg.resize(simWidth, simHeight);
         mapPixels = mapImg.getPixels();
         bHasMap = true;

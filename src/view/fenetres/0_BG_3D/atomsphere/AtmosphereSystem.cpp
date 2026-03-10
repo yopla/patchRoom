@@ -49,9 +49,9 @@ void AtmosphereSystem::setup() {
     // On désactive l'ARB pour s'assurer que les coords de texture 0-1 fonctionnent bien sur la sphère
     ofDisableArbTex(); 
     //bool success = texture360.load("Alexs_Apt_8k.jpg");
-    bool success = texture360.load("VR0.jpg");
+    bool success = texture360.load("GAB0/VR0.jpg");
     if(success) ofLog() << "Texture 360 chargee avec succes !";
-    else ofLog(OF_LOG_ERROR, "Erreur chargement Alexs_Apt_8k.jpg");
+    else ofLog(OF_LOG_ERROR, "Erreur chargement VR0.jpg");
 
     // On aligne la sphère avec la position du Rig (0, 600, 0)
     offsetY = 600.0f;

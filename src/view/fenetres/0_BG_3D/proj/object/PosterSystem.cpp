@@ -1,7 +1,7 @@
 #include "PosterSystem.h"
 
 void PosterSystem::setup(float roomWidth, float roomDepth, float heightFrontBack) {
-    if(!posterImg.load("garde.png")) {
+    if(!posterImg.load("IMG_REF/garde.png")) {
         posterImg.allocate(posterW, posterH, OF_IMAGE_COLOR);
         posterImg.setColor(ofColor::cyan);
     }

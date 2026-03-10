@@ -4,8 +4,8 @@
 void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float frontW, float frontX) {
     totalSceneWidth = totalWidth;
     
-    imgConcombre.load("con.png");
-    imgRush.load("rushA.png");
+    imgConcombre.load("IMG_REF/con.png");
+    imgRush.load("IMG_REF/rushA.png");
 
     // --- SETUP CREATURE SYSTEM ---
     creatureSystem.setup();
@@ -58,7 +58,7 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
     machineAuto.setup(totalSceneWidth, 1472.0f);
 
     // --- SETUP CURTAIN (RIDEAU) ---
-    curtain.setup(frontX + 200, 100, 600, 800, "garde.png");
+    curtain.setup(frontX + 200, 100, 600, 800, "IMG_REF/garde.png");
     
     // --- SETUP PUYO LAYER ---
     puyoLayer.setup(simWidth, simHeight, scale, colliderLayer);

@@ -7,8 +7,8 @@ void Scene2D_SIDE::setup() {
     localTime = 0.0f;
     
     // Chargement des images de fond
-    imgJar.load("GAB/JAR.jpg"); imgFront.load("GAB/FRONT.jpg"); imgCour.load("GAB/COUR.jpg"); imgBack.load("GAB/BACK.jpg");
-    imgSol.load("GAB/SOL.jpg"); imgTopJar.load("GAB/TOP_JAR.jpg"); imgTopCour.load("GAB/TOP_COUR.jpg");
+    imgJar.load("GAB1/JAR.jpg"); imgFront.load("GAB1/FRONT.jpg"); imgCour.load("GAB1/COUR.jpg"); imgBack.load("GAB1/BACK.jpg");
+    imgSol.load("GAB1/SOL.jpg"); imgTopJar.load("GAB1/TOP_JAR.jpg"); imgTopCour.load("GAB1/TOP_COUR.jpg");
 
     // Optimisation : Redimensionner les images à la taille des FBO pour alléger le rendu
     if(imgJar.isAllocated()) imgJar.resize(wJar, 784);

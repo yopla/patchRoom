@@ -5,7 +5,7 @@ void ProjectionSystem::setup() {
     planColle.setup();
     beam.setup();
     beam2.setup();
-    beam3.setup("theatreoptique.jpg", 600, 300);
+    beam3.setup("IMG_REF/theatreoptique.jpg", 600, 300);
 }
 
 //--------------------------------------------------------------

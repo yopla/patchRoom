@@ -3,10 +3,10 @@
 //--------------------------------------------------------------
 void Scene2DZenit::setup() {
     // 1. Chargement Images & Allocations FBO (Inchangé)
-    imgFront.load("GAB/FRONT.jpg"); imgBack.load("GAB/BACK.jpg");
-    imgJar.load("GAB/JAR.jpg");     imgCour.load("GAB/COUR.jpg");
-    imgSol.load("GAB/SOL.jpg");     imgTopJar.load("GAB/TOP_JAR.jpg");
-    imgTopCour.load("GAB/TOP_COUR.jpg");
+    imgFront.load("GAB1/FRONT.jpg"); imgBack.load("GAB1/BACK.jpg");
+    imgJar.load("GAB1/JAR.jpg");     imgCour.load("GAB1/COUR.jpg");
+    imgSol.load("GAB1/SOL.jpg");     imgTopJar.load("GAB1/TOP_JAR.jpg");
+    imgTopCour.load("GAB1/TOP_COUR.jpg");
 
     // Optimisation : Redimensionner les images à la taille des FBO
     if(imgFront.isAllocated()) imgFront.resize(wFront, hFront);

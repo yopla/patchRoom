@@ -9,7 +9,7 @@ void FluidRing::setup(float r, float topH, float botExt) {
     // 1. Configuration de la simulation fluide
     // On utilise une résolution suffisante pour faire le tour
     // Chargement de la texture spécifique demandée
-    fluid.bgImage.load("iconeRZEF.png");
+    fluid.bgImage.load("IMG_REF/iconeRZEF.png");
     fluid.bUseImage = true;
 
     // Largeur texture = 2048 (pour boucler proprement), Hauteur = 1024

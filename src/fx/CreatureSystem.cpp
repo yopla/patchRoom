@@ -3,7 +3,7 @@
 //--------------------------------------------------------------
 void CreatureSystem::setup() {
     // 1. Chargement de l'image partagée 1
-    bool loaded = sharedImage.load("00029-2795021161.png");
+    bool loaded = sharedImage.load("IMG_REF/00029-2795021161.png");
     if (!loaded) {
         sharedImage.allocate(400, 400, OF_IMAGE_COLOR);
         ofPixels & pixels = sharedImage.getPixels();
@@ -16,7 +16,7 @@ void CreatureSystem::setup() {
     }
 
     // 2. Chargement de l'image partagée 2
-    bool loaded2 = sharedImage2.load("vmf.png");
+    bool loaded2 = sharedImage2.load("IMG_REF/vmf.png");
      if (!loaded2) {
         sharedImage2.allocate(400, 400, OF_IMAGE_COLOR);
         ofPixels & pixels = sharedImage2.getPixels();

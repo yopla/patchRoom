@@ -22,7 +22,7 @@ void FluidFloorLayer::setup(float w, float h, float s, int resX, int resY) {
     fluidImage.getTexture().setTextureWrap(GL_REPEAT, GL_CLAMP_TO_EDGE);
 
     // Chargement de l'image
-    if(!bgImage.isAllocated()) bgImage.load("bg2.png");
+    if(!bgImage.isAllocated()) bgImage.load("IMG_REF/bg2.png");
 
     resetPattern();
     
