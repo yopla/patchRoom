@@ -55,17 +55,21 @@ std::string base64_decode(std::string const& encoded_string) {
 //--------------------------------------------------------------
 void GeminiImageGenerator::setup(string key) {
     apiKey = key;
-    // Endpoint pour Imagen via l'API Generative Language (Google AI Studio)
-    // Note: Vérifie le modèle disponible pour ta clé (ex: imagen-3.0-generate-001)
     apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict";
-    
-    // Endpoint pour Veo (Vidéo). Si "veo-2.0-generate-001" ne marche pas, vérifiez les logs de listModels()
-    // Il est possible que le modèle s'appelle différemment ou ne soit pas encore public sur cette API.
-    videoApiUrl = "https://generativelanguage.googleapis.com/v1beta/models/veo-3.0-fast-generate-001:predictLongRunning";
-    
+    api360Url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent";   
+    nanoApiUrl = "https://generativelanguage.googleapis.com/v1beta/models/nano-banana-pro-preview:generateContent";
+    //models/gemini-3-pro-image-preview
+    //models/gemini-3.1-flash-image-preview
+    // models/gemini-2.5-flash-image
+    // models/nano-banana-pro-preview
+    videoApiUrl = "https://generativelanguage.googleapis.com/v1beta/models/veo-3.1-fast-generate-preview:predictLongRunning";
+   
+   
     bIsLoading = false;
     bIsPolling = false;
     bNewImageAvailable = false;
+    bNew360ImageAvailable = false;
+    bIsRequest360 = false;
     bNewVideoAvailable = false;
     lastPollTime = 0;
     bRegistered = false;
@@ -88,6 +92,7 @@ void GeminiImageGenerator::generateImage(string prompt) {
     ofLogNotice("GeminiImageGenerator") << "Envoi du prompt : " << prompt;
     bIsLoading = true;
     bNewImageAvailable = false;
+    bIsRequest360 = false; // Ce n'est pas une requête 360
 
     // Construction du JSON pour l'API Imagen
     ofJson json;
@@ -110,8 +115,61 @@ void GeminiImageGenerator::generateImage(string prompt) {
     loader.handleRequestAsync(request);
 }
 
+//--------------------------------------------------------------
+void GeminiImageGenerator::generateImage360(string prompt) {
+    if(bIsLoading) {
+        ofLogWarning("GeminiImageGenerator") << "Déjà en train de générer.";
+        return;
+    }
 
+    ofLogNotice("GeminiImageGenerator") << "Envoi du prompt 360 (Gemini 3.1) : " << prompt;
+    bIsLoading = true;
+    bNew360ImageAvailable = false;
+    bIsRequest360 = true; // On active le flag 360
 
+    ofJson json;
+    // Structure pour Gemini 3.1 (generateContent)
+    json["contents"][0]["parts"][0]["text"] = prompt + " , 360 view, equirectangular projection, vr, 8k";
+    json["generationConfig"]["imageConfig"]["aspectRatio"] = "16:9"; // Format large
+    //json["generationConfig"]["imageConfig"]["imageSize"] = "4K"; // Resolution 4K
+
+    ofHttpRequest request;
+    request.method = ofHttpRequest::POST;
+    // Utilisation du modèle Gemini 3.1
+    request.url = api360Url + "?key=" + apiKey;
+    request.headers["Content-Type"] = "application/json";
+    request.body = json.dump();
+    request.name = "GeminiImageGen"; // On garde le même nom pour réutiliser le parsing JSON
+
+    loader.handleRequestAsync(request);
+}
+
+//--------------------------------------------------------------
+void GeminiImageGenerator::generateNano360(string prompt) {
+    if(bIsLoading) {
+        ofLogWarning("GeminiImageGenerator") << "Déjà en train de générer.";
+        return;
+    }
+
+    ofLogNotice("GeminiImageGenerator") << "Envoi du prompt 360 (Nano Banana) : " << prompt;
+    bIsLoading = true;
+    bNew360ImageAvailable = false;
+    bIsRequest360 = true; // On active le flag 360 pour sauvegarde et affichage
+
+    ofJson json;
+    json["contents"][0]["parts"][0]["text"] = prompt + " , 360 view, equirectangular projection, vr, 8k";
+    json["generationConfig"]["imageConfig"]["aspectRatio"] = "16:9"; 
+    //json["generationConfig"]["imageConfig"]["imageSize"] = "4K"; // Resolution 4K
+
+    ofHttpRequest request;
+    request.method = ofHttpRequest::POST;
+    request.url = nanoApiUrl + "?key=" + apiKey;
+    request.headers["Content-Type"] = "application/json";
+    request.body = json.dump();
+    request.name = "GeminiImageGen"; 
+
+    loader.handleRequestAsync(request);
+}
 
 //--------------------------------------------------------------
 void GeminiImageGenerator::generateVideo(string prompt) {
@@ -130,7 +188,7 @@ void GeminiImageGenerator::generateVideo(string prompt) {
     json["instances"][0]["prompt"] = prompt;
     json["parameters"]["sampleCount"] = 1;
     json["parameters"]["aspectRatio"] = "16:9"; // Format vidéo
-    //json["parameters"]["resolution"] = "4k"; // Format vidéo
+   // json["parameters"]["resolution"] = "4k"; // Format vidéo
 
     //json["parameters"]["outputOptions"]["mimeType"] = "video/mp4";
 
@@ -183,6 +241,17 @@ ofImage& GeminiImageGenerator::getImage() {
 }
 
 //--------------------------------------------------------------
+void GeminiImageGenerator::clearImage() {
+    generatedImage.clear();
+}
+
+//--------------------------------------------------------------
+string GeminiImageGenerator::get360ImagePath() {
+    bNew360ImageAvailable = false;
+    return image360FilePath;
+}
+
+//--------------------------------------------------------------
 string GeminiImageGenerator::getVideoPath() {
     bNewVideoAvailable = false;
     return videoFilePath;
@@ -223,16 +292,42 @@ void GeminiImageGenerator::urlResponse(ofHttpResponse & response) {
         try {
             ofJson json = ofJson::parse(response.data);
             
-            // Le format de réponse contient généralement "predictions" -> "bytesBase64Encoded"
+            string base64Data = "";
+
+            // CAS 1 : Format Imagen (predictions -> bytesBase64Encoded)
             if(json.contains("predictions") && !json["predictions"].empty()) {
-                string base64Data = json["predictions"][0]["bytesBase64Encoded"];
-                
+                base64Data = json["predictions"][0]["bytesBase64Encoded"];
+            }
+            // CAS 2 : Format Gemini (candidates -> inlineData -> data)
+            else if(json.contains("candidates") && !json["candidates"].empty()) {
+                auto& parts = json["candidates"][0]["content"]["parts"];
+                if(!parts.empty() && parts[0].contains("inlineData")) {
+                    base64Data = parts[0]["inlineData"]["data"];
+                }
+            }
+
+            if(!base64Data.empty()) {
                 // Décodage Base64 manuel
                 string decodedStr = base64_decode(base64Data);
                 
                 // Chargement dans ofImage via ofBuffer
                 ofBuffer buffer(decodedStr.c_str(), decodedStr.size());
-                if(generatedImage.load(buffer)) {
+                
+                if(bIsRequest360) {
+                    ofImage tempImg;
+                    if(tempImg.load(buffer)) {
+                        // Sauvegarde pour la 360
+                        image360FilePath = "gen360_" + ofGetTimestampString() + ".png";
+                        tempImg.save(image360FilePath);
+                        bNew360ImageAvailable = true;
+                        ofLogNotice("GeminiImageGenerator") << "Image 360 sauvegardée : " << image360FilePath;
+                    } else {
+                        ofLogError("GeminiImageGenerator") << "Echec du chargement du buffer 360.";
+                    }
+                } else if(generatedImage.load(buffer)) {
+                    string fileName = "gen_" + ofGetTimestampString() + ".png";
+                    generatedImage.save(fileName);
+                    ofLogNotice("GeminiImageGenerator") << "Image standard sauvegardée : " << fileName;
                     bNewImageAvailable = true;
                     ofLogNotice("GeminiImageGenerator") << "Image décodée et chargée.";
                 } else {
@@ -299,7 +394,7 @@ void GeminiImageGenerator::urlResponse(ofHttpResponse & response) {
                     string base64Data = json["response"]["predictions"][0]["bytesBase64Encoded"];
                     string decodedStr = base64_decode(base64Data);
                     
-                    videoFilePath = "generated_video.mp4";
+                    videoFilePath = "generated_video_" + ofGetTimestampString() + ".mp4";
                     ofBuffer buffer(decodedStr.c_str(), decodedStr.size());
                     ofBufferToFile(videoFilePath, buffer);
                     
@@ -325,7 +420,7 @@ void GeminiImageGenerator::urlResponse(ofHttpResponse & response) {
         // Réception du fichier vidéo téléchargé
         ofLogNotice("GeminiImageGenerator") << "Vidéo téléchargée avec succès (" << response.data.size() << " bytes).";
         
-        videoFilePath = "generated_video.mp4";
+        videoFilePath = "generated_video_" + ofGetTimestampString() + ".mp4";
         // response.data est un ofBuffer contenant le binaire du MP4
         ofBufferToFile(videoFilePath, response.data);
         

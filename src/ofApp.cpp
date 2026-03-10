@@ -14,7 +14,7 @@ void ofApp::registerViewApp(shared_ptr<ViewApp> vApp){
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-        geminiGen.setup("AIzaSyAPewZm85rPUC79yVLGsbdV6FZ8OuZqluw");
+        geminiGen.setup("AIzaSyBKPuu6w3yjiHl_WtDN97VLxdg2RMdMR3Q");
 
     ofSetRandomSeed(42);
     ofSetFrameRate(APP_FPS);
@@ -113,6 +113,13 @@ void ofApp::update(){
         ofLogNotice("ofApp") << "Nouvelle vidéo disponible, chargement dans CanvasManager...";
         canvasManager.loadFile(geminiGen.getVideoPath());
     }
+    
+    // --- CHECK 360 IMAGE GENERATION ---
+    if(geminiGen.hasNew360Image()) {
+        string path = geminiGen.get360ImagePath();
+        ofLogNotice("ofApp") << "Nouvelle image 360 disponible, chargement dans RoomApp...";
+        if(roomApp) roomApp->atmosphere.loadTexture(path);
+    }
 
     if(scene2D) scene2D->setPaused(!shouldUpdate);
     if(roomApp) roomApp->setPaused(!shouldUpdate);
@@ -203,6 +210,12 @@ void ofApp::mouseScrolled(int x, int y, float scrollX, float scrollY){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
+    // Interaction Image Gemini (Click to close)
+    if(geminiGen.getImage().isAllocated() && x < 300 && y < 300) {
+        geminiGen.clearImage();
+        return;
+    }
+
     lastMousePos.set(x, y);
     if(!isSpacePressed){
         ofVec2f m = getTransformedMouse();
@@ -249,13 +262,23 @@ void ofApp::keyPressed(int key){
     }
     
     // TOUCHE I : Générer une image IA
-    if(key == 'i' || key == 'I') {
-        geminiGen.generateImage("A futuristic mechanical octopus with neon lights, digital art style");
+    if((key == 'i' || key == 'I') && ofGetKeyPressed(OF_KEY_SHIFT)) {
+        geminiGen.generateImage("A futuristic mechanical doll with neon lights");
     }
     
     // TOUCHE O : Générer une vidéo IA (Veo)
-    if(key == 'o' || key == 'O') {
-        geminiGen.generateVideo("Panomarmic Hdri image 360° VR (Equirectangular projection) (donc avec texture bouclé) D’une bete poilu dans un marais enchanté");
+    if((key == 'o' || key == 'O') && ofGetKeyPressed(OF_KEY_SHIFT)) {
+        geminiGen.generateVideo("Panomarmic Hdri image 360° VR (Equirectangular projection) (donc avec texture bouclé) D’une bete poilu dans un marais enchanté ");
+    }
+    
+    // TOUCHE P : Générer une image 360 (Shift + P)
+    if((key == 'p' || key == 'P') && ofGetKeyPressed(OF_KEY_SHIFT)) {
+        geminiGen.generateImage360("Panoramic 360 degree equirectangular projection (donc avec texture bouclée) of a surreal landscape, high resolution, 8k");
+    }
+
+    // TOUCHE M : Générer une image 360 Nano (Shift + M)
+    if((key == 'm' || key == 'M') && ofGetKeyPressed(OF_KEY_SHIFT)) {
+        geminiGen.generateNano360("Panoramic 360 degree equirectangular projection (donc avec texture bouclée) of a surreal landscape, high resolution, 8k");
     }
 
     // Reset Navigation
