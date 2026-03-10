@@ -52,16 +52,57 @@ std::string base64_decode(std::string const& encoded_string) {
   return ret;
 }
 
+// Fonction helper pour encoder en Base64
+std::string base64_encode(unsigned char const* bytes_to_encode, unsigned int in_len) {
+  std::string ret;
+  int i = 0;
+  int j = 0;
+  unsigned char char_array_3[3];
+  unsigned char char_array_4[4];
+
+  while (in_len--) {
+    char_array_3[i++] = *(bytes_to_encode++);
+    if (i == 3) {
+      char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+      char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+      char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+      char_array_4[3] = char_array_3[2] & 0x3f;
+
+      for(i = 0; (i <4) ; i++)
+        ret += base64_chars[char_array_4[i]];
+      i = 0;
+    }
+  }
+
+  if (i) {
+    for(j = i; j < 3; j++)
+      char_array_3[j] = '\0';
+
+    char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+    char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+    char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+    char_array_4[3] = char_array_3[2] & 0x3f;
+
+    for (j = 0; (j < i + 1); j++)
+      ret += base64_chars[char_array_4[j]];
+
+    while((i++ < 3))
+      ret += '=';
+  }
+  return ret;
+}
+
 //--------------------------------------------------------------
 void GeminiImageGenerator::setup(string key) {
     apiKey = key;
     apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict";
     api360Url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent";   
     nanoApiUrl = "https://generativelanguage.googleapis.com/v1beta/models/nano-banana-pro-preview:generateContent";
-    //models/gemini-3-pro-image-preview
-    //models/gemini-3.1-flash-image-preview
-    // models/gemini-2.5-flash-image
-    // models/nano-banana-pro-preview
+   //gemini-3.1-flash-image-preview
+   //gemini-3-pro-image-preview
+    
+   //gemini-2.5-flash-image
+   // models/nano-banana-pro-preview
     videoApiUrl = "https://generativelanguage.googleapis.com/v1beta/models/veo-3.1-fast-generate-preview:predictLongRunning";
    
    
@@ -140,6 +181,53 @@ void GeminiImageGenerator::generateImage360(string prompt) {
     request.headers["Content-Type"] = "application/json";
     request.body = json.dump();
     request.name = "GeminiImageGen"; // On garde le même nom pour réutiliser le parsing JSON
+
+    loader.handleRequestAsync(request);
+}
+
+//--------------------------------------------------------------
+void GeminiImageGenerator::generateImage360FromImage(string prompt, string imagePath) {
+    if(bIsLoading) {
+        ofLogWarning("GeminiImageGenerator") << "Déjà en train de générer.";
+        return;
+    }
+
+    // 1. Chargement de l'image depuis le disque
+    ofFile file(imagePath);
+    if(!file.exists()) {
+        ofLogError("GeminiImageGenerator") << "Image introuvable : " << imagePath;
+        return;
+    }
+
+    ofBuffer buffer = ofBufferFromFile(imagePath);
+    if(buffer.size() == 0) {
+        ofLogError("GeminiImageGenerator") << "Buffer vide pour : " << imagePath;
+        return;
+    }
+
+    // 2. Encodage Base64
+    string base64Img = base64_encode((unsigned char*)buffer.getData(), buffer.size());
+
+    ofLogNotice("GeminiImageGenerator") << "Envoi du prompt 360 Image-to-Image (Gemini 3.1) : " << prompt;
+    bIsLoading = true;
+    bNew360ImageAvailable = false;
+    bIsRequest360 = true; // On active le flag 360 pour la sauvegarde
+
+    ofJson json;
+    // Structure Multimodale : Texte + Image Inline
+    json["contents"][0]["parts"][0]["text"] = prompt + " , 360 view, equirectangular projection, vr, 8k, seamless";
+    json["contents"][0]["parts"][1]["inline_data"]["mime_type"] = "image/png";
+    json["contents"][0]["parts"][1]["inline_data"]["data"] = base64Img;
+
+    // Configuration
+    // Note: On ne force pas l'aspectRatio ici pour laisser le modèle suivre l'image d'entrée (souvent 2:1 pour la 360)
+    
+    ofHttpRequest request;
+    request.method = ofHttpRequest::POST;
+    request.url = api360Url + "?key=" + apiKey; // Utilise gemini-3.1-flash-image-preview
+    request.headers["Content-Type"] = "application/json";
+    request.body = json.dump();
+    request.name = "GeminiImageGen"; 
 
     loader.handleRequestAsync(request);
 }

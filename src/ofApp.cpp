@@ -280,6 +280,11 @@ void ofApp::keyPressed(int key){
     if((key == 'm' || key == 'M') && ofGetKeyPressed(OF_KEY_SHIFT)) {
         geminiGen.generateNano360("Panoramic 360 degree equirectangular projection (donc avec texture bouclée) of a surreal landscape, high resolution, 8k");
     }
+    
+    // TOUCHE L : Générer une image 360 depuis l'export Room (Shift + L)
+    if((key == 'l' || key == 'L') && ofGetKeyPressed(OF_KEY_SHIFT)) {
+        geminiGen.generateImage360FromImage("Transform this room into a surreal sci-fi environment, keeping the structure but changing materials and lighting", "export_360_room.png");
+    }
 
     // Reset Navigation
     if(key == 'r' || key == 'R') {

@@ -10,6 +10,7 @@ public:
     void generateImage(string prompt);
     void generateImage360(string prompt); // Nouvelle fonction pour image 360
     void generateNano360(string prompt); // Nouvelle fonction pour Nano Banana
+    void generateImage360FromImage(string prompt, string imagePath); // Nouvelle fonction Image-to-Image 360
     void generateVideo(string prompt); // Nouvelle fonction pour Veo
     void listModels(); // Nouvelle fonction pour lister les modèles disponibles
     void update(); // Appeler dans ofApp::update()
