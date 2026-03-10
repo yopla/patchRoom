@@ -339,7 +339,8 @@ void GeminiImageGenerator::generateVideoFromImage(string prompt, string imagePat
     
     json["parameters"]["sampleCount"] = 1;
     json["parameters"]["aspectRatio"] = "16:9"; // Ou "9:16" pour du portrait
-
+    //json["parameters"]["resolution"] = "4k"; // Format vidéo
+    
     ofHttpRequest request;
     request.method = ofHttpRequest::POST;
     request.url = videoApiUrl + "?key=" + apiKey;
@@ -400,6 +401,7 @@ void GeminiImageGenerator::generateVideoFromDeuxImages(string prompt, string ima
     // Les paramètres globaux restent dans "parameters"
     json["parameters"]["sampleCount"] = 1;
     json["parameters"]["aspectRatio"] = "16:9"; 
+    //json["parameters"]["resolution"] = "4k"; // Format vidéo
 
     ofHttpRequest request;
     request.method = ofHttpRequest::POST;

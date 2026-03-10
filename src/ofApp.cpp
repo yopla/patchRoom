@@ -14,7 +14,7 @@ void ofApp::registerViewApp(shared_ptr<ViewApp> vApp){
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-        geminiGen.setup("AIzaSyDaO8zA-67JP-6kEKhyBmi6TbOjG_UHHwc");
+        geminiGen.setup("_");
 
     ofSetRandomSeed(42);
     ofSetFrameRate(APP_FPS);
