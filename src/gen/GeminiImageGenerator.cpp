@@ -170,7 +170,8 @@ void GeminiImageGenerator::generateImage360(string prompt) {
 
     ofJson json;
     // Structure pour Gemini 3.1 (generateContent)
-    json["contents"][0]["parts"][0]["text"] = prompt + " , 360 view, equirectangular projection, vr, 8k";
+    json["contents"][0]["parts"][0]["text"] = prompt + " , 360 view, equirectangular projection, vr, 8k, seamless";
+
     json["generationConfig"]["imageConfig"]["aspectRatio"] = "16:9"; // Format large
     //json["generationConfig"]["imageConfig"]["imageSize"] = "4K"; // Resolution 4K
     
@@ -224,6 +225,7 @@ void GeminiImageGenerator::generateImage360FromImage(string prompt, string image
     json["contents"][0]["parts"][0]["text"] = prompt + " , 360 view, equirectangular projection, vr, 8k, seamless";
     json["contents"][0]["parts"][1]["inline_data"]["mime_type"] = mimeType;
     json["contents"][0]["parts"][1]["inline_data"]["data"] = base64Img;
+    //json["generationConfig"]["imageConfig"]["imageSize"] = "4K"; // Resolution 4K
 
     // Configuration
     // Note: On ne force pas l'aspectRatio ici pour laisser le modèle suivre l'image d'entrée (souvent 2:1 pour la 360)
@@ -251,7 +253,7 @@ void GeminiImageGenerator::generateNano360(string prompt) {
     bIsRequest360 = true; // On active le flag 360 pour sauvegarde et affichage
 
     ofJson json;
-    json["contents"][0]["parts"][0]["text"] = prompt + " , 360 view, equirectangular projection, vr, 8k";
+    json["contents"][0]["parts"][0]["text"] = prompt + " , 360 view, equirectangular projection, vr, 8k, seamless";
     json["generationConfig"]["imageConfig"]["aspectRatio"] = "16:9"; 
     //json["generationConfig"]["imageConfig"]["imageSize"] = "4K"; // Resolution 4K
 
@@ -525,21 +527,29 @@ void GeminiImageGenerator::urlResponse(ofHttpResponse & response) {
                 if(bIsRequest360) {
                     ofImage tempImg;
                     if(tempImg.load(buffer)) {
-                    
 
-                        // On sauvegarde l'ancienne image pour l'interpolation (avant d'écraser gen360.jpg)
-                        ofFile oldFile("gen360.jpg");
-                        if(oldFile.exists()){
-                            oldFile.copyTo("gen360_last.jpg", true, true);
-                            ofLogNotice("GeminiImageGenerator") << "Ancienne image 'gen360.jpg' copiée vers 'gen360_last.jpg'";
-                        }
-
-                        // Sauvegarde pour la 360
-                        image360FilePath = "gen360.jpg";
-                        tempImg.save(image360FilePath, OF_IMAGE_QUALITY_HIGH);
+                        // Sauvegarde pour la 360 full normal
                         image360FilePath = "gen360_" + ofGetTimestampString() + ".jpg";
+                        tempImg.save(image360FilePath, OF_IMAGE_QUALITY_BEST);
+
+                         // On sauvegarde l'ancienne image pour l'interpolation (avant d'écraser gen360_last.jpg)
+                        ofFile oldFile("gen360_last.jpg");
+                        if(oldFile.exists()){
+                            oldFile.copyTo("gen360.jpg", true, true);
+                            ofLogNotice("GeminiImageGenerator") << "Ancienne image 'gen360_last.jpg' copiée vers 'gen360.jpg'";
+                        }
+                        
+                        // Redimensionnement de l'image à la taille demandée
+                        tempImg.resize(1376, 768);
+                        //ofLogNotice("GeminiImageGenerator") << "Image 360 redimensionnée en 1376x768.";
+                        image360FilePath = "gen360_last.jpg";
                         tempImg.save(image360FilePath, OF_IMAGE_QUALITY_HIGH);
+                
+                        
+                        
                         bNew360ImageAvailable = true;
+
+                       
                         ofLogNotice("GeminiImageGenerator") << "Image 360 sauvegardée : " << image360FilePath;
                     } else {
                         ofLogError("GeminiImageGenerator") << "Echec du chargement du buffer 360.";
@@ -547,7 +557,7 @@ void GeminiImageGenerator::urlResponse(ofHttpResponse & response) {
                 } else if(generatedImage.load(buffer)) {
                   
                     string fileName = "gen_" + ofGetTimestampString() + ".jpg";
-                    generatedImage.save(fileName, OF_IMAGE_QUALITY_HIGH);
+                    generatedImage.save(fileName, OF_IMAGE_QUALITY_BEST);
                     ofLogNotice("GeminiImageGenerator") << "Image standard sauvegardée : " << fileName;
                     bNewImageAvailable = true;
                     ofLogNotice("GeminiImageGenerator") << "Image décodée et chargée.";

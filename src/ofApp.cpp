@@ -14,7 +14,7 @@ void ofApp::registerViewApp(shared_ptr<ViewApp> vApp){
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-        geminiGen.setup("_");
+        geminiGen.setup("AIzaSyDaO8zA-67JP-6kEKhyBmi6TbOjG_UHHwc");
 
     ofSetRandomSeed(42);
     ofSetFrameRate(APP_FPS);
@@ -288,14 +288,14 @@ void ofApp::keyPressed(int key){
     
     // TOUCHE L : Générer une image 360 depuis l'export Room (Shift + L)
     if((key == 'l' || key == 'L') && ofGetKeyPressed(OF_KEY_SHIFT)) {
-        geminiGen.generateImage360FromImage("Transform this room into a surreal sci-fi environment, keeping the structure but changing materials and lighting", "export_360_room.png");
+        geminiGen.generateImage360FromImage("Transform this room into a surreal snake, keeping the structure but changing materials and lighting", "export_360_room.png"); // sur le 5 dans roomApp
     }
 
 
 
 
     if((key == 'k' || key == 'K') && ofGetKeyPressed(OF_KEY_SHIFT)) {
-        geminiGen.generateVideoFromImage("Panoramic Hdri image 360° VR (Equirectangular projection) D'une bete poilu dans un marais enchanté, slow cinematic movement", "gen360.jpg");
+        geminiGen.generateVideoFromImage("Panoramic Hdri image 360° VR (Equirectangular projection) D'une bete poilu dans un marais enchanté, slow cinematic movement", "gen360_last.jpg");
     }
 
     // TOUCHE J : Générer une vidéo IA depuis 2 images (Shift + J)
