@@ -14,7 +14,7 @@ void ofApp::registerViewApp(shared_ptr<ViewApp> vApp){
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-        geminiGen.setup("AIzaSyBKPuu6w3yjiHl_WtDN97VLxdg2RMdMR3Q");
+        geminiGen.setup("_");
 
     ofSetRandomSeed(42);
     ofSetFrameRate(APP_FPS);
@@ -110,8 +110,9 @@ void ofApp::update(){
     
     // --- CHECK VIDEO GENERATION ---
     if(geminiGen.hasNewVideo()) {
-        ofLogNotice("ofApp") << "Nouvelle vidéo disponible, chargement dans CanvasManager...";
-        canvasManager.loadFile(geminiGen.getVideoPath());
+        string path = geminiGen.getVideoPath();
+        ofLogNotice("ofApp") << "Nouvelle vidéo disponible, chargement dans Atmosphere...";
+        if(roomApp) roomApp->atmosphere.loadTexture(path);
     }
     
     // --- CHECK 360 IMAGE GENERATION ---
@@ -271,6 +272,10 @@ void ofApp::keyPressed(int key){
         geminiGen.generateVideo("Panomarmic Hdri image 360° VR (Equirectangular projection) (donc avec texture bouclé) D’une bete poilu dans un marais enchanté ");
     }
     
+
+
+
+
     // TOUCHE P : Générer une image 360 (Shift + P)
     if((key == 'p' || key == 'P') && ofGetKeyPressed(OF_KEY_SHIFT)) {
         geminiGen.generateImage360("Panoramic 360 degree equirectangular projection (donc avec texture bouclée) of a surreal landscape, high resolution, 8k");
@@ -285,6 +290,22 @@ void ofApp::keyPressed(int key){
     if((key == 'l' || key == 'L') && ofGetKeyPressed(OF_KEY_SHIFT)) {
         geminiGen.generateImage360FromImage("Transform this room into a surreal sci-fi environment, keeping the structure but changing materials and lighting", "export_360_room.png");
     }
+
+
+
+
+    if((key == 'k' || key == 'K') && ofGetKeyPressed(OF_KEY_SHIFT)) {
+        geminiGen.generateVideoFromImage("Panoramic Hdri image 360° VR (Equirectangular projection) D'une bete poilu dans un marais enchanté, slow cinematic movement", "gen360.jpg");
+    }
+
+    // TOUCHE J : Générer une vidéo IA depuis 2 images (Shift + J)
+    if((key == 'j' || key == 'J') && ofGetKeyPressed(OF_KEY_SHIFT)) {
+        geminiGen.generateVideoFromDeuxImages("A cinematic, haunting video. A ghostly woman with long white hair and a flowing dress swings gently on a rope swing beneath a massive.", "gen360.jpg", "gen360_last.jpg");
+    }
+
+
+
+
 
     // Reset Navigation
     if(key == 'r' || key == 'R') {

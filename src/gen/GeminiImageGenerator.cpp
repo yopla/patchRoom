@@ -143,7 +143,7 @@ void GeminiImageGenerator::generateImage(string prompt) {
     json["instances"][0]["prompt"] = prompt;
     json["parameters"]["sampleCount"] = 1;
     json["parameters"]["aspectRatio"] = "1:1"; // ou "16:9", "9:16"
-    json["parameters"]["outputOptions"]["mimeType"] = "image/png";
+    json["parameters"]["outputOptions"]["mimeType"] = "image/jpeg";
 
     ofHttpRequest request;
     request.method = ofHttpRequest::POST;
@@ -173,6 +173,7 @@ void GeminiImageGenerator::generateImage360(string prompt) {
     json["contents"][0]["parts"][0]["text"] = prompt + " , 360 view, equirectangular projection, vr, 8k";
     json["generationConfig"]["imageConfig"]["aspectRatio"] = "16:9"; // Format large
     //json["generationConfig"]["imageConfig"]["imageSize"] = "4K"; // Resolution 4K
+    
 
     ofHttpRequest request;
     request.method = ofHttpRequest::POST;
@@ -208,6 +209,11 @@ void GeminiImageGenerator::generateImage360FromImage(string prompt, string image
     // 2. Encodage Base64
     string base64Img = base64_encode((unsigned char*)buffer.getData(), buffer.size());
 
+    // 3. Détection basique du type MIME
+    string mimeType = "image/png";
+    string ext = ofToLower(file.getExtension());
+    if (ext == "jpg" || ext == "jpeg") mimeType = "image/jpeg";
+
     ofLogNotice("GeminiImageGenerator") << "Envoi du prompt 360 Image-to-Image (Gemini 3.1) : " << prompt;
     bIsLoading = true;
     bNew360ImageAvailable = false;
@@ -216,7 +222,7 @@ void GeminiImageGenerator::generateImage360FromImage(string prompt, string image
     ofJson json;
     // Structure Multimodale : Texte + Image Inline
     json["contents"][0]["parts"][0]["text"] = prompt + " , 360 view, equirectangular projection, vr, 8k, seamless";
-    json["contents"][0]["parts"][1]["inline_data"]["mime_type"] = "image/png";
+    json["contents"][0]["parts"][1]["inline_data"]["mime_type"] = mimeType;
     json["contents"][0]["parts"][1]["inline_data"]["data"] = base64Img;
 
     // Configuration
@@ -290,6 +296,121 @@ void GeminiImageGenerator::generateVideo(string prompt) {
 
     loader.handleRequestAsync(request);
 }
+
+void GeminiImageGenerator::generateVideoFromImage(string prompt, string imagePath) {
+    if(bIsLoading) {
+        ofLogWarning("GeminiImageGenerator") << "Déjà en train de générer.";
+        return;
+    }
+
+    // 1. Chargement de l'image initiale depuis le disque
+    ofFile file(imagePath);
+    if(!file.exists()) {
+        ofLogError("GeminiImageGenerator") << "Image introuvable : " << imagePath;
+        return;
+    }
+
+    ofBuffer buffer = ofBufferFromFile(imagePath);
+    if(buffer.size() == 0) {
+        ofLogError("GeminiImageGenerator") << "Buffer vide pour : " << imagePath;
+        return;
+    }
+
+    // 2. Encodage Base64
+    string base64Img = base64_encode((unsigned char*)buffer.getData(), buffer.size());
+    
+    // 3. Détection basique du type MIME
+    string mimeType = "image/png";
+    string ext = ofToLower(file.getExtension());
+    if (ext == "jpg" || ext == "jpeg") mimeType = "image/jpeg";
+
+    ofLogNotice("GeminiImageGenerator") << "Envoi du prompt VIDEO (Veo Image-to-Video) : " << prompt;
+    bIsLoading = true;
+    bNewVideoAvailable = false;
+    bIsPolling = false;
+
+    ofJson json;
+    // Structure pour Veo avec image de référence
+    json["instances"][0]["prompt"] = prompt;
+    json["instances"][0]["image"]["mimeType"] = mimeType;
+    json["instances"][0]["image"]["bytesBase64Encoded"] = base64Img;
+    
+    json["parameters"]["sampleCount"] = 1;
+    json["parameters"]["aspectRatio"] = "16:9"; // Ou "9:16" pour du portrait
+
+    ofHttpRequest request;
+    request.method = ofHttpRequest::POST;
+    request.url = videoApiUrl + "?key=" + apiKey;
+    request.headers["Content-Type"] = "application/json";
+    request.body = json.dump();
+    
+    // On réutilise le même nom de requête pour déclencher la même logique de Polling dans urlResponse
+    request.name = "GeminiVideoGen"; 
+
+    loader.handleRequestAsync(request);
+}
+
+void GeminiImageGenerator::generateVideoFromDeuxImages(string prompt, string imagePath1, string imagePath2) {
+    if(bIsLoading) {
+        ofLogWarning("GeminiImageGenerator") << "Déjà en train de générer.";
+        return;
+    }
+
+    // 1. Chargement de l'image 1 (Start Frame)
+    ofFile file1(imagePath1);
+    if(!file1.exists()) {
+        ofLogError("GeminiImageGenerator") << "Image 1 introuvable : " << imagePath1;
+        return;
+    }
+    ofBuffer buffer1 = ofBufferFromFile(imagePath1);
+    string base64Img1 = base64_encode((unsigned char*)buffer1.getData(), buffer1.size());
+    string mimeType1 = "image/png";
+    string ext1 = ofToLower(file1.getExtension());
+    if (ext1 == "jpg" || ext1 == "jpeg") mimeType1 = "image/jpeg";
+
+    // 2. Chargement de l'image 2 (Last Frame)
+    ofFile file2(imagePath2);
+    if(!file2.exists()) {
+        ofLogError("GeminiImageGenerator") << "Image 2 introuvable : " << imagePath2;
+        return;
+    }
+    ofBuffer buffer2 = ofBufferFromFile(imagePath2);
+    string base64Img2 = base64_encode((unsigned char*)buffer2.getData(), buffer2.size());
+    string mimeType2 = "image/png";
+    string ext2 = ofToLower(file2.getExtension());
+    if (ext2 == "jpg" || ext2 == "jpeg") mimeType2 = "image/jpeg";
+
+    ofLogNotice("GeminiImageGenerator") << "Envoi du prompt VIDEO (Veo Image-to-Video Interpolation) : " << prompt;
+    bIsLoading = true;
+    bNewVideoAvailable = false;
+    bIsPolling = false;
+
+    ofJson json;
+    // Structure pour Veo avec image de référence (Start Frame)
+    json["instances"][0]["prompt"] = prompt;
+    json["instances"][0]["image"]["mimeType"] = mimeType1;
+    json["instances"][0]["image"]["bytesBase64Encoded"] = base64Img1;
+    
+    // Correction : lastFrame doit être au même niveau que image et prompt dans l'instance
+    json["instances"][0]["lastFrame"]["mimeType"] = mimeType2;
+    json["instances"][0]["lastFrame"]["bytesBase64Encoded"] = base64Img2;
+    
+    // Les paramètres globaux restent dans "parameters"
+    json["parameters"]["sampleCount"] = 1;
+    json["parameters"]["aspectRatio"] = "16:9"; 
+
+    ofHttpRequest request;
+    request.method = ofHttpRequest::POST;
+    request.url = videoApiUrl + "?key=" + apiKey;
+    request.headers["Content-Type"] = "application/json";
+    request.body = json.dump();
+    
+    // On réutilise le même nom de requête pour déclencher la même logique de Polling dans urlResponse
+    request.name = "GeminiVideoGen"; 
+
+    loader.handleRequestAsync(request);
+}
+
 
 //--------------------------------------------------------------
 void GeminiImageGenerator::listModels() {
@@ -404,17 +525,29 @@ void GeminiImageGenerator::urlResponse(ofHttpResponse & response) {
                 if(bIsRequest360) {
                     ofImage tempImg;
                     if(tempImg.load(buffer)) {
+                    
+
+                        // On sauvegarde l'ancienne image pour l'interpolation (avant d'écraser gen360.jpg)
+                        ofFile oldFile("gen360.jpg");
+                        if(oldFile.exists()){
+                            oldFile.copyTo("gen360_last.jpg", true, true);
+                            ofLogNotice("GeminiImageGenerator") << "Ancienne image 'gen360.jpg' copiée vers 'gen360_last.jpg'";
+                        }
+
                         // Sauvegarde pour la 360
-                        image360FilePath = "gen360_" + ofGetTimestampString() + ".png";
-                        tempImg.save(image360FilePath);
+                        image360FilePath = "gen360.jpg";
+                        tempImg.save(image360FilePath, OF_IMAGE_QUALITY_HIGH);
+                        image360FilePath = "gen360_" + ofGetTimestampString() + ".jpg";
+                        tempImg.save(image360FilePath, OF_IMAGE_QUALITY_HIGH);
                         bNew360ImageAvailable = true;
                         ofLogNotice("GeminiImageGenerator") << "Image 360 sauvegardée : " << image360FilePath;
                     } else {
                         ofLogError("GeminiImageGenerator") << "Echec du chargement du buffer 360.";
                     }
                 } else if(generatedImage.load(buffer)) {
-                    string fileName = "gen_" + ofGetTimestampString() + ".png";
-                    generatedImage.save(fileName);
+                  
+                    string fileName = "gen_" + ofGetTimestampString() + ".jpg";
+                    generatedImage.save(fileName, OF_IMAGE_QUALITY_HIGH);
                     ofLogNotice("GeminiImageGenerator") << "Image standard sauvegardée : " << fileName;
                     bNewImageAvailable = true;
                     ofLogNotice("GeminiImageGenerator") << "Image décodée et chargée.";

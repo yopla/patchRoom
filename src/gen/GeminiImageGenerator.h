@@ -25,7 +25,8 @@ public:
     void clearImage();
     string get360ImagePath(); // Récupère le chemin de l'image 360 générée
     string getVideoPath(); // Récupère le chemin de la vidéo générée
-
+void generateVideoFromImage(string prompt, string imagePath);
+    void generateVideoFromDeuxImages(string prompt, string imagePath1, string imagePath2);
     void urlResponse(ofHttpResponse & response);
     
 private:
