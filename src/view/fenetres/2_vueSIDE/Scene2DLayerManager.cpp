@@ -47,6 +47,8 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
     // --- SETUP FLUID FLOOR ---
     fluidFloorLayer.setup(simWidth, simHeight, scale, 720, 256);
     fluidFloorLayer.setCollider(colliderLayer);
+    fluidFloorLayer.globalAlpha = 0.0f; // On démarre caché dans la scène 2D
+    fluidFloorLayer.targetAlpha = 0.0f;
 
     // --- SETUP MACHINE LAYER ---
     machineLayer.setup(totalSceneWidth, 1472.0f);
@@ -62,6 +64,9 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
     
     // --- SETUP PUYO LAYER ---
     puyoLayer.setup(simWidth, simHeight, scale, colliderLayer);
+    
+    // --- SETUP GRO PUYO LAYER ---
+    groPuyoLayer.setup(simWidth, simHeight, scale, colliderLayer);
 
     // --- SETUP BUBBLE LAYER ---
     bubbleLayer.setup(simWidth, simHeight, scale, colliderLayer, 0.0f);
@@ -137,6 +142,9 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
     
     // --- SETUP MONGOLFIER LAYER ---
     mongolfierLayer.setup(totalSceneWidth, 1472.0f);
+
+    // --- SETUP WALKING SQUARE LAYER ---
+    walkingSquareLayer.setup(totalSceneWidth, 1472.0f);
 }
 
 void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePressed) {
@@ -169,7 +177,7 @@ void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePress
     if (bDrawGears) {
         gearLayer.update(m.x, m.y, time);
         
-        if (bDrawFluidFloor) {
+        if (bDrawFluidFloor || fluidFloorLayer.globalAlpha > 0.0f) {
             for(const auto& s : gearLayer.squares) {
                 // Conversion World -> Sim pour l'interaction
                 float simX = s.pos.x / fluidFloorLayer.scale;
@@ -179,17 +187,33 @@ void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePress
         }
     }
 
-    if (bDrawFluidFloor) fluidFloorLayer.update(m.x, m.y);
+    fluidFloorLayer.setTargetAlpha(bDrawFluidFloor ? 1.0f : 0.0f);
+    if (bDrawFluidFloor || fluidFloorLayer.globalAlpha > 0.0f) fluidFloorLayer.update(m.x, m.y);
+
     if (bDrawMachine) machineLayer.update(m.x, m.y, time);
     if (bDrawDigging) diggingCreature.update(m.x, m.y);
     if (bDrawMachineAuto) machineAuto.update(time); 
     if (bDrawCurtain) curtain.update(m.x, m.y);
     if (bDrawPuyo) puyoLayer.update(m.x, m.y, time); 
+    if (bDrawGroPuyo) groPuyoLayer.update(m.x, m.y, time);
     if (bDrawBubbles) bubbleLayer.update(m.x, m.y, time);
     if (bDrawKani) kaniLayer.update(m.x, m.y, time);
     if (bDrawSlime2) slime2Layer.update(time);
     if (bDrawTeaa) teaaLayer.update(time);
-    if (bDrawBallet) balletLayer.update(time);
+    
+    if (bDrawBallet) {
+        balletLayer.update(time);
+        if (bDrawFluidFloor || fluidFloorLayer.globalAlpha > 0.0f) {
+            for(const auto& p : balletLayer.particles) {
+                // Conversion World -> Sim
+                float simX = p.pos.x / fluidFloorLayer.scale;
+                float simY = p.pos.y / fluidFloorLayer.scale;
+                // On applique une légère force en fonction de la vélocité de la particule
+                fluidFloorLayer.addForce(simX, simY, p.vel.x / fluidFloorLayer.scale * 0.2f, p.vel.y / fluidFloorLayer.scale * 0.2f);
+            }
+        }
+    }
+    
     if (bDrawKundelich) kundelichLayer.update(m.x, m.y, time);
     if (bDrawKineShad) kineShadLayer.update(m, time);
     if (bDrawMultiPendulum) multiPendulumLayer.update(m.x, m.y, time);
@@ -209,6 +233,7 @@ void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePress
     if (bDrawFireB) fireBLayer.update(m.x, m.y, time);
     if (bDrawFireC) fireCLayer.update(m.x, m.y);
     if (bDrawMongolfier) mongolfierLayer.update(m.x, m.y);
+    if (bDrawWalkingSquare) walkingSquareLayer.update(m.x, m.y, time);
 }
 
 void Scene2DLayerManager::draw(const ofVec2f& m) {
@@ -245,12 +270,13 @@ void Scene2DLayerManager::draw(const ofVec2f& m) {
     if (bDrawPlants) plantLayer.draw();
     if (bDrawFlytraps) flytrapLayer.draw();
     if (bDrawGears) gearLayer.draw();
-    if (bDrawFluidFloor) fluidFloorLayer.draw(0, 0);
+    if (bDrawFluidFloor || fluidFloorLayer.globalAlpha > 0.0f) fluidFloorLayer.draw(0, 0);
     if (bDrawMachine) machineLayer.draw();
     if (bDrawDigging) diggingCreature.draw();
     if (bDrawMachineAuto) machineAuto.draw();
     if (bDrawCurtain) curtain.draw();
     if (bDrawPuyo) puyoLayer.draw();
+    if (bDrawGroPuyo) groPuyoLayer.draw();
     if (bDrawBubbles) bubbleLayer.draw();
     if (bDrawKani) kaniLayer.draw();
     if (bDrawSlime2) slime2Layer.draw();
@@ -276,6 +302,15 @@ void Scene2DLayerManager::draw(const ofVec2f& m) {
     if (bDrawFireB) fireBLayer.draw();
     if (bDrawFireC) fireCLayer.draw();
     if (bDrawMongolfier) mongolfierLayer.draw();
+    if (bDrawWalkingSquare) walkingSquareLayer.draw();
+}
+
+void Scene2DLayerManager::addCousinCon(float x, float y) {
+    cousinCons.push_back(make_shared<CousinCon>(x, y, &imgConcombre));
+}
+
+void Scene2DLayerManager::addHalo(float x, float y) {
+    halos.push_back(make_shared<HaloCreature>(x, y));
 }
 
 void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
@@ -302,12 +337,12 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
         case 'b': case 'B': creatureSystem.addBreakableCreature(m.x, m.y); break;
         case 'f': case 'F': creatureSystem.addGekoCreature(m.x, m.y); break;
         case 'a': case 'A': creatureSystem.addCousinCreature(m.x, m.y); break; // cousinHairWire
-        case 'z': case 'Z': cousinCons.push_back(make_shared<CousinCon>(m.x, m.y, &imgConcombre)); break; // cousinCon
+        case 'z': case 'Z': addCousinCon(m.x, m.y); break; // cousinCon
         case 's': case 'S': creatureSystem.addDoublePendulum(m.x, m.y); break;
-        case 'y': case 'Y': halos.push_back(make_shared<HaloCreature>(m.x, m.y)); break;
+        case 'y': case 'Y': addHalo(m.x, m.y); break;
         
             
-        
+            
             //creatureSystem.addFluidsCreature(m.x, m.y); 
             //bDrawBallet = !bDrawBallet; balletLayer.bActive = bDrawBallet;
             //creatureSystem.addSpringCreature(m.x, m.y);
@@ -343,15 +378,18 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
             //bDrawPince = !bDrawPince;
             //bDrawPinceBra = !bDrawPinceBra;
 
+            //bDrawBubbles = !bDrawBubbles; 
+            //creatureSystem.addCousinSauteur(m.x, m.y);
+
         case '1': 
-          bDrawBubbles = !bDrawBubbles; 
+          
         break; 
         
         case '2': 
+            bDrawWalkingSquare = !bDrawWalkingSquare;
         break;
        
         case '3':
-            
         break;
 
         case '4':                  
@@ -376,11 +414,14 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
         break;
         
         case '8': 
-           
+             bDrawGroPuyo = !bDrawGroPuyo;
+            if(!bDrawGroPuyo) {
+                groPuyoLayer.puyos.clear();
+            }      
         break;
         
         case '9': 
-            
+             if(bDrawGroPuyo) groPuyoLayer.addGroPuyo(m.x / groPuyoLayer.scale, m.y / groPuyoLayer.scale);
         break;
 
         case '0':

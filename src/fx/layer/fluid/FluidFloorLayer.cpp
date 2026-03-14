@@ -22,11 +22,73 @@ void FluidFloorLayer::setup(float w, float h, float s, int resX, int resY) {
     fluidImage.getTexture().setTextureWrap(GL_REPEAT, GL_CLAMP_TO_EDGE);
 
     // Chargement de l'image
-    if(!bgImage.isAllocated()) bgImage.load("IMG_REF/bg2.png");
+
+
+    // --- GÉNÉRATION PROCÉDURALE DE LA BRUME ---
+    int texW = 2048;
+    int texH = 1024;
+    ofPixels mistPix;
+    mistPix.allocate(texW, texH, OF_PIXELS_RGBA);
+
+    for (int y = 0; y < texH; y++) {
+        for (int x = 0; x < texW; x++) {
+            float u = (float)x / texW;
+            float v = (float)y / texH;
+            
+            // Projection sur un cercle 3D pour un bouclage X parfait (Seamless)
+            float theta = u * TWO_PI;
+            float radius = 0.8f; // Échelle globale du bruit
+            
+            float value = 0.0f;
+            float amplitude = 1.0f;
+            float frequency = 1.0f;
+            float maxVal = 0.0f;
+            
+            // 4 octaves pour donner du détail ("wisps" de fumée)
+            for(int o = 0; o < 4; o++) {
+                float nx = cos(theta) * radius * frequency;
+                float nz = sin(theta) * radius * frequency;
+                float ny = v * 2.5f * frequency; // Étirement vertical
+                
+                value += ofNoise(nx, ny, nz) * amplitude;
+                maxVal += amplitude;
+                
+                amplitude *= 0.5f;
+                frequency *= 2.0f;
+            }
+            value /= maxVal; // Normalisation 0.0 - 1.0
+            
+            // Stylisation : Courbe d'atténuation (pow) pour des volutes plus diffuses
+            value = pow(value, .9f);
+                // Dégradé léger en haut sur 25% de l'image (v va de 0 à 1)
+            if (v < 0.25f) {
+                float fade = v / 0.25f; // Va de 0.0 (haut) à 1.0 (à 25%)
+                value *= fade; // Atténue la densité de la brume
+            }
+            // Interpolation élégante : d'un bleu nuit/transparent vers un blanc/cyan éthéré
+            ofColor darkColor(10, 15, 30, 0);
+            ofColor lightColor(180, 220, 255, 250);
+            
+            mistPix.setColor(x, y, darkColor.getLerped(lightColor, value));
+        }
+    }
+
+
+
+    bgImage.setFromPixels(mistPix);
+    //if(!bgImage.isAllocated()) bgImage.load("IMG_REF/brumes.png");
 
     resetPattern();
     
     prevLocalX = 0; prevLocalY = 0;
+    
+    globalAlpha = 1.0f;
+    targetAlpha = 1.0f;
+}
+
+//--------------------------------------------------------------
+void FluidFloorLayer::setTargetAlpha(float target) {
+    targetAlpha = target;
 }
 
 //--------------------------------------------------------------
@@ -122,6 +184,18 @@ void FluidFloorLayer::toggleBackground() {
 
 //--------------------------------------------------------------
 void FluidFloorLayer::update(float mx, float my) {
+    // Gestion du fade (Fade de 0.5s environ)
+    if (globalAlpha != targetAlpha) {
+        float speed = 2.0f * ofGetLastFrameTime(); 
+        if (globalAlpha < targetAlpha) {
+            globalAlpha += speed;
+            if (globalAlpha > targetAlpha) globalAlpha = targetAlpha;
+        } else {
+            globalAlpha -= speed;
+            if (globalAlpha < targetAlpha) globalAlpha = targetAlpha;
+        }
+    }
+
     // Conversion souris Monde -> Sim
     checkInput(mx / scale, my / scale);
     
@@ -148,10 +222,13 @@ void FluidFloorLayer::update(float mx, float my) {
 
 //--------------------------------------------------------------
 void FluidFloorLayer::draw(float x, float y) {
+    if (globalAlpha <= 0.0f) return;
+
     ofPushMatrix();
     ofTranslate(x, y);
     ofScale(scale, scale);
-    ofSetColor(255);
+    ofEnableAlphaBlending();
+    ofSetColor(255, 255, 255, 255.0f * globalAlpha);
     fluidImage.draw(0, 0, width, height);
     ofPopMatrix();
 }

@@ -71,6 +71,10 @@ gekoManager.update(mouseWorld.x, mouseWorld.y);
         c->update(mouseWorld.x, mouseWorld.y);
     }
     
+    for(auto& s : sauteurs) {
+        s->update(mouseWorld.x, mouseWorld.y, time);
+    }
+    
     for(auto& h : halos) {
         h->update(time);
     }
@@ -116,6 +120,7 @@ void CreatureSystem::draw(ofVec2f mouseWorld) {
     
     // 5. Cousins (Premier plan aussi)
     for(const auto& c : cousins) c->draw();
+    for(const auto& s : sauteurs) s->draw();
     
     // 6. Breakables
     for(const auto& b : breakables) b->draw();
@@ -216,7 +221,7 @@ void CreatureSystem::addRipple(float x, float y, float angle) {
 }
 
 void CreatureSystem::addSpringCreature(float x, float y) {
-    float w = 400; float h = 400;
+    float w = 400;
     springs.push_back(std::make_unique<SpringCreature>(x - w/2, y - 50));
 }
 
@@ -260,6 +265,10 @@ void CreatureSystem::addOtarieCreature(float x, float y) {
     otaries.push_back(std::move(o));
 }
 
+void CreatureSystem::addCousinSauteur(float x, float y) {
+    sauteurs.push_back(std::make_unique<CousinSauteur>(x, y));
+}
+
 void CreatureSystem::setCollider(shared_ptr<ColliderLayer> c) {
     colliderLayer = c;
     for(auto& o : otaries) {
@@ -279,6 +288,8 @@ void CreatureSystem::removeLast() {
         springs.pop_back();
     } else if (!halos.empty()) {
         halos.pop_back();
+    } else if (!sauteurs.empty()) {
+        sauteurs.pop_back();
     } else if (!cousins.empty()) {
         cousins.pop_back();
     } else if (!pendulums.empty()) {
@@ -310,6 +321,7 @@ void CreatureSystem::clear() {
 gekoManager.clear();
     pendulums.clear();
     cousins.clear();
+    sauteurs.clear();
     halos.clear();
     breakables.clear();
     otaries.clear();

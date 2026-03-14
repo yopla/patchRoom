@@ -24,12 +24,16 @@ public:
     
     // Toggle entre Checker et Image
     void toggleBackground();
-     float width, height;
-     ofImage fluidImage;
-         ofImage bgImage;
-             bool bUseImage = false;
-                 float scaleX, scaleY, scale;
-  void checkInput(float mx, float my);
+    float width, height;
+    ofImage fluidImage;
+    ofImage bgImage;
+    bool bUseImage = true;
+    float scaleX, scaleY, scale;
+    void checkInput(float mx, float my);
+  
+    float globalAlpha = 1.0f; // 1.0 par défaut pour ne pas casser FluidRing
+    float targetAlpha = 1.0f;
+    void setTargetAlpha(float target);
   
 private:
    

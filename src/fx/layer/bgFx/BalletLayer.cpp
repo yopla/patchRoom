@@ -34,15 +34,18 @@ void BalletLayer::createParticleTexture() {
 void BalletLayer::update(float time) {
     if(!bActive) return;
 
-    // 1. Spawn Particles (Steady(2))
-    for(int i=0; i<2; i++) {
+    // 1. Spawn Particles
+    for(int i=0; i<emissionRate; i++) {
+        // Pas de nouvelle naissance si le seuil maximal est atteint
+        if(particles.size() >= maxParticles) break;
+        
         BalletParticle p;
         // Position(new RectangleZone(0, 50, WIDTH, HEIGHT-50))
         p.pos.set(ofRandom(0, simWidth), ofRandom(50, simHeight - 50));
         p.vel.set(0, 0);
         
-        // Lifetime(10, 10)
-        p.maxLife = 10.0f;
+        // Lifetime plus longue (par exemple 25 secondes au lieu de 10)
+        p.maxLife = ofRandom(10.0f, 32.0f); //25.0f;
         p.life = p.maxLife;
         
         // ScaleAllInit(1, 2)

@@ -131,15 +131,21 @@ void InteractionVisualizer::draw(shared_ptr<ofApp> mainApp, shared_ptr<Scene2D_S
         }
 
         // --- AJOUT : Visualisation Shark (Orange) ---
-        if (sceneSide) {
+        if (sceneSide && sceneSide->layerManager.bDrawFish) {
              ofPushStyle();
              ofSetColor(255, 165, 0); // Orange
              ofSetLineWidth(2);
              
              float w2 = roomWidth / 2.0f;
              float d2 = roomDepth / 2.0f;
-             float targetY = 1000.0f; // Hauteur moyenne d'apparition
+             float targetY = 1050.0f; // Hauteur moyenne d'apparition (entre 700 et 1400)
 
+             const float wFront = sceneSide->wFront;
+             const float wJar = sceneSide->wJar;
+             float srcX_Front = sceneSide->wJar;
+             const float srcX_Back = wJar + wFront + wJar;
+             const float srcX_Cour = wJar + wFront;
+             
              for(const auto& btnPos : btnPositions) {
                 float distFront = abs(btnPos.z - (-d2));
                 float distBack = abs(btnPos.z - d2);
@@ -147,12 +153,13 @@ void InteractionVisualizer::draw(shared_ptr<ofApp> mainApp, shared_ptr<Scene2D_S
                 float distCour = abs(btnPos.x - w2);
                 float minDistWall = std::min({distFront, distBack, distJar, distCour});
                 
-                ofVec3f wallPos;
-                if (minDistWall == distFront)      wallPos.set(btnPos.x, targetY, -d2);
-                else if (minDistWall == distBack)  wallPos.set(btnPos.x, targetY, d2);
-                else if (minDistWall == distJar)   wallPos.set(-w2, targetY, btnPos.z);
-                else                               wallPos.set(w2, targetY, btnPos.z);
+                float sceneX = 0;
+                if (minDistWall == distFront)      sceneX = srcX_Front + ((btnPos.x + w2) / roomWidth) * wFront;
+                else if (minDistWall == distBack)  sceneX = srcX_Back + ((w2 - btnPos.x) / roomWidth) * wFront;
+                else if (minDistWall == distJar)   sceneX = 0 + ((d2 - btnPos.z) / roomDepth) * wJar;
+                else                               sceneX = srcX_Cour + ((btnPos.z + d2) / roomDepth) * wJar;
                 
+                ofVec3f wallPos = sceneSide->get3DPos(sceneX, targetY);
                 ofDrawLine(btnPos, wallPos);
              }
              ofPopStyle();

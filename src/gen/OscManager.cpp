@@ -62,6 +62,61 @@ void OscManager::processOscMessage(ofxOscMessage& mess, ofApp* app) {
         if(app->scene2D) app->scene2D->layerManager.bDrawFish = state;
     }
 
+    // Commande: /scene2D/fluidFloor [0 ou 1]
+    else if(address == "/scene2D/fluidFloor"){
+        bool state = false;
+        if(mess.getArgType(0) == OFXOSC_TYPE_INT32 || mess.getArgType(0) == OFXOSC_TYPE_FLOAT) state = mess.getArgAsFloat(0) > 0;
+        else if(mess.getArgType(0) == OFXOSC_TYPE_STRING) state = (mess.getArgAsString(0) == "on");
+
+        if(app->scene2D) app->scene2D->layerManager.bDrawFluidFloor = state;
+    }
+
+    // Commande: /scene2D/ballet [0 ou 1]
+    else if(address == "/scene2D/ballet"){
+        bool state = false;
+        if(mess.getArgType(0) == OFXOSC_TYPE_INT32 || mess.getArgType(0) == OFXOSC_TYPE_FLOAT) state = mess.getArgAsFloat(0) > 0;
+        else if(mess.getArgType(0) == OFXOSC_TYPE_STRING) state = (mess.getArgAsString(0) == "on");
+
+        if(app->scene2D) {
+            app->scene2D->layerManager.bDrawBallet = state;
+            app->scene2D->layerManager.balletLayer.bActive = state;
+        }
+    }
+
+    // Commande: /FluidRing [0 ou 1]
+    else if(address == "/FluidRing"){
+        bool state = false;
+        if(mess.getArgType(0) == OFXOSC_TYPE_INT32 || mess.getArgType(0) == OFXOSC_TYPE_FLOAT) state = mess.getArgAsFloat(0) > 0;
+        else if(mess.getArgType(0) == OFXOSC_TYPE_STRING) state = (mess.getArgAsString(0) == "on");
+
+        if(app->roomApp) {
+            app->roomApp->bFluidRingEnabled = state;
+            app->roomApp->fluidRing.setTargetAlpha(app->roomApp->bFluidRingEnabled ? 1.0f : 0.0f);
+
+        }
+    }
+
+    // Commande: /LightFlyRing [0 ou 1]
+    else if(address == "/LightFlyRing"){
+        bool state = false;
+        if(mess.getArgType(0) == OFXOSC_TYPE_INT32 || mess.getArgType(0) == OFXOSC_TYPE_FLOAT) state = mess.getArgAsFloat(0) > 0;
+        else if(mess.getArgType(0) == OFXOSC_TYPE_STRING) state = (mess.getArgAsString(0) == "on");
+
+        if(app->roomApp) {
+            app->roomApp->bLightFlyRingEnabled = state;
+        }
+    }
+
+    // Commande: /LightFlyRing/addLight [u] [v]
+    // u et v sont des valeurs normalisées (généralement entre 0 et 1)
+    else if(address == "/LightFlyRing/addLight"){
+        if(mess.getNumArgs() >= 2 && app->roomApp){
+            float u = (mess.getArgType(0) == OFXOSC_TYPE_INT32) ? (float)mess.getArgAsInt(0) : mess.getArgAsFloat(0);
+            float v = (mess.getArgType(1) == OFXOSC_TYPE_INT32) ? (float)mess.getArgAsInt(1) : mess.getArgAsFloat(1);
+            app->roomApp->lightFlyRing.addLightAt(u, v);
+        }
+    }
+
     // Commande: /time [float]
     else if(address == "/time"){
         if(mess.getArgType(0) == OFXOSC_TYPE_FLOAT || mess.getArgType(0) == OFXOSC_TYPE_INT32) {
@@ -115,10 +170,32 @@ void OscManager::processOscMessage(ofxOscMessage& mess, ofApp* app) {
     }
 
 
+    // Commande: /scene2D/addCousinSauteur
+    else if(address == "/scene2D/addCousinSauteur"){
+        if(mess.getNumArgs() >= 2 && app->scene2D){
+            float x = (mess.getArgType(0) == OFXOSC_TYPE_INT32) ? (float)mess.getArgAsInt(0) : mess.getArgAsFloat(0);
+            float y = (mess.getArgType(1) == OFXOSC_TYPE_INT32) ? (float)mess.getArgAsInt(1) : mess.getArgAsFloat(1);
+            app->scene2D->layerManager.creatureSystem.addCousinSauteur(x, y);
+        }
+    }
 
+    // Commande: /scene2D/addCousinCon
+    else if(address == "/scene2D/addCousinCon"){
+        if(mess.getNumArgs() >= 2 && app->scene2D){
+            float x = (mess.getArgType(0) == OFXOSC_TYPE_INT32) ? (float)mess.getArgAsInt(0) : mess.getArgAsFloat(0);
+            float y = (mess.getArgType(1) == OFXOSC_TYPE_INT32) ? (float)mess.getArgAsInt(1) : mess.getArgAsFloat(1);
+            app->scene2D->layerManager.addCousinCon(x, y);
+        }
+    }
 
-
-
+    // Commande: /scene2D/addHalo
+    else if(address == "/scene2D/addHalo"){
+        if(mess.getNumArgs() >= 2 && app->scene2D){
+            float x = (mess.getArgType(0) == OFXOSC_TYPE_INT32) ? (float)mess.getArgAsInt(0) : mess.getArgAsFloat(0);
+            float y = (mess.getArgType(1) == OFXOSC_TYPE_INT32) ? (float)mess.getArgAsInt(1) : mess.getArgAsFloat(1);
+            app->scene2D->layerManager.addHalo(x, y);
+        }
+    }
 
 }
 

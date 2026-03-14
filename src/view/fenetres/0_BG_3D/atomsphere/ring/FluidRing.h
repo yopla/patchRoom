@@ -4,9 +4,13 @@
 
 class FluidRing {
 public:
+    struct Level { float y; float v; float alpha; float rScale; };
+
     void setup(float radius, float topHeight, float bottomExtension);
     void update();
     void draw();
+
+    void setTargetAlpha(float target);
 
     ofMesh mesh;
     FluidFloorLayer fluid;
@@ -14,4 +18,9 @@ public:
     float radius;
     float height;
     float bottomExt;
+
+    int resolution;
+    float globalAlpha;
+    float targetAlpha;
+    vector<Level> baseLevels;
 };

@@ -1,6 +1,7 @@
 #include "HaloCreature.h"
 
 HaloCreature::HaloCreature(float x, float y) {
+    ofLog() << "addHalloooo" << x << " " << y;
     pos = glm::vec2(x, y);
     haloRadius = 120.0f;
     // birthTime est initialisé à -1.0f dans le header pour attendre le temps local
@@ -16,9 +17,6 @@ HaloCreature::HaloCreature(float x, float y) {
         f.pos = glm::vec3(cos(f.angle)*f.radius, f.yOffset, sin(f.angle)*f.radius);
         flies.push_back(f);
     }
-    
-    // Allocation du FBO pour le masque d'ombre (taille suffisante pour le halo)
-    fbo.allocate(800, 800, GL_RGBA);
 }
 
 void HaloCreature::update(float time) {
@@ -47,6 +45,12 @@ void HaloCreature::update(float time) {
 }
 
 void HaloCreature::draw(float scaleX, float scaleY) {
+    // Lazy allocation : on s'assure d'allouer le FBO dans le bon contexte OpenGL
+    // (celui de la fenêtre qui le dessine en premier)
+    if(!fbo.isAllocated()){
+        fbo.allocate(800, 800, GL_RGBA);
+    }
+
     // Animation d'apparition "Ting!" (Elastic Out)
     float age = animTime - birthTime;
     float duration = 0.8f;

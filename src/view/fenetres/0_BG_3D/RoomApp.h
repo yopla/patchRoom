@@ -16,6 +16,7 @@
 #include "UndulatingFloor.h"
 #include "KrakenSystem.h" // <--- AJOUT
 #include "ExternalKrakenSystem.h" // <--- AJOUT
+#include "CloudRippleRing.h" // <--- AJOUT
 
 class RoomApp : public ofBaseApp {
 
@@ -43,6 +44,8 @@ public:
     UndulatingFloor undulatingFloor;
     KrakenSystem kraken; // <--- AJOUT
     ExternalKrakenSystem externalKraken; // <--- AJOUT
+
+    CloudRippleRing cloudRing;
 
     // Position X globale sur le périmètre (de 0 à TotalPerimeter)
     float posterGlobalX; 
@@ -116,6 +119,7 @@ public:
     bool bDrawUndulatingFloor = false;
     bool bDrawKraken = false; // <--- AJOUT
     bool bDrawExternalKraken = false; // <--- AJOUT
+    bool bDrawCloudRing = true; // <--- AJOUT
    
     bool bOscillateRoom = false;
 

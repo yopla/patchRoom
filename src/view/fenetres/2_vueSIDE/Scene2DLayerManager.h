@@ -44,6 +44,8 @@
 #include "FireBLayer.h"
 #include "FireCLayer.h"
 #include "MongolfierLayer.h"
+#include "GroPuyoLayer.h"
+#include "WalkingSquareLayer.h"
 
 class Scene2DLayerManager {
 public:
@@ -53,6 +55,8 @@ public:
     void keyPressed(int key, const ofVec2f& mouse);
     void mousePressed(const ofVec2f& mouse, int button);
     void mouseReleased(const ofVec2f& mouse, int button);
+    void addCousinCon(float x, float y);
+    void addHalo(float x, float y);
 
     // Layer Toggles (publics pour l'UI)
     bool bDrawCreatures = true;
@@ -96,6 +100,8 @@ public:
     bool bDrawFireB = false;
     bool bDrawFireC = false;
     bool bDrawMongolfier = false;
+    bool bDrawGroPuyo = true; // Actif par défaut pour voir les ajouts (touche 2)
+    bool bDrawWalkingSquare = false;
 
     // Layer objects
     CreatureSystem creatureSystem;
@@ -142,6 +148,8 @@ public:
     FireBLayer fireBLayer;
     FireCLayer fireCLayer;
     MongolfierLayer mongolfierLayer;
+    GroPuyoLayer groPuyoLayer;
+    WalkingSquareLayer walkingSquareLayer;
 
     // State for lightning
     bool bLightningHasStart = false;
@@ -149,9 +157,10 @@ public:
 
     // For UI
     int getSardineCount();
-
-private:
-    float totalSceneWidth;
+        float totalSceneWidth;
     ofImage imgConcombre;
     ofImage imgRush;
+
+private:
+
 };

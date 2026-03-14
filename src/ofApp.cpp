@@ -14,7 +14,7 @@ void ofApp::registerViewApp(shared_ptr<ViewApp> vApp){
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-        geminiGen.setup("_");
+        geminiGen.setup("AIzaSyDaO8zA-67JP-6kEKhyBmi6TbOjG_UHHwc");
 
     ofSetRandomSeed(42);
     ofSetFrameRate(APP_FPS);
@@ -300,7 +300,7 @@ void ofApp::keyPressed(int key){
 
     // TOUCHE J : Générer une vidéo IA depuis 2 images (Shift + J)
     if((key == 'j' || key == 'J') && ofGetKeyPressed(OF_KEY_SHIFT)) {
-        geminiGen.generateVideoFromDeuxImages("A cinematic, haunting video. A ghostly woman with long white hair and a flowing dress swings gently on a rope swing beneath a massive.", "gen360.jpg", "gen360_last.jpg");
+        geminiGen.generateVideoFromDeuxImages("A cinematic, haunting surealist video.", "gen360.jpg", "gen360_last.jpg");
     }
 
 

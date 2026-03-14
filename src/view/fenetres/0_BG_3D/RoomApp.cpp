@@ -28,6 +28,10 @@ void RoomApp::setup(){
     // Rayon 2600
     lightFlyRing.setup(1600.0f, heightFrontBack+500, 800.0f);
 
+    // Initialisation du CloudRing (Maintenant une SPHERE complète)
+    // Centrée sur le Rig (0, 600, 0), avec un grand rayon (3000) pour englober la pièce
+    cloudRing.setup(3000.0f, ofVec3f(0, 600, 0));
+
     // 3. Allocation des FBOs (Sorties visuelles)
     fboFront.allocate(roomWidth, heightFrontBack, GL_RGB);
     fboBack.allocate(roomWidth, heightFrontBack, GL_RGB);
@@ -67,6 +71,7 @@ void RoomApp::mouseDragged(int x, int y, int button) {
 }
 
 void RoomApp::mousePressed(int x, int y, int button) {
+    inputHandler.mousePressed(x, y, button);
 }
 
 void RoomApp::mouseReleased(int x, int y, int button) {
@@ -122,6 +127,8 @@ void RoomApp::update(){
 
     ripples.update(walls); // <--- AJOUT : Update des ripples avec référence aux murs
 
+    fluidRing.update();
+
     if(bLightFlyRingEnabled) {
         lightFlyRing.update(localTime); // <--- Pass localTime
     }
@@ -136,6 +143,11 @@ void RoomApp::update(){
     
     if(bDrawExternalKraken) { // <--- AJOUT
         externalKraken.update(localTime);
+    }
+
+    // --- MISE A JOUR DU CLOUD RING ---
+    if (bDrawCloudRing) {
+        cloudRing.update(ofGetLastFrameTime());
     }
 }
 
@@ -180,7 +192,7 @@ void RoomApp::drawSceneContent(bool showAtmosphere, bool isGlobalView) {
 
     // --- 2. DESSIN DU CONTENU ATTACHÉ À LA ROOM ---
     
-    if (bFluidRingEnabled) {
+    if (bFluidRingEnabled || fluidRing.globalAlpha > 0.0f) {
         fluidRing.draw();
     }
 
@@ -212,6 +224,11 @@ void RoomApp::drawSceneContent(bool showAtmosphere, bool isGlobalView) {
     
     if(bDrawExternalKraken) { // <--- AJOUT
         externalKraken.draw();
+    }
+
+    // --- DESSIN DU CLOUD RING ---
+    if (bDrawCloudRing) {
+        cloudRing.draw();
     }
 
     bool posterOk = false;
@@ -289,13 +306,14 @@ void RoomApp::draw(){
     ofDrawBitmapString("LIGHT FLY [H]: " + ofToString(bLightFlyRingEnabled), 20, 80);
     ofDrawBitmapString("KRAKEN [3]: " + ofToString(bDrawKraken), 20, 95); // <--- AJOUT
     ofDrawBitmapString("EXT KRAKEN [4]: " + ofToString(bDrawExternalKraken), 20, 110); // <--- AJOUT
+    ofDrawBitmapString("CLOUD RING [6]: " + ofToString(bDrawCloudRing), 20, 125); // <--- AJOUT
     
     if(cursorSquare.isVisible) {
         ofDrawBitmapString("CURSOR 3D: " + ofToString(cursorSquare.getCurrentPos()), 20, 145);
     }
     
     if(bLightFlyRingEnabled) {
-        bool bDrawCoordDebug = false;
+        bool bDrawCoordDebug = true;// false;
         if (bDrawCoordDebug) {
             ofDrawBitmapString("HALO CURSOR 3D: " + ofToString(inputHandler.cursor3DPos), 20, 160);
             ofDrawBitmapString("LAST HALO POS: " + ofToString(inputHandler.lastCreatedHalo3DPos), 20, 175);

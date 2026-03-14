@@ -12,6 +12,7 @@
 #include "HaloCreature.h" // <--- AJOUT
 #include "BreakableCreature.h" // <--- AJOUT
 #include "OtarieCreature.h" // <--- AJOUT
+#include "CousinSauteur.h" // <--- AJOUT
 
 
 #include "ColliderLayer.h"
@@ -41,6 +42,7 @@ public:
     void addHalo(float x, float y); // <--- AJOUT
     void addBreakableCreature(float x, float y); // <--- AJOUT
     void addOtarieCreature(float x, float y); // <--- AJOUT
+    void addCousinSauteur(float x, float y); // <--- AJOUT
     void setCollider(shared_ptr<ColliderLayer> c);
 
     ofImage sharedImage;
@@ -60,5 +62,6 @@ std::vector<std::unique_ptr<WancoCreature>> wancos;
     std::vector<std::unique_ptr<HaloCreature>> halos; // <--- AJOUT
     std::vector<std::unique_ptr<BreakableCreature>> breakables; // <--- AJOUT
     std::vector<std::unique_ptr<OtarieCreature>> otaries; // <--- AJOUT
+    std::vector<std::unique_ptr<CousinSauteur>> sauteurs; // <--- AJOUT
     shared_ptr<ColliderLayer> colliderLayer;
 };

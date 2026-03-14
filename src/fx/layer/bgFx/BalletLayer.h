@@ -19,18 +19,19 @@ public:
     void draw();
     
     bool bActive = false;
+    vector<BalletParticle> particles;
 
 private:
-    vector<BalletParticle> particles;
     float simWidth, simHeight;
     
     // Emitter settings
-    float emissionRate = 2.0f; // particles per frame (Steady(2))
+    int emissionRate = 55; // Nombre de particules générées par frame (plus rapide)
+    size_t maxParticles = 250; // Limite maximale de particules en même temps
     
     // Physics settings
-    float gravityPower = 50.0f;
-    float maxDist = 100.0f;
-    float epsilon = 5.0f;
+    float gravityPower = 550.0f;
+    float maxDist = 200.0f;
+    float epsilon = 45.0f;
     
     ofImage particleImg;
     void createParticleTexture();

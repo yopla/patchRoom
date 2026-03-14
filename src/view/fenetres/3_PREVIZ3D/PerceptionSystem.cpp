@@ -60,7 +60,7 @@ void PerceptionSystem::update(shared_ptr<ButtonApp> buttonApp,
         
         // Trigger Shark on activation
         if (isActive && !lastButtonStates[btnIdx]) {
-            if (sceneSide) {
+            if (sceneSide && sceneSide->layerManager.bDrawFish) {
                 float w2 = rW / 2.0f;
                 // d2 est deja defini au dessus
 

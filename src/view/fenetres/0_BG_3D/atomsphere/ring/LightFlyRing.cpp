@@ -102,6 +102,7 @@ void LightFlyRing::addLightAt(float u, float v) {
     float x = u * fbo.getWidth();
     float y = v * fbo.getHeight();
     creatures.push_back(make_shared<HaloCreature>(x, y));
+     ofLog() << "LightFlyRing::addLightAt(" << x << ", " << y << ")";
 }
 
 //--------------------------------------------------------------
