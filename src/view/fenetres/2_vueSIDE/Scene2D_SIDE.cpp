@@ -303,13 +303,13 @@ void Scene2D_SIDE::keyPressed(int key) {
             ofLogNotice("Scene2D_SIDE") << "Export complet sauvegarde: scene2D_full_export_...";
         } else {
             // EXPORT COLLIDERS (Return simple)
+            float exportHeight = 912 + 1472 + 2368; // 4752
             ofFbo fboExp;
-            fboExp.allocate(totalSceneWidth, hMax, GL_RGBA);
+            fboExp.allocate(totalSceneWidth, exportHeight, GL_RGBA);
             fboExp.begin();
             ofClear(0, 0, 0, 0);
             ofPushMatrix();
-            // Alignement vertical identique à Scene2DLayerManager::draw
-            ofTranslate(0, 1472 - 900); 
+            ofTranslate(0, 912); // Décalage pour inclure les toits
             if(layerManager.colliderLayer) {
                 layerManager.colliderLayer->draw();
             }
@@ -318,6 +318,7 @@ void Scene2D_SIDE::keyPressed(int key) {
             ofPixels pix;
             fboExp.readToPixels(pix);
             ofSaveImage(pix, "colliders_export_" + ofGetTimestampString() + ".png");
+            ofLogNotice("Scene2D_SIDE") << "Export colliders (10048x4752) sauvegarde: colliders_export_...";
         }
     }
 

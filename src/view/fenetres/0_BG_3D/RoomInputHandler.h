@@ -40,4 +40,5 @@ private:
     bool bRightShiftPressed = false;
     bool bSpacePressed = false;
     bool bTabPressed = false;
+    bool bLPressed = false;
 };

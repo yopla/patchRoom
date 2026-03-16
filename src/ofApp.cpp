@@ -329,6 +329,19 @@ void ofApp::keyPressed(int key){
         geminiGen.generateNano360("Panoramic 360 degree equirectangular projection (donc avec texture bouclée) of a surreal landscape, high resolution, 8k");
     }
     
+    /*
+    
+Transform this room into
+vector illustration of 
+a surreal jukebox music machine
+ (in style of day of the tentacle) 
+, keeping the structure 
+but changing materials and lighting 
+360 Panoramic view, equirectangular projection, vr, 8k, seamless
+Et retire les traits de construction
+et termine bien sur la dernière frame, n'essaie pas de relancer 
+*/
+
     // TOUCHE L : Générer une image 360 depuis l'export Room (Shift + L)
     if((key == 'l' || key == 'L') && ofGetKeyPressed(OF_KEY_SHIFT)) {
         string theme = "a surreal jukebox music machine";

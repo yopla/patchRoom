@@ -57,6 +57,9 @@ void RoomApp::setup(){
     // Initialisation du Kraken
     kraken.setup(); // <--- AJOUT
     externalKraken.setup(); // <--- AJOUT
+
+    // Initialisation du lecteur vidéo 360
+    scene360VideoPlayer.setup(&atmosphere, "_scene");
 }
 
 void RoomApp::dragEvent(ofDragInfo dragInfo){
@@ -169,6 +172,11 @@ void RoomApp::update(){
     // --- MISE A JOUR DU CLOUD RING ---
     if (bDrawCloudRing) {
         cloudRing.update(ofGetLastFrameTime());
+    }
+
+    // --- MISE A JOUR DU LECTEUR VIDEO 360 ---
+    if (bDrawScene360Video) {
+        scene360VideoPlayer.update();
     }
 }
 
@@ -318,8 +326,10 @@ void RoomApp::draw(){
         bool debugBeam = false;
            if (debugBeam) projection.drawProjectorDebug(walls);
         }
-        // Point cyan pour visualiser le Rig
-        ofSetColor(0, 255, 255); ofDrawSphere(rigPosition, 10);
+        // Point cyan pour visualiser le Rig (masqué pendant la touche L)
+        if (!(ofGetKeyPressed('l') || ofGetKeyPressed('L'))) {
+            ofSetColor(0, 255, 255); ofDrawSphere(rigPosition, 10);
+        }
     camGlobal.end();
     
     // UI de Debug
@@ -333,17 +343,18 @@ void RoomApp::draw(){
     ofDrawBitmapString("KRAKEN [3]: " + ofToString(bDrawKraken), 20, 95); // <--- AJOUT
     ofDrawBitmapString("EXT KRAKEN [4]: " + ofToString(bDrawExternalKraken), 20, 110); // <--- AJOUT
     ofDrawBitmapString("CLOUD RING [6]: " + ofToString(bDrawCloudRing), 20, 125); // <--- AJOUT
-    ofDrawBitmapString("LIQUID SPHERE [7]: " + ofToString(bDrawLiquidSphere), 20, 140); // <--- AJOUT
+    ofDrawBitmapString("LIQUID SPHERE [7]: " + ofToString(bDrawLiquidSphere), 20, 140);
+    ofDrawBitmapString("SCENE 360 [8]: " + ofToString(bDrawScene360Video), 20, 155); // <--- AJOUT
     
     if(cursorSquare.isVisible) {
-        ofDrawBitmapString("CURSOR 3D: " + ofToString(cursorSquare.getCurrentPos()), 20, 155);
+        ofDrawBitmapString("CURSOR 3D: " + ofToString(cursorSquare.getCurrentPos()), 20, 170);
     }
     
     if(bLightFlyRingEnabled) {
         bool bDrawCoordDebug = true;// false;
         if (bDrawCoordDebug) {
-            ofDrawBitmapString("HALO CURSOR 3D: " + ofToString(inputHandler.cursor3DPos), 20, 170);
-            ofDrawBitmapString("LAST HALO POS: " + ofToString(inputHandler.lastCreatedHalo3DPos), 20, 185);
+            ofDrawBitmapString("HALO CURSOR 3D: " + ofToString(inputHandler.cursor3DPos), 20, 185);
+            ofDrawBitmapString("LAST HALO POS: " + ofToString(inputHandler.lastCreatedHalo3DPos), 20, 200);
         }
     }
 

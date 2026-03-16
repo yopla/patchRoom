@@ -29,16 +29,20 @@ void ButtonWindow::setup(float w, float h) {
 
     buttons.clear();
     
-    // Configuration: 12 carrés par côté, superposés de 8 pixels.
-    
+    // Configuration: Variable pour définir le nombre de boutons par côté (8 au lieu de 12)
+    int numButtonsPerSide = 12;
+    int numCenterButtons = 3; // <--- NOUVELLE VARIABLE : Changez cette valeur (ex: 1, 3, 5...)
+    float bigBtnSize = 360.0f; // Taille indépendante pour les gros boutons du milieu
+    float bigBtnSpacing = 0.45f; // <--- NOUVELLE VARIABLE : Écartement des gros boutons (multiplicateur de leur taille)
+
     float margin = 20.0f;
     float overlap = 8.0f;
     float sideLen = std::min(winW, winH) - 2 * margin;
-    float btnSize = (sideLen + 11 * overlap) / 12.0f;
+    float btnSize = (sideLen + (numButtonsPerSide - 1) * overlap) / (float)numButtonsPerSide;
     
-    auto addButton = [&](int id, float x, float y) {
+    auto addButton = [&](int id, float x, float y, float size) {
         Button b;
-        b.rect.set(x, y, btnSize, btnSize);
+        b.rect.set(x, y, size, size);
         b.id = id;
         b.currentAlpha = 15; // Alpha léger de base
         b.targetAlpha = 15;
@@ -49,33 +53,52 @@ void ButtonWindow::setup(float w, float h) {
 
     float step = btnSize - overlap;
 
-    // 1. Côté GAUCHE (1 -> 12) : Montant (Bas vers Haut)
+    // 1. Côté GAUCHE : Montant (Bas vers Haut)
     float xLeft = margin;
     float yBottom = winH - margin - btnSize;
     
-    for(int i=0; i<12; i++) {
+    for(int i=0; i<numButtonsPerSide; i++) {
         float y = yBottom - i * step;
-        addButton(i + 1, xLeft, y);
+        addButton(i + 1, xLeft, y, btnSize);
     }
 
-    // 2. Côté HAUT (13 -> 23) : Vers la Droite (11 boutons)
+    // 2. Côté HAUT : Vers la Droite
     float yTop = margin;
-    for(int i=0; i<11; i++) {
+    for(int i=0; i<numButtonsPerSide - 1; i++) {
         float x = xLeft + (i + 1) * step;
-        addButton(13 + i, x, yTop);
+        addButton(numButtonsPerSide + 1 + i, x, yTop, btnSize);
     }
 
-    // 3. Côté DROIT (24 -> 34) : Descendant (11 boutons)
+    // 3. Côté DROIT : Descendant
     float xRight = winW - margin - btnSize;
-    for(int i=0; i<11; i++) {
+    for(int i=0; i<numButtonsPerSide - 1; i++) {
         float y = yTop + (i + 1) * step;
-        addButton(24 + i, xRight, y);
+        addButton(numButtonsPerSide * 2 + i, xRight, y, btnSize);
     }
 
-    // 4. Côté BAS (35 -> 44) : Vers la Gauche (10 boutons)
-    for(int i=0; i<10; i++) {
+    // 4. Côté BAS : Vers la Gauche
+    for(int i=0; i<numButtonsPerSide - 2; i++) {
         float x = xRight - (i + 1) * step;
-        addButton(35 + i, x, yBottom);
+        addButton(numButtonsPerSide * 3 - 1 + i, x, yBottom, btnSize);
+    }
+
+    // 5. TROIS GROS BOUTONS AU MILIEU
+    if (numCenterButtons <= 0) return; // S'il n'y a pas de bouton, on arrête ici.
+
+    // Le rayon du cercle est nul si on a un seul bouton, pour le centrer parfaitement.
+    float circleRadius = (numCenterButtons > 1) ? (bigBtnSize * bigBtnSpacing) : 0.0f;
+
+    float centerX = winW / 2.0f;
+    float centerY = winH / 2.0f;
+    int startId = (4 * numButtonsPerSide) - 3; // On continue l'ID après le dernier du bord
+    
+    for(int i=0; i<numCenterButtons; i++) {
+        // Répartition sur un cercle.
+        // Angle de départ à -90 degrés (en haut) pour avoir un bouton au sommet.
+        float angle = -PI/2.0f + i * (TWO_PI / (float)numCenterButtons);
+        float x = centerX + circleRadius * cos(angle) - bigBtnSize / 2.0f;
+        float y = centerY + circleRadius * sin(angle) - bigBtnSize / 2.0f;
+        addButton(startId + i, x, y, bigBtnSize);
     }
 }
 

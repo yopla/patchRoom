@@ -1,5 +1,23 @@
 #include "AtmosphereSystem.h"
 
+void AtmosphereSystem::holdLastFrame() {
+    if (bIsVideo && video360.isLoaded() && video360.getTexture().isAllocated()) {
+        // Alloue le FBO à la bonne taille si ce n'est pas déjà fait
+        if (!lastFrameFbo.isAllocated() || lastFrameFbo.getWidth() != video360.getWidth() || lastFrameFbo.getHeight() != video360.getHeight()) {
+            ofFbo::Settings s;
+            s.width = video360.getWidth();
+            s.height = video360.getHeight();
+            s.internalformat = GL_RGB; // Pas besoin d'alpha pour la sphère
+            lastFrameFbo.allocate(s);
+        }
+        // Copie la texture de la vidéo dans le FBO
+        lastFrameFbo.begin();
+        video360.getTexture().draw(0, 0);
+        lastFrameFbo.end();
+        bShowLastFrame = true;
+    }
+}
+
 void AtmosphereSystem::loadTexture(string path) {
     ofDisableArbTex(); // Indispensable pour que le mapping sphérique fonctionne bien
     
@@ -11,13 +29,17 @@ void AtmosphereSystem::loadTexture(string path) {
         if(video360.isLoaded()) video360.close();
         success = video360.load(path);
         if(success) {
+            video360.setLoopState(OF_LOOP_NONE); // <--- AJOUT CRUCIAL : Empêche la boucle automatique
             video360.play();
             bIsVideo = true;
         }
     } else {
         if(video360.isLoaded()) video360.stop();
         success = texture360.load(path);
-        if(success) bIsVideo = false;
+        if(success) {
+            bIsVideo = false;
+            bShowLastFrame = false; // Si on charge une image statique, on ne montre plus la dernière frame vidéo
+        }
     }
     
     if(success) {
@@ -64,6 +86,10 @@ void AtmosphereSystem::update(float time) {
     }
     if(bIsVideo && video360.isLoaded()) {
         video360.update();
+        // Si on montrait la dernière frame et que la nouvelle vidéo a commencé, on arrête
+        if (bShowLastFrame && video360.isFrameNew()) {
+            bShowLastFrame = false;
+        }
     }
 }
 
@@ -91,16 +117,23 @@ if (bShow360) {
             
             bool bVideoReady = bIsVideo && video360.isLoaded() && video360.getTexture().isAllocated();
 
-            if(bVideoReady) {
+            // Priorité 1: Afficher la dernière frame capturée pendant la transition
+            if (bShowLastFrame && lastFrameFbo.isAllocated()) {
+                lastFrameFbo.getTexture().bind();
+                sphereEnvironnement.draw();
+                lastFrameFbo.getTexture().unbind();
+            } 
+            // Priorité 2: Afficher la vidéo en cours de lecture
+            else if (bVideoReady) {
                 video360.getTexture().bind();
-            } else {
-                if(texture360.isAllocated()) texture360.bind();
-            }
-            sphereEnvironnement.draw();
-            if(bVideoReady) {
+                sphereEnvironnement.draw();
                 video360.getTexture().unbind();
-            } else {
-                if(texture360.isAllocated()) texture360.unbind();
+            } 
+            // Priorité 3: Afficher l'image statique par défaut
+            else if (texture360.isAllocated()) {
+                texture360.bind();
+                sphereEnvironnement.draw();
+                texture360.unbind();
             }
         ofPopMatrix();
         

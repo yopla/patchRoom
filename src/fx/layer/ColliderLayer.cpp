@@ -20,7 +20,13 @@ void ColliderLayer::generateWalls() {
     // 1. Chargement de COLL.png et génération des colliders blancs
     ofImage mapImg;
     if(mapImg.load("GAB0/COLL.png")) {
-        mapImg.resize(simWidth, simHeight);
+        // Support dynamique: Ancienne map (1472) vs Nouvelle full size (4752)
+        bool isFullSize = (mapImg.getHeight() > 2000);
+        float offsetWorldY = isFullSize ? 912.0f : 0.0f;
+        mapSimOffsetY = offsetWorldY / scale;
+        
+        float targetHeight = mapImg.getHeight() / scale;
+        mapImg.resize(simWidth, targetHeight);
         mapPixels = mapImg.getPixels();
         bHasMap = true;
 
@@ -38,7 +44,7 @@ void ColliderLayer::generateWalls() {
                 if(mapPixels.getColor(x,y).getBrightness() > 128) {
                     int startX = x;
                     while(x < w && mapPixels.getColor(x,y).getBrightness() > 128) x++;
-                    walls.push_back(ofRectangle(startX, y, x - startX, 1));
+                    walls.push_back(ofRectangle(startX, y - mapSimOffsetY, x - startX, 1));
                 }
             }
         }
@@ -102,22 +108,22 @@ void ColliderLayer::generateWalls() {
 // Vérifie si un point (x,y) en coordonnées SIMULATION est dans un mur
 //--------------------------------------------------------------
 bool ColliderLayer::isWall(float x, float y) {
-    // 1. Vérifier les limites du monde (Sol et Plafond)
-    if (y < 0) return true;            // Plafond
-    if (y >= simHeight) return true;   // Sol
-
-    // 2. Vérifier les obstacles
-    // Optimisation : Vérification directe des pixels pour l'image
     if (bHasMap) {
         int ix = (int)x;
-        int iy = (int)y;
-        // Accès direct au pointeur brut pour éviter le coût de getColor()
-        if (ix >= 0 && ix < mapW && iy >= 0 && iy < mapH) {
+        int iy = (int)(y + mapSimOffsetY);
+        
+        // Si on sort totalement de l'image (plafond global ou sol global)
+        if (iy < 0 || iy >= mapH) return true;
+        
+        if (ix >= 0 && ix < mapW) {
             const unsigned char* data = mapPixels.getData();
             int index = (iy * mapW + ix) * mapC;
-            // On suppose que si c'est blanc/clair, c'est un mur (on check le canal R ou la brillance)
             if (data[index] > 128) return true;
         }
+    } else {
+        // Comportement par défaut sans map (Limites strictes de la vue 1472)
+        if (y < 0) return true;
+        if (y >= simHeight) return true;
     }
 
     // Vérification des murs dynamiques (violets)

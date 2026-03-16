@@ -24,6 +24,7 @@ void RoomInputHandler::updateKeyStates() {
     bRightShiftPressed = ofGetKeyPressed(OF_KEY_RIGHT_SHIFT);
     bSpacePressed = ofGetKeyPressed(' ');
     bTabPressed = ofGetKeyPressed(OF_KEY_TAB);
+    bLPressed = ofGetKeyPressed('l') || ofGetKeyPressed('L');
 }
 
 void RoomInputHandler::handleCameraAndProjection() {
@@ -33,6 +34,12 @@ void RoomInputHandler::handleCameraAndProjection() {
         app->camGlobal.disableMouseInput();
     } else {
         app->camGlobal.enableMouseInput();
+    }
+
+    // Blocage au centre pour s'aligner avec les textures (Vue panoramique)
+    if(bLPressed) {
+        app->camGlobal.setDistance(0);
+        app->camGlobal.setPosition(0, 600, 0); // Centre de la pièce / Rig
     }
 
     // 2. Gestion du Projecteur
@@ -205,6 +212,10 @@ void RoomInputHandler::keyPressed(int key) {
     if(key == '7') { // <--- AJOUT TOGGLE LIQUID SPHERE
         app->bDrawLiquidSphere = !app->bDrawLiquidSphere;
     }
+    if(key == '8') { // <--- AJOUT TOGGLE LECTEUR VIDEO 360
+        app->bDrawScene360Video = !app->bDrawScene360Video;
+        app->scene360VideoPlayer.toggle();
+    }
 
     if(key == 'g' || key == 'G') {
         if (app->wallAlpha > 50.0f) {
@@ -215,7 +226,7 @@ void RoomInputHandler::keyPressed(int key) {
     }
     if(key == 'f' || key == 'F') app->bDrawBeam = !app->bDrawBeam;
     if(key == 'b' || key == 'B') app->bDrawAtmosphere = !app->bDrawAtmosphere;
-    if(key == 'l' || key == 'L') app->bUseTexture = !app->bUseTexture;
+    if(key == 't' || key == 'T') app->bUseTexture = !app->bUseTexture; // Changé de L vers T pour libérer la touche L
     
     if(key == 'r' || key == 'R') {
         app->camGlobal.setDistance(4000);

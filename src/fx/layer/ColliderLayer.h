@@ -17,6 +17,7 @@ public:
     float simHeight;
     float scale;
     int mapW, mapH, mapC;
+    float mapSimOffsetY = 0.0f; // Offset Y pour la lecture du collider grand format
     
     // Gestion des murs procéduraux (TeaaLayer)
     void setCustomWalls(const vector<ofRectangle>& newWalls);
