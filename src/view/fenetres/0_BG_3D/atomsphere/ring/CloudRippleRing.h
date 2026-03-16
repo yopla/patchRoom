@@ -15,6 +15,7 @@ public:
 
     // Ajoute une onde de déformation à l'endroit cliqué
     void addRipple(float u, float v);
+    void loadTexture(string path);
 
     float radius;
     ofVec3f center; // Position centrale de la sphère

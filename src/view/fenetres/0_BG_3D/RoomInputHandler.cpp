@@ -323,6 +323,23 @@ void RoomInputHandler::dragEvent(ofDragInfo dragInfo) {
     // This logic was in RoomApp::dragEvent()
     if(dragInfo.files.size() > 0){
         string file = dragInfo.files[0];
-        app->atmosphere.loadTexture(file);
+        bool sphereActive = false;
+        
+        if(app->bDrawAtmosphere && app->atmosphere.bShow360) {
+            app->atmosphere.loadTexture(file);
+            sphereActive = true;
+        }
+        if(app->bDrawCloudRing) {
+            app->cloudRing.loadTexture(file);
+            sphereActive = true;
+        }
+        if(app->bDrawLiquidSphere) {
+            app->liquidSphereRing.loadTexture(file);
+            sphereActive = true;
+        }
+        
+        if(!sphereActive) {
+            ofLogNotice("RoomInputHandler") << "pas de sphere active";
+        }
     }
 }

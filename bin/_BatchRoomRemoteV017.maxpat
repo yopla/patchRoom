@@ -10909,6 +10909,30 @@
 						"assistshowspatchername" : 0,
 						"boxes" : [ 							{
 								"box" : 								{
+									"id" : "obj-15",
+									"maxclass" : "toggle",
+									"numinlets" : 1,
+									"numoutlets" : 1,
+									"outlettype" : [ "int" ],
+									"parameter_enable" : 0,
+									"patching_rect" : [ 767.0, 537.0, 24.0, 24.0 ]
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-21",
+									"maxclass" : "message",
+									"numinlets" : 2,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 767.0, 565.0, 77.0, 22.0 ],
+									"text" : "/show360 $1"
+								}
+
+							}
+, 							{
+								"box" : 								{
 									"id" : "obj-58",
 									"maxclass" : "newobj",
 									"numinlets" : 1,
@@ -10926,7 +10950,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "int" ],
 									"parameter_enable" : 0,
-									"patching_rect" : [ 714.0, 461.0, 24.0, 24.0 ]
+									"patching_rect" : [ 761.5, 461.0, 24.0, 24.0 ]
 								}
 
 							}
@@ -10937,8 +10961,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 714.0, 489.0, 99.0, 22.0 ],
-									"presentation_linecount" : 2,
+									"patching_rect" : [ 761.5, 489.0, 99.0, 22.0 ],
 									"text" : "/LiquidSphere $1"
 								}
 
@@ -10949,7 +10972,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 642.0, 463.0, 48.0, 20.0 ],
+									"patching_rect" : [ 689.5, 463.0, 48.0, 20.0 ],
 									"text" : "ripple"
 								}
 
@@ -10986,7 +11009,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "int" ],
 									"parameter_enable" : 0,
-									"patching_rect" : [ 612.0, 463.0, 24.0, 24.0 ]
+									"patching_rect" : [ 659.5, 463.0, 24.0, 24.0 ]
 								}
 
 							}
@@ -10997,7 +11020,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 612.0, 491.0, 85.0, 22.0 ],
+									"patching_rect" : [ 659.5, 491.0, 85.0, 22.0 ],
 									"text" : "/CloudRing $1"
 								}
 
@@ -11046,7 +11069,6 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
 									"patching_rect" : [ 523.5, 382.0, 129.0, 22.0 ],
-									"presentation_linecount" : 2,
 									"text" : "/scene2D/fluidFloor $1"
 								}
 
@@ -11460,7 +11482,7 @@
 													"numoutlets" : 1,
 													"outlettype" : [ "" ],
 													"patching_rect" : [ 211.0, 282.0, 50.0, 22.0 ],
-													"text" : "4024"
+													"text" : "1536"
 												}
 
 											}
@@ -11597,7 +11619,7 @@
 													"patching_rect" : [ 295.0, 136.89111328125, 50.0, 22.0 ],
 													"presentation" : 1,
 													"presentation_rect" : [ 37.0, 302.0, 50.0, 22.0 ],
-													"text" : "4023"
+													"text" : "1535"
 												}
 
 											}
@@ -12680,7 +12702,7 @@
 													"numoutlets" : 1,
 													"outlettype" : [ "" ],
 													"patching_rect" : [ 85.0, 137.0, 50.0, 22.0 ],
-													"text" : "4044"
+													"text" : "1556"
 												}
 
 											}
@@ -13494,6 +13516,13 @@
 							}
 , 							{
 								"patchline" : 								{
+									"destination" : [ "obj-21", 0 ],
+									"source" : [ "obj-15", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
 									"destination" : [ "obj-24", 0 ],
 									"source" : [ "obj-16", 0 ]
 								}
@@ -13517,6 +13546,13 @@
 								"patchline" : 								{
 									"destination" : [ "obj-4", 0 ],
 									"source" : [ "obj-2", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-20", 0 ],
+									"source" : [ "obj-21", 0 ]
 								}
 
 							}
@@ -17686,7 +17722,7 @@
 													"numoutlets" : 2,
 													"outlettype" : [ "signal", "float" ],
 													"patching_rect" : [ 94.0, 188.0, 56.0, 22.0 ],
-													"sig" : 2.0
+													"sig" : 2.96
 												}
 
 											}
@@ -17714,7 +17750,7 @@
 													"numoutlets" : 2,
 													"outlettype" : [ "signal", "float" ],
 													"patching_rect" : [ 24.0, 188.0, 56.0, 22.0 ],
-													"sig" : 329.999999999999943
+													"sig" : 380.0
 												}
 
 											}

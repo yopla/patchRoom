@@ -6,6 +6,7 @@ class LiquidSphereRing {
 public:
     void setup(float r, ofVec3f centerPos);
     void draw();
+    void loadTexture(string path);
 
     float radius;
     ofVec3f center;

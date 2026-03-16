@@ -139,6 +139,11 @@ void OscManager::processOscMessage(ofxOscMessage& mess, ofApp* app) {
         }
     }
 
+
+
+
+
+    
     // Commande: /time [float]
     else if(address == "/time"){
         if(mess.getArgType(0) == OFXOSC_TYPE_FLOAT || mess.getArgType(0) == OFXOSC_TYPE_INT32) {
@@ -236,6 +241,20 @@ void OscManager::processOscMessage(ofxOscMessage& mess, ofApp* app) {
         }
     }
 
+    // Commande: /show360 [0 ou 1]
+    else if(address == "/show360"){
+        bool state = false;
+        if(mess.getArgType(0) == OFXOSC_TYPE_INT32 || mess.getArgType(0) == OFXOSC_TYPE_FLOAT) state = mess.getArgAsFloat(0) > 0;
+        else if(mess.getArgType(0) == OFXOSC_TYPE_STRING) state = (mess.getArgAsString(0) == "on");
+
+        if(app->roomApp) {
+            app->roomApp->atmosphere.bShow360 = state;
+            if(state) {
+                app->roomApp->atmosphere.bShowSphere = false;
+                app->roomApp->atmosphere.bShowDiscoBall = false;
+            }
+        }
+    }
 }
 
 

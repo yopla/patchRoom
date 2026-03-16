@@ -15,6 +15,7 @@ public:
     void mouseReleased(int x, int y, int button);
     void keyPressed(int key);
     void keyReleased(int key);
+    void dragEvent(ofDragInfo dragInfo);
 
     // --- GESTION ACTIVATION / PAUSE ---
     bool bEnabled = true;
@@ -54,7 +55,7 @@ private:
     ofImage imgJar, imgFront, imgCour, imgBack;
     ofImage imgSol, imgTopJar, imgTopCour;
     
-    int bgDisplayMode = 0; // 0: JPGs, 1: Room FBOs, 2: Rien
+    int bgDisplayMode = 0; // 0: JPGs Opaque, 1: JPGs Transparent, 2: Room FBOs, 3: Rien
     
     // Positions et dimensions
     float srcX_Jar, srcX_Front, srcX_Cour, srcX_Back;

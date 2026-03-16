@@ -56,6 +56,15 @@ void CloudRippleRing::allocateTexture() {
 }
 
 //--------------------------------------------------------------
+void CloudRippleRing::loadTexture(string path) {
+    if (cloudTexture.load(path)) {
+        cloudTexture.getTexture().setTextureWrap(GL_REPEAT, GL_CLAMP_TO_EDGE);
+        cloudTexture.getTexture().setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
+        bTextureAllocated = true;
+    }
+}
+
+//--------------------------------------------------------------
 void CloudRippleRing::setup(float r, ofVec3f centerPos) {
     radius = r;
     center = centerPos;

@@ -55,6 +55,12 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
         // On prend le premier fichier de la liste
         string file = dragInfo.files[0];
         canvasManager.loadFile(file);
+        
+        if(roomApp) {
+            if(roomApp->bDrawAtmosphere) roomApp->atmosphere.loadTexture(file);
+            if(roomApp->bDrawCloudRing) roomApp->cloudRing.loadTexture(file);
+            if(roomApp->bDrawLiquidSphere) roomApp->liquidSphereRing.loadTexture(file);
+        }
     }
 }
 // ----------------------------------------------------
@@ -123,14 +129,22 @@ void ofApp::update(){
     if(geminiGen.hasNewVideo()) {
         string path = geminiGen.getVideoPath();
         ofLogNotice("ofApp") << "Nouvelle vidéo disponible, chargement dans Atmosphere...";
-        if(roomApp) roomApp->atmosphere.loadTexture(path);
+        if(roomApp) {
+            if(roomApp->bDrawAtmosphere) roomApp->atmosphere.loadTexture(path);
+            if(roomApp->bDrawCloudRing) roomApp->cloudRing.loadTexture(path);
+            if(roomApp->bDrawLiquidSphere) roomApp->liquidSphereRing.loadTexture(path);
+        }
     }
     
     // --- CHECK 360 IMAGE GENERATION ---
     if(geminiGen.hasNew360Image()) {
         string path = geminiGen.get360ImagePath();
         ofLogNotice("ofApp") << "Nouvelle image 360 disponible, chargement dans RoomApp...";
-        if(roomApp) roomApp->atmosphere.loadTexture(path);
+        if(roomApp) {
+            if(roomApp->bDrawAtmosphere) roomApp->atmosphere.loadTexture(path);
+            if(roomApp->bDrawCloudRing) roomApp->cloudRing.loadTexture(path);
+            if(roomApp->bDrawLiquidSphere) roomApp->liquidSphereRing.loadTexture(path);
+        }
     }
 
     if(scene2D) scene2D->setPaused(!shouldUpdate);

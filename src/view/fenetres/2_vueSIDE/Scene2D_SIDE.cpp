@@ -202,9 +202,12 @@ void Scene2D_SIDE::captureSection(ofFbo& targetFbo, float worldX, float worldTop
         ofClear(0, 0, 0, 0);
         
         if (bgDisplayMode == 0 && img.isAllocated()) {
+            ofSetColor(255, 255, 255, 255);
+            img.draw(0, 0, targetFbo.getWidth(), targetFbo.getHeight());
+        } else if (bgDisplayMode == 1 && img.isAllocated()) {
             ofSetColor(255, 255, 255, 180);
             img.draw(0, 0, targetFbo.getWidth(), targetFbo.getHeight());
-        } else if (bgDisplayMode == 1 && roomFbo != nullptr && roomFbo->isAllocated()) {
+        } else if (bgDisplayMode == 2 && roomFbo != nullptr && roomFbo->isAllocated()) {
             ofSetColor(255, 255, 255, 255);
             roomFbo->draw(0, 0, targetFbo.getWidth(), targetFbo.getHeight());
         } else {
@@ -262,7 +265,7 @@ void Scene2D_SIDE::mouseDragged(int x, int y, int button) {
 void Scene2D_SIDE::keyPressed(int key) {
     if (key == ' ') isSpacePressed = true; 
     if (key == 'g' || key == 'G') {
-        bgDisplayMode = (bgDisplayMode + 1) % 3;
+        bgDisplayMode = (bgDisplayMode + 1) % 4;
     }
     
     if (key == 'r' || key == 'R') {
@@ -329,6 +332,49 @@ ofVec2f Scene2D_SIDE::getTransformedMouse() {
     float mx = (ofGetMouseX() - viewPan.x) / viewZoom;
     float my = (ofGetMouseY() - viewPan.y) / viewZoom;
     return ofVec2f(mx, my);
+}
+
+//--------------------------------------------------------------
+void Scene2D_SIDE::dragEvent(ofDragInfo dragInfo) {
+    if (dragInfo.files.size() > 0) {
+        string file = dragInfo.files[0];
+        ofImage fullImg;
+        if (fullImg.load(file)) {
+            // On vérifie que l'image est bien celle d'un export complet (ou au moins assez grande)
+            if (fullImg.getWidth() >= totalSceneWidth && fullImg.getHeight() >= 4752) {
+                ofLogNotice("Scene2D_SIDE") << "Chargement de la nouvelle image de fond (GAB) : " << file;
+                
+                ofPixels& pix = fullImg.getPixels();
+                ofPixels pFront, pBack, pJar, pCour, pSol, pTopJar, pTopCour;
+                
+                // Découpage selon les offsets de l'export (Y a été décalé de +912 à l'export)
+                pix.cropTo(pFront, srcX_Front, 912, wFront, 1472);
+                imgFront.setFromPixels(pFront);
+
+                pix.cropTo(pBack, srcX_Back, 912, wFront, 1472);
+                imgBack.setFromPixels(pBack);
+
+                pix.cropTo(pJar, srcX_Jar, 1600, wJar, 784);
+                imgJar.setFromPixels(pJar);
+
+                pix.cropTo(pCour, srcX_Cour, 1312, wJar, 1072);
+                imgCour.setFromPixels(pCour);
+
+                pix.cropTo(pSol, srcX_Front, 2384, wSol, hSol);
+                imgSol.setFromPixels(pSol);
+
+                pix.cropTo(pTopJar, srcX_Jar, 0, wTopJar, hTopJar);
+                imgTopJar.setFromPixels(pTopJar);
+
+                pix.cropTo(pTopCour, srcX_Cour, 304, wTopCour, hTopCour);
+                imgTopCour.setFromPixels(pTopCour);
+                
+                bgDisplayMode = 0; // On force le mode 0 pour bien afficher ces images jpg/png
+            } else {
+                ofLogWarning("Scene2D_SIDE") << "L'image glissée est trop petite ! Dimension minimale attendue : " << totalSceneWidth << "x4752";
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------

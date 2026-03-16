@@ -227,6 +227,16 @@ void RoomApp::drawSceneContent(bool showAtmosphere, bool isGlobalView) {
         wingedWormSystem.draw();
     }
 
+    // --- DESSIN DU CLOUD RING ---
+    if (bDrawCloudRing) {
+        cloudRing.draw();
+    }
+
+    // --- DESSIN DU LIQUID SPHERE ---
+    if (bDrawLiquidSphere) {
+        liquidSphereRing.draw();
+    }
+
     if(bDrawGab) {
         walls.draw(bShowRoof, wallAlpha);
     }
@@ -245,16 +255,6 @@ void RoomApp::drawSceneContent(bool showAtmosphere, bool isGlobalView) {
     
     if(bDrawExternalKraken) { // <--- AJOUT
         externalKraken.draw();
-    }
-
-    // --- DESSIN DU CLOUD RING ---
-    if (bDrawCloudRing) {
-        cloudRing.draw();
-    }
-
-    // --- DESSIN DU LIQUID SPHERE ---
-    if (bDrawLiquidSphere) {
-        liquidSphereRing.draw();
     }
 
     bool posterOk = false;

@@ -63,6 +63,14 @@ void LiquidSphereRing::setup(float r, ofVec3f centerPos) {
 }
 
 //--------------------------------------------------------------
+void LiquidSphereRing::loadTexture(string path) {
+    if (fluid.bgImage.load(path)) {
+        fluid.bUseImage = true;
+        fluid.resetPattern(); // Met à jour les couleurs de la grille fluide avec la nouvelle image
+    }
+}
+
+//--------------------------------------------------------------
 void LiquidSphereRing::draw() {
     ofPushStyle();
     ofEnableAlphaBlending();
