@@ -1,6 +1,7 @@
 #include "RoomPreview.h"
 #include "ofApp.h" // Nécessaire pour accéder à mainApp->canvas
 #include "Scene2D_SIDE.h"
+#include "ButtonApp.h"
 
 
 //--------------------------------------------------------------
@@ -84,6 +85,8 @@ void RoomPreview::setup(){
     camGlobal.setFarClip(50000);
     camGlobal.setPosition(2000, 2500, 3000); 
     camGlobal.lookAt(ofVec3f(0, 600, 0));
+    
+    // (La configuration de la caméra se fait dans update() pour s'adapter à la taille de l'écran)
 }
 
 //--------------------------------------------------------------
@@ -91,6 +94,63 @@ void RoomPreview::update(){
     if (bPaused) return;
 
     if(bShowCursor) cursorSquare.updateRaycast(camGlobal, walls);
+
+    // --- FORCER LA ROTATION X/Y (ARCBALL) SUR TOUT L'ÉCRAN ---
+    // On agrandit la "zone de contrôle" de ofEasyCam bien au-delà de l'écran 
+    // pour que son cercle virtuel de détection englobe les coins de ta fenêtre.
+    int w = ofGetWidth();
+    int h = ofGetHeight();
+    if (w > 0 && h > 0) {
+        float maxDim = std::max(w, h);
+        float giantSize = maxDim * 3.0f; // 3x la taille de l'écran
+        
+        // On centre cette zone géante
+        camGlobal.setControlArea(ofRectangle(w/2.0f - giantSize/2.0f, h/2.0f - giantSize/2.0f, giantSize, giantSize));
+        
+        // On compense mathématiquement pour que la vitesse de Pan/Zoom/Orbite reste identique
+        // Ajout d'un signe moins (-) sur le premier paramètre pour inverser l'axe X
+        camGlobal.setRotationSensitivity((giantSize / std::min(w, h)), giantSize / std::min(w, h), 0.0f);
+        camGlobal.setTranslationSensitivity(giantSize / (float)w, giantSize / (float)h, giantSize / (float)h);
+    }
+
+    // --- CHECK HOVER SUR LES BOUTONS EN 3D ---
+    if (bDrawInteraction && mainApp && mainApp->buttonApp) {
+        int mx = ofGetMouseX();
+        int my = ofGetMouseY();
+        if (mx >= 0 && mx < w && my >= 0 && my < h) {
+            ofVec3f nearPoint = camGlobal.screenToWorld(ofVec3f(mx, my, 0.0f));
+            ofVec3f farPoint = camGlobal.screenToWorld(ofVec3f(mx, my, 1.0f));
+            ofVec3f mouseRay = farPoint - nearPoint;
+            mouseRay.normalize();
+            
+            if (mouseRay.y != 0) {
+                float t = (2.0f - nearPoint.y) / mouseRay.y; // 2.0f est la hauteur où les boutons sont dessinés
+                if (t > 0) {
+                    ofVec3f intersect = nearPoint + mouseRay * t;
+                    
+                    float d2 = roomDepth / 2.0f;
+                    float pctX = (intersect.x + roomWidth / 2.0f) / roomWidth;
+                    float pctY = (intersect.z - (-d2)) / roomSolDepth;
+                    
+                    if (pctX >= 0 && pctX <= 1 && pctY >= 0 && pctY <= 1) {
+                        float winW = mainApp->buttonApp->buttonWindow.getWidth();
+                        float winH = mainApp->buttonApp->buttonWindow.getHeight();
+                        mainApp->buttonApp->buttonWindow.setExternalHover(pctX * winW, pctY * winH);
+                    } else {
+                        mainApp->buttonApp->buttonWindow.clearExternalHover();
+                    }
+                } else {
+                    mainApp->buttonApp->buttonWindow.clearExternalHover();
+                }
+            } else {
+                mainApp->buttonApp->buttonWindow.clearExternalHover();
+            }
+        } else {
+            mainApp->buttonApp->buttonWindow.clearExternalHover();
+        }
+    } else if (mainApp && mainApp->buttonApp) {
+        mainApp->buttonApp->buttonWindow.clearExternalHover();
+    }
 
     // --- C'EST ICI QU'ON RECUPERE LES TEXTURES DU CANVAS ---
     if(mainApp && mainApp->canvas.isAllocated()){
@@ -170,7 +230,7 @@ void RoomPreview::draw(){
         }
         
         // Petit repère visuel
-        ofSetColor(255, 0, 255); ofDrawSphere(0, 600, 0, 30);
+        ofSetColor(255, 0, 255); ofDrawSphere(0, 600, 0, 10);
     camGlobal.end();
     
     ofSetColor(255);
@@ -200,5 +260,12 @@ void RoomPreview::keyPressed(int key){
     }
     if(key == 's' || key == 'S'){
         bShowCursor = !bShowCursor;
+    }
+}
+
+//--------------------------------------------------------------
+void RoomPreview::mousePressed(int x, int y, int button){
+    if (bDrawInteraction && mainApp && mainApp->buttonApp) {
+        mainApp->buttonApp->buttonWindow.checkExternalClick();
     }
 }

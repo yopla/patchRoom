@@ -75,6 +75,8 @@ void ButtonApp::mouseMoved(int x, int y) {
 //--------------------------------------------------------------
 void ButtonApp::mousePressed(int x, int y, int button) {
     lastMouse.set(x, y);
+    ofVec2f m = getTransformedMouse(x, y);
+    buttonWindow.checkClick(m.x, m.y);
 }
 
 //--------------------------------------------------------------

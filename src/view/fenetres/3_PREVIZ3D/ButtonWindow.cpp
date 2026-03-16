@@ -135,9 +135,15 @@ void ButtonWindow::update(float mx, float my) {
         // Mouse Check
         if(b.rect.inside(mx, my)) isHovered = true;
 
+        // External 3D Hover Check (ex: from RoomPreview)
+        if(bHasExternalHover && b.rect.inside(externalHoverPos.x, externalHoverPos.y)) isHovered = true;
+
         // OSC Check
         if(g_oscButtonStates[b.id]) isHovered = true;
         
+        // Toggled Check (Clic)
+        if(b.isToggled) isHovered = true;
+
         // Worms Check
         if(bDrawWorms && !isHovered) {
             for(auto& w : worms) {
@@ -226,6 +232,22 @@ void ButtonWindow::draw() {
     }
     
     ofPopStyle();
+}
+
+//--------------------------------------------------------------
+void ButtonWindow::checkClick(float mx, float my) {
+    for(auto& b : buttons) {
+        if(b.rect.inside(mx, my)) {
+            b.isToggled = !b.isToggled; // Bascule l'état (On/Off)
+        }
+    }
+}
+
+//--------------------------------------------------------------
+void ButtonWindow::checkExternalClick() {
+    if(bHasExternalHover) {
+        checkClick(externalHoverPos.x, externalHoverPos.y);
+    }
 }
 
 //--------------------------------------------------------------

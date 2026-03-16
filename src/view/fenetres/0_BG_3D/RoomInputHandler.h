@@ -31,6 +31,7 @@ private:
     void handleCameraAndProjection();
     void updateFluidRingInteraction();
     void updateLightFlyInteraction();
+    void updateLiquidSphereInteraction();
 
     RoomApp* app = nullptr; // Pointer to the main app to access its members
 

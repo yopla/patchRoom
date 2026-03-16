@@ -32,6 +32,9 @@ void RoomApp::setup(){
     // Centrée sur le Rig (0, 600, 0), avec un grand rayon (3000) pour englober la pièce
     cloudRing.setup(3000.0f, ofVec3f(0, 600, 0));
 
+    // Initialisation du LiquidSphereRing
+    liquidSphereRing.setup(3000.0f, ofVec3f(0, 600, 0));
+
     // 3. Allocation des FBOs (Sorties visuelles)
     fboFront.allocate(roomWidth, heightFrontBack, GL_RGB);
     fboBack.allocate(roomWidth, heightFrontBack, GL_RGB);
@@ -83,6 +86,24 @@ void RoomApp::windowResized(int w, int h){}
 void RoomApp::update(){
     if(!bEnabled) return; // <-- Coupe les calculs si désactivé
     if(bPaused) return;   // <-- Pause générale
+
+    // --- FORCER LA ROTATION X/Y (ARCBALL) SUR TOUT L'ÉCRAN ---
+    // On agrandit la "zone de contrôle" de ofEasyCam bien au-delà de l'écran 
+    // pour que son cercle virtuel de détection englobe les coins de ta fenêtre.
+    int w = ofGetWidth();
+    int h = ofGetHeight();
+    if (w > 0 && h > 0) {
+        float maxDim = std::max(w, h);
+        float giantSize = maxDim * 3.0f; // 3x la taille de l'écran
+        
+        // On centre cette zone géante
+        camGlobal.setControlArea(ofRectangle(w/2.0f - giantSize/2.0f, h/2.0f - giantSize/2.0f, giantSize, giantSize));
+        
+        // On compense mathématiquement pour que la vitesse de Pan/Zoom/Orbite reste identique
+        // Ajout d'un signe moins (-) sur le premier paramètre pour inverser l'axe X
+        camGlobal.setRotationSensitivity((giantSize / std::min(w, h)), giantSize / std::min(w, h), 0.0f);
+        camGlobal.setTranslationSensitivity(giantSize / (float)w, giantSize / (float)h, giantSize / (float)h);
+    }
 
     // Animation légère de la position du rig (caméras Off-Axis)
     if (respire) rigPosition.y = 600 + sin(localTime*0.5)*100;
@@ -231,6 +252,11 @@ void RoomApp::drawSceneContent(bool showAtmosphere, bool isGlobalView) {
         cloudRing.draw();
     }
 
+    // --- DESSIN DU LIQUID SPHERE ---
+    if (bDrawLiquidSphere) {
+        liquidSphereRing.draw();
+    }
+
     bool posterOk = false;
     if (posterOk) poster.draw(roomWidth, roomDepth); 
     // ------------------
@@ -293,7 +319,7 @@ void RoomApp::draw(){
            if (debugBeam) projection.drawProjectorDebug(walls);
         }
         // Point cyan pour visualiser le Rig
-        ofSetColor(0, 255, 255); ofDrawSphere(rigPosition, 30);
+        ofSetColor(0, 255, 255); ofDrawSphere(rigPosition, 10);
     camGlobal.end();
     
     // UI de Debug
@@ -307,16 +333,17 @@ void RoomApp::draw(){
     ofDrawBitmapString("KRAKEN [3]: " + ofToString(bDrawKraken), 20, 95); // <--- AJOUT
     ofDrawBitmapString("EXT KRAKEN [4]: " + ofToString(bDrawExternalKraken), 20, 110); // <--- AJOUT
     ofDrawBitmapString("CLOUD RING [6]: " + ofToString(bDrawCloudRing), 20, 125); // <--- AJOUT
+    ofDrawBitmapString("LIQUID SPHERE [7]: " + ofToString(bDrawLiquidSphere), 20, 140); // <--- AJOUT
     
     if(cursorSquare.isVisible) {
-        ofDrawBitmapString("CURSOR 3D: " + ofToString(cursorSquare.getCurrentPos()), 20, 145);
+        ofDrawBitmapString("CURSOR 3D: " + ofToString(cursorSquare.getCurrentPos()), 20, 155);
     }
     
     if(bLightFlyRingEnabled) {
         bool bDrawCoordDebug = true;// false;
         if (bDrawCoordDebug) {
-            ofDrawBitmapString("HALO CURSOR 3D: " + ofToString(inputHandler.cursor3DPos), 20, 160);
-            ofDrawBitmapString("LAST HALO POS: " + ofToString(inputHandler.lastCreatedHalo3DPos), 20, 175);
+            ofDrawBitmapString("HALO CURSOR 3D: " + ofToString(inputHandler.cursor3DPos), 20, 170);
+            ofDrawBitmapString("LAST HALO POS: " + ofToString(inputHandler.lastCreatedHalo3DPos), 20, 185);
         }
     }
 

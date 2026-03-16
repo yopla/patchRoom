@@ -33,6 +33,15 @@ public:
     ofFbo fboJar, fboFront, fboCour, fboBack;
     ofFbo fboSol, fboTopJar, fboTopCour;
 
+    // Pointeurs vers les FBOs de la RoomApp (Mode 1)
+    ofFbo* roomFboFront = nullptr;
+    ofFbo* roomFboBack = nullptr;
+    ofFbo* roomFboCour = nullptr;
+    ofFbo* roomFboJar = nullptr;
+    ofFbo* roomFboSol = nullptr;
+    ofFbo* roomFboTopCour = nullptr;
+    ofFbo* roomFboTopJar = nullptr;
+
     ofVec3f get3DPos(float x, float y);
     
     // Public dimensions needed by other systems
@@ -40,12 +49,12 @@ public:
     const float wJar   = 2624.0f;
 
 private:
-    void captureSection(ofFbo& targetFbo, float worldX, float worldTopY, ofImage& img, bool bDrawDynamics = true);
+    void captureSection(ofFbo& targetFbo, float worldX, float worldTopY, ofImage& img, ofFbo* roomFbo = nullptr, bool bDrawDynamics = true);
     void drawDynamicElements(); 
     ofImage imgJar, imgFront, imgCour, imgBack;
     ofImage imgSol, imgTopJar, imgTopCour;
     
-    bool bShowTextures = true;
+    int bgDisplayMode = 0; // 0: JPGs, 1: Room FBOs, 2: Rien
     
     // Positions et dimensions
     float srcX_Jar, srcX_Front, srcX_Cour, srcX_Back;

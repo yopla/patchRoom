@@ -99,15 +99,15 @@ void Scene2D_SIDE::update() {
     }
 
     // 5. Captures FBO (Toujours actif pour le décor de fond)
-    captureSection(fboFront, srcX_Front, 0, imgFront, true);
-    captureSection(fboBack,  srcX_Back,  0, imgBack,  true);
-    captureSection(fboJar,   srcX_Jar, 688, imgJar, true);
-    captureSection(fboCour,  srcX_Cour, 400, imgCour, true);
+    captureSection(fboFront, srcX_Front, 0, imgFront, roomFboFront, true);
+    captureSection(fboBack,  srcX_Back,  0, imgBack,  roomFboBack, true);
+    captureSection(fboJar,   srcX_Jar, 688, imgJar, roomFboJar, true);
+    captureSection(fboCour,  srcX_Cour, 400, imgCour, roomFboCour, true);
 
     // TOP JAR
-    captureSection(fboSol, srcX_Front, 1472, imgSol, true);
-    captureSection(fboTopJar, srcX_Jar, -912, imgTopJar, true);
-    captureSection(fboTopCour, srcX_Cour, -608, imgTopCour, true);
+    captureSection(fboSol, srcX_Front, 1472, imgSol, roomFboSol, true);
+    captureSection(fboTopJar, srcX_Jar, -912, imgTopJar, roomFboTopJar, true);
+    captureSection(fboTopCour, srcX_Cour, -608, imgTopCour, roomFboTopCour, true);
 }
 
 //--------------------------------------------------------------
@@ -197,13 +197,16 @@ void Scene2D_SIDE::draw() {
 
 
 //--------------------------------------------------------------
-void Scene2D_SIDE::captureSection(ofFbo& targetFbo, float worldX, float worldTopY, ofImage& img, bool bDrawDynamics) {
+void Scene2D_SIDE::captureSection(ofFbo& targetFbo, float worldX, float worldTopY, ofImage& img, ofFbo* roomFbo, bool bDrawDynamics) {
     targetFbo.begin();
         ofClear(0, 0, 0, 0);
         
-        if (bShowTextures && img.isAllocated()) {
+        if (bgDisplayMode == 0 && img.isAllocated()) {
             ofSetColor(255, 255, 255, 180);
             img.draw(0, 0, targetFbo.getWidth(), targetFbo.getHeight());
+        } else if (bgDisplayMode == 1 && roomFbo != nullptr && roomFbo->isAllocated()) {
+            ofSetColor(255, 255, 255, 255);
+            roomFbo->draw(0, 0, targetFbo.getWidth(), targetFbo.getHeight());
         } else {
              bool lastDebug = false;
         if (lastDebug) {
@@ -258,7 +261,9 @@ void Scene2D_SIDE::mouseDragged(int x, int y, int button) {
 
 void Scene2D_SIDE::keyPressed(int key) {
     if (key == ' ') isSpacePressed = true; 
-    if (key == 'g' || key == 'G') bShowTextures = !bShowTextures;
+    if (key == 'g' || key == 'G') {
+        bgDisplayMode = (bgDisplayMode + 1) % 3;
+    }
     
     if (key == 'r' || key == 'R') {
         viewZoom = (float)ofGetWidth() / totalSceneWidth * 0.95f;
@@ -267,21 +272,50 @@ void Scene2D_SIDE::keyPressed(int key) {
     }
     
     if (key == OF_KEY_RETURN) {
-        ofFbo fboExp;
-        fboExp.allocate(totalSceneWidth, hMax, GL_RGBA);
-        fboExp.begin();
-        ofClear(0, 0, 0, 0);
-        ofPushMatrix();
-        // Alignement vertical identique à Scene2DLayerManager::draw
-        ofTranslate(0, 1472 - 900); 
-        if(layerManager.colliderLayer) {
-            layerManager.colliderLayer->draw();
+        if (ofGetKeyPressed(OF_KEY_SHIFT)) {
+            // EXPORT FULL SCENE 2D (Shift + Return)
+            float exportHeight = 912 + 1472 + 2368; // top = -912, centre = 1472, sol = +2368
+            ofFbo fboExp;
+            fboExp.allocate(totalSceneWidth, exportHeight, GL_RGBA);
+            fboExp.begin();
+            ofClear(0, 0, 0, 255); // Fond noir opaque
+            ofPushMatrix();
+            ofTranslate(0, 912); // Décaler vers le bas pour capturer les éléments en Y négatif (TopJar, TopCour)
+            
+            ofSetColor(255);
+            fboJar.draw(srcX_Jar, hMax - 784);
+            fboFront.draw(srcX_Front, hMax - 1472);
+            fboCour.draw(srcX_Cour, hMax - 1072);
+            fboBack.draw(srcX_Back, hMax - 1472);
+
+            fboTopJar.draw(srcX_Jar, hMax - 784 - 1600); 
+            fboSol.draw(srcX_Front, hMax); 
+            fboTopCour.draw(srcX_Cour, hMax - 1072 - 1008);
+            
+            ofPopMatrix();
+            fboExp.end();
+            ofPixels pix;
+            fboExp.readToPixels(pix);
+            ofSaveImage(pix, "scene2D_full_export_" + ofGetTimestampString() + ".png");
+            ofLogNotice("Scene2D_SIDE") << "Export complet sauvegarde: scene2D_full_export_...";
+        } else {
+            // EXPORT COLLIDERS (Return simple)
+            ofFbo fboExp;
+            fboExp.allocate(totalSceneWidth, hMax, GL_RGBA);
+            fboExp.begin();
+            ofClear(0, 0, 0, 0);
+            ofPushMatrix();
+            // Alignement vertical identique à Scene2DLayerManager::draw
+            ofTranslate(0, 1472 - 900); 
+            if(layerManager.colliderLayer) {
+                layerManager.colliderLayer->draw();
+            }
+            ofPopMatrix();
+            fboExp.end();
+            ofPixels pix;
+            fboExp.readToPixels(pix);
+            ofSaveImage(pix, "colliders_export_" + ofGetTimestampString() + ".png");
         }
-        ofPopMatrix();
-        fboExp.end();
-        ofPixels pix;
-        fboExp.readToPixels(pix);
-        ofSaveImage(pix, "colliders_export_" + ofGetTimestampString() + ".png");
     }
 
     layerManager.keyPressed(key, getTransformedMouse());

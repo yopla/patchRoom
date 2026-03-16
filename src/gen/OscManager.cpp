@@ -117,11 +117,50 @@ void OscManager::processOscMessage(ofxOscMessage& mess, ofApp* app) {
         }
     }
 
+    // Commande: /CloudRing [0 ou 1]
+    else if(address == "/CloudRing"){
+        bool state = false;
+        if(mess.getArgType(0) == OFXOSC_TYPE_INT32 || mess.getArgType(0) == OFXOSC_TYPE_FLOAT) state = mess.getArgAsFloat(0) > 0;
+        else if(mess.getArgType(0) == OFXOSC_TYPE_STRING) state = (mess.getArgAsString(0) == "on");
+
+        if(app->roomApp) {
+            app->roomApp->bDrawCloudRing = state;
+        }
+    }
+
+    // Commande: /LiquidSphere [0 ou 1]
+    else if(address == "/LiquidSphere"){
+        bool state = false;
+        if(mess.getArgType(0) == OFXOSC_TYPE_INT32 || mess.getArgType(0) == OFXOSC_TYPE_FLOAT) state = mess.getArgAsFloat(0) > 0;
+        else if(mess.getArgType(0) == OFXOSC_TYPE_STRING) state = (mess.getArgAsString(0) == "on");
+
+        if(app->roomApp) {
+            app->roomApp->bDrawLiquidSphere = state;
+        }
+    }
+
     // Commande: /time [float]
     else if(address == "/time"){
         if(mess.getArgType(0) == OFXOSC_TYPE_FLOAT || mess.getArgType(0) == OFXOSC_TYPE_INT32) {
             // On interprète l'argument comme un numéro de FRAME (plus de conversion)
             app->oscTime = mess.getArgAsFloat(0);
+        }
+    }
+
+    // Commande: /pause [0 ou 1] OU "on"/"off" (toggle si pas d'argument)
+    else if(address == "/pause"){
+        bool state = !app->bGlobalPause; // Toggle par défaut
+        if(mess.getNumArgs() > 0){
+            if(mess.getArgType(0) == OFXOSC_TYPE_INT32 || mess.getArgType(0) == OFXOSC_TYPE_FLOAT) {
+                state = mess.getArgAsFloat(0) > 0;
+            } else if(mess.getArgType(0) == OFXOSC_TYPE_STRING) {
+                state = (mess.getArgAsString(0) == "on");
+            }
+        }
+        
+        app->bGlobalPause = state;
+        if(app->bGlobalPause) {
+            app->oscTime = app->localTime; // Synchronisation du temps lors de la pause
         }
     }
 

@@ -17,6 +17,7 @@
 #include "KrakenSystem.h" // <--- AJOUT
 #include "ExternalKrakenSystem.h" // <--- AJOUT
 #include "CloudRippleRing.h" // <--- AJOUT
+#include "LiquidSphereRing.h" // <--- AJOUT
 
 class RoomApp : public ofBaseApp {
 
@@ -46,6 +47,7 @@ public:
     ExternalKrakenSystem externalKraken; // <--- AJOUT
 
     CloudRippleRing cloudRing;
+    LiquidSphereRing liquidSphereRing; // <--- AJOUT
 
     // Position X globale sur le périmètre (de 0 à TotalPerimeter)
     float posterGlobalX; 
@@ -119,7 +121,8 @@ public:
     bool bDrawUndulatingFloor = false;
     bool bDrawKraken = false; // <--- AJOUT
     bool bDrawExternalKraken = false; // <--- AJOUT
-    bool bDrawCloudRing = true; // <--- AJOUT
+    bool bDrawCloudRing = false; // <--- AJOUT
+    bool bDrawLiquidSphere = false; // <--- AJOUT
    
     bool bOscillateRoom = false;
 

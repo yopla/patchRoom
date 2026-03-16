@@ -46,6 +46,7 @@
 #include "MongolfierLayer.h"
 #include "GroPuyoLayer.h"
 #include "WalkingSquareLayer.h"
+#include "TripodEyeLayer.h"
 
 class Scene2DLayerManager {
 public:
@@ -102,6 +103,7 @@ public:
     bool bDrawMongolfier = false;
     bool bDrawGroPuyo = true; // Actif par défaut pour voir les ajouts (touche 2)
     bool bDrawWalkingSquare = false;
+    bool bDrawTripodEye = false;
 
     // Layer objects
     CreatureSystem creatureSystem;
@@ -150,6 +152,7 @@ public:
     MongolfierLayer mongolfierLayer;
     GroPuyoLayer groPuyoLayer;
     WalkingSquareLayer walkingSquareLayer;
+    TripodEyeLayer tripodEyeLayer;
 
     // State for lightning
     bool bLightningHasStart = false;

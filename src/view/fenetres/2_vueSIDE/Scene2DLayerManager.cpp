@@ -145,6 +145,9 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
 
     // --- SETUP WALKING SQUARE LAYER ---
     walkingSquareLayer.setup(totalSceneWidth, 1472.0f);
+    
+    // --- SETUP TRIPOD EYE LAYER ---
+    tripodEyeLayer.setup(totalSceneWidth, 1472.0f, colliderLayer);
 }
 
 void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePressed) {
@@ -234,6 +237,7 @@ void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePress
     if (bDrawFireC) fireCLayer.update(m.x, m.y);
     if (bDrawMongolfier) mongolfierLayer.update(m.x, m.y);
     if (bDrawWalkingSquare) walkingSquareLayer.update(m.x, m.y, time);
+    if (bDrawTripodEye) tripodEyeLayer.update(m.x, m.y, time);
 }
 
 void Scene2DLayerManager::draw(const ofVec2f& m) {
@@ -303,6 +307,7 @@ void Scene2DLayerManager::draw(const ofVec2f& m) {
     if (bDrawFireC) fireCLayer.draw();
     if (bDrawMongolfier) mongolfierLayer.draw();
     if (bDrawWalkingSquare) walkingSquareLayer.draw();
+    if (bDrawTripodEye) tripodEyeLayer.draw();
 }
 
 void Scene2DLayerManager::addCousinCon(float x, float y) {
@@ -390,6 +395,7 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
         break;
        
         case '3':
+            bDrawTripodEye = !bDrawTripodEye;
         break;
 
         case '4':                  

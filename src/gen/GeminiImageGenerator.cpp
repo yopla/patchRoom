@@ -98,11 +98,10 @@ void GeminiImageGenerator::setup(string key) {
     apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict";
     api360Url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent";   
     nanoApiUrl = "https://generativelanguage.googleapis.com/v1beta/models/nano-banana-pro-preview:generateContent";
-   //gemini-3.1-flash-image-preview
-   //gemini-3-pro-image-preview
-    
-   //gemini-2.5-flash-image
-   // models/nano-banana-pro-preview
+    //gemini-3-pro-image-preview  
+    //gemini-3.1-flash-image-preview
+    //nano-banana-pro-preview
+
     videoApiUrl = "https://generativelanguage.googleapis.com/v1beta/models/veo-3.1-fast-generate-preview:predictLongRunning";
    
    
@@ -222,7 +221,11 @@ void GeminiImageGenerator::generateImage360FromImage(string prompt, string image
 
     ofJson json;
     // Structure Multimodale : Texte + Image Inline
-    json["contents"][0]["parts"][0]["text"] = prompt + " , 360 view, equirectangular projection, vr, 8k, seamless";
+    json["contents"][0]["parts"][0]["text"] = prompt + 
+    " , 360 Panoramic view, equirectangular projection, vr, 8k, seamless. " +
+    "Et retire les traits de construction";
+
+
     json["contents"][0]["parts"][1]["inline_data"]["mime_type"] = mimeType;
     json["contents"][0]["parts"][1]["inline_data"]["data"] = base64Img;
     //json["generationConfig"]["imageConfig"]["imageSize"] = "4K"; // Resolution 4K

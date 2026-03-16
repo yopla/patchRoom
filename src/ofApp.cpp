@@ -14,7 +14,7 @@ void ofApp::registerViewApp(shared_ptr<ViewApp> vApp){
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-        geminiGen.setup("AIzaSyDaO8zA-67JP-6kEKhyBmi6TbOjG_UHHwc");
+        geminiGen.setup("_");
 
     ofSetRandomSeed(42);
     ofSetFrameRate(APP_FPS);
@@ -62,6 +62,17 @@ void ofApp::update(){
     // --- CORRECTION : Lier scene2D à RoomPreview si ce n'est pas fait ---
     if(roomPreviewApp && scene2D && !roomPreviewApp->sceneSide) {
         roomPreviewApp->sceneSide = scene2D;
+    }
+    
+    // --- LIAISON DES FBOs DE ROOMAPP VERS SCENE2D ---
+    if(roomApp && scene2D && !scene2D->roomFboFront) {
+        scene2D->roomFboFront   = &roomApp->fboFront;
+        scene2D->roomFboBack    = &roomApp->fboBack;
+        scene2D->roomFboCour    = &roomApp->fboCour;
+        scene2D->roomFboJar     = &roomApp->fboJar;
+        scene2D->roomFboSol     = &roomApp->fboSol;
+        scene2D->roomFboTopCour = &roomApp->fboTopCour;
+        scene2D->roomFboTopJar  = &roomApp->fboTopJar;
     }
 
     // --- GESTION OSC (Réception & Envoi Frame) ---
@@ -256,12 +267,30 @@ void ofApp::keyPressed(int key){
         }
     }
 
+    // Reset Navigation
+    if(key == 'r' || key == 'R') {
+        float scaleX = (float)ofGetWidth() / canvasManager.width;
+        float scaleY = (float)ofGetHeight() / canvasManager.height;
+        masterZoom = std::min(scaleX, scaleY) * 0.9f;
+        masterPan.x = (ofGetWidth() - canvasManager.width * masterZoom) / 2.0;
+        masterPan.y = (ofGetHeight() - canvasManager.height * masterZoom) / 2.0;
+    }
+     ofVec2f m = getTransformedMouse();
+
     if(key == ' ') isSpacePressed = true;
+    
     if(key == 'g' || key == 'G') {
         gabMode++;
         if(gabMode > 3) gabMode = 0;
     }
     
+      // Commandes CreatureSystem
+    if(key == 'a' || key == 'A') creatureSystem.addRandomCreature(m.x, m.y);
+    if(key == 'd' || key == 'D') creatureSystem.removeLast();
+    if(key == 'z' || key == 'Z') creatureSystem.addCreature(m.x, m.y);
+
+
+
     // TOUCHE I : Générer une image IA
     if((key == 'i' || key == 'I') && ofGetKeyPressed(OF_KEY_SHIFT)) {
         geminiGen.generateImage("A futuristic mechanical doll with neon lights");
@@ -288,7 +317,17 @@ void ofApp::keyPressed(int key){
     
     // TOUCHE L : Générer une image 360 depuis l'export Room (Shift + L)
     if((key == 'l' || key == 'L') && ofGetKeyPressed(OF_KEY_SHIFT)) {
-        geminiGen.generateImage360FromImage("Transform this room into a surreal snake, keeping the structure but changing materials and lighting", "export_360_room.png"); // sur le 5 dans roomApp
+        string theme = "a surreal jukebox music machine";
+        string prompt = string("Transform this room into ") +
+                        "vector illustration of " + 
+                        theme + 
+                        " (in style of day of the tentacle) " +
+                        ", keeping the structure " + 
+                        "but changing materials and lighting";
+        geminiGen.generateImage360FromImage(
+            prompt, 
+            "export_360_room.png"
+        ); // sur le 5 dans roomApp
     }
 
 
@@ -304,23 +343,7 @@ void ofApp::keyPressed(int key){
     }
 
 
-
-
-
-    // Reset Navigation
-    if(key == 'r' || key == 'R') {
-        float scaleX = (float)ofGetWidth() / canvasManager.width;
-        float scaleY = (float)ofGetHeight() / canvasManager.height;
-        masterZoom = std::min(scaleX, scaleY) * 0.9f;
-        masterPan.x = (ofGetWidth() - canvasManager.width * masterZoom) / 2.0;
-        masterPan.y = (ofGetHeight() - canvasManager.height * masterZoom) / 2.0;
-    }
-     ofVec2f m = getTransformedMouse();
-    // Commandes CreatureSystem
-    if(key == 'a' || key == 'A') creatureSystem.addRandomCreature(m.x, m.y);
-    if(key == 'd' || key == 'D') creatureSystem.removeLast();
-    if(key == 'z' || key == 'Z') creatureSystem.addCreature(m.x, m.y);
-
+  
     
     // Toggles Layers
     if(key == 'w' || key == 'W') {

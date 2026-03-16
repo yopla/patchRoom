@@ -21,6 +21,7 @@ public:
         float currentAlpha;
         float targetAlpha;
         ofColor color;
+        bool isToggled = false;
     };
     vector<Button> buttons;
 
@@ -31,6 +32,18 @@ public:
     void toggleWorms() { bDrawWorms = !bDrawWorms; }
     bool bDrawWorms = false;
     
+    void setExternalHover(float x, float y) {
+        bHasExternalHover = true;
+        externalHoverPos.set(x, y);
+    }
+    void clearExternalHover() {
+        bHasExternalHover = false;
+    }
+    bool bHasExternalHover = false;
+    ofVec2f externalHoverPos;
+
+    void checkClick(float mx, float my);
+    void checkExternalClick();
 
 private:
 
