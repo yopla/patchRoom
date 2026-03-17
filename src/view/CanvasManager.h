@@ -10,6 +10,7 @@ public:
     void setup(int w, int h);
     void update(); 
 
+    void setPaused(bool bPause);
     // NOUVEAU : Pour gérer le drag & drop
     void loadFile(string path);
 

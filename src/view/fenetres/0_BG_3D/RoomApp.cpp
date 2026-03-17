@@ -347,14 +347,14 @@ void RoomApp::draw(){
     ofDrawBitmapString("SCENE 360 [8]: " + ofToString(bDrawScene360Video), 20, 155); // <--- AJOUT
     
     if(cursorSquare.isVisible) {
-        ofDrawBitmapString("CURSOR 3D: " + ofToString(cursorSquare.getCurrentPos()), 20, 170);
+        ofDrawBitmapString("CURSOR 3D: " + ofToString(cursorSquare.getCurrentPos()), 20, 185);
     }
     
     if(bLightFlyRingEnabled) {
         bool bDrawCoordDebug = true;// false;
         if (bDrawCoordDebug) {
-            ofDrawBitmapString("HALO CURSOR 3D: " + ofToString(inputHandler.cursor3DPos), 20, 185);
-            ofDrawBitmapString("LAST HALO POS: " + ofToString(inputHandler.lastCreatedHalo3DPos), 20, 200);
+            ofDrawBitmapString("HALO CURSOR 3D: " + ofToString(inputHandler.cursor3DPos), 20, 200);
+            ofDrawBitmapString("LAST HALO POS: " + ofToString(inputHandler.lastCreatedHalo3DPos), 20, 215);
         }
     }
 

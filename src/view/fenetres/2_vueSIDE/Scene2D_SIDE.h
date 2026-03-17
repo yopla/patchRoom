@@ -48,14 +48,14 @@ public:
     // Public dimensions needed by other systems
     const float wFront = 2400.0f;
     const float wJar   = 2624.0f;
+    
+    int bgDisplayMode = 0; // 0: JPGs Opaque, 1: JPGs Transparent, 2: Room FBOs, 3: Rien
 
 private:
     void captureSection(ofFbo& targetFbo, float worldX, float worldTopY, ofImage& img, ofFbo* roomFbo = nullptr, bool bDrawDynamics = true);
     void drawDynamicElements(); 
     ofImage imgJar, imgFront, imgCour, imgBack;
     ofImage imgSol, imgTopJar, imgTopCour;
-    
-    int bgDisplayMode = 0; // 0: JPGs Opaque, 1: JPGs Transparent, 2: Room FBOs, 3: Rien
     
     // Positions et dimensions
     float srcX_Jar, srcX_Front, srcX_Cour, srcX_Back;

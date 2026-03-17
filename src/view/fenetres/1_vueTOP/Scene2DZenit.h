@@ -15,7 +15,7 @@ public:
     void mouseDragged(int x, int y, int button);
     void keyPressed(int key);
     // po
-    bool bEnabled = true;
+    bool bEnabled = false;
     void setEnabled(bool enable) { bEnabled = enable; }
 
     bool bPaused = false;

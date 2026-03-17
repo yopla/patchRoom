@@ -58,6 +58,11 @@ public:
     void mouseReleased(const ofVec2f& mouse, int button);
     void addCousinCon(float x, float y);
     void addHalo(float x, float y);
+    
+    string selectedCreatureToSpawn = "Ripple";
+    string selectedInteractiveLayer = "";
+    void spawnSelectedCreature(float x, float y);
+    void removeLastCreature();
 
     // Layer Toggles (publics pour l'UI)
     bool bDrawCreatures = true;

@@ -3,13 +3,15 @@
 #include "RoomPreview.h"      // <--- INDISPENSABLE pour accéder à setPaused
 #include "ButtonApp.h"        // <--- INDISPENSABLE pour accéder à setEnabled
 #include "ofAppGLFWWindow.h"  // <--- INDISPENSABLE pour accéder à setVisible
+#include "PlaylistVisualizerApp.h"
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h" // <--- AJOUTEZ CETTE LIGNE
 
 //--------------------------------------------------------------
 // Enregistrement des vues pour les piloter
-void ofApp::registerViewApp(shared_ptr<ViewApp> vApp){
-    viewApps.push_back(vApp);
+void ofApp::registerViewApp(int index, shared_ptr<ViewApp> vApp){
+    if(viewApps.size() < 4) viewApps.resize(4, nullptr); // S'assure qu'on a de la place pour 4
+    if(index >= 0 && index < 4) viewApps[index] = vApp;
 }
 
 //--------------------------------------------------------------
@@ -55,12 +57,6 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
         // On prend le premier fichier de la liste
         string file = dragInfo.files[0];
         canvasManager.loadFile(file);
-        
-        if(roomApp) {
-            if(roomApp->bDrawAtmosphere) roomApp->atmosphere.loadTexture(file);
-            if(roomApp->bDrawCloudRing) roomApp->cloudRing.loadTexture(file);
-            if(roomApp->bDrawLiquidSphere) roomApp->liquidSphereRing.loadTexture(file);
-        }
     }
 }
 // ----------------------------------------------------
@@ -79,6 +75,18 @@ void ofApp::update(){
         scene2D->roomFboSol     = &roomApp->fboSol;
         scene2D->roomFboTopCour = &roomApp->fboTopCour;
         scene2D->roomFboTopJar  = &roomApp->fboTopJar;
+    }
+
+    // --- LIAISON DU PLAYER VERS LE VISUALISEUR ---
+    if(playlistApp && roomApp) {
+        playlistApp->player = &(roomApp->scene360VideoPlayer);
+        playlistApp->bDrawScene360VideoPtr = &(roomApp->bDrawScene360Video);
+        playlistApp->roomApp = roomApp.get();
+    }
+
+    // --- LIAISON DE SCENE2D VERS LE VISUALISEUR ---
+    if(playlistApp && scene2D) {
+        playlistApp->scene2D = scene2D.get();
     }
 
     // --- GESTION OSC (Réception & Envoi Frame) ---
@@ -147,6 +155,7 @@ void ofApp::update(){
         }
     }
 
+    canvasManager.setPaused(!shouldUpdate);
     if(scene2D) scene2D->setPaused(!shouldUpdate);
     if(roomApp) roomApp->setPaused(!shouldUpdate);
     if(sceneZenit) sceneZenit->setPaused(!shouldUpdate);
@@ -164,10 +173,11 @@ void ofApp::draw(){
 
     int gabAlpha = 0;
     switch(gabMode) {
-        case 0: gabAlpha = 255; break;       // 100%
-        case 1: gabAlpha = 90; break;        // 33%
-        case 2: gabAlpha = 42; break;        // 10%
-        case 3: gabAlpha = 0; break;         // OFF
+        case 0: gabAlpha = 255; break;       // 100% (Opaque)
+        case 1: gabAlpha = 190; break;       // 75%
+        case 2: gabAlpha = 85; break;        // 33%
+        case 3: gabAlpha = 25; break;        // 10% (Très léger)
+        case 4: gabAlpha = 0; break;         // OFF
     }
 
     // 1. Rendu dans le FBO Géant
@@ -186,6 +196,11 @@ void ofApp::draw(){
     creatureSystem.draw(m);
     canvasManager.canvas.end();
 
+    if(!bDrawMain) {
+        ofBackground(0);
+        return;
+    }
+
     // 2. Affichage à l'écran avec Navigation (Zoom/Pan)
     ofBackground(0);
     ofPushMatrix();
@@ -201,8 +216,12 @@ void ofApp::draw(){
     ofPopMatrix();
 
     // UI
-    ofSetColor(255);
-    ofDrawBitmapString("ESPACE + DRAG pour bouger | MOLETTE pour zoomer", 20, 20);
+    if(isSpacePressed) {
+        ofDrawBitmapStringHighlight("ESPACE + DRAG pour bouger | MOLETTE pour zoomer", 20, 20, ofColor(50, 200, 50), ofColor(0));
+    } else {
+        ofSetColor(255);
+        ofDrawBitmapString("ESPACE + DRAG pour bouger | MOLETTE pour zoomer", 20, 20);
+    }
 
     // --- DEBUG GEMINI ---
     // Si une image est chargée, on l'affiche en haut à gauche (taille 300x300)
@@ -213,6 +232,18 @@ void ofApp::draw(){
     // Feedback visuel pendant le chargement
     if(geminiGen.isGenerating()) {
         ofDrawBitmapStringHighlight("Generation IA en cours...", 20, 50, ofColor(255, 0, 0), ofColor(255));
+    }
+
+    // Feedback visuel curseur
+    if (isSpacePressed) {
+        ofPushStyle();
+        ofSetColor(50, 200, 50, 150);
+        ofFill();
+        ofDrawCircle(ofGetMouseX(), ofGetMouseY(), 20);
+        ofSetColor(255);
+        ofNoFill();
+        ofDrawCircle(ofGetMouseX(), ofGetMouseY(), 20);
+        ofPopStyle();
     }
 }
 
@@ -295,7 +326,7 @@ void ofApp::keyPressed(int key){
     
     if(key == 'g' || key == 'G') {
         gabMode++;
-        if(gabMode > 3) gabMode = 0;
+        if(gabMode > 4) gabMode = 0;
     }
     
       // Commandes CreatureSystem
@@ -333,13 +364,21 @@ void ofApp::keyPressed(int key){
     
 Transform this room into
 vector illustration of 
+
 a surreal jukebox music machine
- (in style of day of the tentacle) 
+
+(in style of day of the tentacle) 
 , keeping the structure 
 but changing materials and lighting 
 360 Panoramic view, equirectangular projection, vr, 8k, seamless
 Et retire les traits de construction
-et termine bien sur la dernière frame, n'essaie pas de relancer 
+le sol doit rester une textue de sol
+(ne mets rien sur le sol)
+
+et si c'est une vidéo : 
+commence bien précisment sur la 1er image,
+et termine bien sur la dernière frame précisement 
+(n'essaie pas de relancer un début d'autre chose, il faut de bonnes coutures)
 */
 
     // TOUCHE L : Générer une image 360 depuis l'export Room (Shift + L)
@@ -376,55 +415,16 @@ et termine bien sur la dernière frame, n'essaie pas de relancer
     if(key == 'w' || key == 'W') {
          bDrawRoom = !bDrawRoom; 
          if(roomApp) roomApp->setEnabled(bDrawRoom); 
-        if(roomWindowPtr){
-            auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(roomWindowPtr);
-            if(glfwWin) {
-                if(bDrawRoom) {
-                    glfwShowWindow(glfwWin->getGLFWWindow());
-                    glfwFocusWindow(glfwWin->getGLFWWindow());
-                    auto mainWin = dynamic_pointer_cast<ofAppGLFWWindow>(ofGetCurrentWindow());
-                    if(mainWin) glfwFocusWindow(mainWin->getGLFWWindow());
-                } else {
-                   // glfwHideWindow(glfwWin->getGLFWWindow());
-                }
-            }
-        }
     }
    
     if(key == 'x' || key == 'X') { 
         bDrawZenit = !bDrawZenit; 
         if(sceneZenit) sceneZenit->setEnabled(bDrawZenit); 
-        if(zenitWindowPtr){
-            auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(zenitWindowPtr);
-            if(glfwWin) {
-                if(bDrawZenit) {
-                    glfwShowWindow(glfwWin->getGLFWWindow());
-                    glfwFocusWindow(glfwWin->getGLFWWindow());
-                    auto mainWin = dynamic_pointer_cast<ofAppGLFWWindow>(ofGetCurrentWindow());
-                    if(mainWin) glfwFocusWindow(mainWin->getGLFWWindow());
-                } else {
-                   // glfwHideWindow(glfwWin->getGLFWWindow());
-                }
-            }
-        }
     }
     
         if(key == 'c' || key == 'C') {
          bDrawScene2D = !bDrawScene2D; 
          if(scene2D) scene2D->setEnabled(bDrawScene2D); 
-         if(scene2DWindowPtr){
-            auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(scene2DWindowPtr);
-            if(glfwWin) {
-                if(bDrawScene2D) {
-                    glfwShowWindow(glfwWin->getGLFWWindow());
-                    glfwFocusWindow(glfwWin->getGLFWWindow());
-                    auto mainWin = dynamic_pointer_cast<ofAppGLFWWindow>(ofGetCurrentWindow());
-                    if(mainWin) glfwFocusWindow(mainWin->getGLFWWindow());
-                } else {
-                    //glfwHideWindow(glfwWin->getGLFWWindow());
-                }
-            }
-        }
         }
 
 // TOUCHE V : PREVIEW (Celle qui crashait)
@@ -432,43 +432,36 @@ et termine bien sur la dernière frame, n'essaie pas de relancer
         if(roomPreviewApp){
             bool bShow = roomPreviewApp->bPaused; // Si c'était en pause (caché), on veut afficher
             roomPreviewApp->setPaused(!bShow);           
-            
-            if(previewWindowPtr){
-                auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(previewWindowPtr);
-                if(glfwWin) {
-                    if(bShow) {
-                        glfwShowWindow(glfwWin->getGLFWWindow());
-                        glfwFocusWindow(glfwWin->getGLFWWindow());
-                        auto mainWin = dynamic_pointer_cast<ofAppGLFWWindow>(ofGetCurrentWindow());
-                        if(mainWin) glfwFocusWindow(mainWin->getGLFWWindow());
-                    } else {
-                        //glfwHideWindow(glfwWin->getGLFWWindow());
-                    }
-                }
-            }
         }
     }
 
     if(key == 'b' || key == 'B'){
         bDrawButtons = !bDrawButtons;
         if(buttonApp) buttonApp->setEnabled(bDrawButtons);
-
-        if(buttonWindowPtr){
-            auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(buttonWindowPtr);
-            if(glfwWin) {
-                if(bDrawButtons) {
-                    glfwShowWindow(glfwWin->getGLFWWindow());
-                    glfwFocusWindow(glfwWin->getGLFWWindow());
-                    auto mainWin = dynamic_pointer_cast<ofAppGLFWWindow>(ofGetCurrentWindow());
-                    if(mainWin) glfwFocusWindow(mainWin->getGLFWWindow());
-                } else {
-                    //glfwHideWindow(glfwWin->getGLFWWindow());
-                }
-            }
-        }
     }
 }
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
     if(key == ' ') isSpacePressed = false;
+}
+
+//--------------------------------------------------------------
+void ofApp::globalKeyPressed(ofKeyEventArgs& args){
+    int key = args.key;
+    
+    // Raccourci global 'N' pour afficher et focus la fenêtre Playlist
+    if(key == 'n' || key == 'N'){
+        // Force l'activation de la fenêtre
+        bDrawPlaylist = true;
+        if(playlistApp) playlistApp->setEnabled(true);
+
+        if(playlistWindowPtr){
+            auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(playlistWindowPtr);
+            if(glfwWin) {
+                glfwShowWindow(glfwWin->getGLFWWindow());
+                glfwRestoreWindow(glfwWin->getGLFWWindow()); // La ramène au premier plan si elle était minimisée
+                glfwFocusWindow(glfwWin->getGLFWWindow());   // Force le focus dessus
+            }
+        }
+    }
 }

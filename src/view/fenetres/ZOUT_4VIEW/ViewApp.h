@@ -19,6 +19,8 @@ public:
     ofShader shaderBlurY;
     ofFbo fboPing, fboPong;
     bool bBlur = false;
+    
+    bool bEnabled = true;
 
     void setup() override {
         shaderBlurX.load("shaders/shaderBlurX");
@@ -44,6 +46,8 @@ public:
     }
 
     void update() {
+        if(!bEnabled) return;
+        
         // Ta logique existante de mouvement automatique au démarrage
         if (!bMoved && ofGetElapsedTimef() > 3.0 && myWindow) {
             myWindow->setWindowPosition(targetPos.x, targetPos.y);
@@ -55,6 +59,11 @@ public:
     }
 
     void draw() override {
+        if(!bEnabled) {
+            ofBackground(0); // Affiche un écran noir rassurant (évite le gel d'image)
+            return;          // Coupe tous les calculs (textures, shaders, etc.)
+        }
+        
         if (bBlur) {
             // Allocation dynamique si nécessaire
             if (!fboPing.isAllocated() || fboPing.getWidth() != ofGetWidth() || fboPing.getHeight() != ofGetHeight()) {

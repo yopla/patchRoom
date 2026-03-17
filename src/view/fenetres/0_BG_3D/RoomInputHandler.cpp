@@ -216,6 +216,9 @@ void RoomInputHandler::keyPressed(int key) {
         app->bDrawScene360Video = !app->bDrawScene360Video;
         app->scene360VideoPlayer.toggle();
     }
+    if(key == '9') { // <--- AJOUT TOGGLE LOOP VIDEO 360
+        app->scene360VideoPlayer.toggleLoopMode();
+    }
 
     if(key == 'g' || key == 'G') {
         if (app->wallAlpha > 50.0f) {
@@ -336,6 +339,17 @@ void RoomInputHandler::dragEvent(ofDragInfo dragInfo) {
         string file = dragInfo.files[0];
         bool sphereActive = false;
         
+        ofFile f(file);
+        if(f.isDirectory()) {
+            if(app->scene360VideoPlayer.isSimulating32Videos()) {
+                app->scene360VideoPlayer.toggleSimulate32Videos();
+            }
+            app->scene360VideoPlayer.startPlaylist(file);
+            app->bDrawScene360Video = true; // S'assure que la vidéo est allumée visuellement
+            ofLogNotice("RoomInputHandler") << "Nouvelle playlist chargee via drag&drop : " << file;
+            return;
+        }
+
         if(app->bDrawAtmosphere && app->atmosphere.bShow360) {
             app->atmosphere.loadTexture(file);
             sphereActive = true;

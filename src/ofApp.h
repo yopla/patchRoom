@@ -20,6 +20,7 @@
 class ViewApp; 
 class RoomPreview; 
 class ButtonApp;
+class PlaylistVisualizerApp;
 
 class ofApp : public ofBaseApp {
 public:
@@ -28,9 +29,11 @@ GeminiImageGenerator geminiGen;
 
     // --- FLAGS D'AFFICHAGE ---
     bool bDrawRoom = true;     
-    bool bDrawZenit = true;    
+    bool bDrawMain = true;
+    bool bDrawZenit = false;    
     bool bDrawScene2D = true;  
     bool bDrawButtons = true;
+    bool bDrawPlaylist = true;
     int gabMode = 0; // 0:100%, 1:75%, 2:33%, 3:10%, 4:OFF
 
     // --- PAUSE & TIME ---
@@ -42,15 +45,18 @@ GeminiImageGenerator geminiGen;
      shared_ptr<RoomApp> roomApp; // Pointeur vers l'app 3D
 
     // focus et quoi dautre ?
+    shared_ptr<ofAppBaseWindow> mainWindowPtr;
     shared_ptr<ofAppBaseWindow> previewWindowPtr;
     shared_ptr<ofAppBaseWindow> roomWindowPtr;    // <--- AJOUTE ÇA
     shared_ptr<ofAppBaseWindow> scene2DWindowPtr; // <--- AJOUTE ÇA
     shared_ptr<ofAppBaseWindow> zenitWindowPtr;   // <--- AJOUT POUR ZENIT
     shared_ptr<ofAppBaseWindow> buttonWindowPtr;  // <--- AJOUT POUR BUTTONS
+    shared_ptr<ofAppBaseWindow> playlistWindowPtr; // <--- AJOUT POUR PLAYLIST
 
     // AJOUT : Pointeur vers l'app Preview (tu l'as peut-être déjà ou pas, sinon ajoute-le)
     shared_ptr<RoomPreview> roomPreviewApp;
     shared_ptr<ButtonApp> buttonApp;
+    shared_ptr<PlaylistVisualizerApp> playlistApp;
 
     
     void setup();
@@ -59,6 +65,7 @@ GeminiImageGenerator geminiGen;
     void dragEvent(ofDragInfo dragInfo);
 
     void keyPressed(int key);
+    void globalKeyPressed(ofKeyEventArgs& args);
     void keyReleased(int key);
     void mouseMoved(int x, int y);
     void mouseDragged(int x, int y, int button);
@@ -77,7 +84,7 @@ GeminiImageGenerator geminiGen;
     vector<shared_ptr<ViewApp>> viewApps;
 
     // Méthode pour enregistrer les vues depuis le main.cpp
-    void registerViewApp(shared_ptr<ViewApp> vApp);
+    void registerViewApp(int index, shared_ptr<ViewApp> vApp);
 
     // --- Accès direct pour ViewApp et RoomPreview ---
     ofFbo& canvas = canvasManager.canvas; 

@@ -16,6 +16,12 @@ void CanvasManager::update() {
     }
 }
 
+void CanvasManager::setPaused(bool bPause) {
+    if (bIsVideo && videoPlayer.isLoaded()) {
+        videoPlayer.setPaused(bPause);
+    }
+}
+
 void CanvasManager::loadFile(string path) {
     ofFile file(path);
     string ext = ofToUpper(file.getExtension());
@@ -69,18 +75,6 @@ void CanvasManager::drawBackground(shared_ptr<RoomApp> room,
         if (room->fboTopCour.isAllocated()) room->fboTopCour.draw(2400, 0);
     }
   
-   if (gabAlpha > 0) {
-        ofSetColor(255, gabAlpha);
-        
-        if (bIsVideo && videoPlayer.isLoaded()) {
-            // Dessine la vidéo étirée à la taille du canvas
-            videoPlayer.draw(0, 0, width, height); 
-        }
-        else if (!bIsVideo && imgFullGab.isAllocated()) {
-            // Dessine l'image
-            imgFullGab.draw(0, 0, width, height);
-        }
-    }
     // ------------------------------------------------
     // LAYER 1 (MILIEU) : SCENE ZENIT (Touche X)
     // ------------------------------------------------
@@ -117,7 +111,18 @@ void CanvasManager::drawBackground(shared_ptr<RoomApp> room,
     // ------------------------------------------------
     // LAYER 3 (OVERLAY) : GABARIT OU VIDEO (Touche G)
     // ------------------------------------------------
- 
+    if (gabAlpha > 0) {
+        ofSetColor(255, gabAlpha);
+        
+        if (bIsVideo && videoPlayer.isLoaded()) {
+            // Dessine la vidéo étirée à la taille du canvas
+            videoPlayer.draw(0, 0, width, height); 
+        }
+        else if (!bIsVideo && imgFullGab.isAllocated()) {
+            // Dessine l'image
+            imgFullGab.draw(0, 0, width, height);
+        }
+    }
 
     ofDisableAlphaBlending();
 }

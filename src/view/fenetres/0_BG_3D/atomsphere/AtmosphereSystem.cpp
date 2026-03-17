@@ -12,7 +12,11 @@ void AtmosphereSystem::holdLastFrame() {
         }
         // Copie la texture de la vidéo dans le FBO
         lastFrameFbo.begin();
+        ofClear(0);
+        ofPushStyle();
+        ofSetColor(255);
         video360.getTexture().draw(0, 0);
+        ofPopStyle();
         lastFrameFbo.end();
         bShowLastFrame = true;
     }
@@ -87,7 +91,8 @@ void AtmosphereSystem::update(float time) {
     if(bIsVideo && video360.isLoaded()) {
         video360.update();
         // Si on montrait la dernière frame et que la nouvelle vidéo a commencé, on arrête
-        if (bShowLastFrame && video360.isFrameNew()) {
+            // On s'assure que la vidéo est bien sortie de pause pour ne pas cacher l'image trop tôt
+            if (bShowLastFrame && !video360.isPaused() && video360.isFrameNew()) {
             bShowLastFrame = false;
         }
     }

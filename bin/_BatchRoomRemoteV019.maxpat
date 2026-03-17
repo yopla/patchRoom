@@ -10909,11 +10909,35 @@
 						"assistshowspatchername" : 0,
 						"boxes" : [ 							{
 								"box" : 								{
+									"id" : "obj-29",
+									"maxclass" : "message",
+									"numinlets" : 2,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 592.0, 614.0, 114.0, 22.0 ],
+									"text" : "/scene360/playlist 0"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-26",
+									"maxclass" : "message",
+									"numinlets" : 2,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 592.0, 588.0, 146.0, 22.0 ],
+									"text" : "/scene360/playlist _scene"
+								}
+
+							}
+, 							{
+								"box" : 								{
 									"id" : "obj-37",
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 792.0, 463.0, 38.0, 20.0 ],
+									"patching_rect" : [ 816.0, 471.0, 38.0, 20.0 ],
 									"text" : "fog"
 								}
 
@@ -10926,7 +10950,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "int" ],
 									"parameter_enable" : 0,
-									"patching_rect" : [ 767.0, 537.0, 24.0, 24.0 ]
+									"patching_rect" : [ 504.0, 586.0, 24.0, 24.0 ]
 								}
 
 							}
@@ -10937,7 +10961,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 767.0, 565.0, 77.0, 22.0 ],
+									"patching_rect" : [ 504.0, 614.0, 77.0, 22.0 ],
 									"text" : "/show360 $1"
 								}
 
@@ -10961,7 +10985,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "int" ],
 									"parameter_enable" : 0,
-									"patching_rect" : [ 761.5, 461.0, 24.0, 24.0 ]
+									"patching_rect" : [ 786.0, 469.0, 24.0, 24.0 ]
 								}
 
 							}
@@ -10972,7 +10996,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 761.5, 489.0, 99.0, 22.0 ],
+									"patching_rect" : [ 786.0, 497.0, 99.0, 22.0 ],
 									"text" : "/LiquidSphere $1"
 								}
 
@@ -10983,7 +11007,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 689.5, 463.0, 48.0, 20.0 ],
+									"patching_rect" : [ 714.0, 471.0, 48.0, 20.0 ],
 									"text" : "ripple"
 								}
 
@@ -10996,7 +11020,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "int" ],
 									"parameter_enable" : 0,
-									"patching_rect" : [ 421.0, 463.0, 24.0, 24.0 ]
+									"patching_rect" : [ 420.5, 435.0, 24.0, 24.0 ]
 								}
 
 							}
@@ -11008,7 +11032,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "int" ],
 									"parameter_enable" : 0,
-									"patching_rect" : [ 521.5, 463.0, 24.0, 24.0 ]
+									"patching_rect" : [ 548.5, 468.0, 24.0, 24.0 ]
 								}
 
 							}
@@ -11020,7 +11044,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "int" ],
 									"parameter_enable" : 0,
-									"patching_rect" : [ 659.5, 463.0, 24.0, 24.0 ]
+									"patching_rect" : [ 684.0, 471.0, 24.0, 24.0 ]
 								}
 
 							}
@@ -11031,7 +11055,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 659.5, 491.0, 85.0, 22.0 ],
+									"patching_rect" : [ 684.0, 499.0, 85.0, 22.0 ],
 									"text" : "/CloudRing $1"
 								}
 
@@ -11044,7 +11068,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "int" ],
 									"parameter_enable" : 0,
-									"patching_rect" : [ 411.5, 353.0, 24.0, 24.0 ]
+									"patching_rect" : [ 411.5, 301.0, 24.0, 24.0 ]
 								}
 
 							}
@@ -11056,7 +11080,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "int" ],
 									"parameter_enable" : 0,
-									"patching_rect" : [ 659.5, 354.0, 24.0, 24.0 ]
+									"patching_rect" : [ 659.5, 302.0, 24.0, 24.0 ]
 								}
 
 							}
@@ -11068,7 +11092,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "int" ],
 									"parameter_enable" : 0,
-									"patching_rect" : [ 523.5, 354.0, 24.0, 24.0 ]
+									"patching_rect" : [ 523.5, 302.0, 24.0, 24.0 ]
 								}
 
 							}
@@ -11079,7 +11103,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 523.5, 382.0, 129.0, 22.0 ],
+									"patching_rect" : [ 523.5, 330.0, 129.0, 22.0 ],
 									"text" : "/scene2D/fluidFloor $1"
 								}
 
@@ -11126,7 +11150,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 659.5, 382.0, 108.0, 22.0 ],
+									"patching_rect" : [ 659.5, 330.0, 108.0, 22.0 ],
 									"text" : "/scene2D/ballet $1"
 								}
 
@@ -11137,7 +11161,7 @@
 									"maxclass" : "newobj",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 523.5, 423.0, 50.0, 22.0 ],
+									"patching_rect" : [ 523.5, 371.0, 50.0, 22.0 ],
 									"text" : "s toUdp"
 								}
 
@@ -11149,7 +11173,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 411.5, 382.0, 98.0, 22.0 ],
+									"patching_rect" : [ 411.5, 330.0, 98.0, 22.0 ],
 									"text" : "/scene2D/fish $1"
 								}
 
@@ -11243,7 +11267,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 504.0, 539.0, 168.0, 22.0 ],
+									"patching_rect" : [ 447.5, 436.0, 168.0, 22.0 ],
 									"text" : "/LightFlyRing/addLight 0.1 0.1"
 								}
 
@@ -11255,7 +11279,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 421.0, 494.0, 95.0, 22.0 ],
+									"patching_rect" : [ 420.5, 466.0, 95.0, 22.0 ],
 									"text" : "/LightFlyRing $1"
 								}
 
@@ -11267,7 +11291,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 521.5, 494.0, 79.0, 22.0 ],
+									"patching_rect" : [ 548.5, 499.0, 79.0, 22.0 ],
 									"text" : "/FluidRing $1"
 								}
 
@@ -11493,7 +11517,7 @@
 													"numoutlets" : 1,
 													"outlettype" : [ "" ],
 													"patching_rect" : [ 211.0, 282.0, 50.0, 22.0 ],
-													"text" : "2580"
+													"text" : "2537"
 												}
 
 											}
@@ -11553,7 +11577,7 @@
 													"numoutlets" : 1,
 													"outlettype" : [ "" ],
 													"patching_rect" : [ 172.0, 430.0, 98.0, 22.0 ],
-													"text" : "/time 1220"
+													"text" : "/time 395"
 												}
 
 											}
@@ -11630,7 +11654,7 @@
 													"patching_rect" : [ 295.0, 136.89111328125, 50.0, 22.0 ],
 													"presentation" : 1,
 													"presentation_rect" : [ 37.0, 302.0, 50.0, 22.0 ],
-													"text" : "2579"
+													"text" : "3529"
 												}
 
 											}
@@ -11980,7 +12004,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 87.0, 517.0, 247.0, 22.0 ],
+									"patching_rect" : [ 87.0, 524.0, 247.0, 22.0 ],
 									"text" : "/MainCanevas/addRandomCreature 200 425"
 								}
 
@@ -12713,7 +12737,7 @@
 													"numoutlets" : 1,
 													"outlettype" : [ "" ],
 													"patching_rect" : [ 85.0, 137.0, 50.0, 22.0 ],
-													"text" : "2600"
+													"text" : "2557"
 												}
 
 											}
@@ -13333,7 +13357,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 72.0, 491.0, 307.0, 22.0 ],
+									"patching_rect" : [ 57.0, 495.0, 307.0, 22.0 ],
 									"text" : "/timed 124 /MainCanevas/addRandomCreature 100 125"
 								}
 
@@ -13576,8 +13600,22 @@
 							}
 , 							{
 								"patchline" : 								{
+									"destination" : [ "obj-20", 0 ],
+									"source" : [ "obj-26", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
 									"destination" : [ "obj-24", 0 ],
 									"source" : [ "obj-27", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-20", 0 ],
+									"source" : [ "obj-29", 0 ]
 								}
 
 							}
@@ -17733,7 +17771,7 @@
 													"numoutlets" : 2,
 													"outlettype" : [ "signal", "float" ],
 													"patching_rect" : [ 94.0, 188.0, 56.0, 22.0 ],
-													"sig" : 4.0
+													"sig" : 2.56
 												}
 
 											}
@@ -17761,7 +17799,7 @@
 													"numoutlets" : 2,
 													"outlettype" : [ "signal", "float" ],
 													"patching_rect" : [ 24.0, 188.0, 56.0, 22.0 ],
-													"sig" : 500.0
+													"sig" : 570.0
 												}
 
 											}

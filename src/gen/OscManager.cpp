@@ -83,6 +83,25 @@ void OscManager::processOscMessage(ofxOscMessage& mess, ofApp* app) {
         }
     }
 
+    // Commande: /scene360/playlist [folderName]
+    else if(address == "/scene360/playlist") {
+        if(mess.getNumArgs() > 0 && app->roomApp) {
+            string folder = "";
+            if(mess.getArgType(0) == OFXOSC_TYPE_STRING) {
+                folder = mess.getArgAsString(0);
+            }
+
+            // Si le dossier est "0" ou vide, on arrête le lecteur
+            if (folder == "0" || folder.empty()) {
+                app->roomApp->scene360VideoPlayer.stop();
+                app->roomApp->bDrawScene360Video = false;
+            } else {
+                // Sinon, on lance la playlist depuis ce dossier
+                app->roomApp->scene360VideoPlayer.startPlaylist(folder);
+                app->roomApp->bDrawScene360Video = true;
+            }
+        }
+    }
     // Commande: /FluidRing [0 ou 1]
     else if(address == "/FluidRing"){
         bool state = false;

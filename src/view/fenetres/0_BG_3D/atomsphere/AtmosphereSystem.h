@@ -20,13 +20,14 @@ public:
     ofVideoPlayer video360;
     bool bIsVideo = false;
     bool bShowLastFrame = false;
+    ofFbo lastFrameFbo;
 
 private:
     // Sphère d'environnement
     ofSpherePrimitive sphereEnvironnement;
     ofTexture textureDamier;
     ofMesh meshColoredSphere;
-    ofFbo lastFrameFbo;
+
         
     // Boule à facettes
     ofMesh meshDiscoBall;

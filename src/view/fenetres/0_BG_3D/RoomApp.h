@@ -79,7 +79,12 @@ public:
     void setEnabled(bool enable) { bEnabled = enable; }
 
     bool bPaused = false;
-    void setPaused(bool paused) { bPaused = paused; }
+    void setPaused(bool paused) { 
+        bPaused = paused; 
+        if (atmosphere.bIsVideo && atmosphere.video360.isLoaded()) {
+            atmosphere.video360.setPaused(paused);
+        }
+    }
     float localTime = 0.0f;
     void setLocalTime(float t) { localTime = t; }
 

@@ -5,6 +5,7 @@
 #include "RoomApp.h"
 #include "RoomPreview.h" // Si vous avez gardé la preview précédente
 #include "Scene2DZenit.h" // <--- AJOUT
+#include "PlaylistVisualizerApp.h"
 #include "ButtonApp.h"
 
 // Classe dérivée pour gérer l'enregistrement de la Vue 3
@@ -197,6 +198,13 @@ int main( ){
     settings.shareContextWith = mainWindow;
     shared_ptr<ofAppBaseWindow> buttonWindow = ofCreateWindow(settings);
 
+    // Fenêtre Playlist Visualizer
+    settings.setSize(600, 600);
+    settings.setPosition(ofVec2f(300, 50));
+    settings.resizable = true;
+    settings.title = "Playlist Visualizer";
+    settings.shareContextWith = mainWindow;
+    shared_ptr<ofAppBaseWindow> playlistWindow = ofCreateWindow(settings);
 
 
     // ------------------------------------------------
@@ -220,6 +228,7 @@ int main( ){
     shared_ptr<Scene2D_SIDE> scene2DApp(new Scene2D_SIDE);
     shared_ptr<Scene2DZenit> zenitApp(new Scene2DZenit);
     shared_ptr<ButtonApp> buttonApp(new ButtonApp);
+    shared_ptr<PlaylistVisualizerApp> playlistApp(new PlaylistVisualizerApp);
     
     // ------------------------------------------------
     // 3. CONNEXIONS
@@ -234,22 +243,22 @@ int main( ){
     if(bEnableView1) {
         viewApp1->setupView(mainApp);
         viewApp1->setWindowMovement(viewWindow1, 1300, 100, 4096, 2160); 
-        mainApp->registerViewApp(viewApp1);
+        mainApp->registerViewApp(0, viewApp1);
     }
     if(bEnableView2) {
         viewApp2->setupView(mainApp);
         viewApp2->setWindowMovement(viewWindow2, 1300, 100, 4096, 2160); 
-        mainApp->registerViewApp(viewApp2);
+        mainApp->registerViewApp(1, viewApp2);
     }
     if(bEnableView3) {
         viewApp3->setupView(mainApp);
         viewApp3->setWindowMovement(viewWindow3, 1300, 100, 5024, 5312); 
-        mainApp->registerViewApp(viewApp3);
+        mainApp->registerViewApp(2, viewApp3);
     }
     if(bEnableView4) {
         viewApp4->setupView(mainApp);
         viewApp4->setWindowMovement(viewWindow4, 1300, 100, 4096, 2160); 
-        mainApp->registerViewApp(viewApp4);
+        mainApp->registerViewApp(3, viewApp4);
     }
 
 
@@ -265,11 +274,30 @@ int main( ){
     mainApp->roomPreviewApp = roomPreview; // On donne l'app à ofApp
     mainApp->previewWindowPtr = previewWindow; // On donne la fenêtre à ofApp
 // --- AJOUTE CES LIGNES POUR LE FOCUS ---
+    mainApp->mainWindowPtr = mainWindow;
     mainApp->roomWindowPtr = roomWindow;
     mainApp->scene2DWindowPtr = scene2DWindow;
     mainApp->zenitWindowPtr = zenitWindow; // Connexion de la fenêtre Zenit
     mainApp->previewWindowPtr = previewWindow; // Déjà présent
     mainApp->buttonWindowPtr = buttonWindow;
+    mainApp->playlistApp = playlistApp;
+    mainApp->playlistWindowPtr = playlistWindow;
+    playlistApp->mainAppPtr = mainApp.get();
+
+    // --- ECOUTE GLOBALE DE LA TOUCHE N POUR TOUTES LES FENETRES ---
+    // On s'abonne explicitement aux événements clavier de CHAQUE fenêtre créée
+    ofAddListener(mainWindow->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
+    ofAddListener(roomWindow->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
+    ofAddListener(scene2DWindow->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
+    ofAddListener(zenitWindow->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
+    ofAddListener(buttonWindow->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
+    ofAddListener(previewWindow->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
+    ofAddListener(playlistWindow->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
+    
+    if(bEnableView1) ofAddListener(viewWindow1->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
+    if(bEnableView2) ofAddListener(viewWindow2->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
+    if(bEnableView3) ofAddListener(viewWindow3->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
+    if(bEnableView4) ofAddListener(viewWindow4->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
 
     // ------------------------------------------------
     // 4. CONFIGURATION DES CROPS (LAYERS)
@@ -303,6 +331,7 @@ int main( ){
     ofRunApp(scene2DWindow, scene2DApp);
     ofRunApp(zenitWindow, zenitApp); // Lancement fenêtre Zenit
     ofRunApp(buttonWindow, buttonApp); // Lancement fenêtre Boutons
+    ofRunApp(playlistWindow, playlistApp); // Lancement fenêtre Playlist
     
     ofRunApp(mainWindow, dynamic_pointer_cast<ofBaseApp>(mainApp));
     

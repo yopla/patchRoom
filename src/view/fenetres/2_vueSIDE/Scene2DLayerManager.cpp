@@ -318,6 +318,29 @@ void Scene2DLayerManager::addHalo(float x, float y) {
     halos.push_back(make_shared<HaloCreature>(x, y));
 }
 
+void Scene2DLayerManager::spawnSelectedCreature(float x, float y) {
+    if(selectedCreatureToSpawn == "Ripple") creatureSystem.addRipple(x, y, 0);
+    else if(selectedCreatureToSpawn == "Wanco") creatureSystem.addWancoCreature(x, y);
+    else if(selectedCreatureToSpawn == "Breakable") creatureSystem.addBreakableCreature(x, y);
+    else if(selectedCreatureToSpawn == "Geko") creatureSystem.addGekoCreature(x, y);
+    else if(selectedCreatureToSpawn == "Cousin") creatureSystem.addCousinCreature(x, y);
+    else if(selectedCreatureToSpawn == "CousinCon") addCousinCon(x, y);
+    else if(selectedCreatureToSpawn == "DblPendulum") creatureSystem.addDoublePendulum(x, y);
+    else if(selectedCreatureToSpawn == "Halo") addHalo(x, y);
+    else if(selectedCreatureToSpawn == "Fluids") creatureSystem.addFluidsCreature(x, y);
+    else if(selectedCreatureToSpawn == "Spring") creatureSystem.addSpringCreature(x, y);
+    else if(selectedCreatureToSpawn == "Dancing") creatureSystem.addDancingCreature(x, y);
+    else if(selectedCreatureToSpawn == "Creature") creatureSystem.addCreature(x, y);
+    else if(selectedCreatureToSpawn == "Otarie") creatureSystem.addOtarieCreature(x, y);
+    else if(selectedCreatureToSpawn == "Sauteur") creatureSystem.addCousinSauteur(x, y);
+}
+
+void Scene2DLayerManager::removeLastCreature() {
+    creatureSystem.removeLast();
+    if(!cousinCons.empty()) cousinCons.pop_back();
+    if(!halos.empty()) halos.pop_back();
+}
+
 void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
     // --- FENETRE 2D_SIDE ---
     switch (key) {
@@ -341,8 +364,26 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
         case 'q': case 'Q': creatureSystem.addWancoCreature(m.x, m.y); break;
         case 'b': case 'B': creatureSystem.addBreakableCreature(m.x, m.y); break;
         case 'f': case 'F': creatureSystem.addGekoCreature(m.x, m.y); break;
-        case 'a': case 'A': creatureSystem.addCousinCreature(m.x, m.y); break; // cousinHairWire
-        case 'z': case 'Z': addCousinCon(m.x, m.y); break; // cousinCon
+        case 'a': case 'A': 
+            if (selectedInteractiveLayer != "") {
+                if (selectedInteractiveLayer == "GroPuyo" && bDrawGroPuyo) {
+                    groPuyoLayer.addGroPuyo(m.x / groPuyoLayer.scale, m.y / groPuyoLayer.scale);
+                } else if (selectedInteractiveLayer == "Pendulum" && bDrawPendulum) {
+                    pendulumLayer.mousePressed(m.x, m.y);
+                } else if (selectedInteractiveLayer == "Puyo" && bDrawPuyo) {
+                    puyoLayer.addPuyo(m.x / puyoLayer.scale, m.y / puyoLayer.scale);
+                } else if (selectedInteractiveLayer == "Bubble" && bDrawBubbles) {
+                    bubbleLayer.addBubble(m.x / bubbleLayer.scale, m.y / bubbleLayer.scale);
+                } else if (selectedInteractiveLayer == "Poulpe" && bDrawPoulpe) {
+                    poulpeLayer.setTarget(m.x, m.y);
+                } else if (selectedInteractiveLayer == "Sardine" && bDrawFish) {
+                    fishSchoolLayer.addSardine(m.x, m.y);
+                }
+            } else if (selectedCreatureToSpawn != "") {
+                spawnSelectedCreature(m.x, m.y); 
+            }
+            break; 
+        case 'z': case 'Z': removeLastCreature(); break; 
         case 's': case 'S': creatureSystem.addDoublePendulum(m.x, m.y); break;
         case 'y': case 'Y': addHalo(m.x, m.y); break;
         
@@ -386,10 +427,6 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
             //bDrawBubbles = !bDrawBubbles; 
             //creatureSystem.addCousinSauteur(m.x, m.y);
 
-        case '1': 
-          
-        break; 
-        
         case '2': 
             bDrawWalkingSquare = !bDrawWalkingSquare;
         break;
@@ -460,7 +497,7 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
             break;
         case 'j': case 'J': bDrawPoulpe = !bDrawPoulpe; break;
         case 'l': case 'L': bDrawSauteurs = !bDrawSauteurs; break;
-        case 'n': case 'N': bDrawWalker = !bDrawWalker; break;
+        case '0': bDrawWalker = !bDrawWalker; break; // Ancien 'N' remplacé par 0 pour éviter le conflit avec Playlist
         case 't': case 'T': // Digging creature layer
             bDrawDigging = !bDrawDigging;
             if (bDrawDigging && !diggingCreature.isEnabled()) diggingCreature.toggle();
