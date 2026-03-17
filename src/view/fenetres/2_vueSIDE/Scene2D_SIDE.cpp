@@ -276,49 +276,9 @@ void Scene2D_SIDE::keyPressed(int key) {
     
     if (key == OF_KEY_RETURN) {
         if (ofGetKeyPressed(OF_KEY_SHIFT)) {
-            // EXPORT FULL SCENE 2D (Shift + Return)
-            float exportHeight = 912 + 1472 + 2368; // top = -912, centre = 1472, sol = +2368
-            ofFbo fboExp;
-            fboExp.allocate(totalSceneWidth, exportHeight, GL_RGBA);
-            fboExp.begin();
-            ofClear(0, 0, 0, 255); // Fond noir opaque
-            ofPushMatrix();
-            ofTranslate(0, 912); // Décaler vers le bas pour capturer les éléments en Y négatif (TopJar, TopCour)
-            
-            ofSetColor(255);
-            fboJar.draw(srcX_Jar, hMax - 784);
-            fboFront.draw(srcX_Front, hMax - 1472);
-            fboCour.draw(srcX_Cour, hMax - 1072);
-            fboBack.draw(srcX_Back, hMax - 1472);
-
-            fboTopJar.draw(srcX_Jar, hMax - 784 - 1600); 
-            fboSol.draw(srcX_Front, hMax); 
-            fboTopCour.draw(srcX_Cour, hMax - 1072 - 1008);
-            
-            ofPopMatrix();
-            fboExp.end();
-            ofPixels pix;
-            fboExp.readToPixels(pix);
-            ofSaveImage(pix, "scene2D_full_export_" + ofGetTimestampString() + ".png");
-            ofLogNotice("Scene2D_SIDE") << "Export complet sauvegarde: scene2D_full_export_...";
+            exportFullScene();
         } else {
-            // EXPORT COLLIDERS (Return simple)
-            float exportHeight = 912 + 1472 + 2368; // 4752
-            ofFbo fboExp;
-            fboExp.allocate(totalSceneWidth, exportHeight, GL_RGBA);
-            fboExp.begin();
-            ofClear(0, 0, 0, 0);
-            ofPushMatrix();
-            ofTranslate(0, 912); // Décalage pour inclure les toits
-            if(layerManager.colliderLayer) {
-                layerManager.colliderLayer->draw();
-            }
-            ofPopMatrix();
-            fboExp.end();
-            ofPixels pix;
-            fboExp.readToPixels(pix);
-            ofSaveImage(pix, "colliders_export_" + ofGetTimestampString() + ".png");
-            ofLogNotice("Scene2D_SIDE") << "Export colliders (10048x4752) sauvegarde: colliders_export_...";
+            exportColliders();
         }
     }
 
@@ -455,4 +415,54 @@ ofVec3f Scene2D_SIDE::get3DPos(float x, float y) {
     }
 
     return ofVec3f(0,0,0);
+}
+
+//--------------------------------------------------------------
+void Scene2D_SIDE::exportFullScene() {
+    // EXPORT FULL SCENE 2D (Shift + Return)
+    float exportHeight = 912 + 1472 + 2368; // top = -912, centre = 1472, sol = +2368
+    ofFbo fboExp;
+    fboExp.allocate(totalSceneWidth, exportHeight, GL_RGBA);
+    fboExp.begin();
+    ofClear(0, 0, 0, 255); // Fond noir opaque
+    ofPushMatrix();
+    ofTranslate(0, 912); // Décaler vers le bas pour capturer les éléments en Y négatif (TopJar, TopCour)
+    
+    ofSetColor(255);
+    fboJar.draw(srcX_Jar, hMax - 784);
+    fboFront.draw(srcX_Front, hMax - 1472);
+    fboCour.draw(srcX_Cour, hMax - 1072);
+    fboBack.draw(srcX_Back, hMax - 1472);
+
+    fboTopJar.draw(srcX_Jar, hMax - 784 - 1600); 
+    fboSol.draw(srcX_Front, hMax); 
+    fboTopCour.draw(srcX_Cour, hMax - 1072 - 1008);
+    
+    ofPopMatrix();
+    fboExp.end();
+    ofPixels pix;
+    fboExp.readToPixels(pix);
+    ofSaveImage(pix, "scene2D_full_export_" + ofGetTimestampString() + ".png");
+    ofLogNotice("Scene2D_SIDE") << "Export complet sauvegarde: scene2D_full_export_...";
+}
+
+//--------------------------------------------------------------
+void Scene2D_SIDE::exportColliders() {
+    // EXPORT COLLIDERS (Return simple)
+    float exportHeight = 912 + 1472 + 2368; // 4752
+    ofFbo fboExp;
+    fboExp.allocate(totalSceneWidth, exportHeight, GL_RGBA);
+    fboExp.begin();
+    ofClear(0, 0, 0, 0);
+    ofPushMatrix();
+    ofTranslate(0, 912); // Décalage pour inclure les toits
+    if(layerManager.colliderLayer) {
+        layerManager.colliderLayer->draw();
+    }
+    ofPopMatrix();
+    fboExp.end();
+    ofPixels pix;
+    fboExp.readToPixels(pix);
+    ofSaveImage(pix, "colliders_export_" + ofGetTimestampString() + ".png");
+    ofLogNotice("Scene2D_SIDE") << "Export colliders (10048x4752) sauvegarde: colliders_export_...";
 }

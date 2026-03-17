@@ -32,6 +32,10 @@ private:
                       shared_ptr<RoomApp> roomApp, 
                       const vector<glm::vec3>& activeButtons3DPositions);
 
+    // Nouvelle méthode pour le PlanColle
+    void updatePlanColle(shared_ptr<RoomApp> roomApp, 
+                         const vector<pair<glm::vec3, bool>>& allButtons);
+
     float maxPerceptionRadius;
     int maxButtonsToConsider;
 };

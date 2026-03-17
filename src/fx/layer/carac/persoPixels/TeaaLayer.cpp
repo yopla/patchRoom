@@ -318,8 +318,6 @@ vector<ofPoint> TeaaLayer::findPath(int sx, int sy, int ex, int ey) {
 
 //--------------------------------------------------------------
 void TeaaLayer::update(float time) {
-    if(!bActive) return;
-    
     // Turn based logic (Simulating the AS3 frame/turn system)
     if(time - lastTurnTime > turnInterval) {
         lastTurnTime = time;
@@ -414,8 +412,6 @@ void TeaaLayer::update(float time) {
 
 //--------------------------------------------------------------
 void TeaaLayer::draw() {
-    if(!bActive) return;
-    
     ofPushStyle();
     
     // No centering needed if we fill the width

@@ -49,6 +49,9 @@ void ofApp::setup(){
     masterZoom = std::min(scaleX, scaleY) * 0.9f;
     masterPan.x = (ofGetWidth() - canvasManager.width * masterZoom) / 2.0;
     masterPan.y = (ofGetHeight() - canvasManager.height * masterZoom) / 2.0;
+    
+    // Ajout d'un écouteur temporaire pour gérer le focus initial
+    ofAddListener(ofEvents().update, this, &ofApp::onDelayedFocus);
 }
 
 //--------------------------------------------------------------
@@ -59,6 +62,23 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
         canvasManager.loadFile(file);
     }
 }
+
+//--------------------------------------------------------------
+void ofApp::onDelayedFocus(ofEventArgs & args){
+    if(ofGetFrameNum() > 30) {
+        if(playlistWindowPtr) {
+            auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(playlistWindowPtr);
+            if(glfwWin) {
+                glfwShowWindow(glfwWin->getGLFWWindow());
+                glfwRestoreWindow(glfwWin->getGLFWWindow());
+                glfwFocusWindow(glfwWin->getGLFWWindow());
+            }
+        }
+        // On supprime l'écouteur une fois l'action effectuée pour libérer les ressources
+        ofRemoveListener(ofEvents().update, this, &ofApp::onDelayedFocus);
+    }
+}
+
 // ----------------------------------------------------
 void ofApp::update(){
     // --- CORRECTION : Lier scene2D à RoomPreview si ce n'est pas fait ---
@@ -384,6 +404,14 @@ et termine bien sur la dernière frame précisement
     // TOUCHE L : Générer une image 360 depuis l'export Room (Shift + L)
     if((key == 'l' || key == 'L') && ofGetKeyPressed(OF_KEY_SHIFT)) {
         string theme = "a surreal jukebox music machine";
+        
+        if(playlistApp) {
+            theme = playlistApp->themeText;
+            if(!playlistApp->apiKeyText.empty()) {
+                geminiGen.setApiKey(playlistApp->apiKeyText);
+            }
+        }
+        
         string prompt = string("Transform this room into ") +
                         "vector illustration of " + 
                         theme + 
@@ -400,7 +428,7 @@ et termine bien sur la dernière frame précisement
 
 
     if((key == 'k' || key == 'K') && ofGetKeyPressed(OF_KEY_SHIFT)) {
-        geminiGen.generateVideoFromImage("Panoramic Hdri image 360° VR (Equirectangular projection) D'une bete poilu dans un marais enchanté, slow cinematic movement", "gen360_last.jpg");
+        geminiGen.generateVideoFromImage("une bete poilu dans un marais enchanté, slow cinematic movement", "gen360_last.jpg");
     }
 
     // TOUCHE J : Générer une vidéo IA depuis 2 images (Shift + J)

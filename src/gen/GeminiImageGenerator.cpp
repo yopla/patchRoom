@@ -96,7 +96,6 @@ std::string base64_encode(unsigned char const* bytes_to_encode, unsigned int in_
 void GeminiImageGenerator::setup(string key) {
     apiKey = key;
     apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict";
-    api360Url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent";   
     nanoApiUrl = "https://generativelanguage.googleapis.com/v1beta/models/nano-banana-pro-preview:generateContent";
     //gemini-3-pro-image-preview  
     //gemini-3.1-flash-image-preview
@@ -162,7 +161,7 @@ void GeminiImageGenerator::generateImage360(string prompt) {
         return;
     }
 
-    ofLogNotice("GeminiImageGenerator") << "Envoi du prompt 360 (Gemini 3.1) : " << prompt;
+    ofLogNotice("GeminiImageGenerator") << "Envoi du prompt 360 (" << modelName << ") : " << prompt;
     bIsLoading = true;
     bNew360ImageAvailable = false;
     bIsRequest360 = true; // On active le flag 360
@@ -172,13 +171,15 @@ void GeminiImageGenerator::generateImage360(string prompt) {
     json["contents"][0]["parts"][0]["text"] = prompt + " , 360 view, equirectangular projection, vr, 8k, seamless";
 
     json["generationConfig"]["imageConfig"]["aspectRatio"] = "16:9"; // Format large
-    //json["generationConfig"]["imageConfig"]["imageSize"] = "4K"; // Resolution 4K
+    if (!imageSize.empty()) {
+        json["generationConfig"]["imageConfig"]["imageSize"] = imageSize;
+    }
     
 
     ofHttpRequest request;
     request.method = ofHttpRequest::POST;
-    // Utilisation du modèle Gemini 3.1
-    request.url = api360Url + "?key=" + apiKey;
+    // Utilisation du modèle dynamique
+    request.url = "https://generativelanguage.googleapis.com/v1beta/models/" + modelName + ":generateContent?key=" + apiKey;
     request.headers["Content-Type"] = "application/json";
     request.body = json.dump();
     request.name = "GeminiImageGen"; // On garde le même nom pour réutiliser le parsing JSON
@@ -214,7 +215,7 @@ void GeminiImageGenerator::generateImage360FromImage(string prompt, string image
     string ext = ofToLower(file.getExtension());
     if (ext == "jpg" || ext == "jpeg") mimeType = "image/jpeg";
 
-    ofLogNotice("GeminiImageGenerator") << "Envoi du prompt 360 Image-to-Image (Gemini 3.1) : " << prompt;
+    ofLogNotice("GeminiImageGenerator") << "Envoi du prompt 360 Image-to-Image (" << modelName << ") : " << prompt;
     bIsLoading = true;
     bNew360ImageAvailable = false;
     bIsRequest360 = true; // On active le flag 360 pour la sauvegarde
@@ -228,14 +229,16 @@ void GeminiImageGenerator::generateImage360FromImage(string prompt, string image
 
     json["contents"][0]["parts"][1]["inline_data"]["mime_type"] = mimeType;
     json["contents"][0]["parts"][1]["inline_data"]["data"] = base64Img;
-    //json["generationConfig"]["imageConfig"]["imageSize"] = "4K"; // Resolution 4K
+    if (!imageSize.empty()) {
+        json["generationConfig"]["imageConfig"]["imageSize"] = imageSize;
+    }
 
     // Configuration
     // Note: On ne force pas l'aspectRatio ici pour laisser le modèle suivre l'image d'entrée (souvent 2:1 pour la 360)
     
     ofHttpRequest request;
     request.method = ofHttpRequest::POST;
-    request.url = api360Url + "?key=" + apiKey; // Utilise gemini-3.1-flash-image-preview
+    request.url = "https://generativelanguage.googleapis.com/v1beta/models/" + modelName + ":generateContent?key=" + apiKey;
     request.headers["Content-Type"] = "application/json";
     request.body = json.dump();
     request.name = "GeminiImageGen"; 
@@ -258,7 +261,9 @@ void GeminiImageGenerator::generateNano360(string prompt) {
     ofJson json;
     json["contents"][0]["parts"][0]["text"] = prompt + " , 360 view, equirectangular projection, vr, 8k, seamless";
     json["generationConfig"]["imageConfig"]["aspectRatio"] = "16:9"; 
-    //json["generationConfig"]["imageConfig"]["imageSize"] = "4K"; // Resolution 4K
+    if (!imageSize.empty()) {
+        json["generationConfig"]["imageConfig"]["imageSize"] = imageSize;
+    }
 
     ofHttpRequest request;
     request.method = ofHttpRequest::POST;
@@ -287,7 +292,9 @@ void GeminiImageGenerator::generateVideo(string prompt) {
     json["instances"][0]["prompt"] = prompt;
     json["parameters"]["sampleCount"] = 1;
     json["parameters"]["aspectRatio"] = "16:9"; // Format vidéo
-   // json["parameters"]["resolution"] = "4k"; // Format vidéo
+    if (!videoResolution.empty()) {
+        json["parameters"]["resolution"] = videoResolution;
+    }
 
     //json["parameters"]["outputOptions"]["mimeType"] = "video/mp4";
 
@@ -336,13 +343,15 @@ void GeminiImageGenerator::generateVideoFromImage(string prompt, string imagePat
 
     ofJson json;
     // Structure pour Veo avec image de référence
-    json["instances"][0]["prompt"] = prompt;
+    json["instances"][0]["prompt"] = "Panoramic Hdri image 360° VR (Equirectangular projection) , seamless,  " + prompt;
     json["instances"][0]["image"]["mimeType"] = mimeType;
     json["instances"][0]["image"]["bytesBase64Encoded"] = base64Img;
     
     json["parameters"]["sampleCount"] = 1;
     json["parameters"]["aspectRatio"] = "16:9"; // Ou "9:16" pour du portrait
-    //json["parameters"]["resolution"] = "4k"; // Format vidéo
+    if (!videoResolution.empty()) {
+        json["parameters"]["resolution"] = videoResolution;
+    }
     
     ofHttpRequest request;
     request.method = ofHttpRequest::POST;
@@ -393,7 +402,7 @@ void GeminiImageGenerator::generateVideoFromDeuxImages(string prompt, string ima
 
     ofJson json;
     // Structure pour Veo avec image de référence (Start Frame)
-    json["instances"][0]["prompt"] = prompt;
+    json["instances"][0]["prompt"] = "Panoramic Hdri image 360° VR (Equirectangular projection) , seamless,  " + prompt;
     json["instances"][0]["image"]["mimeType"] = mimeType1;
     json["instances"][0]["image"]["bytesBase64Encoded"] = base64Img1;
     
@@ -404,7 +413,9 @@ void GeminiImageGenerator::generateVideoFromDeuxImages(string prompt, string ima
     // Les paramètres globaux restent dans "parameters"
     json["parameters"]["sampleCount"] = 1;
     json["parameters"]["aspectRatio"] = "16:9"; 
-    //json["parameters"]["resolution"] = "4k"; // Format vidéo
+    if (!videoResolution.empty()) {
+        json["parameters"]["resolution"] = videoResolution;
+    }
 
     ofHttpRequest request;
     request.method = ofHttpRequest::POST;

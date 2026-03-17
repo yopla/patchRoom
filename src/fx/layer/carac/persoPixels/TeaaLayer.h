@@ -71,7 +71,6 @@ public:
     void addAgent(float x, float y);
     void mousePressed(float x, float y, int button);
     
-    bool bActive = false;
     int numEnemies = 50;
     shared_ptr<ColliderLayer> collider;
 

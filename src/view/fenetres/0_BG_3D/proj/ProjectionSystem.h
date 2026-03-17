@@ -26,6 +26,19 @@ public:
     float getPlanColleRadius() const;
     float getPlanColleElevation() const;
     float getPlanColleAzimuth() const;
+    
+    ofVec3f getPlanCollePosition() const { return planColle.getPosition(); }
+    void setPlanColleExternalHover(bool hovered) { planColle.setExternalHover(hovered); }
+
+    // --- Accès pour Visualizer ---
+    bool getShowBeams() const { return bShowBeams; }
+    bool getShowPlanColle() const { return bShowPlanColle; }
+
+    void movePlanColle(float dAngle, float dElevation) {
+        planColle.addAngle(dAngle);
+        planColle.addElevation(dElevation);
+    }
+
 private:
     PlanColleSystem planColle;
     BeamSystem beam;

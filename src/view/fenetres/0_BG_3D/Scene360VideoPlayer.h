@@ -26,8 +26,21 @@ public:
     void toggleSimulate32Videos();
     bool isSimulating32Videos() const { return bSimulate32Videos; }
 
+    void toggleDoubleSpeed();
+    bool isDoubleSpeed() const { return bDoubleSpeed; }
+
+    void toggleMute();
+    bool isMuted() const { return bMuted; }
+
+    void toggleCrop106() { bCrop106 = !bCrop106; }
+    bool isCrop106() const { return bCrop106; }
+
     // Durée de la pause sur l'image fixe avant la prochaine vidéo (en frames)
     int pauseDurationFrames = 150;
+    
+    // Pause infinie
+    bool isInfinitePause() const { return bInfinitePause; }
+    void toggleInfinitePause() { bInfinitePause = !bInfinitePause; }
 
     // Accesseurs pour le visualiseur
     const vector<VideoInfo>& getVideos() const { return videos; }
@@ -37,7 +50,8 @@ public:
     int getUpcomingVideoIndex() const { return upcomingVideoIndex; }
     void refreshPlaylist(); // Recharge les noms des fichiers
     
-    bool forceNextVideoToNode(const string& targetEndNode);
+    bool planPathToNode(const string& targetEndNode);
+    const vector<int>& getPlannedPath() const { return plannedPath; }
     bool isUserSelectedNext() const { return bUserSelectedNext; }
 
     bool isActive() const { return bIsActive; }
@@ -59,9 +73,14 @@ private:
     int upcomingVideoIndex = -1;
     
     bool bIsPaused = false;
+    bool bInfinitePause = false;
     bool bLoopMode = false;
+    bool bDoubleSpeed = false;
+    bool bMuted = false;
     bool bUserSelectedNext = false;
     bool bSimulate32Videos = false;
+    bool bCrop106 = true; // Grossit l'image de 106% pour matcher le raccord avec la vidéo
     float mockPosition = 0.0f;
     int pauseCounter = 0;
+    vector<int> plannedPath;
 };

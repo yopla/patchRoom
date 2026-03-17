@@ -97,5 +97,6 @@ GeminiImageGenerator geminiGen;
     
 
     ofVec2f getTransformedMouse();
-   
+    
+    void onDelayedFocus(ofEventArgs & args);
 };

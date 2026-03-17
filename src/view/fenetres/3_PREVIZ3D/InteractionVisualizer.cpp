@@ -93,6 +93,28 @@ void InteractionVisualizer::draw(shared_ptr<ofApp> mainApp, shared_ptr<Scene2D_S
                 }
             }
         }
+
+        // c) Pour le planColle (ProjectionSystem)
+        if(mainApp->roomApp && mainApp->roomApp->projection.getShowPlanColle()) {
+            ofVec3f planPos = mainApp->roomApp->projection.getPlanCollePosition();
+
+            vector<BtnDist> distances;
+            for(const auto& btn : allButtons) {
+                distances.push_back({glm::distance2(glm::vec3(planPos), btn.first), btn.first, btn.second});
+            }
+
+            size_t n = std::min((size_t)maxButtonsToConsider, distances.size());
+            std::partial_sort(distances.begin(), distances.begin() + n, distances.end(), compareDist);
+
+            for(size_t k=0; k<n; ++k) {
+                if(distances[k].active) {
+                    // Ligne jaune similaire aux Halos
+                    ofPushStyle(); ofSetColor(255, 255, 0); ofSetLineWidth(1);
+                    ofDrawLine(ofVec3f(distances[k].pos), planPos);
+                    ofPopStyle();
+                }
+            }
+        }
     }
 
     // 3. Visualisation des autres interactions (Poulpe, Fluides) qui dépendent uniquement des boutons actifs

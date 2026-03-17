@@ -500,7 +500,6 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
         case '0': bDrawWalker = !bDrawWalker; break; // Ancien 'N' remplacé par 0 pour éviter le conflit avec Playlist
         case 't': case 'T': // Digging creature layer
             bDrawDigging = !bDrawDigging;
-            if (bDrawDigging && !diggingCreature.isEnabled()) diggingCreature.toggle();
             break;
         case 'w': case 'W': fluidFloorLayer.toggleBackground(); break;
     }

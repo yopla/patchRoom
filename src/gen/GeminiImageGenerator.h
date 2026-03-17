@@ -23,16 +23,22 @@ public:
     // Récupère l'image et reset le flag hasNewImage
     ofImage& getImage();
     void clearImage();
+    void setApiKey(string key) { apiKey = key; }
     string get360ImagePath(); // Récupère le chemin de l'image 360 générée
     string getVideoPath(); // Récupère le chemin de la vidéo générée
 void generateVideoFromImage(string prompt, string imagePath);
     void generateVideoFromDeuxImages(string prompt, string imagePath1, string imagePath2);
     void urlResponse(ofHttpResponse & response);
+
+    void setModelName(string name) { modelName = name; }
+    void setImageSize(string size) { imageSize = size; }
+    void setVideoResolution(string res) { videoResolution = res; }
     
 private:
     string apiKey;
     string apiUrl;
-    string api360Url; // URL spécifique pour la génération 360
+    string modelName = "gemini-3.1-flash-image-preview";
+    string imageSize = "";
     string videoApiUrl; // URL spécifique pour la génération vidéo
     string nanoApiUrl; // URL spécifique pour Nano Banana
     
@@ -48,6 +54,7 @@ private:
     bool bNewVideoAvailable;
     string videoFilePath;
     string image360FilePath;
+    string videoResolution = "";
     
     ofImage generatedImage;
     

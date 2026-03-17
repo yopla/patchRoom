@@ -24,6 +24,9 @@ public:
     bool bPaused = false;
     void setPaused(bool paused) { bPaused = paused; }
     
+    void exportFullScene();
+    void exportColliders();
+
     // Temps local pour pouvoir mettre en pause l'animation de la balle
     float localTime = 0.0f; 
 

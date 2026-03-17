@@ -103,8 +103,6 @@ void DiggingCreature::crackMap(float wx, float wy) {
 
 //--------------------------------------------------------------
 void DiggingCreature::update(float mx, float my) {
-    if(!bEnabled) return;
-    
     // Interaction: Accelerate if clicking on it
     float d = ofDist(mx, my, pos.x, pos.y);
     bool isClicking = (d < (mWidth * cw * 0.5f) && ofGetMousePressed(0));
@@ -152,8 +150,6 @@ void DiggingCreature::update(float mx, float my) {
 
 //--------------------------------------------------------------
 void DiggingCreature::draw() {
-    if(!bEnabled) return;
-    
     ofPushMatrix();
     ofTranslate(pos);
     

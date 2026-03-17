@@ -33,7 +33,7 @@ void PlanColleSystem::update() {
     updatePosition();
     updateParticles();
 
-    if (isMouseOverPlan) {
+    if (isHovering()) {
         ofVec3f worldPos = planColleNode.getGlobalPosition();
             
         float minX = -1200.0f; float maxX =  1200.0f; 
@@ -54,7 +54,7 @@ void PlanColleSystem::updateParticles() {
     for(int i=0; i<particles.size(); i++) {
         Particle &p = particles[i];
 
-        if(isMouseOverPlan) {
+        if(isHovering()) {
             p.vel.x += ofRandom(-0.8, 0.8);
             p.vel.y += ofRandom(-0.8, 0.8);
             p.size = ofRandom(5, 12); 
@@ -80,7 +80,7 @@ void PlanColleSystem::updateParticles() {
             }
         }
 
-        float friction = isMouseOverPlan ? 0.99f : 0.97f;
+        float friction = isHovering() ? 0.99f : 0.97f;
         p.vel *= friction;
         
         p.pos += p.vel;

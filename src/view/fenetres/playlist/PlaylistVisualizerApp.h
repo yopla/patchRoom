@@ -33,6 +33,14 @@ struct RoomToggleBtn {
     std::function<void()> toggle;
 };
 
+struct ActionButton {
+    string name;
+    ofRectangle rect;
+    std::function<void()> action;
+    bool continuous = false;
+    std::function<bool()> getState = nullptr;
+};
+
 class PlaylistVisualizerApp : public ofBaseApp {
 public:
     void setup();
@@ -67,6 +75,12 @@ public:
     vector<RoomToggleBtn> roomToggles;
     void setupRoomToggles();
     
+    vector<ActionButton> roomActionBtns;
+    void setupRoomActionBtns();
+    
+    vector<ActionButton> globalActionBtns;
+    void setupGlobalActionBtns();
+    
     Scene2D_SIDE* scene2D = nullptr;
     vector<LayerToggle> layerToggles;
     void setupLayerToggles();
@@ -85,6 +99,11 @@ public:
     ofRectangle loopButtonRect;
     ofRectangle toggleButtonRect;
     ofRectangle simButtonRect;
+    ofRectangle doubleSpeedBtnRect;
+    ofRectangle muteBtnRect;
+    ofRectangle crop106BtnRect;
+    ofRectangle infinitePauseBtnRect;
+    ofRectangle videoInfoBox;
 
     ofRectangle pauseAccordionBtn;
     bool bPauseAccordionOpen = false;
@@ -106,6 +125,63 @@ public:
     float zoom;
     bool isSpacePressed;
     ofVec2f lastMouse;
+    bool bIsDraggingPan = false;
     
     PlaylistTooltipManager tooltipManager;
+    
+    // Édition et Sauvegarde des positions des boutons
+    ofRectangle editBtnRect;
+    ofRectangle saveBtnRect;
+    ofRectangle loadBtnRect;
+    bool bEditMode = false;
+    void saveButtonPositions();
+    void loadButtonPositions();
+    ofRectangle* findButtonAt(ofVec2f pos);
+    
+    bool bIsSelecting = false;
+    bool bIsDraggingGroup = false;
+    ofVec2f selectionStart, selectionEnd;
+    vector<ofRectangle*> selectedRects;
+    vector<ofVec2f> dragOffsets;
+    vector<ofRectangle*> getAllInteractableRects();
+
+    float saveFeedbackTimer = -10.0f;
+    
+    // --- Interface Gemini IA ---
+    string apiKeyText = "";
+    string themeText = "a surreal jukebox music machine";
+    string promptVid1Text = "une bete poilu dans un marais enchanté, slow cinematic movement";
+    string promptVid2Text = "A cinematic, haunting surealist video.";
+    bool bApiKeyFocused = false;
+    bool bThemeFocused = false;
+    bool bPromptVid1Focused = false;
+    bool bPromptVid2Focused = false;
+    ofRectangle apiKeyBox;
+    ofRectangle themeBox;
+    ofRectangle promptVid1Box;
+    ofRectangle promptVid2Box;
+    ofRectangle genRoomBtn;
+    ofRectangle genVidLastBtn;
+    ofRectangle genVid2LastBtn;
+    
+    ofRectangle modelAccordionBtn;
+    bool bModelAccordionOpen = false;
+    vector<string> modelOptions = {
+        "gemini-3.1-flash-image-preview",
+        "gemini-3-pro-image-preview",
+        "nano-banana-pro-preview"
+    };
+    int currentModelIndex = 0;
+    vector<ofRectangle> modelOptionRects;
+    ofRectangle imageSizeBtn;
+    int currentImageSizeIndex = 0;
+    vector<string> imageSizeOptions = {"DEFAULT", "2K", "4K"};
+    ofRectangle videoResBtn;
+    int currentVideoResIndex = 0;
+    vector<string> videoResOptions = {"DEFAULT", "4k"};
+    ofRectangle genTextToRoomBtn;
+    
+    // Etats locaux de l'UI pour P et M (fallback si les variables ne sont pas accessibles via atmosphere)
+    bool uiStateSphereP = false;
+    bool uiStateDiscoM = false;
 };

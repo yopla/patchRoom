@@ -114,6 +114,7 @@ int main( ){
     bool bEnableView2 = false;
     bool bEnableView3 = true;
     bool bEnableView4 = false;
+    bool bEnableZenit = false; // Toggle pour la vue Zenit
 
     shared_ptr<ofAppBaseWindow> viewWindow1;
     shared_ptr<ofAppBaseWindow> viewWindow2;
@@ -182,13 +183,16 @@ int main( ){
     shared_ptr<ofAppBaseWindow> scene2DWindow = ofCreateWindow(settings);
 
 
-    // Fenêtre 2D_GROUND
-    settings.setSize(750, 750);
-    settings.setPosition(ofVec2f(1000, 50));
-    settings.resizable = true;
-    settings.title = "Scene2D Zenit";
-    settings.shareContextWith = mainWindow; // Explicite pour la sécurité
-    shared_ptr<ofAppBaseWindow> zenitWindow = ofCreateWindow(settings);
+    // Fenêtre 2D_GROUND (Zenit)
+    shared_ptr<ofAppBaseWindow> zenitWindow;
+    if(bEnableZenit) {
+        settings.setSize(750, 750);
+        settings.setPosition(ofVec2f(1000, 50));
+        settings.resizable = true;
+        settings.title = "Scene2D Zenit";
+        settings.shareContextWith = mainWindow; // Explicite pour la sécurité
+        zenitWindow = ofCreateWindow(settings);
+    }
 
     // Fenêtre Bouton
     settings.setSize(550, 550);
@@ -226,7 +230,8 @@ int main( ){
     shared_ptr<RoomPreview> roomPreview = recordingRoomPreview;
 
     shared_ptr<Scene2D_SIDE> scene2DApp(new Scene2D_SIDE);
-    shared_ptr<Scene2DZenit> zenitApp(new Scene2DZenit);
+    shared_ptr<Scene2DZenit> zenitApp;
+    if(bEnableZenit) zenitApp = shared_ptr<Scene2DZenit>(new Scene2DZenit);
     shared_ptr<ButtonApp> buttonApp(new ButtonApp);
     shared_ptr<PlaylistVisualizerApp> playlistApp(new PlaylistVisualizerApp);
     
@@ -263,7 +268,7 @@ int main( ){
 
 
     mainApp->roomApp = roomApp;
-    mainApp->sceneZenit = zenitApp; // On connecte Zenit au MainApp
+    if(bEnableZenit) mainApp->sceneZenit = zenitApp; // On connecte Zenit au MainApp
     mainApp->scene2D = scene2DApp; // Passer la référence à ofApp
     roomPreview->mainApp = mainApp;       // (Déjà existant)
     
@@ -277,7 +282,7 @@ int main( ){
     mainApp->mainWindowPtr = mainWindow;
     mainApp->roomWindowPtr = roomWindow;
     mainApp->scene2DWindowPtr = scene2DWindow;
-    mainApp->zenitWindowPtr = zenitWindow; // Connexion de la fenêtre Zenit
+    if(bEnableZenit) mainApp->zenitWindowPtr = zenitWindow; // Connexion de la fenêtre Zenit
     mainApp->previewWindowPtr = previewWindow; // Déjà présent
     mainApp->buttonWindowPtr = buttonWindow;
     mainApp->playlistApp = playlistApp;
@@ -289,7 +294,7 @@ int main( ){
     ofAddListener(mainWindow->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
     ofAddListener(roomWindow->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
     ofAddListener(scene2DWindow->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
-    ofAddListener(zenitWindow->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
+    if(bEnableZenit) ofAddListener(zenitWindow->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
     ofAddListener(buttonWindow->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
     ofAddListener(previewWindow->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
     ofAddListener(playlistWindow->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
@@ -329,7 +334,7 @@ int main( ){
     ofRunApp(roomWindow, roomApp);
     ofRunApp(previewWindow, roomPreview);
     ofRunApp(scene2DWindow, scene2DApp);
-    ofRunApp(zenitWindow, zenitApp); // Lancement fenêtre Zenit
+    if(bEnableZenit) ofRunApp(zenitWindow, zenitApp); // Lancement fenêtre Zenit
     ofRunApp(buttonWindow, buttonApp); // Lancement fenêtre Boutons
     ofRunApp(playlistWindow, playlistApp); // Lancement fenêtre Playlist
     

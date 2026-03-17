@@ -1,5 +1,7 @@
 #include "Scene360VideoPlayer.h"
 #include "AtmosphereSystem.h" // Inclusion complète ici pour l'implémentation
+#include <queue>
+#include <unordered_set>
 
 void Scene360VideoPlayer::setup(AtmosphereSystem* atm, const string& videoFolderPath) {
     atmosphere = atm;
@@ -127,7 +129,7 @@ void Scene360VideoPlayer::update() {
     }
 
     if (bSimulate32Videos) {
-        mockPosition += 0.005f; // Vitesse de lecture simulée (environ 200 frames)
+        mockPosition += bDoubleSpeed ? 0.01f : 0.005f; // Vitesse de lecture simulée
         if (mockPosition >= 1.0f) {
             mockPosition = 0.0f;
             playNextVideo();
@@ -137,12 +139,27 @@ void Scene360VideoPlayer::update() {
 
     // Si on est en pause sur l'image fixe, on décrémente le compteur
     if (bIsPaused) {
+        // --- NOUVEAU : Maintien de l'image fixe indéfiniment ---
+        if (bInfinitePause) {
+            if (atmosphere) {
+                if (atmosphere->bIsVideo) {
+                    atmosphere->video360.setVolume(0.0f); 
+                    if (atmosphere->video360.isLoaded()) {
+                        atmosphere->video360.setPaused(true);
+                    }
+                }
+                atmosphere->bShowLastFrame = true;
+            }
+            return; // Bloque le décompte
+        }
+
         pauseCounter--;
         
         // --- NOUVEAU : Préchargement intelligent ---
         // Dès la première frame de pause, on lance le chargement de la vidéo suivante.
         // Le léger gel du chargement est masqué car l'écran est figé sur l'image de pause.
-        if (pauseCounter == pauseDurationFrames - 1) {
+        // (Si on vient de quitter une pause infinie avec un délai initial à 0, on lance quand même)
+        if (pauseCounter == pauseDurationFrames - 1 || (pauseDurationFrames <= 0 && pauseCounter == 1)) {
             playNextVideo();
         }
         
@@ -165,7 +182,7 @@ void Scene360VideoPlayer::update() {
                 if (atmosphere->bIsVideo && atmosphere->video360.isLoaded()) {
                     atmosphere->video360.firstFrame(); // Force le retour à la frame 0 pour compenser l'avancée du chargement asynchrone
                     atmosphere->video360.setPaused(false);
-                    atmosphere->video360.setVolume(1.0f); // Rétablit le son au démarrage
+                    atmosphere->video360.setVolume(bMuted ? 0.0f : 1.0f); // Rétablit le son au démarrage si pas muté
                 }
             }
         }
@@ -225,7 +242,16 @@ void Scene360VideoPlayer::update() {
             ofClear(0);
             ofPushStyle();
             ofSetColor(255);
-            endImage.draw(0, 0);
+            if (bCrop106) {
+                float scale = 1.0065f; // 106%
+                float newW = endImage.getWidth() * scale;
+                float newH = endImage.getHeight() * scale;
+                float offX = (endImage.getWidth() - newW) * 0.5f;
+                float offY = (endImage.getHeight() - newH) * 0.5f;
+                endImage.draw(offX, offY, newW, newH);
+            } else {
+                endImage.draw(0, 0);
+            }
             ofPopStyle();
             atmosphere->lastFrameFbo.end();
             atmosphere->bShowLastFrame = true;
@@ -233,9 +259,10 @@ void Scene360VideoPlayer::update() {
             atmosphere->holdLastFrame(); // On capture la dernière image si aucune image trouvée
         }
         
-        if (pauseDurationFrames > 0 && !bLoopMode) {
+        if (bInfinitePause || (pauseDurationFrames > 0 && !bLoopMode)) {
             bIsPaused = true;
-            pauseCounter = pauseDurationFrames;
+            // On donne un délai minimum de 2 frames pour laisser le code précharger au moment de reprendre
+            pauseCounter = (pauseDurationFrames > 0) ? pauseDurationFrames : 2;
             if (atmosphere && atmosphere->bIsVideo) {
                 atmosphere->video360.setVolume(0.0f); // Coupe immédiatement le son de l'ancienne vidéo
             }
@@ -287,6 +314,13 @@ void Scene360VideoPlayer::toggleLoopMode() {
     determineNextVideo();
 }
 
+void Scene360VideoPlayer::toggleDoubleSpeed() {
+    bDoubleSpeed = !bDoubleSpeed;
+    if (atmosphere && atmosphere->bIsVideo && atmosphere->video360.isLoaded()) {
+        atmosphere->video360.setSpeed(bDoubleSpeed ? 2.0f : 1.0f);
+    }
+}
+
 void Scene360VideoPlayer::playNextVideo() {
     if (currentVideoIndex < 0 || currentVideoIndex >= videos.size()) {
         // Index invalide, on recommence avec une vidéo aléatoire
@@ -303,6 +337,13 @@ void Scene360VideoPlayer::playNextVideo() {
     }
 }
 
+void Scene360VideoPlayer::toggleMute() {
+    bMuted = !bMuted;
+    if (atmosphere && atmosphere->bIsVideo && atmosphere->video360.isLoaded()) {
+        atmosphere->video360.setVolume((bIsPaused || bMuted) ? 0.0f : 1.0f);
+    }
+}
+
 void Scene360VideoPlayer::playVideo(int videoIndex) {
     if (videoIndex < 0 || videoIndex >= videos.size()) return;
 
@@ -312,16 +353,29 @@ void Scene360VideoPlayer::playVideo(int videoIndex) {
     bUserSelectedNext = false; // Réinitialise le forçage manuel une fois que la vidéo démarre
     upcomingVideoIndex = -1;   // Réinitialise la prédiction pour le tour suivant
     
+    // Gérer l'avancement dans le chemin planifié
+    if (!plannedPath.empty()) {
+        if (plannedPath.front() == videoIndex) {
+            plannedPath.erase(plannedPath.begin()); // On avance dans le chemin
+        } else {
+            plannedPath.clear(); // Rupture du chemin (si action manuelle ou boucle inattendue)
+        }
+    }
+    
     if (bSimulate32Videos) {
         mockPosition = 0.0f;
     } else if (atmosphere) {
         ofLogNotice("Scene360VideoPlayer") << "Lecture de : " << videoInfo.path;
         atmosphere->loadTexture(videoInfo.path);
         
+        if (atmosphere->bIsVideo && atmosphere->video360.isLoaded()) {
+            atmosphere->video360.setSpeed(bDoubleSpeed ? 2.0f : 1.0f);
+        }
+        
         if (bIsPaused) {
             atmosphere->video360.setVolume(0.0f);
         } else {
-            atmosphere->video360.setVolume(1.0f);
+            atmosphere->video360.setVolume(bMuted ? 0.0f : 1.0f);
         }
     }
     determineNextVideo();
@@ -336,26 +390,78 @@ float Scene360VideoPlayer::getVideoPosition() const {
     return 0.0f;
 }
 
-bool Scene360VideoPlayer::forceNextVideoToNode(const string& targetEndNode) {
+bool Scene360VideoPlayer::planPathToNode(const string& targetEndNode) {
     if (currentVideoIndex < 0 || currentVideoIndex >= videos.size()) return false;
     
-    const string& endFrame = videos[currentVideoIndex].endFrame;
-    auto it = videosByStartFrame.find(endFrame);
+    const string& startNode = videos[currentVideoIndex].endFrame;
     
-    if (it != videosByStartFrame.end()) {
-        vector<int> candidates;
-        for (int idx : it->second) {
-            if (videos[idx].endFrame == targetEndNode) {
-                candidates.push_back(idx);
+    if (startNode == targetEndNode) {
+        plannedPath.clear();
+        
+        // Chercher une boucle sur ce noeud (vidéos où start == end == targetEndNode)
+        auto it = videosByStartFrame.find(startNode);
+        if (it != videosByStartFrame.end()) {
+            vector<int> loopCandidates;
+            for (int idx : it->second) {
+                if (videos[idx].endFrame == startNode) {
+                    loopCandidates.push_back(idx);
+                }
+            }
+            if (!loopCandidates.empty()) {
+                plannedPath.push_back(loopCandidates[ofRandom(loopCandidates.size())]);
+                determineNextVideo();
             }
         }
-        if (!candidates.empty()) {
-            upcomingVideoIndex = candidates[ofRandom(candidates.size())];
-            bUserSelectedNext = true;
-            return true;
+        return true; 
+    }
+    
+    std::map<string, int> cameFromNodeToEdge; 
+    std::map<string, string> cameFromNode; 
+    std::queue<string> frontier;
+    std::unordered_set<string> visited;
+    
+    frontier.push(startNode);
+    visited.insert(startNode);
+    
+    bool found = false;
+    
+    while (!frontier.empty()) {
+        string current = frontier.front();
+        frontier.pop();
+        
+        if (current == targetEndNode) {
+            found = true;
+            break;
+        }
+        
+        auto it = videosByStartFrame.find(current);
+        if (it != videosByStartFrame.end()) {
+            for (int idx : it->second) {
+                const string& nextNode = videos[idx].endFrame;
+                if (visited.find(nextNode) == visited.end()) {
+                    visited.insert(nextNode);
+                    cameFromNode[nextNode] = current;
+                    cameFromNodeToEdge[nextNode] = idx;
+                    frontier.push(nextNode);
+                }
+            }
         }
     }
-    return false; // Ce noeud n'est pas atteignable depuis la fin de la vidéo actuelle
+    
+    if (found) {
+        plannedPath.clear();
+        string current = targetEndNode;
+        while (current != startNode) {
+            plannedPath.push_back(cameFromNodeToEdge[current]);
+            current = cameFromNode[current];
+        }
+        std::reverse(plannedPath.begin(), plannedPath.end());
+        
+        determineNextVideo(); // Mettra à jour upcomingVideoIndex avec le 1er pas du chemin
+        return true;
+    }
+    
+    return false;
 }
 
 void Scene360VideoPlayer::determineNextVideo() {
@@ -366,6 +472,19 @@ void Scene360VideoPlayer::determineNextVideo() {
     }
 
     const string& endFrame = videos[currentVideoIndex].endFrame;
+    
+    // Si on a un chemin planifié, on l'utilise prioritairement
+    if (!plannedPath.empty()) {
+        int nextVideoIdx = plannedPath.front();
+        // Vérifie si le chemin correspond bien au noeud courant
+        if (videos[nextVideoIdx].startFrame == endFrame) {
+            upcomingVideoIndex = nextVideoIdx;
+            bUserSelectedNext = true;
+            return;
+        } else {
+            plannedPath.clear();
+        }
+    }
     
     if (bUserSelectedNext && upcomingVideoIndex != -1) {
         if (videos[upcomingVideoIndex].startFrame == endFrame) {

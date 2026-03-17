@@ -15,14 +15,11 @@ public:
     void draw();
     
     void setAccelerate(bool b) { bAccelerate = b; }
-    void toggle() { bEnabled = !bEnabled; }
-    bool isEnabled() { return bEnabled; }
 
 private:
     bool isWall(float wx, float wy);
     void crackMap(float wx, float wy);
 
-    bool bEnabled = false;
     bool bAccelerate = false;
 
     ofVec2f pos; // World position center

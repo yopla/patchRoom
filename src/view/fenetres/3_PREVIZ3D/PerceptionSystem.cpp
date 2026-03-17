@@ -110,7 +110,10 @@ void PerceptionSystem::update(shared_ptr<ButtonApp> buttonApp,
         }
         updateHalos(sceneSide->layerManager.halos, haloPositions2D, allButtons);
     }
-
+    
+    if (roomApp) {
+        updatePlanColle(roomApp, allButtons);
+    }
     // 3. Mettre à jour la perception pour les halos de l'anneau lumineux (LightFlyRing)
     if (roomApp && roomApp->bLightFlyRingEnabled && !roomApp->lightFlyRing.creatures.empty()) {
         auto& ring = roomApp->lightFlyRing;
@@ -183,6 +186,44 @@ void PerceptionSystem::updateHalos(vector<shared_ptr<HaloCreature>>& halos,
     }
 }
 
+void PerceptionSystem::updatePlanColle(shared_ptr<RoomApp> roomApp, 
+                                       const vector<pair<glm::vec3, bool>>& allButtons) {
+    
+    if (!roomApp || !roomApp->projection.getShowPlanColle()) return;
+
+    glm::vec3 planPos = roomApp->projection.getPlanCollePosition();
+
+    // Liste des distances vers TOUS les boutons
+    struct BtnDist {
+        float distSq;
+        bool active;
+    };
+    vector<BtnDist> distances;
+    distances.reserve(allButtons.size());
+
+    for(const auto& btn : allButtons) {
+        float d2 = glm::distance2(planPos, btn.first);
+        distances.push_back({d2, btn.second});
+    }
+
+    // On ne garde que les N plus proches (actifs ou non)
+    size_t n = std::min((size_t)maxButtonsToConsider, distances.size());
+    std::partial_sort(distances.begin(), distances.begin() + n, distances.end(), 
+        [](const BtnDist& a, const BtnDist& b){ return a.distSq < b.distSq; });
+
+    bool isTriggered = false;
+    float radiusSq = maxPerceptionRadius * maxPerceptionRadius;
+
+    // On vérifie si l'un des N plus proches est ACTIF et dans le rayon
+    for(size_t k=0; k<n; ++k) {
+        if(distances[k].active && distances[k].distSq < radiusSq) {
+            isTriggered = true;
+            break; // Un seul bouton actif suffit
+        }
+    }
+    
+    roomApp->projection.setPlanColleExternalHover(isTriggered);
+}
 
 
 void PerceptionSystem::updateFluids(const vector<glm::vec3>& activeButtons3DPositions,
