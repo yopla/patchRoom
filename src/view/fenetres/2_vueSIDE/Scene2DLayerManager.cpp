@@ -162,14 +162,18 @@ void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePress
     if (bDrawWalker) walkerLayer.update(m.x, m.y, time);
 
     if (bDrawPoulpe) {
-        if (isSpacePressed) poulpeLayer.setTarget(m.x, m.y);
+        if (!isSpacePressed && ofGetMousePressed() && selectedInteractiveLayer == "TargetPoulpe") {
+            poulpeLayer.setTarget(m.x, m.y);
+        }
         poulpeLayer.update(0, 0, time); // PoulpeLayer::update overrides BaseLayer, so it needs args
     }
 
     if (bDrawFish) {
         fishSchoolLayer.update(m.x, m.y, time); 
-        if(ofGetMousePressed(0)) fishSchoolLayer.addSardine(m.x, m.y);
-        if(ofGetMousePressed(2)) fishSchoolLayer.addShark(m.x, m.y);
+        if (!isSpacePressed && ofGetMousePressed()) {
+            if (selectedInteractiveLayer == "Sardine") fishSchoolLayer.addSardine(m.x, m.y);
+            else if (selectedInteractiveLayer == "Shark") fishSchoolLayer.addShark(m.x, m.y);
+        }
     }
 
     if (bDrawSauteurs) sauteursLayer.update(m.x, m.y, time); 
@@ -366,18 +370,20 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
         case 'f': case 'F': creatureSystem.addGekoCreature(m.x, m.y); break;
         case 'a': case 'A': 
             if (selectedInteractiveLayer != "") {
-                if (selectedInteractiveLayer == "GroPuyo" && bDrawGroPuyo) {
+                if (selectedInteractiveLayer == "AddGroPuyo" && bDrawGroPuyo) {
                     groPuyoLayer.addGroPuyo(m.x / groPuyoLayer.scale, m.y / groPuyoLayer.scale);
                 } else if (selectedInteractiveLayer == "Pendulum" && bDrawPendulum) {
                     pendulumLayer.mousePressed(m.x, m.y);
-                } else if (selectedInteractiveLayer == "Puyo" && bDrawPuyo) {
+                } else if (selectedInteractiveLayer == "AddPuyo" && bDrawPuyo) {
                     puyoLayer.addPuyo(m.x / puyoLayer.scale, m.y / puyoLayer.scale);
-                } else if (selectedInteractiveLayer == "Bubble" && bDrawBubbles) {
+                } else if (selectedInteractiveLayer == "AddBubble" && bDrawBubbles) {
                     bubbleLayer.addBubble(m.x / bubbleLayer.scale, m.y / bubbleLayer.scale);
-                } else if (selectedInteractiveLayer == "Poulpe" && bDrawPoulpe) {
+                } else if (selectedInteractiveLayer == "TargetPoulpe" && bDrawPoulpe) {
                     poulpeLayer.setTarget(m.x, m.y);
                 } else if (selectedInteractiveLayer == "Sardine" && bDrawFish) {
                     fishSchoolLayer.addSardine(m.x, m.y);
+                } else if (selectedInteractiveLayer == "Shark" && bDrawFish) {
+                    fishSchoolLayer.addShark(m.x, m.y);
                 }
             } else if (selectedCreatureToSpawn != "") {
                 spawnSelectedCreature(m.x, m.y); 
@@ -506,6 +512,21 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
 }
 
 void Scene2DLayerManager::mousePressed(const ofVec2f& m, int button) {
+    // Gestion des clics pour les calques interactifs (sauf poissons gérés en continu dans update)
+    if (selectedInteractiveLayer != "") {
+        if (selectedInteractiveLayer == "AddGroPuyo" && bDrawGroPuyo) {
+            groPuyoLayer.addGroPuyo(m.x / groPuyoLayer.scale, m.y / groPuyoLayer.scale);
+        } else if (selectedInteractiveLayer == "Pendulum" && bDrawPendulum) {
+            pendulumLayer.mousePressed(m.x, m.y);
+        } else if (selectedInteractiveLayer == "AddPuyo" && bDrawPuyo) {
+            puyoLayer.addPuyo(m.x / puyoLayer.scale, m.y / puyoLayer.scale);
+        } else if (selectedInteractiveLayer == "AddBubble" && bDrawBubbles) {
+            bubbleLayer.addBubble(m.x / bubbleLayer.scale, m.y / bubbleLayer.scale);
+        } else if (selectedInteractiveLayer == "TargetPoulpe" && bDrawPoulpe) {
+            poulpeLayer.setTarget(m.x, m.y);
+        }
+    }
+
     if(bDrawCreatures) {
         creatureSystem.onPress(m.x, m.y);
         for(auto& c : cousinCons) c->onPress(m.x, m.y);

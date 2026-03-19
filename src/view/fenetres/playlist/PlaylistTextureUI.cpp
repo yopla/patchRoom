@@ -27,12 +27,13 @@ void PlaylistTextureUI::draw() {
         if (textureScrollOffset > (int)textureFiles.size() - maxDisplay) textureScrollOffset = std::max(0, (int)textureFiles.size() - maxDisplay);
         if (textureScrollOffset < 0) textureScrollOffset = 0;
 
+        int maxChars = std::max(5, (int)((textureDropZone.width - 25) / 8.0f));
         int endIndex = std::min((int)textureFiles.size(), textureScrollOffset + maxDisplay);
         for(int i = textureScrollOffset; i < endIndex; i++) {
             if (i == currentTextureIndex) ofSetColor(50, 255, 50);
             else ofSetColor(200);
             string fName = ofFilePath::getFileName(textureFiles[i]);
-            if (fName.length() > 30) fName = fName.substr(0, 27) + "...";
+            if (fName.length() > maxChars) fName = fName.substr(0, maxChars - 3) + "...";
             ofDrawBitmapString(fName, textureDropZone.x + 10, textureDropZone.y + 30 + (i - textureScrollOffset) * 20);
         }
         
@@ -58,25 +59,33 @@ void PlaylistTextureUI::draw() {
     ofPopStyle();
 }
 
+void PlaylistTextureUI::loadFolder(const string& path, RoomApp* roomApp) {
+    ofDirectory dir(path);
+    if (!dir.exists()) return;
+    
+    currentFolderPath = path;
+    
+    dir.allowExt("png"); dir.allowExt("jpg"); dir.allowExt("jpeg");
+    dir.allowExt("mp4"); dir.allowExt("mov");
+    dir.allowExt("PNG"); dir.allowExt("JPG"); dir.allowExt("JPEG");
+    dir.allowExt("MP4"); dir.allowExt("MOV");
+    dir.listDir();
+    dir.sort();
+    textureFiles.clear();
+    for(int i=0; i<dir.size(); i++) textureFiles.push_back(dir.getPath(i));
+    
+    if(!textureFiles.empty()) {
+        currentTextureIndex = 0;
+        textureScrollOffset = 0;
+        bTextureControlOn = true;
+        if(roomApp) roomApp->atmosphere.loadTexture(textureFiles[currentTextureIndex]);
+    }
+    ofLogNotice("PlaylistTextureUI") << "Dossier textures charge : " << textureFiles.size() << " fichiers.";
+}
+
 bool PlaylistTextureUI::handleFolderDrop(const string& path, ofVec2f dropPos, RoomApp* roomApp) {
     if(textureDropZone.inside(dropPos)) {
-        ofDirectory dir(path);
-        dir.allowExt("png"); dir.allowExt("jpg"); dir.allowExt("jpeg");
-        dir.allowExt("mp4"); dir.allowExt("mov");
-        dir.allowExt("PNG"); dir.allowExt("JPG"); dir.allowExt("JPEG");
-        dir.allowExt("MP4"); dir.allowExt("MOV");
-        dir.listDir();
-        dir.sort();
-        textureFiles.clear();
-        for(int i=0; i<dir.size(); i++) textureFiles.push_back(dir.getPath(i));
-        
-        if(!textureFiles.empty()) {
-            currentTextureIndex = 0;
-            textureScrollOffset = 0;
-            bTextureControlOn = true;
-            if(roomApp) roomApp->atmosphere.loadTexture(textureFiles[currentTextureIndex]);
-        }
-        ofLogNotice("PlaylistTextureUI") << "Dossier textures chargé : " << textureFiles.size() << " fichiers.";
+        loadFolder(path, roomApp);
         return true;
     }
     return false;
@@ -150,6 +159,7 @@ void PlaylistTextureUI::saveSettings(ofJson& pt) {
     pt["textureUI"]["w"] = textureDropZone.width;
     pt["textureUI"]["h"] = textureDropZone.height;
     pt["textureUI"]["bControlOn"] = bTextureControlOn;
+    pt["textureUI"]["folderPath"] = currentFolderPath;
 }
 
 void PlaylistTextureUI::loadSettings(const ofJson& pt) {
@@ -159,6 +169,7 @@ void PlaylistTextureUI::loadSettings(const ofJson& pt) {
         textureDropZone.width = pt["textureUI"].value("w", textureDropZone.width);
         textureDropZone.height = pt["textureUI"].value("h", textureDropZone.height);
         bTextureControlOn = pt["textureUI"].value("bControlOn", bTextureControlOn);
+        currentFolderPath = pt["textureUI"].value("folderPath", currentFolderPath);
     }
 }
 

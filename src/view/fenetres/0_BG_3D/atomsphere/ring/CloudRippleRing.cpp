@@ -10,7 +10,7 @@ void CloudRippleRing::allocateTexture() {
     ofDisableArbTex(); // Indispensable pour le mapping sphérique parfait (UV 0.0 à 1.0)
     
     // On charge la texture de la forêt
-    if (cloudTexture.load("1Forets.jpg")) {
+    if (cloudTexture.load("Z_extra/1Forets.jpg")) {
         // Le miroir est retiré. On utilise ofScale(-1,1,1) au rendu pour correspondre à bShow360
         cloudTexture.getTexture().setTextureWrap(GL_REPEAT, GL_CLAMP_TO_EDGE);
         cloudTexture.getTexture().setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);

@@ -1,7 +1,7 @@
 #include "PlaylistPlayerUI.h"
 
 void PlaylistPlayerUI::setup() {
-    updateLayout(250, 480); // Position par défaut
+    updateLayout(100, 1200); // Position par défaut
 }
 
 void PlaylistPlayerUI::updateLayout(float startX, float startY) {
@@ -28,6 +28,11 @@ void PlaylistPlayerUI::updateLayout(float startX, float startY) {
     for(int i=0; i<pauseOptions.size(); i++) {
         pauseOptionRects.push_back(ofRectangle(startX, pauseAccordionBtn.y + 30 + i * 30, 180, 30));
     }
+
+    fadeOptionRects.clear();
+    for(int i=0; i<fadeOptions.size(); i++) {
+        fadeOptionRects.push_back(ofRectangle(startX, 0, 180, 30));
+    }
 }
 
 void PlaylistPlayerUI::update() {
@@ -47,6 +52,20 @@ void PlaylistPlayerUI::update() {
         infinitePauseBtnRect.y = pauseAccordionBtn.y + pauseAccordionBtn.height + pauseOptions.size() * pauseAccordionBtn.height + 10;
     } else {
         infinitePauseBtnRect.y = pauseAccordionBtn.y + pauseAccordionBtn.height + 10;
+    }
+
+    fadeAccordionBtn.x = pauseAccordionBtn.x;
+    fadeAccordionBtn.width = pauseAccordionBtn.width;
+    fadeAccordionBtn.height = pauseAccordionBtn.height;
+    fadeAccordionBtn.y = infinitePauseBtnRect.getBottom() + 10;
+
+    if(fadeOptionRects.size() == fadeOptions.size()) {
+        for(size_t i=0; i<fadeOptions.size(); i++) {
+            fadeOptionRects[i].x = fadeAccordionBtn.x;
+            fadeOptionRects[i].y = fadeAccordionBtn.y + fadeAccordionBtn.height + i * fadeAccordionBtn.height;
+            fadeOptionRects[i].width = fadeAccordionBtn.width;
+            fadeOptionRects[i].height = fadeAccordionBtn.height;
+        }
     }
 }
 
@@ -79,7 +98,10 @@ void PlaylistPlayerUI::draw(Scene360VideoPlayer* player, const PlaylistNodeGraph
         int upcomingIdx = player->getUpcomingVideoIndex();
         auto& vids = player->getVideos();
         if (!player->getPlannedPath().empty()) {
-            ofDrawBitmapStringHighlight("CHEMIN PLANIFIE vers : " + vids[player->getPlannedPath().back()].endFrame, simButtonRect.getRight() + 20, simButtonRect.y + 20, ofColor(50, 150, 255), ofColor(0));
+            int backIdx = player->getPlannedPath().back();
+            if (backIdx >= 0 && backIdx < vids.size()) {
+                ofDrawBitmapStringHighlight("CHEMIN PLANIFIE vers : " + vids[backIdx].endFrame, simButtonRect.getRight() + 20, simButtonRect.y + 20, ofColor(50, 150, 255), ofColor(0));
+            }
         } else if (upcomingIdx >= 0 && upcomingIdx < vids.size()) {
             ofDrawBitmapStringHighlight("FORCAGE MANUEL vers : " + vids[upcomingIdx].endFrame, simButtonRect.getRight() + 20, simButtonRect.y + 20, ofColor(50, 200, 50), ofColor(0));
         }
@@ -132,6 +154,25 @@ void PlaylistPlayerUI::draw(Scene360VideoPlayer* player, const PlaylistNodeGraph
     ofPushMatrix(); ofTranslate(infinitePauseBtnRect.x, infinitePauseBtnRect.y); ofScale(infinitePauseBtnRect.height/30.0f, infinitePauseBtnRect.height/30.0f);
     ofDrawBitmapString("HOLD LAST FRAME: " + string(player->isInfinitePause() ? "ON" : "OFF"), 10, 20);
     ofPopMatrix();
+
+    if (bFadeAccordionOpen) ofSetColor(150, 150, 200); else ofSetColor(100);
+    ofFill(); ofDrawRectangle(fadeAccordionBtn);
+    ofSetColor(255);
+    ofPushMatrix(); ofTranslate(fadeAccordionBtn.x, fadeAccordionBtn.y); ofScale(fadeAccordionBtn.height/30.0f, fadeAccordionBtn.height/30.0f);
+    ofDrawBitmapString("FADE: " + ofToString(player->fadeDurationFrames) + "f" + (bFadeAccordionOpen ? " [-]" : " [+]"), 5, 20);
+    ofPopMatrix();
+
+    if (bFadeAccordionOpen) {
+        for(int i=0; i<fadeOptions.size(); i++) {
+            if (player->fadeDurationFrames == fadeOptions[i]) ofSetColor(200, 200, 50); else ofSetColor(80);
+            ofFill(); ofDrawRectangle(fadeOptionRects[i]);
+            ofNoFill(); ofSetColor(200); ofDrawRectangle(fadeOptionRects[i]);
+            ofSetColor(255);
+            ofPushMatrix(); ofTranslate(fadeOptionRects[i].x, fadeOptionRects[i].y); ofScale(fadeOptionRects[i].height/30.0f, fadeOptionRects[i].height/30.0f);
+            ofDrawBitmapString(ofToString(fadeOptions[i]) + " frames", 20, 20);
+            ofPopMatrix();
+        }
+    }
     ofPopStyle();
 
     ofPushStyle();
@@ -176,12 +217,22 @@ bool PlaylistPlayerUI::mousePressed(ofVec2f worldM, Scene360VideoPlayer* player,
     if (crop106BtnRect.inside(worldM)) { player->toggleCrop106(); return true; }
     if (infinitePauseBtnRect.inside(worldM)) { player->toggleInfinitePause(); return true; }
     if (pauseAccordionBtn.inside(worldM)) { bPauseAccordionOpen = !bPauseAccordionOpen; return true; }
+    if (fadeAccordionBtn.inside(worldM)) { bFadeAccordionOpen = !bFadeAccordionOpen; return true; }
     
     if (bPauseAccordionOpen) {
         for(int i=0; i<pauseOptionRects.size(); i++) {
             if (pauseOptionRects[i].inside(worldM)) {
                 player->pauseDurationFrames = pauseOptions[i];
                 bPauseAccordionOpen = false;
+                return true;
+            }
+        }
+    }
+    if (bFadeAccordionOpen) {
+        for(int i=0; i<fadeOptionRects.size(); i++) {
+            if (fadeOptionRects[i].inside(worldM)) {
+                player->fadeDurationFrames = fadeOptions[i];
+                bFadeAccordionOpen = false;
                 return true;
             }
         }
@@ -198,11 +249,17 @@ string PlaylistPlayerUI::getTooltip(ofVec2f worldM, PlaylistTooltipManager& tool
     if(muteBtnRect.inside(worldM)) return tooltipManager.getTooltipText("MUTE");
     if(crop106BtnRect.inside(worldM)) return tooltipManager.getTooltipText("106CROP");
     if(infinitePauseBtnRect.inside(worldM)) return tooltipManager.getTooltipText("HOLD_FRAME");
+    if(fadeAccordionBtn.inside(worldM)) return tooltipManager.getTooltipText("FADE");
     if(videoInfoBox.inside(worldM)) return tooltipManager.getTooltipText("VIDEO_INFO");
     
     if (bPauseAccordionOpen) {
         for(size_t i=0; i<pauseOptionRects.size(); i++) {
             if (pauseOptionRects[i].inside(worldM)) return "Arret de " + ofToString(pauseOptions[i]) + " frames avant la prochaine video.";
+        }
+    }
+    if (bFadeAccordionOpen) {
+        for(size_t i=0; i<fadeOptionRects.size(); i++) {
+            if (fadeOptionRects[i].inside(worldM)) return "Fondu de " + ofToString(fadeOptions[i]) + " frames vers l'image de pause.";
         }
     }
     return "";
@@ -255,6 +312,10 @@ vector<ofRectangle*> PlaylistPlayerUI::getInteractableRects() {
     rects.push_back(&crop106BtnRect);
     rects.push_back(&videoInfoBox);
     rects.push_back(&infinitePauseBtnRect);
+    rects.push_back(&fadeAccordionBtn);
+    if (bFadeAccordionOpen) {
+        for(auto& r : fadeOptionRects) rects.push_back(&r);
+    }
     return rects;
 }
 
@@ -271,5 +332,9 @@ ofRectangle* PlaylistPlayerUI::findButtonAt(ofVec2f pos) {
     if(crop106BtnRect.inside(pos)) return &crop106BtnRect;
     if(videoInfoBox.inside(pos)) return &videoInfoBox;
     if(infinitePauseBtnRect.inside(pos)) return &infinitePauseBtnRect;
+    if(fadeAccordionBtn.inside(pos)) return &fadeAccordionBtn;
+    if (bFadeAccordionOpen) {
+        for(auto& r : fadeOptionRects) if(r.inside(pos)) return &r;
+    }
     return nullptr;
 }

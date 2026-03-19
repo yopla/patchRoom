@@ -1,13 +1,25 @@
 #include "PlaylistNodeGraph.h"
 #include <algorithm>
 
-void PlaylistNodeGraph::update(Scene360VideoPlayer* player, float cx, float cy, float radius) {
+void PlaylistNodeGraph::update(Scene360VideoPlayer* player, float cx, float cy, float rx, float ry) {
     if(!player) return;
 
     auto& videos = player->getVideos();
+    int currentIdx = player->getCurrentVideoIndex();
+    bool isPaused = player->isPaused();
     
-    // Optimisation : On ne reconstruit la structure que si la playlist a changé
+    // Optimisation : On ne reconstruit la structure que si la playlist a changé,
+    // ou si la vidéo change, ou si elle se met en pause (fin de chemin).
     bool playlistChanged = false;
+    if (currentIdx != lastCurrentIdx) {
+        playlistChanged = true;
+        lastCurrentIdx = currentIdx;
+    }
+    if (isPaused && !lastPaused) {
+        playlistChanged = true;
+    }
+    lastPaused = isPaused;
+
     if (videos.size() != lastPaths.size()) {
         playlistChanged = true;
     } else {
@@ -39,10 +51,23 @@ void PlaylistNodeGraph::update(Scene360VideoPlayer* player, float cx, float cy, 
             }
         }
 
-        nodes.clear();
+        string folderPath = player->getFolderPath();
+        vector<string> extensions = {".png", ".jpg", ".jpeg", ".PNG", ".JPG", ".JPEG"};
+
+        std::map<string, VisualNode> newNodes;
         for(auto& f : uniqueFrames) {
-            nodes[f] = VisualNode{f, ofVec2f()};
+            bool hasImg = false;
+            for (const string& ext : extensions) {
+                if (ofFile(ofFilePath::join(folderPath, f + ext)).exists()) {
+                    hasImg = true;
+                    break;
+                }
+            }
+            
+            ofVec2f oldPos = nodes.count(f) ? nodes[f].pos : ofVec2f();
+            newNodes[f] = VisualNode{f, oldPos, hasImg};
         }
+        nodes = newNodes;
     }
 
     // On met toujours à jour les positions car le panneau ou le zoom peuvent bouger
@@ -51,7 +76,7 @@ void PlaylistNodeGraph::update(Scene360VideoPlayer* player, float cx, float cy, 
     if(n > 0) {
         for(auto& kv : nodes) {
             float angle = TWO_PI * float(i) / float(n) - HALF_PI;
-            kv.second.pos.set(cx + cos(angle) * radius, cy + sin(angle) * radius);
+            kv.second.pos.set(cx + cos(angle) * rx, cy + sin(angle) * ry);
             i++;
         }
     }
@@ -82,6 +107,12 @@ void PlaylistNodeGraph::draw(Scene360VideoPlayer* player, const ofRectangle& dia
     int curIdx = player->getCurrentVideoIndex();
     int upcomingIdx = player->getUpcomingVideoIndex();
     float currentPos = player->getVideoPosition();
+
+    std::map<std::pair<string, string>, int> pathCounts;
+    for(auto& v : videos) {
+        pathCounts[{v.startFrame, v.endFrame}]++;
+    }
+    std::set<std::pair<string, string>> drawnCounts;
 
     ofPushStyle();
     ofSetLineWidth(2);
@@ -153,6 +184,14 @@ void PlaylistNodeGraph::draw(Scene360VideoPlayer* player, const ofRectangle& dia
                 if (isPlanned) {
                     ofDrawBitmapStringHighlight(ofToString(pathLength - pathIndex), loopCenter.x - 4, loopCenter.y + 4, ofColor(0, 150), ofColor(255));
                 }
+                
+                std::pair<string, string> pathKey = {v.startFrame, v.endFrame};
+                if (drawnCounts.find(pathKey) == drawnCounts.end()) {
+                    if (pathCounts[pathKey] > 1) {
+                        ofDrawBitmapStringHighlight("(" + ofToString(pathCounts[pathKey]) + ")", loopCenter.x - 12, loopCenter.y - 12, ofColor(0, 150), ofColor(200, 255, 200));
+                    }
+                    drawnCounts.insert(pathKey);
+                }
             } else {
                 ofDrawLine(p1, p2);
                 
@@ -166,6 +205,16 @@ void PlaylistNodeGraph::draw(Scene360VideoPlayer* player, const ofRectangle& dia
                 if (isPlanned) {
                     ofVec2f textPos = p1 + dir * 0.5f;
                     ofDrawBitmapStringHighlight(ofToString(pathLength - pathIndex), textPos.x - 4, textPos.y + 4, ofColor(0, 150), ofColor(255));
+                }
+                
+                std::pair<string, string> pathKey = {v.startFrame, v.endFrame};
+                if (drawnCounts.find(pathKey) == drawnCounts.end()) {
+                    ofVec2f textMid = p1 + dir * 0.5f;
+                    ofVec2f textPos = textMid + perp * 15;
+                    if (pathCounts[pathKey] > 1) {
+                        ofDrawBitmapStringHighlight("(" + ofToString(pathCounts[pathKey]) + ")", textPos.x - 10, textPos.y + 4, ofColor(0, 150), ofColor(200, 255, 200));
+                    }
+                    drawnCounts.insert(pathKey);
                 }
             }
         }
@@ -186,6 +235,26 @@ void PlaylistNodeGraph::draw(Scene360VideoPlayer* player, const ofRectangle& dia
         } else {
             ofDrawBitmapStringHighlight(kv.first, kv.second.pos.x + 20, kv.second.pos.y + 6);
         }
+        
+        if(kv.second.hasImage) {
+            ofDrawBitmapStringHighlight("(i)", kv.second.pos.x + 20, kv.second.pos.y + 22, ofColor(0, 150), ofColor(255, 200, 100));
+        }
+    }
+
+    // --- Affichage du chemin du dossier (croppe si trop long) ---
+    string folderPath = player->getFolderPath();
+    if(!folderPath.empty()) {
+        float maxW = diagramDropZone.width - 20; // Marge de 10px de chaque cote
+        string displayText = folderPath;
+        
+        if(displayText.length() * 8.0f > maxW) { // Une lettre fait environ 8 pixels de large
+            string fileName = ofFilePath::getFileName(folderPath);
+            int charsAllowed = std::max(0, (int)(maxW / 8.0f) - (int)fileName.length() - 4); // -4 pour ".../"
+            
+            if(charsAllowed > 0) displayText = folderPath.substr(0, charsAllowed) + ".../" + fileName;
+            else displayText = ".../" + fileName;
+        }
+        ofDrawBitmapStringHighlight(displayText, diagramDropZone.x + 10, diagramDropZone.getBottom() + 20, ofColor(0, 200), ofColor(200, 220, 255));
     }
 
     ofPopStyle();

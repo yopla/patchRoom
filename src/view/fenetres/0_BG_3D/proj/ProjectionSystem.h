@@ -31,7 +31,8 @@ public:
     void setPlanColleExternalHover(bool hovered) { planColle.setExternalHover(hovered); }
 
     // --- Accès pour Visualizer ---
-    bool getShowBeams() const { return bShowBeams; }
+    bool getShowBeams() const { return beamAlphaMode != 3; }
+    int getBeamAlphaMode() const { return beamAlphaMode; }
     bool getShowPlanColle() const { return bShowPlanColle; }
 
     void movePlanColle(float dAngle, float dElevation) {
@@ -45,6 +46,6 @@ private:
     BeamSystem beam2;
     BeamSystem beam3;
 
-    bool bShowBeams = false;
+    int beamAlphaMode = 3; // 0: 100%, 1: 75%, 2: 33%, 3: 0% (OFF par défaut)
     bool bShowPlanColle = true;
 };

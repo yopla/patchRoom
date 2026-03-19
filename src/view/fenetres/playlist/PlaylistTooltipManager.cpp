@@ -84,6 +84,7 @@ void PlaylistTooltipManager::setup() {
     texts["MUTE"] = "Coupe ou reactive le son de la video en cours.";
     texts["106CROP"] = "Grossit l'image de pause fixe a 106% pour cropper les bords et correspondre au cadrage video.";
     texts["PAUSE"] = "Definit le temps (en frames) d'arret sur la derniere image";
+    texts["FADE"] = "Definit la duree (en frames) du fondu entre la derniere image de la video et l'image de pause";
     texts["HOLD_FRAME"] = "Maintient indefiniment la derniere image de la video en pause (Ignore le compteur de frames).";
     texts["VIDEO_INFO"] = "Affiche les informations sur la video en cours. Deplacable en mode EDIT.";
     texts["CLEAR_CREATURES"] = "Supprime toutes les creatures de la Scene 2D";
@@ -93,13 +94,14 @@ void PlaylistTooltipManager::setup() {
     texts["PAUSE [ESC]"] = "Met en pause ou reprend l'ecoulement du temps global (Touche ESC)";
     texts["SAVE GAB"] = "Sauvegarde une frame du Canvas Master en pleine resolution dans le dossier export/";
     texts["UNDO CREA [D]"] = "Touche [D] : Retire la derniere creature ajoutee globalement sur le Canvas Master";
+    texts["CLEAR ALL CREA"] = "Touche [Shift+D] : Supprime toutes les creatures ajoutees globalement sur le Canvas Master";
     texts["REC PREVIEW"] = "Lance ou arrete l'enregistrement des images de la fenetre Preview";
     texts["REC CANVAS"] = "Lance ou arrete l'enregistrement des images du Canvas Master (Vue 3)";
     texts["BLUR SHADER"] = "Active ou desactive le flou du shader";
     texts["EXP SCENE2D"] = "Exporte la frame complete (tout l'environnement 2D assemble)";
     texts["EXP COLLIDER"] = "Exporte uniquement le calque des colliders (sur fond transparent)";
     texts["EXP 7 MURS"] = "Decoupe l'image superposee (overlay) en 7 fichiers dans le dossier export/murs2D";
-    texts["GAB 3-OFF-3"] = "Configure les gabarits : Master a 3 (10%), Room en OFF, Scene 2D a 3 (Rien).";
+    texts["GAB 3-OFF-3 [G]"] = "Touche [G] : Configure les gabarits : Master a 3 (10%), Room en OFF, Scene 2D a 3 (Rien).";
     texts["BTN WORMS"] = "Active ou desactive les vers fluo dans la fenetre des boutons OSC.";
     texts["GEN_ROOM_360"] = "Touche [Shift+L] : Genere une image 360 a partir d'un export de la Room et du theme actuel.";
     texts["GEN_VID_LAST"] = "Touche [Shift+K] : Genere une video a partir de la derniere image 360 generee (gen360_last.jpg).";
@@ -114,11 +116,15 @@ void PlaylistTooltipManager::setup() {
     texts["GEN_TEXT_ROOM"] = "Genere une image 360 a partir du texte (sans reference)";
     
     // Interactifs
-    texts["INT_GroPuyo"] = "Touche [A] : Ajoute un GroPuyo a la position du curseur.";
-    texts["INT_Puyo"] = "Touche [A] : Ajoute un Puyo a la position du curseur.";
-    texts["INT_Bubble"] = "Touche [A] : Ajoute une Bulle a la position du curseur.";
-    texts["INT_Poulpe"] = "Touche [A] : Assigne une cible au Poulpe a la position du curseur.";
-    texts["INT_Sardine"] = "Touche [A] : Ajoute une Sardine a la position du curseur.";
+    texts["INT_AddGroPuyo"] = "Touche [A] ou Clic : Ajoute un GroPuyo a la position du curseur.";
+    texts["INT_AddPuyo"] = "Touche [A] ou Clic : Ajoute un Puyo a la position du curseur.";
+    texts["INT_AddBubble"] = "Touche [A] ou Clic : Ajoute une Bulle a la position du curseur.";
+    texts["INT_TargetPoulpe"] = "Touche [A] ou Clic / Maintenu (Shift pour bloquer la vue) : Attire le Poulpe a la position du curseur.";
+    texts["INT_Sardine"] = "Touche [A] ou Clic / Maintenu (Shift pour bloquer la vue) : Ajoute une Sardine a la position du curseur.";
+    texts["INT_Shark"] = "Touche [A] ou Clic / Maintenu (Shift pour bloquer la vue) : Ajoute un Requin a la position du curseur.";
+    
+    texts["MAIN_BRUSH_MainCrea"] = "Touche [A] sur le Main : Ajoute une Creature standard.";
+    texts["MAIN_BRUSH_MainRand"] = "Touche [A] sur le Main : Ajoute une Creature aleatoire.";
 }
 
 std::string PlaylistTooltipManager::getTooltipText(const std::string& key) {

@@ -12,15 +12,25 @@ void Scene360VideoPlayer::setup(AtmosphereSystem* atm, const string& videoFolder
     loadPlaylist(videoFolderPath);
 }
 
-void Scene360VideoPlayer::startPlaylist(const string& videoFolderPath) {
+void Scene360VideoPlayer::startPlaylist(const string& videoFolderPath, bool autoPlay) {
     if (!atmosphere) {
         ofLogError("Scene360VideoPlayer") << "Le pointeur vers AtmosphereSystem est nul !";
         return;
     }
+    
+    // Sécurité : vérifier l'existence du dossier AVANT de vider la playlist actuelle
+    ofDirectory dir(videoFolderPath);
+    if (!dir.exists()) {
+        ofLogWarning("Scene360VideoPlayer") << "Aucune vidéo valide trouvée dans " << videoFolderPath << " (dossier introuvable). On ignore pour ne pas couper la lecture.";
+        return;
+    }
+
     loadPlaylist(videoFolderPath);
     
     if (!videos.empty()) {
-        start();
+        if (autoPlay) {
+            start();
+        }
     } else {
         ofLogWarning("Scene360VideoPlayer") << "Aucune vidéo valide trouvée dans " << videoFolderPath << ", arrêt du lecteur.";
         stop();
@@ -31,7 +41,10 @@ void Scene360VideoPlayer::loadPlaylist(const string& videoFolderPath) {
     // On vide les anciennes données
     videos.clear();
     videosByStartFrame.clear();
+    plannedPath.clear();
     currentVideoIndex = -1;
+    upcomingVideoIndex = -1;
+    bUserSelectedNext = false;
     folderPath = videoFolderPath;
     
     ofDirectory dir(folderPath);
@@ -66,7 +79,23 @@ void Scene360VideoPlayer::refreshPlaylist() {
     if (currentVideoIndex >= 0 && currentVideoIndex < videos.size()) {
         currentPath = videos[currentVideoIndex].path;
     }
+        
+        // Sauvegarde de l'état du chemin planifié et de la prochaine vidéo
+        vector<string> savedPlannedPaths;
+        for (int idx : plannedPath) {
+            if (idx >= 0 && idx < videos.size()) {
+                savedPlannedPaths.push_back(videos[idx].path);
+            }
+        }
+        string savedUpcomingPath = "";
+        if (upcomingVideoIndex >= 0 && upcomingVideoIndex < videos.size()) {
+            savedUpcomingPath = videos[upcomingVideoIndex].path;
+        }
+        bool savedUserSelected = bUserSelectedNext;
+        
     loadPlaylist(folderPath); // recharge et remet currentVideoIndex à -1
+        
+        // Restauration de l'index courant
     if (!currentPath.empty()) {
         for (int i = 0; i < videos.size(); i++) {
             if (videos[i].path == currentPath) {
@@ -75,6 +104,30 @@ void Scene360VideoPlayer::refreshPlaylist() {
             }
         }
     }
+        
+        // Restauration du chemin planifié
+        plannedPath.clear();
+        for (const string& p : savedPlannedPaths) {
+            for (int i = 0; i < videos.size(); i++) {
+                if (videos[i].path == p) {
+                    plannedPath.push_back(i);
+                    break;
+                }
+            }
+        }
+        
+        // Restauration de la prochaine vidéo prévue
+        upcomingVideoIndex = -1;
+        if (!savedUpcomingPath.empty()) {
+            for (int i = 0; i < videos.size(); i++) {
+                if (videos[i].path == savedUpcomingPath) {
+                    upcomingVideoIndex = i;
+                    break;
+                }
+            }
+        }
+        bUserSelectedNext = savedUserSelected;
+        
     determineNextVideo();
 }
 
@@ -83,8 +136,10 @@ void Scene360VideoPlayer::toggleSimulate32Videos() {
     if (bSimulate32Videos) {
         videos.clear();
         videosByStartFrame.clear();
+        plannedPath.clear();
         currentVideoIndex = -1;
         upcomingVideoIndex = -1;
+        bUserSelectedNext = false;
         mockPosition = 0.0f;
         
         // Génération de 32 fausses vidéos
@@ -139,6 +194,13 @@ void Scene360VideoPlayer::update() {
 
     // Si on est en pause sur l'image fixe, on décrémente le compteur
     if (bIsPaused) {
+        // --- NOUVEAU : FADE EN COURS ---
+        if (fadeCounter < fadeDurationFrames) {
+            fadeCounter++;
+            float alpha = (float)fadeCounter / fadeDurationFrames;
+            updateFadeFbo(alpha, false);
+        }
+
         // --- NOUVEAU : Maintien de l'image fixe indéfiniment ---
         if (bInfinitePause) {
             if (atmosphere) {
@@ -164,7 +226,8 @@ void Scene360VideoPlayer::update() {
         // Dès la première frame de pause, on lance le chargement de la vidéo suivante.
         // Le léger gel du chargement est masqué car l'écran est figé sur l'image de pause.
         // (Si on vient de quitter une pause infinie avec un délai initial à 0, on lance quand même)
-        if (pauseCounter == pauseDurationFrames - 1 || (pauseDurationFrames <= 0 && pauseCounter == 1)) {
+        int totalPause = pauseDurationFrames + fadeDurationFrames;
+        if (pauseCounter == totalPause - 1 || (totalPause <= 0 && pauseCounter == 1)) {
             playNextVideo();
         }
         
@@ -182,16 +245,54 @@ void Scene360VideoPlayer::update() {
 
         if (pauseCounter <= 0) {
             bIsPaused = false;
-            // Fin de la pause, on relance la vidéo préchargée
-            if (atmosphere) {
-                if (atmosphere->bIsVideo && atmosphere->video360.isLoaded()) {
-                    atmosphere->video360.firstFrame(); // Force le retour à la frame 0 pour compenser l'avancée du chargement asynchrone
-                    atmosphere->video360.setPaused(false);
-                    atmosphere->video360.setVolume(bMuted ? 0.0f : 1.0f); // Rétablit le son au démarrage si pas muté
+            if (fadeDurationFrames > 0 && (bHasPauseImage || capturedVideoFbo.isAllocated())) {
+                bIsFadingOut = true;
+                fadeOutCounter = fadeDurationFrames;
+                if (atmosphere && atmosphere->bIsVideo && atmosphere->video360.isLoaded()) {
+                    atmosphere->video360.firstFrame(); 
+                    atmosphere->video360.update(); // Force l'actualisation de la texture pour eviter un flash noir
+                    atmosphere->video360.setPaused(true); // Maintenu en pause
+                    atmosphere->video360.setVolume(0.0f);
+                }
+                if (atmosphere) atmosphere->bShowLastFrame = true;
+            } else {
+                if (atmosphere) {
+                    if (atmosphere->bIsVideo && atmosphere->video360.isLoaded()) {
+                        atmosphere->video360.firstFrame(); 
+                        atmosphere->video360.setPaused(false);
+                        atmosphere->video360.setVolume(bMuted ? 0.0f : 1.0f); 
+                    }
+                    atmosphere->bShowLastFrame = false;
                 }
             }
         }
         return; // On ne fait rien d'autre pendant la pause
+    } else if (bIsFadingOut) {
+        float alpha = (float)fadeOutCounter / fadeDurationFrames;
+        updateFadeFbo(alpha, true);
+        
+        if (atmosphere) atmosphere->bShowLastFrame = true;
+        
+        // --- Lancement de la video a la moitie du fondu ---
+        if (fadeOutCounter == fadeDurationFrames / 2) {
+            if (atmosphere && atmosphere->bIsVideo && atmosphere->video360.isLoaded()) {
+                atmosphere->video360.setPaused(false);
+                atmosphere->video360.setVolume(bMuted ? 0.0f : 1.0f);
+            }
+        }
+        
+        fadeOutCounter--;
+        
+        if (fadeOutCounter <= 0) {
+            bIsFadingOut = false;
+            // Securite au cas ou la duree de fondu est tres petite (1 frame)
+            if (atmosphere && atmosphere->bIsVideo && atmosphere->video360.isLoaded() && atmosphere->video360.isPaused()) {
+                atmosphere->video360.setPaused(false);
+                atmosphere->video360.setVolume(bMuted ? 0.0f : 1.0f);
+            }
+            if (atmosphere) atmosphere->bShowLastFrame = false;
+        }
+        return;
     }
 
     bool bMovieDone = false;
@@ -220,8 +321,8 @@ void Scene360VideoPlayer::update() {
     if (bMovieDone) {
         const string& endFrame = videos[currentVideoIndex].endFrame;
         
-        ofImage endImage;
-        bool bImageLoaded = false;
+        currentPauseImage.clear();
+        bHasPauseImage = false;
         string foundPath = "";
         
         // On teste toutes les extensions courantes (y compris avec majuscules)
@@ -235,56 +336,55 @@ void Scene360VideoPlayer::update() {
         }
         
         if (!foundPath.empty()) {
-            if (endImage.load(foundPath)) {
-                bImageLoaded = true;
+            if (currentPauseImage.load(foundPath)) {
+                bHasPauseImage = true;
                 ofLogNotice("Scene360VideoPlayer") << "Image fixe chargée pour la pause : " << foundPath;
             } else {
                 ofLogError("Scene360VideoPlayer") << "Fichier trouve sur le disque mais impossible a charger (format invalide/corrompu ?) : " << foundPath;
             }
         }
         
-        if (bImageLoaded) {
-            if (!atmosphere->lastFrameFbo.isAllocated() || 
-                atmosphere->lastFrameFbo.getWidth() != endImage.getWidth() || 
-                atmosphere->lastFrameFbo.getHeight() != endImage.getHeight()) {
+        // Capture video frame BEFORE starting pause
+        if (atmosphere && atmosphere->bIsVideo && atmosphere->video360.isLoaded() && atmosphere->video360.getTexture().isAllocated()) {
+            if (!capturedVideoFbo.isAllocated() || capturedVideoFbo.getWidth() != atmosphere->video360.getWidth() || capturedVideoFbo.getHeight() != atmosphere->video360.getHeight()) {
                 ofFbo::Settings s;
-                s.width = endImage.getWidth();
-                s.height = endImage.getHeight();
+                s.width = atmosphere->video360.getWidth();
+                s.height = atmosphere->video360.getHeight();
                 s.internalformat = GL_RGB;
-                atmosphere->lastFrameFbo.allocate(s);
+                capturedVideoFbo.allocate(s);
             }
-            atmosphere->lastFrameFbo.begin();
+            capturedVideoFbo.begin();
             ofClear(0);
-            ofPushStyle();
             ofSetColor(255);
-            if (bCrop106) {
-                float scale = 1.0065f; // 106%
-                float newW = endImage.getWidth() * scale;
-                float newH = endImage.getHeight() * scale;
-                float offX = (endImage.getWidth() - newW) * 0.5f;
-                float offY = (endImage.getHeight() - newH) * 0.5f;
-                endImage.draw(offX, offY, newW, newH);
+            atmosphere->video360.getTexture().draw(0, 0);
+            capturedVideoFbo.end();
+        }
+
+        fadeCounter = 0;
+        
+        if (bHasPauseImage || capturedVideoFbo.isAllocated()) {
+            if (fadeDurationFrames <= 0) {
+                updateFadeFbo(1.0f, false);
             } else {
-                endImage.draw(0, 0);
+                updateFadeFbo(0.0f, false);
             }
-            ofPopStyle();
-            atmosphere->lastFrameFbo.end();
             atmosphere->bShowLastFrame = true;
         } else {
             atmosphere->holdLastFrame(); // On capture la dernière image si aucune image trouvée
         }
         
-        if (bInfinitePause || (pauseDurationFrames > 0 && !bLoopMode)) {
+        int totalPause = pauseDurationFrames + fadeDurationFrames;
+        if (bInfinitePause || (totalPause > 0 && !bLoopMode)) {
             bIsPaused = true;
             // On donne un délai minimum de 2 frames pour laisser le code précharger au moment de reprendre
-            pauseCounter = (pauseDurationFrames > 0) ? pauseDurationFrames : 2;
+            pauseCounter = (totalPause > 0) ? totalPause : 2;
             if (atmosphere && atmosphere->bIsVideo) {
                 atmosphere->video360.setVolume(0.0f); // Coupe immédiatement le son de l'ancienne vidéo
             }
             refreshPlaylist(); // Recharge les noms à chaque image fixe
         } else {
             refreshPlaylist(); // Recharge même si pas de délai de pause
-            playNextVideo(); // Enchaînement immédiat si pauseDurationFrames == 0
+            playNextVideo(); // Enchaînement immédiat si totalPause == 0
         }
     }
 }
@@ -296,6 +396,7 @@ void Scene360VideoPlayer::start() {
     }
     bIsActive = true;
     bIsPaused = false;
+    bIsFadingOut = false;
     // Commence par une vidéo aléatoire
     int randomIndex = ofRandom(videos.size());
     playVideo(randomIndex);
@@ -306,6 +407,7 @@ void Scene360VideoPlayer::stop() {
     bIsActive = false;
     currentVideoIndex = -1;
     bIsPaused = false;
+    bIsFadingOut = false;
     if (atmosphere) {
         // Revient à la texture par défaut
         atmosphere->loadTexture("GAB0/VR0.jpg");
@@ -492,8 +594,8 @@ void Scene360VideoPlayer::determineNextVideo() {
     // Si on a un chemin planifié, on l'utilise prioritairement
     if (!plannedPath.empty()) {
         int nextVideoIdx = plannedPath.front();
-        // Vérifie si le chemin correspond bien au noeud courant
-        if (videos[nextVideoIdx].startFrame == endFrame) {
+        // Sécurité bounds
+        if (nextVideoIdx >= 0 && nextVideoIdx < videos.size() && videos[nextVideoIdx].startFrame == endFrame) {
             upcomingVideoIndex = nextVideoIdx;
             bUserSelectedNext = true;
             return;
@@ -503,10 +605,11 @@ void Scene360VideoPlayer::determineNextVideo() {
     }
     
     if (bUserSelectedNext && upcomingVideoIndex != -1) {
-        if (videos[upcomingVideoIndex].startFrame == endFrame) {
+        if (upcomingVideoIndex >= 0 && upcomingVideoIndex < videos.size() && videos[upcomingVideoIndex].startFrame == endFrame) {
             return; // On conserve le choix de l'utilisateur
         } else {
             bUserSelectedNext = false;
+            upcomingVideoIndex = -1;
         }
     }
     
@@ -552,4 +655,66 @@ void Scene360VideoPlayer::determineNextVideo() {
         vector<int>& variations = pathsByDestination[chosenDestination];
         upcomingVideoIndex = variations[ofRandom(variations.size())];
     }
+}
+
+void Scene360VideoPlayer::updateFadeFbo(float alpha, bool useLiveVideo) {
+    if (!atmosphere) return;
+    
+    float targetW = 1920;
+    float targetH = 1080;
+    
+    if (useLiveVideo && atmosphere->bIsVideo && atmosphere->video360.isLoaded() && atmosphere->video360.getTexture().isAllocated()) {
+        targetW = atmosphere->video360.getWidth();
+        targetH = atmosphere->video360.getHeight();
+    } else if (capturedVideoFbo.isAllocated()) {
+        targetW = capturedVideoFbo.getWidth();
+        targetH = capturedVideoFbo.getHeight();
+    } else if (bHasPauseImage) {
+        targetW = currentPauseImage.getWidth();
+        targetH = currentPauseImage.getHeight();
+    }
+    
+    if (!atmosphere->lastFrameFbo.isAllocated() || atmosphere->lastFrameFbo.getWidth() != targetW || atmosphere->lastFrameFbo.getHeight() != targetH) {
+        ofFbo::Settings s;
+        s.width = targetW;
+        s.height = targetH;
+        s.internalformat = GL_RGB;
+        atmosphere->lastFrameFbo.allocate(s);
+    }
+    
+    atmosphere->lastFrameFbo.begin();
+    ofClear(0);
+    ofPushStyle();
+    ofSetColor(255);
+    
+    // Background: video frame
+    if (useLiveVideo && atmosphere->bIsVideo && atmosphere->video360.isLoaded() && atmosphere->video360.getTexture().isAllocated()) {
+        atmosphere->video360.getTexture().draw(0, 0, targetW, targetH);
+    } else if (capturedVideoFbo.isAllocated()) {
+        capturedVideoFbo.draw(0, 0, targetW, targetH);
+    }
+    
+    // Foreground: image fade
+    if (alpha > 0.0f && (bHasPauseImage || (useLiveVideo && capturedVideoFbo.isAllocated()))) {
+        ofEnableAlphaBlending();
+        ofSetColor(255, 255 * alpha);
+        if (bHasPauseImage) {
+            if (bCrop106) {
+                float scale = 1.0065f; // 106%
+                float scaledW = targetW * scale;
+                float scaledH = targetH * scale;
+                float offsetX = (targetW - scaledW) * 0.5f;
+                float offsetY = (targetH - scaledH) * 0.5f;
+                currentPauseImage.draw(offsetX, offsetY, scaledW, scaledH);
+            } else {
+                currentPauseImage.draw(0, 0, targetW, targetH);
+            }
+        } else if (useLiveVideo && capturedVideoFbo.isAllocated()) {
+            capturedVideoFbo.draw(0, 0, targetW, targetH);
+        }
+        ofDisableAlphaBlending();
+    }
+    
+    ofPopStyle();
+    atmosphere->lastFrameFbo.end();
 }

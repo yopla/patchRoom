@@ -11,6 +11,7 @@ public:
     void update();
     void draw();
     
+    void loadFolder(const string& path, RoomApp* roomApp);
     bool handleFolderDrop(const string& path, ofVec2f dropPos, RoomApp* roomApp);
     bool mousePressed(ofVec2f worldM, RoomApp* roomApp);
     bool mouseScrolled(ofVec2f worldM, float scrollY);
@@ -25,6 +26,7 @@ public:
     ofRectangle textureDropZone;
     ofRectangle textureToggleBtn;
     
+    string currentFolderPath = "";
     vector<string> textureFiles;
     int currentTextureIndex = 0;
     bool bTextureControlOn = false;

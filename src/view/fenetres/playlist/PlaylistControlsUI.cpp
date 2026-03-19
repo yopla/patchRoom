@@ -63,8 +63,8 @@ void PlaylistControlsUI::setupLayerToggles(Scene2D_SIDE* scene2D) {
     float bw = 110;
     float bh = 20;
     float pad = 5;
-    float startX = 250;
-    float startY = 100;
+    float startX = 0;
+    float startY = 300;
 
     for(int i=0; i<layerToggles.size(); i++) {
         int c = i % cols;
@@ -72,7 +72,7 @@ void PlaylistControlsUI::setupLayerToggles(Scene2D_SIDE* scene2D) {
         layerToggles[i].rect.set(startX + c*(bw+pad), startY + r*(bh+pad), bw, bh);
     }
     
-    float cStartX = 600; 
+    float cStartX = 800; 
     vector<string> cNames = {
         "Ripple", "Wanco", "Breakable", "Geko", 
         "Cousin", "CousinCon", "DblPendulum", "Halo", 
@@ -93,7 +93,7 @@ void PlaylistControlsUI::setupLayerToggles(Scene2D_SIDE* scene2D) {
     undoCreatureBtn.set(clearAllCreaturesBtn.getRight() + pad, startY + cRows*(bh+pad) + 10, bw, bh);
 
     float iStartY = clearAllCreaturesBtn.y + bh + 20; 
-    vector<string> iNames = {"GroPuyo", "Puyo", "Bubble", "Poulpe", "Sardine"};
+    vector<string> iNames = {"AddGroPuyo", "AddPuyo", "AddBubble", "TargetPoulpe", "Sardine", "Shark"};
     
     interactiveButtons.clear();
     for(int i=0; i<iNames.size(); i++) {
@@ -135,7 +135,6 @@ void PlaylistControlsUI::setupRoomToggles(RoomApp* roomApp, ofApp* mainAppPtr) {
         roomApp->bDrawJellySphere = !roomApp->bDrawJellySphere; 
         if(!roomApp->bDrawJellySphere) roomApp->jellySphereRing.clearJellies();
     });
-    addToggle("Scene360Vid", [roomApp](){ return roomApp->bDrawScene360Video; }, [roomApp](){ roomApp->bDrawScene360Video = !roomApp->bDrawScene360Video; roomApp->scene360VideoPlayer.toggle(); });
     addToggle("Beam Proj", [roomApp](){ return roomApp->bDrawBeam; }, [roomApp](){ roomApp->bDrawBeam = !roomApp->bDrawBeam; });
     addToggle("AtmoPreview", [roomApp](){ return roomApp->bDrawAtmosphere; }, [roomApp](){ roomApp->bDrawAtmosphere = !roomApp->bDrawAtmosphere; });
     addToggle("Use Texture", [roomApp](){ return roomApp->bUseTexture; }, [roomApp](){ roomApp->bUseTexture = !roomApp->bUseTexture; });
@@ -150,7 +149,6 @@ void PlaylistControlsUI::setupRoomToggles(RoomApp* roomApp, ofApp* mainAppPtr) {
     });
     addToggle("Light Fly", [roomApp](){ return roomApp->bLightFlyRingEnabled; }, [roomApp](){ roomApp->bLightFlyRingEnabled = !roomApp->bLightFlyRingEnabled; });
     addToggle("Alpha Cur", [roomApp](){ return roomApp->cursorSquare.bLowAlpha; }, [roomApp](){ roomApp->cursorSquare.bLowAlpha = !roomApp->cursorSquare.bLowAlpha; });
-    addToggle("Alpha Wall", [roomApp](){ return roomApp->wallAlpha > 50.0f; }, [roomApp](){ roomApp->wallAlpha = (roomApp->wallAlpha > 50.0f) ? 0.0f : 100.0f; });
     addToggle("Gen 360", [](){ return false; }, [roomApp](){ roomApp->generateEquirectangularImage(); });
     addToggle("Show Beams", [roomApp](){ return roomApp->projection.getShowBeams(); }, [roomApp](){ roomApp->projection.keyPressed('t'); });
     addToggle("Plan Colle", [roomApp](){ return roomApp->projection.getShowPlanColle(); }, [roomApp](){ roomApp->projection.keyPressed('n'); });
@@ -162,7 +160,7 @@ void PlaylistControlsUI::setupRoomToggles(RoomApp* roomApp, ofApp* mainAppPtr) {
     float bw = 100;
     float bh = 20;
     float pad = 5;
-    float startX = 0;
+    float startX = -800;
     float startY = 100;
 
     for(int i=0; i<roomToggles.size(); i++) {
@@ -221,7 +219,7 @@ void PlaylistControlsUI::setupRoomActionBtns(RoomApp* roomApp) {
     float bw = 100;
     float bh = 20;
     float pad = 5;
-    float startX = 0;
+    float startX = -800;
     float startY = 100 + ((roomToggles.size() + cols - 1) / cols) * (bh + pad) + 20; 
 
     for(int i=0; i<roomActionBtns.size(); i++) {
@@ -254,10 +252,17 @@ void PlaylistControlsUI::setupGlobalActionBtns(ofApp* mainAppPtr) {
         }
     }, false);
 
-    addAction("UNDO CREA [D]", [mainAppPtr](){ 
+    addAction("UNDO CREA [Z/D]", [mainAppPtr](){ 
         if(mainAppPtr) {
             mainAppPtr->creatureSystem.removeLast();
             ofLogNotice("PlaylistControlsUI") << "Derniere creature retiree.";
+        }
+    }, false);
+
+    addAction("CLEAR ALL CREA", [mainAppPtr](){ 
+        if(mainAppPtr) {
+            mainAppPtr->creatureSystem.clear();
+            ofLogNotice("PlaylistControlsUI") << "Toutes les creatures du Main Canvas retirees.";
         }
     }, false);
 
@@ -305,7 +310,7 @@ void PlaylistControlsUI::setupGlobalActionBtns(ofApp* mainAppPtr) {
         if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->exportColliders();
     }, false);
 
-    addAction("GAB 3-OFF-3", [mainAppPtr](){ 
+    addAction("GAB 3-OFF-3 [G]", [mainAppPtr](){ 
         if(mainAppPtr) {
             mainAppPtr->gabMode = 3;
             if(mainAppPtr->roomApp) mainAppPtr->roomApp->wallAlpha = 0.0f;
@@ -324,9 +329,16 @@ void PlaylistControlsUI::setupGlobalActionBtns(ofApp* mainAppPtr) {
     }, false);
 
     for(int i=0; i<globalActionBtns.size(); i++) {
-        int c = i % 6;
-        int r = i / 6;
-        globalActionBtns[i].rect.set(1000 + c * 110, 0 + r * 35, 105, 30);
+        int c = i % 2;
+        int r = i / 2;
+        globalActionBtns[i].rect.set(-300 + c * 110, -250 + r * 35, 105, 30);
+    }
+    
+    // Pinceaux du Main Canvas (positions initiales proches du GAB/Clear)
+    vector<string> mbNames = {"MainCrea", "MainRand"};
+    mainBrushButtons.clear();
+    for(int i=0; i<mbNames.size(); i++) {
+        mainBrushButtons.push_back({mbNames[i], ofRectangle(-300, -250 + ((globalActionBtns.size() + 1) / 2) * 35 + 20 + i * 25, 100, 20)});
     }
 }
 
@@ -388,14 +400,20 @@ void PlaylistControlsUI::draw(ofApp* mainAppPtr) {
         ofNoFill(); ofSetColor(200); ofDrawRectangle(t.rect);
         ofSetColor(255); 
         ofPushMatrix(); ofTranslate(t.rect.x, t.rect.y); ofScale(t.rect.height / 20.0f, t.rect.height / 20.0f);
-        ofDrawBitmapString(t.name, 5, 14);
+        
+        string displayName = t.name;
+        if(t.name == "Show Beams" && mainAppPtr && mainAppPtr->roomApp) {
+            int mode = mainAppPtr->roomApp->projection.getBeamAlphaMode();
+            if(mode == 0) displayName = "Beams 100%";
+            else if(mode == 1) displayName = "Beams 75%";
+            else if(mode == 2) displayName = "Beams 33%";
+            else displayName = "Beams OFF";
+        }
+        
+        ofDrawBitmapString(displayName, 5, 14);
         ofPopMatrix();
     }
 
-    ofSetColor(255, 255, 255, 100);
-    ofDrawLine(220, 80, 220, 480); 
-    ofDrawLine(575, 80, 575, 480); 
-    
     // Creatures
     for(int i=0; i<creatureButtons.size(); i++) {
         auto& b = creatureButtons[i];
@@ -428,6 +446,18 @@ void PlaylistControlsUI::draw(ofApp* mainAppPtr) {
     for(int i=0; i<interactiveButtons.size(); i++) {
         auto& b = interactiveButtons[i];
         if(i == selectedInteractiveIndex) ofSetColor(200, 100, 200); else ofSetColor(104, 84, 104);
+        ofFill(); ofDrawRectangle(b.rect);
+        ofNoFill(); ofSetColor(200); ofDrawRectangle(b.rect);
+        ofSetColor(255); 
+        ofPushMatrix(); ofTranslate(b.rect.x, b.rect.y); ofScale(b.rect.height / 20.0f, b.rect.height / 20.0f);
+        ofDrawBitmapString(b.name, 5, 14);
+        ofPopMatrix();
+    }
+    
+    // Pinceaux Main Canvas
+    for(int i=0; i<mainBrushButtons.size(); i++) {
+        auto& b = mainBrushButtons[i];
+        if(i == selectedMainBrushIndex) ofSetColor(200, 100, 200); else ofSetColor(104, 84, 104);
         ofFill(); ofDrawRectangle(b.rect);
         ofNoFill(); ofSetColor(200); ofDrawRectangle(b.rect);
         ofSetColor(255); 
@@ -484,6 +514,17 @@ bool PlaylistControlsUI::mousePressed(ofVec2f worldM, Scene2D_SIDE* scene2D) {
             return true;
         }
     }
+    for(int i=0; i<mainBrushButtons.size(); i++) {
+        if(mainBrushButtons[i].rect.inside(worldM)) {
+            if (selectedMainBrushIndex == i) {
+                selectedMainBrushIndex = -1;
+            } else {
+                selectedMainBrushIndex = i;
+            }
+            return true;
+        }
+    }
+
     if(clearAllCreaturesBtn.inside(worldM)) {
         clearAllCreatures(scene2D);
         return true;
@@ -514,6 +555,7 @@ string PlaylistControlsUI::getTooltip(ofVec2f worldM, PlaylistTooltipManager& to
     for(auto& t : layerToggles) { if(t.rect.inside(worldM)) return tooltipManager.getTooltipText(t.name); }
     for(auto& b : creatureButtons) { if(b.rect.inside(worldM)) return tooltipManager.getTooltipText(b.name); }
     for(auto& b : interactiveButtons) { if(b.rect.inside(worldM)) return tooltipManager.getTooltipText("INT_" + b.name); }
+    for(auto& b : mainBrushButtons) { if(b.rect.inside(worldM)) return tooltipManager.getTooltipText("MAIN_BRUSH_" + b.name); }
     if(clearAllCreaturesBtn.inside(worldM)) return tooltipManager.getTooltipText("CLEAR_CREATURES");
     if(undoCreatureBtn.inside(worldM)) return tooltipManager.getTooltipText("UNDO_SCENE2D_CREATURE");
     return "";
@@ -527,6 +569,7 @@ void PlaylistControlsUI::saveSettings(ofJson& pt) {
     for(auto& t : layerToggles) saveR("layer_" + t.name, t.rect);
     for(auto& b : creatureButtons) saveR("creature_" + b.name, b.rect);
     for(auto& b : interactiveButtons) saveR("interactive_" + b.name, b.rect);
+    for(auto& b : mainBrushButtons) saveR("mainBrush_" + b.name, b.rect);
     saveR("clearAll", clearAllCreaturesBtn);
     saveR("undoCreature", undoCreatureBtn);
 }
@@ -546,6 +589,7 @@ void PlaylistControlsUI::loadSettings(const ofJson& pt) {
     for(auto& t : layerToggles) loadR("layer_" + t.name, t.rect);
     for(auto& b : creatureButtons) loadR("creature_" + b.name, b.rect);
     for(auto& b : interactiveButtons) loadR("interactive_" + b.name, b.rect);
+    for(auto& b : mainBrushButtons) loadR("mainBrush_" + b.name, b.rect);
     loadR("clearAll", clearAllCreaturesBtn);
     loadR("undoCreature", undoCreatureBtn);
 }
@@ -558,6 +602,7 @@ vector<ofRectangle*> PlaylistControlsUI::getInteractableRects() {
     for(auto& t : layerToggles) rects.push_back(&t.rect);
     for(auto& b : creatureButtons) rects.push_back(&b.rect);
     for(auto& b : interactiveButtons) rects.push_back(&b.rect);
+    for(auto& b : mainBrushButtons) rects.push_back(&b.rect);
     rects.push_back(&clearAllCreaturesBtn);
     rects.push_back(&undoCreatureBtn);
     return rects;
@@ -570,6 +615,7 @@ ofRectangle* PlaylistControlsUI::findButtonAt(ofVec2f pos) {
     for(auto& t : layerToggles) if(t.rect.inside(pos)) return &t.rect;
     for(auto& b : creatureButtons) if(b.rect.inside(pos)) return &b.rect;
     for(auto& b : interactiveButtons) if(b.rect.inside(pos)) return &b.rect;
+    for(auto& b : mainBrushButtons) if(b.rect.inside(pos)) return &b.rect;
     if(clearAllCreaturesBtn.inside(pos)) return &clearAllCreaturesBtn;
     if(undoCreatureBtn.inside(pos)) return &undoCreatureBtn;
     return nullptr;

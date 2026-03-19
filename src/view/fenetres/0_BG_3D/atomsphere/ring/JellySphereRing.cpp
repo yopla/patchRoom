@@ -9,7 +9,7 @@ void JellySphereRing::setup(float r, ofVec3f centerPos) {
     fbo.begin(); ofClear(0,0,0,0); fbo.end();
     
     ofDisableArbTex();
-    baseImage.load("1Forets.jpg"); // Image par défaut
+    baseImage.load("Z_extra/1Forets.jpg"); // Image par défaut
     
     fbo.getTexture().setTextureWrap(GL_REPEAT, GL_CLAMP_TO_EDGE);
     fbo.getTexture().setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);

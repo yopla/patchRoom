@@ -238,6 +238,8 @@ void ofApp::draw(){
         bDrawScene2D  // C
     );
 
+    // Réinitialise la couleur et l'alpha pour ne pas affecter les créatures
+    ofSetColor(255, 255, 255, 255);
     creatureSystem.draw(m);
     canvasManager.canvas.end();
 
@@ -382,9 +384,19 @@ void ofApp::keyPressed(int key){
     }
     
       // Commandes CreatureSystem
-    if(key == 'a' || key == 'A') creatureSystem.addRandomCreature(m.x, m.y);
-    if(key == 'd' || key == 'D') creatureSystem.removeLast();
-    if(key == 'z' || key == 'Z') creatureSystem.addCreature(m.x, m.y);
+    if(key == 'a' || key == 'A') {
+        if (playlistApp) {
+            if (playlistApp->controlsUI.selectedMainBrushIndex == 0) creatureSystem.addCreature(m.x, m.y);
+            else if (playlistApp->controlsUI.selectedMainBrushIndex == 1) creatureSystem.addRandomCreature(m.x, m.y);
+        }
+    }
+    if(key == 'd' || key == 'D' || key == 'z' || key == 'Z') {
+        if(ofGetKeyPressed(OF_KEY_SHIFT)) {
+            creatureSystem.clear();
+        } else {
+            creatureSystem.removeLast();
+        }
+    }
 
 
 

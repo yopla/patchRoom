@@ -10,8 +10,8 @@ void PlaylistGeminiUI::setup() {
     imageSizeOptions = {"DEFAULT", "2K", "4K"};
     videoResOptions = {"DEFAULT", "4k"};
     
-    float startX = 1000;
-    float startY = 100;
+    float startX = 1500;
+    float startY = 700;
     
     apiKeyBox.set(startX, startY, 400, 30);
     themeBox.set(startX, startY + 40, 400, 80);

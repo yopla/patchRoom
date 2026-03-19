@@ -3,6 +3,9 @@
 #include "Scene2D_SIDE.h"
 #include "RoomApp.h"
 #include "ofApp.h"
+#include "ofAppGLFWWindow.h"
+#define GLFW_INCLUDE_NONE
+#include "GLFW/glfw3.h"
 
 shared_ptr<ofAppBaseWindow> PlaylistVisualizerApp::getAppWindow(int index) {
     if(!mainAppPtr) return nullptr;
@@ -23,8 +26,8 @@ void PlaylistVisualizerApp::setup() {
     
     windowControlsUI.setup();
 
-    zoom = 0.8f;
-    pan.set(80, 80); // Ajusté pour le nouvel agencement
+    zoom = 1.0f;
+    pan.set(250, 0); // Ajusté pour le nouvel agencement
     isSpacePressed = false;
     
     tooltipManager.setup();
@@ -38,8 +41,8 @@ void PlaylistVisualizerApp::setup() {
     
     for(int i=0; i<5; i++) {
         cameraPresetBtns[i].set(250 + i * 40, 5, 30, 30);
-        presetPans[i].set(80, 80);
-        presetZooms[i] = 0.8f;
+        presetPans[i].set(250, 0);
+        presetZooms[i] = 1.0f;
         
         windowPresetBtns[i].set(480 + i * 40, 5, 30, 30);
         for(int w=0; w<6; w++) {
@@ -54,12 +57,9 @@ void PlaylistVisualizerApp::setup() {
     searchBar.setup();
     
     // Positions par défaut des Drop Zones
-    float radius = 128.0f;
-    float cx = 750.0f;
-    float cy = 700.0f;
-    float boxSize = radius * 2.0f + 150.0f;
-    diagramDropZone.set(cx - boxSize * 0.5f, cy - boxSize * 0.5f, boxSize, boxSize);
-    textureUI.textureDropZone.set(diagramDropZone.getRight() + 50, diagramDropZone.y, boxSize, boxSize);
+    float boxSize = 406.0f;
+    diagramDropZone.set(375.0f, 1438.0f, boxSize, boxSize);
+    textureUI.textureDropZone.set(849.0f, 1423.0f, boxSize, boxSize);
     
     loadButtonPositions();
 }
@@ -84,6 +84,18 @@ void PlaylistVisualizerApp::update() {
     }
     if (bJustSetup) loadButtonPositions();
 
+    if (player && !pendingVideoFolder.empty()) {
+        // Evite de relancer la playlist et de couper la vidéo si c'est déjà le bon dossier
+        if (player->getFolderPath() != pendingVideoFolder) {
+            player->startPlaylist(pendingVideoFolder, false); // Ne démarre pas automatiquement au chargement JSON
+        }
+        pendingVideoFolder = "";
+    }
+    
+    if (roomApp && !textureUI.currentFolderPath.empty() && textureUI.textureFiles.empty()) {
+        textureUI.loadFolder(textureUI.currentFolderPath, roomApp);
+    }
+
     // --- MISE A JOUR DYNAMIQUE DE L'ACCORDEON (ASCENSEUR) ---
     playerUI.update();
     geminiUI.update(mainAppPtr);
@@ -97,8 +109,9 @@ void PlaylistVisualizerApp::update() {
 
     if(!player) return;
 
-    float radius = std::max(10.0f, (diagramDropZone.width - 150.0f) / 2.0f);
-    nodeGraph.update(player, diagramDropZone.getCenter().x, diagramDropZone.getCenter().y, radius);
+    float rx = std::max(10.0f, (diagramDropZone.width - 150.0f) / 2.0f);
+    float ry = std::max(10.0f, (diagramDropZone.height - 150.0f) / 2.0f);
+    nodeGraph.update(player, diagramDropZone.getCenter().x, diagramDropZone.getCenter().y, rx, ry);
 }
 
 void PlaylistVisualizerApp::dragEvent(ofDragInfo dragInfo) {
@@ -687,12 +700,39 @@ void PlaylistVisualizerApp::keyPressed(int key) {
 
     if(key == ' ') isSpacePressed = true; 
     if(key == 'r' || key == 'R') {
-        zoom = 0.8f;
-        pan.set(80, 80);
+        zoom = 1.0f;
+        pan.set(250, 0);
     }
     if(key == 'l' || key == 'L') {
         loadButtonPositions();
     }
+    
+    if(key == 'g' || key == 'G') {
+        if(mainAppPtr) {
+            mainAppPtr->gabMode = 3;
+            if(mainAppPtr->roomApp) mainAppPtr->roomApp->wallAlpha = 0.0f;
+            if(mainAppPtr->scene2D) mainAppPtr->scene2D->bgDisplayMode = 3;
+        }
+    }
+    
+    // Focus sur les fenetres avec les touches correspondantes
+    auto focusWindow = [&](int index) {
+        auto win = getAppWindow(index);
+        if(win) {
+            auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(win);
+            if(glfwWin) {
+                glfwShowWindow(glfwWin->getGLFWWindow());
+                glfwRestoreWindow(glfwWin->getGLFWWindow());
+                glfwFocusWindow(glfwWin->getGLFWWindow());
+            }
+        }
+    };
+
+    if(key == 'w' || key == 'W') focusWindow(1); // Room
+    if(key == 'x' || key == 'X') focusWindow(2); // Zenit
+    if(key == 'c' || key == 'C') focusWindow(3); // Scene 2D
+    if(key == 'v' || key == 'V') focusWindow(4); // Preview
+    if(key == 'b' || key == 'B') focusWindow(5); // Boutons
 }
 
 void PlaylistVisualizerApp::keyReleased(int key) { if(key == ' ') isSpacePressed = false; }
@@ -796,6 +836,10 @@ ofJson PlaylistVisualizerApp::serializeState() {
         pt["current_windows"].push_back(wJson);
     }
     
+    if (player) {
+        pt["player"]["folderPath"] = player->getFolderPath();
+    }
+    
     geminiUI.saveSettings(pt);
     return pt;
 }
@@ -845,9 +889,9 @@ void PlaylistVisualizerApp::deserializeState(const ofJson& pt) {
     
     if(pt.contains("presets") && pt["presets"].is_array()) {
         for(int i=0; i<5 && i<pt["presets"].size(); i++) {
-            presetPans[i].x = pt["presets"][i].value("pan_x", 0.0f);
-            presetPans[i].y = pt["presets"][i].value("pan_y", 80.0f);
-            presetZooms[i] = pt["presets"][i].value("zoom", 0.8f);
+            presetPans[i].x = pt["presets"][i].value("pan_x", 250.0f);
+            presetPans[i].y = pt["presets"][i].value("pan_y", 0.0f);
+            presetZooms[i] = pt["presets"][i].value("zoom", 1.0f);
         }
     }
     
@@ -879,6 +923,10 @@ void PlaylistVisualizerApp::deserializeState(const ofJson& pt) {
                 }
             }
         }
+    }
+    
+    if(pt.contains("player")) {
+        pendingVideoFolder = pt["player"].value("folderPath", "");
     }
     
     geminiUI.loadSettings(pt);
@@ -995,6 +1043,7 @@ vector<SearchableButton> PlaylistVisualizerApp::getAllSearchableButtons() {
     for(auto& t : controlsUI.layerToggles) res.push_back({t.name, &t.rect});
     for(auto& b : controlsUI.creatureButtons) res.push_back({b.name, &b.rect});
     for(auto& b : controlsUI.interactiveButtons) res.push_back({b.name, &b.rect});
+    for(auto& b : controlsUI.mainBrushButtons) res.push_back({b.name, &b.rect});
     res.push_back({"Clear All Creatures", &controlsUI.clearAllCreaturesBtn});
     res.push_back({"Undo Creature", &controlsUI.undoCreatureBtn});
     

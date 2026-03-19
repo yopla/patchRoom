@@ -14,7 +14,7 @@ public:
     };
 
     void setup(AtmosphereSystem* atmosphere, const string& videoFolderPath);
-    void startPlaylist(const string& videoFolderPath);
+    void startPlaylist(const string& videoFolderPath, bool autoPlay = true);
     void update();
     void start();
     void stop();
@@ -36,8 +36,11 @@ public:
     bool isCrop106() const { return bCrop106; }
 
     // Durée de la pause sur l'image fixe avant la prochaine vidéo (en frames)
-    int pauseDurationFrames = 150;
+    int pauseDurationFrames = 5;
     
+    // Durée du fondu (fade) vers l'image de pause
+    int fadeDurationFrames = 5;
+
     // Pause infinie
     bool isInfinitePause() const { return bInfinitePause; }
     void toggleInfinitePause() { bInfinitePause = !bInfinitePause; }
@@ -49,6 +52,7 @@ public:
     float getVideoPosition() const;
     int getUpcomingVideoIndex() const { return upcomingVideoIndex; }
     void refreshPlaylist(); // Recharge les noms des fichiers
+    const string& getFolderPath() const { return folderPath; }
     
     bool planPathToNode(const string& targetEndNode);
     const vector<int>& getPlannedPath() const { return plannedPath; }
@@ -62,6 +66,7 @@ private:
     void playVideo(int videoIndex);
     void parseFilename(const string& filename, string& start, string& end);
     void determineNextVideo();
+    void updateFadeFbo(float alpha, bool useLiveVideo = false);
 
     AtmosphereSystem* atmosphere = nullptr;
     bool bIsActive = false;
@@ -79,9 +84,15 @@ private:
     bool bMuted = false;
     bool bUserSelectedNext = false;
     bool bSimulate32Videos = false;
-    bool bCrop106 = true; // Grossit l'image de 106% pour matcher le raccord avec la vidéo
+    bool bCrop106 = false; // Grossit l'image de 106% pour matcher le raccord avec la vidéo
     float mockPosition = 0.0f;
     float lastVideoPosition = 0.0f; // Sauvegarde de la position pour détecter les boucles forcées
     int pauseCounter = 0;
+    int fadeCounter = 0;
+    bool bIsFadingOut = false;
+    int fadeOutCounter = 0;
+    ofFbo capturedVideoFbo;
+    ofImage currentPauseImage;
+    bool bHasPauseImage = false;
     vector<int> plannedPath;
 };

@@ -106,7 +106,7 @@ public:
     bool bDrawFireB = false;
     bool bDrawFireC = false;
     bool bDrawMongolfier = false;
-    bool bDrawGroPuyo = true; // Actif par défaut pour voir les ajouts (touche 2)
+    bool bDrawGroPuyo = false;
     bool bDrawWalkingSquare = false;
     bool bDrawTripodEye = false;
 

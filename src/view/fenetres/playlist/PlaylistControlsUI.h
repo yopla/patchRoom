@@ -70,6 +70,9 @@ public:
     vector<InteractiveButton> interactiveButtons;
     int selectedInteractiveIndex = -1;
 
+    vector<InteractiveButton> mainBrushButtons;
+    int selectedMainBrushIndex = -1;
+
     vector<RoomToggleBtn> roomToggles;
     vector<ActionButton> roomActionBtns;
     vector<ActionButton> globalActionBtns;

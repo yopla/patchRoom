@@ -33,6 +33,11 @@ public:
 
     ofRectangle pauseAccordionBtn;
     bool bPauseAccordionOpen = false;
-    vector<int> pauseOptions = {0, 30, 60, 150, 300, 600};
+    vector<int> pauseOptions = {0, 1, 2, 5, 30, 60, 150, 300, 600};
     vector<ofRectangle> pauseOptionRects;
+
+    ofRectangle fadeAccordionBtn;
+    bool bFadeAccordionOpen = false;
+    vector<int> fadeOptions = {0, 1, 5, 15, 30, 60, 100};
+    vector<ofRectangle> fadeOptionRects;
 };

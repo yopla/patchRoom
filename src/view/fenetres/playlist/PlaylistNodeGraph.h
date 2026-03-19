@@ -9,11 +9,12 @@
 struct VisualNode {
     string name;
     ofVec2f pos;
+    bool hasImage = false;
 };
 
 class PlaylistNodeGraph {
 public:
-    void update(Scene360VideoPlayer* player, float cx, float cy, float radius);
+    void update(Scene360VideoPlayer* player, float cx, float cy, float rx, float ry);
     void draw(Scene360VideoPlayer* player, const ofRectangle& dropZone);
     bool mousePressed(ofVec2f worldM, Scene360VideoPlayer* player);
     string getTooltip(ofVec2f worldM);
@@ -23,4 +24,6 @@ public:
 
 private:
     vector<string> lastPaths;
+    int lastCurrentIdx = -1;
+    bool lastPaused = false;
 };

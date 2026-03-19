@@ -120,7 +120,7 @@ public:
     bool respire = false;
     bool bDrawRipples = false; // Optionnel : pour activer/désactiver
     bool bDrawGab = true; // Remplaçant de bDrawWalls pour la texture "Gab"
-    bool bDrawBeam = true; 
+    bool bDrawBeam = false; 
     bool bDrawWorms = false;
     bool bDrawWingedWorms = false; // Activé par touche 'W'
     bool bUseTexture = true;

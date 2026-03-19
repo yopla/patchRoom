@@ -109,6 +109,8 @@ public:
     void loadButtonPositions();
     ofRectangle* findButtonAt(ofVec2f pos);
     
+    string pendingVideoFolder = "";
+    
     bool bIsSelecting = false;
     bool bIsDraggingGroup = false;
     ofVec2f selectionStart, selectionEnd;

@@ -10,24 +10,27 @@
 #include "GLFW/glfw3.h"
 
 void PlaylistWindowControlsUI::setup() {
+    float startX = 200;
+    float startY = -250;
+
     for(int i=0; i<4; i++) {
-        viewBtns[i].set(i * 60, 0, 55, 30);
+        viewBtns[i].set(startX + i * 60, startY, 55, 30);
         viewHidden[i] = false;
-        toggleWinBtns[i].set(i * 60, -35, 55, 30);
-        moveWinBtns[i].set(i * 60, -70, 55, 30);
-        recWinBtns[i].set(i * 60, -105, 55, 30);
+        toggleWinBtns[i].set(startX + i * 60, startY + 35, 55, 30);
+        moveWinBtns[i].set(startX + i * 60, startY + 70, 55, 30);
+        recWinBtns[i].set(startX + i * 60, startY + 105, 55, 30);
     }
-    formatBtn.set(240, -105, 75, 30);
-    qualityBtn.set(320, -105, 75, 30);
-    arrangeWinBtn.set(400, -105, 100, 30);
+    formatBtn.set(startX + 240, startY, 75, 30);
+    qualityBtn.set(startX + 320, startY, 75, 30);
+    arrangeWinBtn.set(startX + 400, startY, 100, 30);
     
     for(int i=0; i<6; i++) {
-        wxcvbBtns[i].set(320 + i * 60, 0, 56, 30);
-        focusBtns[i].set(320 + i * 60, 35, 56, 30);
+        wxcvbBtns[i].set(startX + 240 + i * 60, startY + 35, 56, 30);
+        focusBtns[i].set(startX + 240 + i * 60, startY + 70, 56, 30);
     }
     
     for(int i=0; i<4; i++) {
-        gabBtns[i].set(700 + i * 60, 0, 56, 30); 
+        gabBtns[i].set(startX + 240 + i * 60, startY + 105, 56, 30); 
     }
 }
 
