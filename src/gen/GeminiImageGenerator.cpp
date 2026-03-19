@@ -224,7 +224,9 @@ void GeminiImageGenerator::generateImage360FromImage(string prompt, string image
     // Structure Multimodale : Texte + Image Inline
     json["contents"][0]["parts"][0]["text"] = prompt + 
     " , 360 Panoramic view, equirectangular projection, vr, 8k, seamless. " +
-    "Et retire les traits de construction";
+    "Et retire les traits de construction" + 
+    "le sol doit rester une textue de sol" +
+    "(ne mets rien sur le sol)";
 
 
     json["contents"][0]["parts"][1]["inline_data"]["mime_type"] = mimeType;
@@ -343,7 +345,11 @@ void GeminiImageGenerator::generateVideoFromImage(string prompt, string imagePat
 
     ofJson json;
     // Structure pour Veo avec image de référence
-    json["instances"][0]["prompt"] = "Panoramic Hdri image 360° VR (Equirectangular projection) , seamless,  " + prompt;
+    json["instances"][0]["prompt"] = "Panoramic Hdri image 360° VR (Equirectangular projection) , seamless,  " + 
+    prompt +
+    "commence bien précisment sur la 1er image," +
+    "il faut de bonnes coutures, et sans crop de l'image originale)";
+
     json["instances"][0]["image"]["mimeType"] = mimeType;
     json["instances"][0]["image"]["bytesBase64Encoded"] = base64Img;
     
@@ -402,7 +408,13 @@ void GeminiImageGenerator::generateVideoFromDeuxImages(string prompt, string ima
 
     ofJson json;
     // Structure pour Veo avec image de référence (Start Frame)
-    json["instances"][0]["prompt"] = "Panoramic Hdri image 360° VR (Equirectangular projection) , seamless,  " + prompt;
+    json["instances"][0]["prompt"] = "Panoramic Hdri image 360° VR (Equirectangular projection) , seamless,  " + 
+    prompt +
+    "commence bien précisment sur la 1er image," +
+    "et termine bien sur la dernière frame précisement " +
+    "(n'essaie pas de relancer un début d'autre chose, " +
+    "il faut de bonnes coutures, et sans crop des images originales)";
+   
     json["instances"][0]["image"]["mimeType"] = mimeType1;
     json["instances"][0]["image"]["bytesBase64Encoded"] = base64Img1;
     

@@ -81,6 +81,7 @@ private:
     bool bSimulate32Videos = false;
     bool bCrop106 = true; // Grossit l'image de 106% pour matcher le raccord avec la vidéo
     float mockPosition = 0.0f;
+    float lastVideoPosition = 0.0f; // Sauvegarde de la position pour détecter les boucles forcées
     int pauseCounter = 0;
     vector<int> plannedPath;
 };

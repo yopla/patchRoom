@@ -13,6 +13,7 @@ void RoomInputHandler::update() {
     updateFluidRingInteraction();
     updateLightFlyInteraction(); // <--- AJOUT
     updateLiquidSphereInteraction(); // <--- AJOUT
+    updateJellySphereInteraction(); // <--- AJOUT
     
     // This was in RoomApp::update()
     app->projection.checkMouseIntersection(app->camGlobal);
@@ -24,7 +25,7 @@ void RoomInputHandler::updateKeyStates() {
     bRightShiftPressed = ofGetKeyPressed(OF_KEY_RIGHT_SHIFT);
     bSpacePressed = ofGetKeyPressed(' ');
     bTabPressed = ofGetKeyPressed(OF_KEY_TAB);
-    bLPressed = ofGetKeyPressed('l') || ofGetKeyPressed('L');
+    bLPressed = app->bLockCameraCenter;
 }
 
 void RoomInputHandler::handleCameraAndProjection() {
@@ -182,6 +183,46 @@ void RoomInputHandler::updateLiquidSphereInteraction() {
     app->liquidSphereRing.fluid.update(localX, localY);
 }
 
+void RoomInputHandler::updateJellySphereInteraction() {
+    jellyLocalX = -1000.0f;
+    jellyLocalY = -1000.0f;
+
+    if (!app->bDrawJellySphere) return;
+
+    ofVec3f rayOrigin = app->camGlobal.getPosition();
+    ofVec3f rayDir = app->camGlobal.screenToWorld(ofVec3f(ofGetMouseX(), ofGetMouseY(), 0)) - rayOrigin;
+    rayDir.normalize();
+
+    ofVec3f center = app->jellySphereRing.center;
+    float R = app->jellySphereRing.radius;
+    ofVec3f oc = rayOrigin - center;
+
+    float a = rayDir.lengthSquared(); 
+    float b = 2.0f * oc.dot(rayDir);
+    float c = oc.lengthSquared() - R * R;
+    float delta = b * b - 4 * a * c;
+
+    if(delta >= 0) {
+        float t1 = (-b - sqrt(delta)) / (2.0f * a);
+        float t2 = (-b + sqrt(delta)) / (2.0f * a);
+        
+        float t = (t1 > 0) ? t1 : ((t2 > 0) ? t2 : -1);
+        if(t > 0) {
+            ofVec3f hit = rayOrigin + rayDir * t;
+            ofVec3f localHit = (hit - center).getNormalized();
+            localHit.rotate(90.0f, ofVec3f(0, 1, 0));
+            
+            float v = acos(localHit.y) / PI;
+            float phi = atan2(localHit.z, localHit.x);
+            if(phi < 0) phi += TWO_PI;
+            float u = phi / TWO_PI;
+                
+            jellyLocalX = u * app->jellySphereRing.fbo.getWidth();
+            jellyLocalY = v * app->jellySphereRing.fbo.getHeight();
+        }
+    }
+}
+
 void RoomInputHandler::keyPressed(int key) {
     if (!app) return;
     // This logic was in RoomApp::keyPressed()
@@ -218,6 +259,21 @@ void RoomInputHandler::keyPressed(int key) {
     }
     if(key == '9') { // <--- AJOUT TOGGLE LOOP VIDEO 360
         app->scene360VideoPlayer.toggleLoopMode();
+    }
+    if(key == '0') { // <--- AJOUT TOGGLE JELLY SPHERE
+        app->bDrawJellySphere = !app->bDrawJellySphere;
+        if (!app->bDrawJellySphere) {
+            app->jellySphereRing.clearJellies(); // Nettoie quand on ferme
+        }
+    }
+
+    if(key == 'l' || key == 'L') {
+        app->bLockCameraCenter = !app->bLockCameraCenter;
+        if (!app->bLockCameraCenter) {
+            app->camGlobal.setDistance(4000);
+            app->camGlobal.setPosition(2000, 2500, 3000);
+            app->camGlobal.lookAt(ofVec3f(0, 600, 0));
+        }
     }
 
     if(key == 'g' || key == 'G') {
@@ -326,10 +382,16 @@ void RoomInputHandler::mousePressed(int x, int y, int button) {
             }
         }
     }
+    if (app->bDrawJellySphere && jellyLocalX >= 0) {
+        app->jellySphereRing.mousePressed(jellyLocalX, jellyLocalY);
+    }
 }
 
 void RoomInputHandler::mouseReleased(int x, int y, int button) {
-    // No specific logic here, EasyCam handles it.
+    if (!app || button != 0) return;
+    if (app->bDrawJellySphere) {
+        app->jellySphereRing.mouseReleased(jellyLocalX, jellyLocalY);
+    }
 }
 
 void RoomInputHandler::dragEvent(ofDragInfo dragInfo) {
@@ -360,6 +422,10 @@ void RoomInputHandler::dragEvent(ofDragInfo dragInfo) {
         }
         if(app->bDrawLiquidSphere) {
             app->liquidSphereRing.loadTexture(file);
+            sphereActive = true;
+        }
+        if(app->bDrawJellySphere) {
+            app->jellySphereRing.loadTexture(file);
             sphereActive = true;
         }
         

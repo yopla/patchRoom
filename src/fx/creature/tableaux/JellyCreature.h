@@ -89,6 +89,8 @@ public:
 
     bool isDrawingCircle = false;
     float localCircleX, localCircleY, circleR;
+    
+    bool bDrawBaseImage = true; // Permet de cacher le fond plat (utile en 3D)
 
     JellyCreature(float _x, float _y, float _w, float _h, ofImage _sourceImg);
     ~JellyCreature();

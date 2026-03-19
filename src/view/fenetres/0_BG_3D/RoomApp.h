@@ -18,6 +18,7 @@
 #include "ExternalKrakenSystem.h" // <--- AJOUT
 #include "CloudRippleRing.h" // <--- AJOUT
 #include "LiquidSphereRing.h" // <--- AJOUT
+#include "JellySphereRing.h" // <--- AJOUT
 #include "Scene360VideoPlayer.h" // <--- AJOUT
 
 class RoomApp : public ofBaseApp {
@@ -49,6 +50,7 @@ public:
 
     CloudRippleRing cloudRing;
     LiquidSphereRing liquidSphereRing; // <--- AJOUT
+    JellySphereRing jellySphereRing; // <--- AJOUT
     Scene360VideoPlayer scene360VideoPlayer; // <--- AJOUT
 
     // Position X globale sur le périmètre (de 0 à TotalPerimeter)
@@ -130,7 +132,9 @@ public:
     bool bDrawExternalKraken = false; // <--- AJOUT
     bool bDrawCloudRing = false; // <--- AJOUT
     bool bDrawLiquidSphere = false; // <--- AJOUT
+    bool bDrawJellySphere = false; // <--- AJOUT
     bool bDrawScene360Video = false; // <--- AJOUT
+    bool bLockCameraCenter = false; // <--- AJOUT
    
     bool bOscillateRoom = false;
 

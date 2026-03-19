@@ -150,6 +150,11 @@ void Scene360VideoPlayer::update() {
                 }
                 atmosphere->bShowLastFrame = true;
             }
+            
+            // Vérification continue du dossier en pause infinie (1 fois par seconde à 60 fps)
+            if (ofGetFrameNum() % 60 == 0) {
+                refreshPlaylist();
+            }
             return; // Bloque le décompte
         }
 
@@ -195,10 +200,20 @@ void Scene360VideoPlayer::update() {
         if (!bMovieDone) {
             int curFrame = atmosphere->video360.getCurrentFrame();
             int totFrames = atmosphere->video360.getTotalNumFrames();
+            float curPos = atmosphere->video360.getPosition();
+            
             // Détection robuste de la fin : si on est à la toute dernière frame
-            if ((totFrames > 0 && curFrame >= totFrames - 1) || atmosphere->video360.getPosition() >= 0.995f) {
+            // On élargit légèrement le seuil de position à 0.985f pour les sauts causés par la lecture x2
+            if ((totFrames > 0 && curFrame >= totFrames - 1) || curPos >= 0.985f) {
+                bMovieDone = true;
+            } 
+            // Sécurité : Si le lecteur a relancé la vidéo tout seul au lieu de s'arrêter (chute brutale de position)
+            else if (lastVideoPosition > 0.8f && curPos < 0.2f) {
                 bMovieDone = true;
             }
+            
+            if (bMovieDone) lastVideoPosition = 0.0f;
+            else lastVideoPosition = curPos;
         }
     }
 
@@ -365,6 +380,7 @@ void Scene360VideoPlayer::playVideo(int videoIndex) {
     if (bSimulate32Videos) {
         mockPosition = 0.0f;
     } else if (atmosphere) {
+        lastVideoPosition = 0.0f; // Réinitialise le suivi de position
         ofLogNotice("Scene360VideoPlayer") << "Lecture de : " << videoInfo.path;
         atmosphere->loadTexture(videoInfo.path);
         

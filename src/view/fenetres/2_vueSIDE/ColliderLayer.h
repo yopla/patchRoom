@@ -23,6 +23,9 @@ public:
     void setCustomWalls(const vector<ofRectangle>& newWalls);
     void clearCustomWalls();
 
+    void loadMap(string path);
+    string currentMapPath = "GAB0/COLL.png";
+
 private:
     void generateWalls();
 

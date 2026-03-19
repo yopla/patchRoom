@@ -153,6 +153,15 @@ void Scene2D_SIDE::draw() {
     ofSetColor(255, 255, 255, 50);
     ofDrawLine(0, hMax, totalSceneWidth, hMax);
 
+    if (overlayMode > 0 && overlayImg.isAllocated()) {
+        ofPushStyle();
+        if (overlayMode == 1) ofSetColor(255, 255, 255, 84); // ~33%
+        else if (overlayMode == 2) ofSetColor(255, 255, 255, 191); // ~75%
+        else if (overlayMode == 3) ofSetColor(255, 255, 255, 255); // 100%
+        overlayImg.draw(0, -912); // Positionnement pour correspondre aux exports et GABs
+        ofPopStyle();
+    }
+
     // Affichage des coordonnées 3D pour les Halos
     bool drawCoordDebug = false;
     if (drawCoordDebug) {   
@@ -268,6 +277,10 @@ void Scene2D_SIDE::keyPressed(int key) {
         bgDisplayMode = (bgDisplayMode + 1) % 4;
     }
     
+    if (key == 'h' || key == 'H') {
+        overlayMode = (overlayMode + 1) % 4;
+    }
+    
     if (key == 'r' || key == 'R') {
         viewZoom = (float)ofGetWidth() / totalSceneWidth * 0.95f;
         viewPan.x = (ofGetWidth() - totalSceneWidth * viewZoom) / 2.0f;
@@ -299,40 +312,16 @@ ofVec2f Scene2D_SIDE::getTransformedMouse() {
 void Scene2D_SIDE::dragEvent(ofDragInfo dragInfo) {
     if (dragInfo.files.size() > 0) {
         string file = dragInfo.files[0];
-        ofImage fullImg;
-        if (fullImg.load(file)) {
-            // On vérifie que l'image est bien celle d'un export complet (ou au moins assez grande)
-            if (fullImg.getWidth() >= totalSceneWidth && fullImg.getHeight() >= 4752) {
-                ofLogNotice("Scene2D_SIDE") << "Chargement de la nouvelle image de fond (GAB) : " << file;
-                
-                ofPixels& pix = fullImg.getPixels();
-                ofPixels pFront, pBack, pJar, pCour, pSol, pTopJar, pTopCour;
-                
-                // Découpage selon les offsets de l'export (Y a été décalé de +912 à l'export)
-                pix.cropTo(pFront, srcX_Front, 912, wFront, 1472);
-                imgFront.setFromPixels(pFront);
-
-                pix.cropTo(pBack, srcX_Back, 912, wFront, 1472);
-                imgBack.setFromPixels(pBack);
-
-                pix.cropTo(pJar, srcX_Jar, 1600, wJar, 784);
-                imgJar.setFromPixels(pJar);
-
-                pix.cropTo(pCour, srcX_Cour, 1312, wJar, 1072);
-                imgCour.setFromPixels(pCour);
-
-                pix.cropTo(pSol, srcX_Front, 2384, wSol, hSol);
-                imgSol.setFromPixels(pSol);
-
-                pix.cropTo(pTopJar, srcX_Jar, 0, wTopJar, hTopJar);
-                imgTopJar.setFromPixels(pTopJar);
-
-                pix.cropTo(pTopCour, srcX_Cour, 304, wTopCour, hTopCour);
-                imgTopCour.setFromPixels(pTopCour);
-                
-                bgDisplayMode = 0; // On force le mode 0 pour bien afficher ces images jpg/png
-            } else {
-                ofLogWarning("Scene2D_SIDE") << "L'image glissée est trop petite ! Dimension minimale attendue : " << totalSceneWidth << "x4752";
+        
+        if (layerManager.bDrawColliders && layerManager.colliderLayer) {
+            layerManager.colliderLayer->loadMap(file);
+            ofLogNotice("Scene2D_SIDE") << "Collider map image chargee : " << file;
+        } else {
+            ofImage fullImg;
+            if (fullImg.load(file)) {
+                overlayImg = fullImg;
+                overlayMode = 3;
+                ofLogNotice("Scene2D_SIDE") << "Overlay image chargee : " << file;
             }
         }
     }
@@ -438,6 +427,15 @@ void Scene2D_SIDE::exportFullScene() {
     fboSol.draw(srcX_Front, hMax); 
     fboTopCour.draw(srcX_Cour, hMax - 1072 - 1008);
     
+    if (overlayMode > 0 && overlayImg.isAllocated()) {
+        ofPushStyle();
+        if (overlayMode == 1) ofSetColor(255, 255, 255, 84); // ~33%
+        else if (overlayMode == 2) ofSetColor(255, 255, 255, 191); // ~75%
+        else if (overlayMode == 3) ofSetColor(255, 255, 255, 255); // 100%
+        overlayImg.draw(0, -912); // Positionnement absolu (-912 annule le translate)
+        ofPopStyle();
+    }
+
     ofPopMatrix();
     fboExp.end();
     ofPixels pix;
@@ -465,4 +463,68 @@ void Scene2D_SIDE::exportColliders() {
     fboExp.readToPixels(pix);
     ofSaveImage(pix, "colliders_export_" + ofGetTimestampString() + ".png");
     ofLogNotice("Scene2D_SIDE") << "Export colliders (10048x4752) sauvegarde: colliders_export_...";
+}
+
+//--------------------------------------------------------------
+void Scene2D_SIDE::export7Murs() {
+    ofDirectory dir("export/murs2D");
+    if(!dir.exists()){
+        dir.create(true);
+    }
+
+    // Assemblage de la scène courante dans un FBO (comme l'export global)
+    float exportHeight = 912 + 1472 + 2368; // 4752
+    ofFbo fboExp;
+    fboExp.allocate(totalSceneWidth, exportHeight, GL_RGBA);
+    fboExp.begin();
+    ofClear(0, 0, 0, 0); // Fond transparent pour les PNGs
+    ofPushMatrix();
+    ofTranslate(0, 912); 
+    
+    ofSetColor(255);
+    fboJar.draw(srcX_Jar, hMax - 784);
+    fboFront.draw(srcX_Front, hMax - 1472);
+    fboCour.draw(srcX_Cour, hMax - 1072);
+    fboBack.draw(srcX_Back, hMax - 1472);
+
+    fboTopJar.draw(srcX_Jar, hMax - 784 - 1600); 
+    fboSol.draw(srcX_Front, hMax); 
+    fboTopCour.draw(srcX_Cour, hMax - 1072 - 1008);
+
+    if (overlayMode > 0 && overlayImg.isAllocated()) {
+        ofPushStyle();
+        if (overlayMode == 1) ofSetColor(255, 255, 255, 84);
+        else if (overlayMode == 2) ofSetColor(255, 255, 255, 191);
+        else if (overlayMode == 3) ofSetColor(255, 255, 255, 255);
+        overlayImg.draw(0, -912);
+        ofPopStyle();
+    }
+    
+    ofPopMatrix();
+    fboExp.end();
+
+    ofPixels pix;
+    fboExp.readToPixels(pix);
+    
+    ofPixels pFront, pBack, pJar, pCour, pSol, pTopJar, pTopCour;
+
+    // Découpage selon les offsets exacts du template
+    pix.cropTo(pFront, srcX_Front, 912, wFront, 1472);
+    pix.cropTo(pBack, srcX_Back, 912, wFront, 1472);
+    pix.cropTo(pJar, srcX_Jar, 1600, wJar, 784);
+    pix.cropTo(pCour, srcX_Cour, 1312, wJar, 1072);
+    pix.cropTo(pSol, srcX_Front, 2384, wSol, hSol);
+    pix.cropTo(pTopJar, srcX_Jar, 0, wTopJar, hTopJar);
+    pix.cropTo(pTopCour, srcX_Cour, 304, wTopCour, hTopCour);
+
+    string ts = ofGetTimestampString();
+    ofSaveImage(pFront, "export/murs2D/FRONT_" + ts + ".png");
+    ofSaveImage(pBack, "export/murs2D/BACK_" + ts + ".png");
+    ofSaveImage(pJar, "export/murs2D/JAR_" + ts + ".png");
+    ofSaveImage(pCour, "export/murs2D/COUR_" + ts + ".png");
+    ofSaveImage(pSol, "export/murs2D/SOL_" + ts + ".png");
+    ofSaveImage(pTopJar, "export/murs2D/TOP_JAR_" + ts + ".png");
+    ofSaveImage(pTopCour, "export/murs2D/TOP_COUR_" + ts + ".png");
+
+    ofLogNotice("Scene2D_SIDE") << "Export des 7 murs effectue avec succes dans export/murs2D/";
 }

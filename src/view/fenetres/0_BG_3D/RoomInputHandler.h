@@ -26,12 +26,16 @@ public:
     ofVec3f cursor3DPos;
     ofVec3f lastCreatedHalo3DPos;
 
+    float jellyLocalX = -1000.0f;
+    float jellyLocalY = -1000.0f;
+
 private:
     void updateKeyStates();
     void handleCameraAndProjection();
     void updateFluidRingInteraction();
     void updateLightFlyInteraction();
     void updateLiquidSphereInteraction();
+    void updateJellySphereInteraction();
 
     RoomApp* app = nullptr; // Pointer to the main app to access its members
 

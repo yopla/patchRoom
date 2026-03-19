@@ -35,6 +35,9 @@ void RoomApp::setup(){
     // Initialisation du LiquidSphereRing
     liquidSphereRing.setup(3000.0f, ofVec3f(0, 600, 0));
 
+    // Initialisation du JellySphereRing
+    jellySphereRing.setup(3000.0f, ofVec3f(0, 600, 0));
+
     // 3. Allocation des FBOs (Sorties visuelles)
     fboFront.allocate(roomWidth, heightFrontBack, GL_RGB);
     fboBack.allocate(roomWidth, heightFrontBack, GL_RGB);
@@ -74,6 +77,7 @@ void RoomApp::mouseMoved(int x, int y) {
 }
 
 void RoomApp::mouseDragged(int x, int y, int button) {
+    inputHandler.mouseDragged(x, y, button);
 }
 
 void RoomApp::mousePressed(int x, int y, int button) {
@@ -81,6 +85,7 @@ void RoomApp::mousePressed(int x, int y, int button) {
 }
 
 void RoomApp::mouseReleased(int x, int y, int button) {
+    inputHandler.mouseReleased(x, y, button);
 }
 
 void RoomApp::windowResized(int w, int h){}
@@ -174,6 +179,11 @@ void RoomApp::update(){
         cloudRing.update(ofGetLastFrameTime());
     }
 
+    // --- MISE A JOUR DU JELLY SPHERE ---
+    if (bDrawJellySphere) {
+        jellySphereRing.update(inputHandler.jellyLocalX, inputHandler.jellyLocalY);
+    }
+
     // --- MISE A JOUR DU LECTEUR VIDEO 360 ---
     if (bDrawScene360Video) {
         scene360VideoPlayer.update();
@@ -243,6 +253,11 @@ void RoomApp::drawSceneContent(bool showAtmosphere, bool isGlobalView) {
     // --- DESSIN DU LIQUID SPHERE ---
     if (bDrawLiquidSphere) {
         liquidSphereRing.draw();
+    }
+
+    // --- DESSIN DU JELLY SPHERE ---
+    if (bDrawJellySphere) {
+        jellySphereRing.draw();
     }
 
     if(bDrawGab) {
@@ -327,7 +342,7 @@ void RoomApp::draw(){
            if (debugBeam) projection.drawProjectorDebug(walls);
         }
         // Point cyan pour visualiser le Rig (masqué pendant la touche L)
-        if (!(ofGetKeyPressed('l') || ofGetKeyPressed('L'))) {
+        if (!bLockCameraCenter) {
             ofSetColor(0, 255, 255); ofDrawSphere(rigPosition, 10);
         }
     camGlobal.end();
@@ -344,10 +359,11 @@ void RoomApp::draw(){
     ofDrawBitmapString("EXT KRAKEN [4]: " + ofToString(bDrawExternalKraken), 20, 110); // <--- AJOUT
     ofDrawBitmapString("CLOUD RING [6]: " + ofToString(bDrawCloudRing), 20, 125); // <--- AJOUT
     ofDrawBitmapString("LIQUID SPHERE [7]: " + ofToString(bDrawLiquidSphere), 20, 140);
-    ofDrawBitmapString("SCENE 360 [8]: " + ofToString(bDrawScene360Video), 20, 155); // <--- AJOUT
+    ofDrawBitmapString("JELLY SPHERE [0]: " + ofToString(bDrawJellySphere), 20, 155); // <--- AJOUT
+    ofDrawBitmapString("SCENE 360 [8]: " + ofToString(bDrawScene360Video), 20, 170); // <--- AJOUT
     
     if(cursorSquare.isVisible) {
-        ofDrawBitmapString("CURSOR 3D: " + ofToString(cursorSquare.getCurrentPos()), 20, 185);
+        ofDrawBitmapString("CURSOR 3D: " + ofToString(cursorSquare.getCurrentPos()), 20, 200);
     }
     
     if(bLightFlyRingEnabled) {

@@ -293,7 +293,10 @@ void JellyCreature::update(float mx, float my) {
 void JellyCreature::draw(float mx, float my) { // <--- Ajout des arguments
     ofPushMatrix();
     ofTranslate(x, y);
-    img.draw(0, 0);
+    
+    if (bDrawBaseImage) {
+        img.draw(0, 0);
+    }
     
      if (isDrawingCircle) {
         ofNoFill();

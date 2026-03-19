@@ -344,7 +344,7 @@ void Scene2DLayerManager::removeLastCreature() {
 void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
     // --- FENETRE 2D_SIDE ---
     switch (key) {
-        case 'h': case 'H': bDrawCreatures = !bDrawCreatures; return; // display creature
+        //case 'h': case 'H': bDrawCreatures = !bDrawCreatures; return; // display creature
         case 'd': case 'D': // remove last
             creatureSystem.removeLast();
             if (!cousinCons.empty()) cousinCons.pop_back();

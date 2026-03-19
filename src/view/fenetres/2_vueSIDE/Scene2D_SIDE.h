@@ -26,6 +26,7 @@ public:
     
     void exportFullScene();
     void exportColliders();
+    void export7Murs();
 
     // Temps local pour pouvoir mettre en pause l'animation de la balle
     float localTime = 0.0f; 
@@ -53,6 +54,9 @@ public:
     const float wJar   = 2624.0f;
     
     int bgDisplayMode = 0; // 0: JPGs Opaque, 1: JPGs Transparent, 2: Room FBOs, 3: Rien
+    
+    ofImage overlayImg;
+    int overlayMode = 0; // 0: OFF, 1: 33%, 2: 75%, 3: 100%
 
 private:
     void captureSection(ofFbo& targetFbo, float worldX, float worldTopY, ofImage& img, ofFbo* roomFbo = nullptr, bool bDrawDynamics = true);

@@ -11,15 +11,21 @@ void ColliderLayer::setup(float simulationWidth, float simulationHeight, float d
 }
 
 //--------------------------------------------------------------
+void ColliderLayer::loadMap(string path) {
+    currentMapPath = path;
+    generateWalls();
+}
+
+//--------------------------------------------------------------
 void ColliderLayer::generateWalls() {
     walls.clear();
     randomWalls.clear();
     wallMesh.clear();
     wallMesh.setMode(OF_PRIMITIVE_TRIANGLES);
 
-    // 1. Chargement de COLL.png et génération des colliders blancs
+    // 1. Chargement de l'image et génération des colliders blancs
     ofImage mapImg;
-    if(mapImg.load("GAB0/COLL.png")) {
+    if(mapImg.load(currentMapPath)) {
         // Support dynamique: Ancienne map (1472) vs Nouvelle full size (4752)
         bool isFullSize = (mapImg.getHeight() > 2000);
         float offsetWorldY = isFullSize ? 912.0f : 0.0f;
@@ -50,7 +56,7 @@ void ColliderLayer::generateWalls() {
         }
     } else {
         bHasMap = false;
-        ofLogWarning("ColliderLayer") << "COLL.png introuvable !";
+        ofLogWarning("ColliderLayer") << currentMapPath << " introuvable !";
     }
 
     // Couleur des murs (Mauve comme dans ton ancien code Fish)

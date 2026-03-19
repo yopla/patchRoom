@@ -161,6 +161,7 @@ void ofApp::update(){
             if(roomApp->bDrawAtmosphere) roomApp->atmosphere.loadTexture(path);
             if(roomApp->bDrawCloudRing) roomApp->cloudRing.loadTexture(path);
             if(roomApp->bDrawLiquidSphere) roomApp->liquidSphereRing.loadTexture(path);
+            if(roomApp->bDrawJellySphere) roomApp->jellySphereRing.loadTexture(path);
         }
     }
     
@@ -172,6 +173,7 @@ void ofApp::update(){
             if(roomApp->bDrawAtmosphere) roomApp->atmosphere.loadTexture(path);
             if(roomApp->bDrawCloudRing) roomApp->cloudRing.loadTexture(path);
             if(roomApp->bDrawLiquidSphere) roomApp->liquidSphereRing.loadTexture(path);
+            if(roomApp->bDrawJellySphere) roomApp->jellySphereRing.loadTexture(path);
         }
     }
 
@@ -406,9 +408,9 @@ et termine bien sur la dernière frame précisement
         string theme = "a surreal jukebox music machine";
         
         if(playlistApp) {
-            theme = playlistApp->themeText;
-            if(!playlistApp->apiKeyText.empty()) {
-                geminiGen.setApiKey(playlistApp->apiKeyText);
+            theme = playlistApp->geminiUI.themeText;
+            if(!playlistApp->geminiUI.apiKeyText.empty()) {
+                geminiGen.setApiKey(playlistApp->geminiUI.apiKeyText);
             }
         }
         

@@ -29,6 +29,7 @@ void PlaylistTooltipManager::setup() {
     texts["GAB 0"] = "Change le niveau de transparence global du gabarit";
     texts["GAB 1"] = "Active/Desactive le fond gabarit dans la Room 3D";
     texts["GAB 2"] = "Change le mode d'affichage du fond dans la Scene 2D";
+    texts["GAB 3"] = "Change l'affichage de l'image superposee dans la Scene 2D (Touche H)";
     
     // Room
     texts["Sol 3D"] = "Active le sol ondulant en 3D dans la Room";
@@ -37,9 +38,10 @@ void PlaylistTooltipManager::setup() {
     texts["Ext Kraken"] = "Fait apparaitre les tentacules du Kraken a l'exterieur";
     texts["Cloud Ring"] = "Affiche une sphere de nuages volumetriques";
     texts["Liq Sphere"] = "Affiche une sphere d'eau liquide flottante";
+    texts["Jelly Sphere"] = "Affiche une sphere de Jellies interactifs (Touche 0)";
     texts["Scene360Vid"] = "Affiche la video 360 en cours sur la sphere environnementale";
     texts["Beam Proj"] = "Affiche le faisceau volumetrique du videoprojecteur virtuel";
-    texts["Atmosphere"] = "Active ou desactive la vue de sphere d'environnement 360 en preview (reste rendu)";
+    texts["AtmoPreview"] = "Active ou desactive la vue de sphere d'environnement 360 en preview (reste rendu)";
     texts["Use Texture"] = "Bascule entre une texture couleur et un damier/texture chargee";
     texts["Show Roof"] = "Affiche ou cache le plafond de la piece";
     texts["Respire"] = "Fait osciller legerement la camera verticalement (respiration)";
@@ -57,6 +59,7 @@ void PlaylistTooltipManager::setup() {
     texts["Prev Interact"] = "Touche [B] : Active/Desactive la visualisation des interactions (RoomPreview)";
     texts["Prev Cursor"] = "Touche [S] : Affiche/Cache le curseur projete (RoomPreview)";
     texts["Clear Flys [X]"] = "Supprime toutes les lumieres/lucioles du LightFlyRing (Touche X)";
+    texts["Cam Lock [L]"] = "Verrouille la camera au centre de la piece pour un point de vue 360 (Touche L)";
     
     // Player
     texts["LOOP"] = "Lit la video actuelle en boucle sans passer a la suivante";
@@ -74,10 +77,12 @@ void PlaylistTooltipManager::setup() {
     texts["PAUSE [ESC]"] = "Met en pause ou reprend l'ecoulement du temps global (Touche ESC)";
     texts["SAVE GAB"] = "Sauvegarde une frame du Canvas Master en pleine resolution dans le dossier export/";
     texts["UNDO CREA [D]"] = "Touche [D] : Retire la derniere creature ajoutee globalement sur le Canvas Master";
-    texts["RECORD [ENTER]"] = "Touche [ENTER] : Lance ou arrete l'enregistrement des images (ViewApp et RoomPreview)";
+    texts["REC PREVIEW"] = "Lance ou arrete l'enregistrement des images de la fenetre Preview";
+    texts["REC CANVAS"] = "Lance ou arrete l'enregistrement des images du Canvas Master (Vue 3)";
     texts["BLUR SHADER"] = "Active ou desactive le flou du shader";
     texts["EXP SCENE2D"] = "Exporte la frame complete (tout l'environnement 2D assemble)";
     texts["EXP COLLIDER"] = "Exporte uniquement le calque des colliders (sur fond transparent)";
+    texts["EXP 7 MURS"] = "Decoupe l'image superposee (overlay) en 7 fichiers dans le dossier export/murs2D";
     texts["GAB 3-OFF-3"] = "Configure les gabarits : Master a 3 (10%), Room en OFF, Scene 2D a 3 (Rien).";
     texts["BTN WORMS"] = "Active ou desactive les vers fluo dans la fenetre des boutons OSC.";
     texts["GEN_ROOM_360"] = "Touche [Shift+L] : Genere une image 360 a partir d'un export de la Room et du theme actuel.";
@@ -110,61 +115,56 @@ std::string PlaylistTooltipManager::getTooltipText(const std::string& key) {
 void PlaylistTooltipManager::drawTooltip(const std::string& text, float x, float y) {
     if(text.empty()) return;
     
-    ofPushStyle();
+    int maxCharsPerLine = 40;
     
-    // Formatage avec retour a la ligne automatique
-    std::string formattedText = text;
-    int maxLen = 45;
-    int lineCount = 1;
-    int lastBreak = 0;
+    std::string formattedText = "";
+    std::vector<std::string> words = ofSplitString(text, " ", true, true);
+    std::string currentLine = "";
     
-    while(formattedText.length() - lastBreak > maxLen) {
-        int spaceIdx = formattedText.find_last_of(' ', lastBreak + maxLen);
-        if(spaceIdx != std::string::npos && spaceIdx > lastBreak) {
-            formattedText.replace(spaceIdx, 1, "\n");
-            lastBreak = spaceIdx + 1;
-            lineCount++;
+    int maxLineLength = 0;
+    int lineCount = 0;
+
+    // Découpage du texte pour un retour à la ligne automatique (Word Wrap)
+    for(auto& w : words) {
+        if(currentLine.length() + w.length() + 1 > maxCharsPerLine) {
+            if(!currentLine.empty()) {
+                if (currentLine.back() == ' ') currentLine.pop_back(); // Retire l'espace final
+                formattedText += currentLine + "\n";
+                if (currentLine.length() > maxLineLength) maxLineLength = currentLine.length();
+                lineCount++;
+                currentLine = w + " ";
+            } else {
+                formattedText += w.substr(0, maxCharsPerLine) + "\n";
+                lineCount++;
+                currentLine = w.substr(maxCharsPerLine) + " ";
+            }
         } else {
-            formattedText.insert(lastBreak + maxLen, "\n");
-            lastBreak += maxLen + 1;
-            lineCount++;
+            currentLine += w + " ";
         }
     }
-    
-    // Dimensions de la boite noire
-    float pad = 10;
-    float textW = 0;
-    std::vector<std::string> lines = ofSplitString(formattedText, "\n");
-    for(const auto& line : lines) {
-        float w = line.length() * 8; 
-        if(w > textW) textW = w;
+    if(!currentLine.empty()) {
+        if (currentLine.back() == ' ') currentLine.pop_back();
+        formattedText += currentLine;
+        if (currentLine.length() > maxLineLength) maxLineLength = currentLine.length();
+        lineCount++;
     }
     
-    float boxW = textW + pad * 2;
-    float boxH = (15 * lineCount) + pad * 2;
+    // Dimensions estimées de l'infobulle (ofDrawBitmapStringHighlight utilise une police de ~8x15 px)
+    float charWidth = 8.0f;
+    float lineHeight = 15.0f; 
+    float boxWidth = maxLineLength * charWidth + 16.0f;
+    float boxHeight = lineCount * lineHeight + 16.0f;
     
-    // Repositionnement (au centre en dessous du curseur)
-    float drawX = x - boxW / 2.0f;
-    float drawY = y + 25.0f; // Un peu en dessous du curseur pour ne pas le cacher
+    float drawX = x + 15;
+    float drawY = y + 15;
     
-    // Contraintes aux bords de l'ecran
-    if(drawX < 5) drawX = 5;
-    if(drawX + boxW > ofGetWidth() - 5) drawX = ofGetWidth() - boxW - 5;
-    if(drawY + boxH > ofGetHeight() - 5) drawY = y - boxH - 10; // Passe au-dessus si ca depasse en bas
+    // Vérification des bords de la fenêtre et repositionnement si nécessaire
+    if (drawX + boxWidth > ofGetWidth()) drawX = x - boxWidth - 5;
+    if (drawY + boxHeight > ofGetHeight()) drawY = y - boxHeight - 5;
+    if (drawX < 5) drawX = 5;
+    if (drawY < 15) drawY = 15;
     
-    // Dessin Fond transparent
-    ofSetColor(0, 0, 0, 220);
-    ofFill();
-    ofDrawRectRounded(drawX, drawY, boxW, boxH, 5);
-    
-    // Dessin Contour
-    ofSetColor(150, 150, 150, 200);
-    ofNoFill();
-    ofDrawRectRounded(drawX, drawY, boxW, boxH, 5);
-    
-    // Dessin Texte
-    ofSetColor(255);
-    ofDrawBitmapString(formattedText, drawX + pad, drawY + pad + 10);
-    
+    ofPushStyle();
+    ofDrawBitmapStringHighlight(formattedText, drawX, drawY, ofColor(20, 20, 20, 220), ofColor(255));
     ofPopStyle();
 }
