@@ -36,6 +36,13 @@ GeminiImageGenerator geminiGen;
     bool bDrawPlaylist = true;
     int gabMode = 0; // 0:100%, 1:75%, 2:33%, 3:10%, 4:OFF
 
+    // --- ENREGISTREMENT ---
+    string recordFormat = "jpg";
+    ofImageQualityType recordQuality = OF_IMAGE_QUALITY_BEST;
+    int qualityIndex = 0; // 0: BEST, 1: HIGH, 2: MEDIUM, 3: LOW, 4: WORST
+    bool bRecordCanvas = false;
+    string canvasRecordFolder = "";
+
     // --- PAUSE & TIME ---
     bool bGlobalPause = false; // Pause active par défaut
     float localTime = 0.0f;
@@ -98,5 +105,5 @@ GeminiImageGenerator geminiGen;
 
     ofVec2f getTransformedMouse();
     
-    void onDelayedFocus(ofEventArgs & args);
+    void onFirstFrameReady(ofEventArgs & args);
 };

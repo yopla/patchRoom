@@ -90,6 +90,7 @@ void PlaylistControlsUI::setupLayerToggles(Scene2D_SIDE* scene2D) {
     
     int cRows = (cNames.size() + cCols - 1) / cCols;
     clearAllCreaturesBtn.set(cStartX, startY + cRows*(bh+pad) + 10, bw*2+pad, bh);
+    undoCreatureBtn.set(clearAllCreaturesBtn.getRight() + pad, startY + cRows*(bh+pad) + 10, bw, bh);
 
     float iStartY = clearAllCreaturesBtn.y + bh + 20; 
     vector<string> iNames = {"GroPuyo", "Puyo", "Bubble", "Poulpe", "Sardine"};
@@ -269,10 +270,17 @@ void PlaylistControlsUI::setupGlobalActionBtns(ofApp* mainAppPtr) {
     }, false, [this](){ return uiStateRecPreview; });
 
     addAction("REC CANVAS", [mainAppPtr, this](){ 
-        if(mainAppPtr && mainAppPtr->viewApps.size() > 2 && mainAppPtr->viewApps[2]) {
-            mainAppPtr->viewApps[2]->keyPressed(OF_KEY_RETURN);
-            uiStateRecCanvas = !uiStateRecCanvas;
-            ofLogNotice("PlaylistControlsUI") << "Enregistrement Canvas bascule.";
+        if(mainAppPtr) {
+            mainAppPtr->bRecordCanvas = !mainAppPtr->bRecordCanvas;
+            if(mainAppPtr->bRecordCanvas) {
+                mainAppPtr->canvasRecordFolder = "export/canvas_" + ofGetTimestampString();
+                ofDirectory dir(mainAppPtr->canvasRecordFolder);
+                dir.create(true);
+                ofLogNotice("PlaylistControlsUI") << "Enregistrement du Canvas Master ON : " << mainAppPtr->canvasRecordFolder;
+            } else {
+                ofLogNotice("PlaylistControlsUI") << "Enregistrement du Canvas Master OFF.";
+            }
+            uiStateRecCanvas = mainAppPtr->bRecordCanvas;
         }
     }, false, [this](){ return uiStateRecCanvas; });
 
@@ -407,6 +415,13 @@ void PlaylistControlsUI::draw(ofApp* mainAppPtr) {
     ofDrawBitmapString("CLEAR ALL CREATURES", 5, 14);
     ofPopMatrix();
 
+    ofSetColor(200, 150, 50);
+    ofFill(); ofDrawRectangle(undoCreatureBtn);
+    ofNoFill(); ofSetColor(255); ofDrawRectangle(undoCreatureBtn);
+    ofPushMatrix(); ofTranslate(undoCreatureBtn.x, undoCreatureBtn.y); ofScale(undoCreatureBtn.height / 20.0f, undoCreatureBtn.height / 20.0f);
+    ofDrawBitmapString("UNDO CREA [Z]", 5, 14);
+    ofPopMatrix();
+
     // Interactives
     ofSetColor(255);
     ofDrawBitmapString("INTERACTIVE LAYERS (Touche 'A')", clearAllCreaturesBtn.x, clearAllCreaturesBtn.y + 40);
@@ -473,6 +488,10 @@ bool PlaylistControlsUI::mousePressed(ofVec2f worldM, Scene2D_SIDE* scene2D) {
         clearAllCreatures(scene2D);
         return true;
     }
+    if(undoCreatureBtn.inside(worldM)) {
+        if(scene2D) scene2D->layerManager.removeLastCreature();
+        return true;
+    }
     return false;
 }
 
@@ -496,6 +515,7 @@ string PlaylistControlsUI::getTooltip(ofVec2f worldM, PlaylistTooltipManager& to
     for(auto& b : creatureButtons) { if(b.rect.inside(worldM)) return tooltipManager.getTooltipText(b.name); }
     for(auto& b : interactiveButtons) { if(b.rect.inside(worldM)) return tooltipManager.getTooltipText("INT_" + b.name); }
     if(clearAllCreaturesBtn.inside(worldM)) return tooltipManager.getTooltipText("CLEAR_CREATURES");
+    if(undoCreatureBtn.inside(worldM)) return tooltipManager.getTooltipText("UNDO_SCENE2D_CREATURE");
     return "";
 }
 
@@ -508,6 +528,7 @@ void PlaylistControlsUI::saveSettings(ofJson& pt) {
     for(auto& b : creatureButtons) saveR("creature_" + b.name, b.rect);
     for(auto& b : interactiveButtons) saveR("interactive_" + b.name, b.rect);
     saveR("clearAll", clearAllCreaturesBtn);
+    saveR("undoCreature", undoCreatureBtn);
 }
 
 void PlaylistControlsUI::loadSettings(const ofJson& pt) {
@@ -526,6 +547,7 @@ void PlaylistControlsUI::loadSettings(const ofJson& pt) {
     for(auto& b : creatureButtons) loadR("creature_" + b.name, b.rect);
     for(auto& b : interactiveButtons) loadR("interactive_" + b.name, b.rect);
     loadR("clearAll", clearAllCreaturesBtn);
+    loadR("undoCreature", undoCreatureBtn);
 }
 
 vector<ofRectangle*> PlaylistControlsUI::getInteractableRects() {
@@ -537,6 +559,7 @@ vector<ofRectangle*> PlaylistControlsUI::getInteractableRects() {
     for(auto& b : creatureButtons) rects.push_back(&b.rect);
     for(auto& b : interactiveButtons) rects.push_back(&b.rect);
     rects.push_back(&clearAllCreaturesBtn);
+    rects.push_back(&undoCreatureBtn);
     return rects;
 }
 
@@ -548,5 +571,6 @@ ofRectangle* PlaylistControlsUI::findButtonAt(ofVec2f pos) {
     for(auto& b : creatureButtons) if(b.rect.inside(pos)) return &b.rect;
     for(auto& b : interactiveButtons) if(b.rect.inside(pos)) return &b.rect;
     if(clearAllCreaturesBtn.inside(pos)) return &clearAllCreaturesBtn;
+    if(undoCreatureBtn.inside(pos)) return &undoCreatureBtn;
     return nullptr;
 }

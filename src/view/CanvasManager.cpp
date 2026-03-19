@@ -3,7 +3,7 @@
 void CanvasManager::setup(int w, int h) {
     width = w;
     height = h;
-    canvas.allocate(width, height, GL_RGBA, 4);
+    canvas.allocate(width, height, GL_RGBA, 0); // Désactivation du MSAA 4x pour économiser ~75% de bande passante GPU
     imgFullGab.load("GAB0/_fuyllgab.jpg");
     bIsVideo = false;
     canvas.begin(); ofClear(0, 0); canvas.end();
@@ -56,14 +56,12 @@ void CanvasManager::drawBackground(shared_ptr<RoomApp> room,
                                    bool bDrawZenit, 
                                    bool bDrawScene2D) {    
     
-    ofClear(0, 0, 0, 0);
-    ofBackground(0);
-
-    ofEnableAlphaBlending();
+    ofClear(0, 255); // Plus rapide que ofBackground(0) sur un FBO
 
     // ------------------------------------------------
     // LAYER 0 (BAS) : ROOM APP (Touche W)
     // ------------------------------------------------
+    ofDisableAlphaBlending(); // Optimisation MAJEURE : La room écrase le fond sans calculer de transparence
     if (room && bDrawRoom) {
         ofSetColor(255);
         room->fboFront.draw(0, 0);
@@ -74,6 +72,8 @@ void CanvasManager::drawBackground(shared_ptr<RoomApp> room,
         if (room->fboTopJar.isAllocated()) room->fboTopJar.draw(2400, 2080);
         if (room->fboTopCour.isAllocated()) room->fboTopCour.draw(2400, 0);
     }
+    
+    ofEnableAlphaBlending(); // Réactivation de la transparence pour les éléments du dessus
   
     // ------------------------------------------------
     // LAYER 1 (MILIEU) : SCENE ZENIT (Touche X)

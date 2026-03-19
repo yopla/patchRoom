@@ -53,7 +53,7 @@ public:
     const float wFront = 2400.0f;
     const float wJar   = 2624.0f;
     
-    int bgDisplayMode = 0; // 0: JPGs Opaque, 1: JPGs Transparent, 2: Room FBOs, 3: Rien
+    int bgDisplayMode = 1; // 0: JPGs Opaque, 1: JPGs Transparent, 2: Room FBOs, 3: Rien
     
     ofImage overlayImg;
     int overlayMode = 0; // 0: OFF, 1: 33%, 2: 75%, 3: 100%

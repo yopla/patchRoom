@@ -265,9 +265,8 @@ void Scene2D_SIDE::mouseReleased(int x, int y, int button) {
 }
 
 void Scene2D_SIDE::mouseDragged(int x, int y, int button) {
-    if (isSpacePressed) {
-        viewPan += (ofVec2f(x, y) - lastMouse);
-    }
+    // Le panning est maintenant actif sur le clic+drag, en plus de la barre espace
+    viewPan += (ofVec2f(x, y) - lastMouse);
     lastMouse.set(x, y);
 }
 

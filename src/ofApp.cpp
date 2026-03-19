@@ -20,9 +20,11 @@ void ofApp::setup(){
 
     ofSetRandomSeed(42);
     ofSetFrameRate(APP_FPS);
-    bool molo = false; // <--- PASSEZ CECI À 'false' POUR LE TEST
+    bool molo = true; // <--- PASSEZ CECI À 'false' POUR LE TEST
     ofSetVerticalSync(molo);
     ofDisableArbTex();
+    
+    gabMode = 2;
     
     // Setup OSC via Manager
     oscManager.setup(HOST, SENDPORT, PORT);
@@ -50,8 +52,8 @@ void ofApp::setup(){
     masterPan.x = (ofGetWidth() - canvasManager.width * masterZoom) / 2.0;
     masterPan.y = (ofGetHeight() - canvasManager.height * masterZoom) / 2.0;
     
-    // Ajout d'un écouteur temporaire pour gérer le focus initial
-    ofAddListener(ofEvents().update, this, &ofApp::onDelayedFocus);
+    // Ajout d'un écouteur temporaire qui s'exécutera à la toute première frame affichée
+    ofAddListener(ofEvents().draw, this, &ofApp::onFirstFrameReady);
 }
 
 //--------------------------------------------------------------
@@ -64,8 +66,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 }
 
 //--------------------------------------------------------------
-void ofApp::onDelayedFocus(ofEventArgs & args){
-    if(ofGetFrameNum() > 30) {
+void ofApp::onFirstFrameReady(ofEventArgs & args){
         if(playlistWindowPtr) {
             auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(playlistWindowPtr);
             if(glfwWin) {
@@ -74,9 +75,28 @@ void ofApp::onDelayedFocus(ofEventArgs & args){
                 glfwFocusWindow(glfwWin->getGLFWWindow());
             }
         }
-        // On supprime l'écouteur une fois l'action effectuée pour libérer les ressources
-        ofRemoveListener(ofEvents().update, this, &ofApp::onDelayedFocus);
-    }
+        
+        // Rassemblement des actions initiales pour les fenêtres des Vues (V1, V2, V3, V4)
+        for(int i=0; i<4; i++) {
+            if(viewApps.size() > i && viewApps[i] && viewApps[i]->myWindow) {
+                auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(viewApps[i]->myWindow);
+                if(glfwWin) {
+                    // 1. Positionnement et redimensionnement initiaux (au lieu d'attendre 3 secondes)
+                    viewApps[i]->myWindow->setWindowPosition(viewApps[i]->targetPos.x, viewApps[i]->targetPos.y);
+                    if(viewApps[i]->targetSize.x > 0 && viewApps[i]->targetSize.y > 0) {
+                        viewApps[i]->myWindow->setWindowShape(viewApps[i]->targetSize.x, viewApps[i]->targetSize.y);
+                    }
+                    viewApps[i]->bMoved = true;
+                    
+                    // 2. Masquage et mise en sourdine directe
+                    glfwHideWindow(glfwWin->getGLFWWindow());
+                    viewApps[i]->bEnabled = false; // Désactive le rendu de la vue
+                }
+            }
+        }
+
+    // On supprime l'écouteur instantanément pour qu'il ne pollue plus la boucle principale
+    ofRemoveListener(ofEvents().draw, this, &ofApp::onFirstFrameReady);
 }
 
 // ----------------------------------------------------
@@ -217,6 +237,13 @@ void ofApp::draw(){
 
     creatureSystem.draw(m);
     canvasManager.canvas.end();
+
+    // --- ENREGISTREMENT DU CANVAS PRINCIPAL ---
+    if(bRecordCanvas) {
+        ofPixels pix;
+        canvasManager.canvas.readToPixels(pix); // Lit la texture sans l'interface
+        ofSaveImage(pix, canvasRecordFolder + "/frame_" + ofToString((long)localTime, 5, '0') + "." + recordFormat, recordQuality);
+    }
 
     if(!bDrawMain) {
         ofBackground(0);
@@ -479,18 +506,47 @@ void ofApp::keyReleased(int key){
 void ofApp::globalKeyPressed(ofKeyEventArgs& args){
     int key = args.key;
     
+    // Bloque l'exécution des raccourcis globaux si on est en train d'écrire dans la Playlist
+    if (playlistApp && playlistApp->isTyping()) {
+        return;
+    }
+
     // Raccourci global 'N' pour afficher et focus la fenêtre Playlist
     if(key == 'n' || key == 'N'){
-        // Force l'activation de la fenêtre
-        bDrawPlaylist = true;
-        if(playlistApp) playlistApp->setEnabled(true);
-
         if(playlistWindowPtr){
             auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(playlistWindowPtr);
             if(glfwWin) {
-                glfwShowWindow(glfwWin->getGLFWWindow());
-                glfwRestoreWindow(glfwWin->getGLFWWindow()); // La ramène au premier plan si elle était minimisée
-                glfwFocusWindow(glfwWin->getGLFWWindow());   // Force le focus dessus
+                GLFWwindow* nativeWin = glfwWin->getGLFWWindow();
+                bool isFocused = glfwGetWindowAttrib(nativeWin, GLFW_FOCUSED) != 0;
+                
+                if(isFocused && bDrawPlaylist) {
+                    bDrawPlaylist = false;
+                    if(playlistApp) playlistApp->setEnabled(false);
+                    
+                    auto focusWin = [](shared_ptr<ofAppBaseWindow> win) {
+                        if(win) {
+                            auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(win);
+                            if(glfwWin) glfwFocusWindow(glfwWin->getGLFWWindow());
+                        }
+                    };
+                    
+                    if(bDrawRoom) focusWin(roomWindowPtr);
+                    if(bDrawZenit) focusWin(zenitWindowPtr);
+                    if(bDrawScene2D) focusWin(scene2DWindowPtr);
+                    if(roomPreviewApp && !roomPreviewApp->bPaused) focusWin(previewWindowPtr);
+                    if(bDrawButtons) focusWin(buttonWindowPtr);
+                    for(int i=0; i<4; i++) if(viewApps.size() > i && viewApps[i] && viewApps[i]->bEnabled) focusWin(viewApps[i]->myWindow);
+
+                    // Rend le focus à la fenêtre principale en dernier
+                    if(mainWindowPtr) {
+                        focusWin(mainWindowPtr);
+                    }
+                } else {
+                    bDrawPlaylist = true;
+                    if(playlistApp) playlistApp->setEnabled(true);
+                    glfwRestoreWindow(nativeWin); // La ramène au premier plan si elle était minimisée
+                    glfwFocusWindow(nativeWin);   // Force le focus dessus
+                }
             }
         }
     }

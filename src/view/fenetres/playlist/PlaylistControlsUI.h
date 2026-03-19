@@ -65,6 +65,7 @@ public:
     vector<CreatureButton> creatureButtons;
     int selectedCreatureIndex = 0;
     ofRectangle clearAllCreaturesBtn;
+    ofRectangle undoCreatureBtn;
     
     vector<InteractiveButton> interactiveButtons;
     int selectedInteractiveIndex = -1;

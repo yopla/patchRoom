@@ -8,7 +8,22 @@ void PlaylistTooltipManager::setup() {
     texts["V2"] = "Affiche ou cache la vue 2";
     texts["V3"] = "Affiche ou cache la vue 3";
     texts["V4"] = "Affiche ou cache la vue 4";
+    texts["->V1"] = "Deplace la fenetre V1 vers l'ecran secondaire a droite";
+    texts["->V2"] = "Deplace la fenetre V2 vers l'ecran secondaire a droite";
     texts["->V3"] = "Deplace la fenetre V3 vers l'ecran secondaire a droite";
+    texts["->V4"] = "Deplace la fenetre V4 vers l'ecran secondaire a droite";
+    texts["V1 WIN"] = "Affiche ou masque completement la fenetre de la V1 au niveau du systeme d'exploitation (GLFW)";
+    texts["V2 WIN"] = "Affiche ou masque completement la fenetre de la V2 au niveau du systeme d'exploitation (GLFW)";
+    texts["V3 WIN"] = "Affiche ou masque completement la fenetre de la V3 au niveau du systeme d'exploitation (GLFW)";
+    texts["V4 WIN"] = "Affiche ou masque completement la fenetre de la V4 au niveau du systeme d'exploitation (GLFW)";
+    
+    texts["REC V1"] = "Enregistre la fenetre V1 (Dossier export/view_...)";
+    texts["REC V2"] = "Enregistre la fenetre V2 (Dossier export/view_...)";
+    texts["REC V3"] = "Enregistre la fenetre V3 (Dossier export/view_...)";
+    texts["REC V4"] = "Enregistre la fenetre V4 (Dossier export/view_...)";
+    texts["FMT_BTN"] = "Bascule le format d'enregistrement (PNG preserve la transparence, JPG est plus leger)";
+    texts["QUAL_BTN"] = "Bascule la qualite d'enregistrement de l'image (BEST, HIGH, MED, LOW, WORST)";
+    texts["ARRANGE_WINS"] = "Repartit dynamiquement les fenetres (MAIN, WXCVB) sur l'ecran.";
     
     // WXCVB
     texts["MAIN"] = "Affiche ou cache le rendu de la fenetre Master (Principale)";
@@ -72,6 +87,7 @@ void PlaylistTooltipManager::setup() {
     texts["HOLD_FRAME"] = "Maintient indefiniment la derniere image de la video en pause (Ignore le compteur de frames).";
     texts["VIDEO_INFO"] = "Affiche les informations sur la video en cours. Deplacable en mode EDIT.";
     texts["CLEAR_CREATURES"] = "Supprime toutes les creatures de la Scene 2D";
+    texts["UNDO_SCENE2D_CREATURE"] = "Retire la derniere creature ajoutee dans la Scene 2D";
     
     // Actions globales
     texts["PAUSE [ESC]"] = "Met en pause ou reprend l'ecoulement du temps global (Touche ESC)";

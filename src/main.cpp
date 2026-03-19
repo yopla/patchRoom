@@ -8,40 +8,6 @@
 #include "PlaylistVisualizerApp.h"
 #include "ButtonApp.h"
 
-// Classe dérivée pour gérer l'enregistrement de la Vue 3
-class RecordingViewApp : public ViewApp {
-public:
-    bool bRecording = false;
-    string folderName;
-    int frameCount = 0;
-    shared_ptr<ofApp> mainApp;
-
-    void keyPressed(int key) override {
-        ViewApp::keyPressed(key);
-        if(key == OF_KEY_RETURN){
-            bRecording = !bRecording;
-            if(bRecording) {
-                folderName = "export/" + ofGetTimestampString();
-                ofDirectory dir(folderName);
-                dir.create(true);
-                ofLogNotice() << "Start Recording View 3 to " << folderName;
-            } else {
-                ofLogNotice() << "Stop Recording View 3";
-            }
-        }
-    }
-
-    void draw() override {
-        ViewApp::draw();
-        if(bRecording){
-            long currentFrame = frameCount;
-            if(mainApp) currentFrame = (long)(mainApp->localTime);
-            else frameCount++;
-            ofSaveScreen(folderName + "/frame_" + ofToString(currentFrame, 5, '0') + ".jpg");
-        }
-    }
-};
-
 // Forward declaration pour la connexion
 class ButtonApp;
 
@@ -221,7 +187,7 @@ int main( ){
     shared_ptr<ViewApp> viewApp2;
     if(bEnableView2) viewApp2 = make_shared<ViewApp>();
     shared_ptr<ViewApp> viewApp3;
-    if(bEnableView3) viewApp3 = make_shared<RecordingViewApp>();
+    if(bEnableView3) viewApp3 = make_shared<ViewApp>(); // On remplace par le comportement normal
     shared_ptr<ViewApp> viewApp4;
     if(bEnableView4) viewApp4 = make_shared<ViewApp>();
 
@@ -238,12 +204,6 @@ int main( ){
     // ------------------------------------------------
     // 3. CONNEXIONS
     // ------------------------------------------------
-
-    // le timer de setWindowMovement est dans ViewApp.update()
-    if(bEnableView3) {
-        auto recApp = dynamic_pointer_cast<RecordingViewApp>(viewApp3);
-        if(recApp) recApp->mainApp = mainApp;
-    }
 
     if(bEnableView1) {
         viewApp1->setupView(mainApp);

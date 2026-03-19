@@ -87,6 +87,11 @@ public:
     ofVec2f presetPans[5];
     float presetZooms[5];
 
+    ofRectangle windowPresetBtns[5];
+    ofRectangle windowPresets[5][6];
+    bool windowPresetSaved[5] = {false};
+    shared_ptr<ofAppBaseWindow> getAppWindow(int index);
+
     vector<shared_ptr<PlaylistTextNote>> textNotes;
     shared_ptr<PlaylistTextNote> editingNote = nullptr;
     
@@ -125,4 +130,12 @@ public:
     
     PlaylistSearchBar searchBar;
     vector<SearchableButton> getAllSearchableButtons();
+
+    // Indique si un champ de texte est actuellement actif pour bloquer les raccourcis globaux
+    bool isTyping() const {
+        if (searchBar.isVisible()) return true;
+        if (editingNote != nullptr) return true;
+        if (geminiUI.bApiKeyFocused || geminiUI.bThemeFocused || geminiUI.bPromptVid1Focused || geminiUI.bPromptVid2Focused) return true;
+        return false;
+    }
 };

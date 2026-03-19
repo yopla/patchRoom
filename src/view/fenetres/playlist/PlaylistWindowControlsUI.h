@@ -23,8 +23,15 @@ public:
 
     ofRectangle viewBtns[4];
     bool viewHidden[4] = {false, false, false, false};
-    ofRectangle moveV3Btn;
+    ofRectangle moveWinBtns[4];
+    ofRectangle toggleWinBtns[4];
+    bool bWinHidden[4] = {true, true, true, true}; // V1, V2, V3 et V4 sont cachées par défaut (true)
     
+    ofRectangle recWinBtns[4];
+    ofRectangle formatBtn;
+    ofRectangle qualityBtn;
+    ofRectangle arrangeWinBtn;
+
     ofRectangle wxcvbBtns[6];
     string wxcvbNames[6] = {"MAIN", "W:ROOM", "X:ZENI", "C:SCEN", "V:PREV", "B:BTNS"};
     int wxcvbKeys[6] = {0, 'w', 'x', 'c', 'v', 'b'}; 

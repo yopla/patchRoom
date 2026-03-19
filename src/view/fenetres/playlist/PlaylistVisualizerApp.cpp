@@ -4,6 +4,19 @@
 #include "RoomApp.h"
 #include "ofApp.h"
 
+shared_ptr<ofAppBaseWindow> PlaylistVisualizerApp::getAppWindow(int index) {
+    if(!mainAppPtr) return nullptr;
+    switch(index) {
+        case 0: return mainAppPtr->mainWindowPtr;
+        case 1: return mainAppPtr->roomWindowPtr;
+        case 2: return mainAppPtr->zenitWindowPtr;
+        case 3: return mainAppPtr->scene2DWindowPtr;
+        case 4: return mainAppPtr->previewWindowPtr;
+        case 5: return mainAppPtr->buttonWindowPtr;
+    }
+    return nullptr;
+}
+
 void PlaylistVisualizerApp::setup() {
     ofSetBackgroundColor(25);
     playerUI.setup();
@@ -27,6 +40,12 @@ void PlaylistVisualizerApp::setup() {
         cameraPresetBtns[i].set(250 + i * 40, 5, 30, 30);
         presetPans[i].set(80, 80);
         presetZooms[i] = 0.8f;
+        
+        windowPresetBtns[i].set(480 + i * 40, 5, 30, 30);
+        for(int w=0; w<6; w++) {
+            windowPresets[i][w].set(0,0,0,0);
+        }
+        windowPresetSaved[i] = false;
     }
 
     // Init Gemini UI
@@ -46,8 +65,6 @@ void PlaylistVisualizerApp::setup() {
 }
 
 void PlaylistVisualizerApp::update() {
-    if(!bEnabled) return;
-
     bool bJustSetup = false;
     if(scene2D && controlsUI.layerToggles.empty()) {
         controlsUI.setupLayerToggles(scene2D);
@@ -73,7 +90,7 @@ void PlaylistVisualizerApp::update() {
     textureUI.update();
 
     // Pression continue pour les boutons d'action qui le supportent (rotation, etc.)
-    if (ofGetMousePressed(0) && !isSpacePressed && !bIsDraggingPan && !bEditMode) {
+    if (bEnabled && ofGetMousePressed(0) && !isSpacePressed && !bIsDraggingPan && !bEditMode) {
         ofVec2f worldM = getTransformedMouse(ofGetMouseX(), ofGetMouseY());
         controlsUI.handleContinuousActions(worldM);
     }
@@ -262,6 +279,17 @@ void PlaylistVisualizerApp::draw() {
             hoveredTooltip = "Vue " + ofToString(i+1) + " (Shift+clic pour sauvegarder la position)";
         }
     }
+    
+    for(int i=0; i<5; i++) {
+        ofSetColor(windowPresetSaved[i] ? ofColor(150, 100, 200) : ofColor(80));
+        ofFill(); ofDrawRectangle(windowPresetBtns[i]);
+        ofNoFill(); ofSetColor(255); ofDrawRectangle(windowPresetBtns[i]);
+        ofDrawBitmapString("A" + ofToString(i+1), windowPresetBtns[i].x + 8, windowPresetBtns[i].y + 20);
+        
+        if(windowPresetBtns[i].inside(ofGetMouseX(), ofGetMouseY())) {
+            hoveredTooltip = "Fenetres A" + ofToString(i+1) + " (Shift+clic pour sauvegarder la dispo)";
+        }
+    }
     ofPopStyle();
     
     // Dessin du tooltip par-dessus tout, non affecte par le Zoom (en coordonnees ecran brutes)
@@ -300,6 +328,30 @@ void PlaylistVisualizerApp::mousePressed(int x, int y, int button) {
             } else {
                 pan = presetPans[i];
                 zoom = presetZooms[i];
+            }
+            return;
+        }
+    }
+    
+    for(int i=0; i<5; i++) {
+        if(windowPresetBtns[i].inside(x, y)) {
+            if(isShiftPressed) {
+                for(int w=0; w<6; w++) {
+                    auto win = getAppWindow(w);
+                    if(win) {
+                        windowPresets[i][w].set(win->getWindowPosition().x, win->getWindowPosition().y, win->getWindowSize().x, win->getWindowSize().y);
+                    }
+                }
+                windowPresetSaved[i] = true;
+                saveUndoState();
+            } else if (windowPresetSaved[i]) {
+                for(int w=0; w<6; w++) {
+                    auto win = getAppWindow(w);
+                    if(win && windowPresets[i][w].width > 50) {
+                        win->setWindowPosition(windowPresets[i][w].x, windowPresets[i][w].y);
+                        win->setWindowShape(windowPresets[i][w].width, windowPresets[i][w].height);
+                    }
+                }
             }
             return;
         }
@@ -713,6 +765,37 @@ ofJson PlaylistVisualizerApp::serializeState() {
         pt["presets"].push_back(p);
     }
     
+    pt["window_presets"] = ofJson::array();
+    for(int i=0; i<5; i++) {
+        ofJson p;
+        p["saved"] = windowPresetSaved[i];
+        p["windows"] = ofJson::array();
+        for(int w=0; w<6; w++) {
+            ofJson wJson;
+            wJson["x"] = windowPresets[i][w].x;
+            wJson["y"] = windowPresets[i][w].y;
+            wJson["w"] = windowPresets[i][w].width;
+            wJson["h"] = windowPresets[i][w].height;
+            p["windows"].push_back(wJson);
+        }
+        pt["window_presets"].push_back(p);
+    }
+    
+    pt["current_windows"] = ofJson::array();
+    for(int w=0; w<6; w++) {
+        ofJson wJson;
+        auto win = getAppWindow(w);
+        if(win) {
+            wJson["x"] = win->getWindowPosition().x;
+            wJson["y"] = win->getWindowPosition().y;
+            wJson["w"] = win->getWindowSize().x;
+            wJson["h"] = win->getWindowSize().y;
+        } else {
+            wJson["x"] = 0; wJson["y"] = 0; wJson["w"] = 0; wJson["h"] = 0;
+        }
+        pt["current_windows"].push_back(wJson);
+    }
+    
     geminiUI.saveSettings(pt);
     return pt;
 }
@@ -765,6 +848,36 @@ void PlaylistVisualizerApp::deserializeState(const ofJson& pt) {
             presetPans[i].x = pt["presets"][i].value("pan_x", 0.0f);
             presetPans[i].y = pt["presets"][i].value("pan_y", 80.0f);
             presetZooms[i] = pt["presets"][i].value("zoom", 0.8f);
+        }
+    }
+    
+    if(pt.contains("window_presets") && pt["window_presets"].is_array()) {
+        for(int i=0; i<5 && i<pt["window_presets"].size(); i++) {
+            windowPresetSaved[i] = pt["window_presets"][i].value("saved", false);
+            if(pt["window_presets"][i].contains("windows") && pt["window_presets"][i]["windows"].is_array()) {
+                for(int w=0; w<6 && w<pt["window_presets"][i]["windows"].size(); w++) {
+                    windowPresets[i][w].x = pt["window_presets"][i]["windows"][w].value("x", 0.0f);
+                    windowPresets[i][w].y = pt["window_presets"][i]["windows"][w].value("y", 0.0f);
+                    windowPresets[i][w].width = pt["window_presets"][i]["windows"][w].value("w", 0.0f);
+                    windowPresets[i][w].height = pt["window_presets"][i]["windows"][w].value("h", 0.0f);
+                }
+            }
+        }
+    }
+    
+    if(pt.contains("current_windows") && pt["current_windows"].is_array()) {
+        for(int w=0; w<6 && w<pt["current_windows"].size(); w++) {
+            auto win = getAppWindow(w);
+            if(win) {
+                float x = pt["current_windows"][w].value("x", win->getWindowPosition().x);
+                float y = pt["current_windows"][w].value("y", win->getWindowPosition().y);
+                float width = pt["current_windows"][w].value("w", win->getWindowSize().x);
+                float height = pt["current_windows"][w].value("h", win->getWindowSize().y);
+                if (width > 50 && height > 50) { 
+                    win->setWindowPosition(x, y);
+                    win->setWindowShape(width, height);
+                }
+            }
         }
     }
     
@@ -863,7 +976,12 @@ vector<SearchableButton> PlaylistVisualizerApp::getAllSearchableButtons() {
     
     // Window Controls
     for(int i=0; i<4; i++) res.push_back({"V" + ofToString(i+1), &windowControlsUI.viewBtns[i]});
-    res.push_back({"->V3", &windowControlsUI.moveV3Btn});
+    for(int i=0; i<4; i++) res.push_back({"->V" + ofToString(i+1), &windowControlsUI.moveWinBtns[i]});
+    for(int i=0; i<4; i++) res.push_back({"V" + ofToString(i+1) + " WIN", &windowControlsUI.toggleWinBtns[i]});
+    for(int i=0; i<4; i++) res.push_back({"REC V" + ofToString(i+1), &windowControlsUI.recWinBtns[i]});
+    res.push_back({"Format d'enregistrement", &windowControlsUI.formatBtn});
+    res.push_back({"Qualite d'enregistrement", &windowControlsUI.qualityBtn});
+    res.push_back({"Repartir Fenetres", &windowControlsUI.arrangeWinBtn});
     for(int i=0; i<6; i++) {
         res.push_back({windowControlsUI.wxcvbNames[i], &windowControlsUI.wxcvbBtns[i]});
         res.push_back({windowControlsUI.focusNames[i], &windowControlsUI.focusBtns[i]});
@@ -878,6 +996,7 @@ vector<SearchableButton> PlaylistVisualizerApp::getAllSearchableButtons() {
     for(auto& b : controlsUI.creatureButtons) res.push_back({b.name, &b.rect});
     for(auto& b : controlsUI.interactiveButtons) res.push_back({b.name, &b.rect});
     res.push_back({"Clear All Creatures", &controlsUI.clearAllCreaturesBtn});
+    res.push_back({"Undo Creature", &controlsUI.undoCreatureBtn});
     
     // Player UI
     res.push_back({"Loop", &playerUI.loopButtonRect});

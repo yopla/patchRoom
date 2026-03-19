@@ -22,6 +22,10 @@ public:
     
     bool bEnabled = true;
 
+    // --- ENREGISTREMENT ---
+    bool bRecording = false;
+    string recordFolder = "";
+
     void setup() override {
         shaderBlurX.load("shaders/shaderBlurX");
         shaderBlurY.load("shaders/shaderBlurY");
@@ -45,24 +49,22 @@ public:
         }
     }
 
-    void update() {
-        if(!bEnabled) return;
-        
-        // Ta logique existante de mouvement automatique au démarrage
-        if (!bMoved && ofGetElapsedTimef() > 3.0 && myWindow) {
-            myWindow->setWindowPosition(targetPos.x, targetPos.y);
-            if(targetSize.x > 0 && targetSize.y > 0){
-                myWindow->setWindowShape(targetSize.x, targetSize.y);
-            }
-            bMoved = true;
+    void toggleRecording() {
+        bRecording = !bRecording;
+        if(bRecording) {
+            recordFolder = "export/view_" + ofGetTimestampString();
+            ofDirectory dir(recordFolder);
+            dir.create(true);
         }
     }
 
+    void update() {
+        if(!bEnabled) return;
+    }
+
     void draw() override {
-        if(!bEnabled) {
-            ofBackground(0); // Affiche un écran noir rassurant (évite le gel d'image)
-            return;          // Coupe tous les calculs (textures, shaders, etc.)
-        }
+        // Coupe TOUT appel OpenGL si la fenêtre est désactivée/masquée
+        if(!bEnabled) return;
         
         if (bBlur) {
             // Allocation dynamique si nécessaire
@@ -110,6 +112,14 @@ public:
             ofDrawBitmapStringHighlight("Win Pos: " + ofToString(pos), 10, 40);
         }
         ofDrawBitmapStringHighlight("View FPS: " + ofToString(ofGetFrameRate(), 0), 10, 20);
+
+        // --- SAUVEGARDE ---
+        if(bRecording && mainApp) {
+            ofImage img;
+            // ofSaveScreen prend en compte la résolution redimensionnée de la fenêtre OS si modifiée
+            img.grabScreen(0, 0, ofGetWidth(), ofGetHeight());
+            img.save(recordFolder + "/frame_" + ofToString((long)(mainApp->localTime), 5, '0') + "." + mainApp->recordFormat, mainApp->recordQuality);
+        }
     }
 
     void keyPressed(int key) override {
