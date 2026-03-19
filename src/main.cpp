@@ -68,6 +68,7 @@ int main( ){
     ofGLFWWindowSettings settings;
     //settings.setGLVersion(3, 2);
     ofSetEscapeQuitsApp(false);
+    settings.numSamples = 0; // <-- DÉSACTIVE L'ANTIALIASING DES FENÊTRES (0 échantillons)
    
     // Fenêtre Maître (Canvas)
     settings.setSize(800, 600); 
@@ -76,10 +77,10 @@ int main( ){
     shared_ptr<ofAppBaseWindow> mainWindow = ofCreateWindow(settings);
 
     // --- TOGGLES VUES ---
-    bool bEnableView1 = false;
-    bool bEnableView2 = false;
+    bool bEnableView1 = true;
+    bool bEnableView2 = true;
     bool bEnableView3 = true;
-    bool bEnableView4 = false;
+    bool bEnableView4 = true;
     bool bEnableZenit = false; // Toggle pour la vue Zenit
 
     shared_ptr<ofAppBaseWindow> viewWindow1;
@@ -88,14 +89,15 @@ int main( ){
     shared_ptr<ofAppBaseWindow> viewWindow4;
 
     // Fenêtre Vue 1
-    bool deco = false;
+    bool deco = true;
     settings.decorated = deco;
 	settings.windowMode = OF_WINDOW;
     settings.shareContextWith = mainWindow;
     
     if(bEnableView1) {
         settings.setSize(4096, 2160); 
-        settings.resizable = false;
+         settings.resizable = deco;
+        settings.decorated = deco;
         settings.setPosition(ofVec2f(900, 150));
         viewWindow1 = ofCreateWindow(settings);
     }
@@ -103,7 +105,8 @@ int main( ){
     // Fenêtre Vue 2
     if(bEnableView2) {
         settings.setSize(4096, 2160); 
-        settings.resizable = deco;
+         settings.resizable = deco;
+        settings.decorated = deco;
         settings.setPosition(ofVec2f(900, 150));
         viewWindow2 = ofCreateWindow(settings);
     }
@@ -111,8 +114,8 @@ int main( ){
     // Fenêtre Vue 3 ---
     if(bEnableView3) {
         settings.setSize(4024, 4312); // Full Gabarit
-        settings.resizable = false;
-        settings.decorated = true;
+        settings.resizable = deco;
+        settings.decorated = deco;
         settings.setPosition(ofVec2f(900, 150));
         viewWindow3 = ofCreateWindow(settings);
     }
@@ -121,6 +124,7 @@ int main( ){
     if(bEnableView4) {
         settings.setSize(4096, 2160); 
         settings.resizable = deco;
+        settings.decorated = deco;
         settings.setPosition(ofVec2f(900, 150));
         viewWindow4 = ofCreateWindow(settings);
     }

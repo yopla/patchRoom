@@ -24,6 +24,9 @@ void ofApp::setup(){
     ofSetVerticalSync(molo);
     ofDisableArbTex();
     
+     ofDisableAntiAliasing(); // <-- Désactive l'anti-aliasing globalement
+     ofDisableSmoothing();    // <-- Désactive le lissage des lignes (glHint)
+    
     gabMode = 2;
     
     // Setup OSC via Manager
