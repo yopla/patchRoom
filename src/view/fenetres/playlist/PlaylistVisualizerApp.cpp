@@ -60,6 +60,7 @@ void PlaylistVisualizerApp::setup() {
     float boxSize = 406.0f;
     diagramDropZone.set(375.0f, 1438.0f, boxSize, boxSize);
     textureUI.textureDropZone.set(849.0f, 1423.0f, boxSize, boxSize);
+    imageGraphDropZone.set(1300.0f, 1423.0f, boxSize, boxSize);
     
     loadButtonPositions();
 }
@@ -84,6 +85,10 @@ void PlaylistVisualizerApp::update() {
     }
     if (bJustSetup) loadButtonPositions();
 
+    if (roomApp && imageGraphPlayer.atmosphere == nullptr) {
+        imageGraphPlayer.setup(&roomApp->atmosphere);
+    }
+
     if (player && !pendingVideoFolder.empty()) {
         // Evite de relancer la playlist et de couper la vidéo si c'est déjà le bon dossier
         if (player->getFolderPath() != pendingVideoFolder) {
@@ -93,13 +98,15 @@ void PlaylistVisualizerApp::update() {
     }
     
     if (roomApp && !textureUI.currentFolderPath.empty() && textureUI.textureFiles.empty()) {
-        textureUI.loadFolder(textureUI.currentFolderPath, roomApp);
+        textureUI.loadFolder(textureUI.currentFolderPath, nullptr); // Ne charge pas la 1ere image dans la room au demarrage
     }
 
     // --- MISE A JOUR DYNAMIQUE DE L'ACCORDEON (ASCENSEUR) ---
     playerUI.update();
     geminiUI.update(mainAppPtr);
     textureUI.update();
+    
+    imageGraphPlayer.update();
 
     // Pression continue pour les boutons d'action qui le supportent (rotation, etc.)
     if (bEnabled && ofGetMousePressed(0) && !isSpacePressed && !bIsDraggingPan && !bEditMode) {
@@ -132,6 +139,10 @@ void PlaylistVisualizerApp::dragEvent(ofDragInfo dragInfo) {
                     if(bDrawScene360VideoPtr) *bDrawScene360VideoPtr = true; // Lance l'affichage dans la room
                     ofLogNotice("PlaylistVisualizerApp") << "Nouvelle playlist chargee via drag&drop : " << path;
                 }
+            } else if(imageGraphDropZone.inside(dropPos)) {
+                imageGraphPlayer.loadFolder(path, imageGraphDropZone);
+                if (roomApp) roomApp->bDrawAtmosphere = true;
+                ofLogNotice("PlaylistVisualizerApp") << "Dossier d'images charge : " << path;
             } else {
                 textureUI.handleFolderDrop(path, dropPos, roomApp);
             }
@@ -166,6 +177,8 @@ void PlaylistVisualizerApp::draw() {
 
     // --- CALCUL ET DESSIN DE LA ZONE DU DIAGRAMME ---
     nodeGraph.draw(player, diagramDropZone);
+    
+    imageGraphPlayer.draw(imageGraphDropZone);
     
     textureUI.draw();
     
@@ -489,6 +502,8 @@ void PlaylistVisualizerApp::mousePressed(int x, int y, int button) {
 
     if (textureUI.mousePressed(worldM, roomApp)) return;
 
+    if (imageGraphPlayer.mousePressed(worldM)) return;
+
     // --- GEMINI UI CLICKS (Dans l'espace du monde) ---
     if (geminiUI.mousePressed(worldM, mainAppPtr)) {
         return;
@@ -747,6 +762,7 @@ ofRectangle* PlaylistVisualizerApp::findButtonAt(ofVec2f pos) {
     if (auto* r = geminiUI.findButtonAt(pos)) return r;
     if (auto* r = controlsUI.findButtonAt(pos)) return r;
     if (auto* r = textureUI.findButtonAt(pos)) return r;
+    if (auto* r = imageGraphPlayer.findButtonAt(pos)) return r;
     for(auto& note : textNotes) {
         if(note->rect.inside(pos)) return &note->rect;
     }
@@ -756,6 +772,7 @@ ofRectangle* PlaylistVisualizerApp::findButtonAt(ofVec2f pos) {
 
     if(diagramDropZone.inside(pos)) return &diagramDropZone;
     
+    if(imageGraphDropZone.inside(pos)) return &imageGraphDropZone;
     return nullptr;
 }
 
@@ -776,6 +793,11 @@ ofJson PlaylistVisualizerApp::serializeState() {
     pt["diagram"]["y"] = diagramDropZone.y;
     pt["diagram"]["w"] = diagramDropZone.width;
     pt["diagram"]["h"] = diagramDropZone.height;
+    
+    pt["imageGraphZone"]["x"] = imageGraphDropZone.x;
+    pt["imageGraphZone"]["y"] = imageGraphDropZone.y;
+    pt["imageGraphZone"]["w"] = imageGraphDropZone.width;
+    pt["imageGraphZone"]["h"] = imageGraphDropZone.height;
     
     pt["notes"] = ofJson::array();
     for(auto& note : textNotes) {
@@ -841,6 +863,8 @@ ofJson PlaylistVisualizerApp::serializeState() {
     }
     
     geminiUI.saveSettings(pt);
+    imageGraphPlayer.saveSettings(pt);
+
     return pt;
 }
 
@@ -861,6 +885,13 @@ void PlaylistVisualizerApp::deserializeState(const ofJson& pt) {
         diagramDropZone.y = pt["diagram"].value("y", diagramDropZone.y);
         diagramDropZone.width = pt["diagram"].value("w", diagramDropZone.width);
         diagramDropZone.height = pt["diagram"].value("h", diagramDropZone.height);
+    }
+    
+    if(pt.contains("imageGraphZone")) {
+        imageGraphDropZone.x = pt["imageGraphZone"].value("x", imageGraphDropZone.x);
+        imageGraphDropZone.y = pt["imageGraphZone"].value("y", imageGraphDropZone.y);
+        imageGraphDropZone.width = pt["imageGraphZone"].value("w", imageGraphDropZone.width);
+        imageGraphDropZone.height = pt["imageGraphZone"].value("h", imageGraphDropZone.height);
     }
     
     textNotes.clear();
@@ -930,6 +961,7 @@ void PlaylistVisualizerApp::deserializeState(const ofJson& pt) {
     }
     
     geminiUI.loadSettings(pt);
+    imageGraphPlayer.loadSettings(pt, imageGraphDropZone);
 }
 
 void PlaylistVisualizerApp::saveUndoState() {
@@ -1012,10 +1044,14 @@ vector<ofRectangle*> PlaylistVisualizerApp::getAllInteractableRects() {
     
     auto texRects = textureUI.getInteractableRects();
     rects.insert(rects.end(), texRects.begin(), texRects.end());
+    
+    auto imgRects = imageGraphPlayer.getInteractableRects();
+    rects.insert(rects.end(), imgRects.begin(), imgRects.end());
     for(auto& note : textNotes) rects.push_back(&note->rect);
     for(auto& frame : visualFrames) rects.push_back(&frame->rect);
 
     rects.push_back(&diagramDropZone);
+    rects.push_back(&imageGraphDropZone);
     return rects;
 }
 

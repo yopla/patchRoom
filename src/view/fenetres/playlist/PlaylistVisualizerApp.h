@@ -14,6 +14,7 @@
 #include "PlaylistSearchBar.h"
 #include "PlaylistTextNote.h"
 #include "PlaylistVisualFrame.h"
+#include "ImageGraphPlayer.h"
 #include <deque>
 #include <memory>
 
@@ -73,6 +74,9 @@ public:
     
     // --- Nouvelles Zones de Drag & Drop ---
     ofRectangle diagramDropZone;
+    
+    ofRectangle imageGraphDropZone;
+    ImageGraphPlayer imageGraphPlayer;
     
     // Édition et Sauvegarde des positions des boutons
     ofRectangle editBtnRect;

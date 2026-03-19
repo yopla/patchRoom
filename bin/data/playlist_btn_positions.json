@@ -623,6 +623,17 @@
         "x": -565.6207275390625,
         "y": 61.5247802734375
     },
+    "imageGraphUI": {
+        "fadeDuration": 15,
+        "folderPath": "/Users/ludo/Desktop/360MECA/_ofap/_of_v0.12.1_osx_release/_apps/myApps/_Data/_imdDDOT/tmp",
+        "pauseDuration": 30
+    },
+    "imageGraphZone": {
+        "h": 426.163818359375,
+        "w": 447.38232421875,
+        "x": 1180.8475341796875,
+        "y": 2339.391357421875
+    },
     "interactive_AddBubble": {
         "h": 20.0,
         "w": 110.0,
@@ -1221,7 +1232,7 @@
         "y": 1463.0272216796875
     },
     "textureUI": {
-        "bControlOn": true,
+        "bControlOn": false,
         "folderPath": "/Users/ludo/Desktop/360MECA/_ofap/_of_v0.12.1_osx_release/_apps/myApps/_Data/_imdDDOT/tmp",
         "h": 422.252685546875,
         "w": 422.62738037109375,
@@ -1277,9 +1288,9 @@
         "y": 1363.7669677734375
     },
     "view": {
-        "pan_x": -190.20001220703125,
-        "pan_y": -431.78582763671875,
-        "zoom": 0.46159321069717407
+        "pan_x": -267.9208068847656,
+        "pan_y": -819.2418212890625,
+        "zoom": 0.5023373961448669
     },
     "view_0": {
         "h": 30.0,

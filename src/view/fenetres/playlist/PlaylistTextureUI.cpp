@@ -56,6 +56,21 @@ void PlaylistTextureUI::draw() {
     ofNoFill(); ofSetColor(200); ofDrawRectangle(textureToggleBtn);
     ofSetColor(255); ofDrawBitmapString("CONTROLE FLECHES : " + string(bTextureControlOn ? "ON" : "OFF"), textureToggleBtn.x + 10, textureToggleBtn.y + 20);
     
+    // --- Affichage du chemin du dossier (croppe si trop long) ---
+    if(!currentFolderPath.empty()) {
+        float maxW = textureDropZone.width - 20; // Marge de 10px de chaque cote
+        string displayText = currentFolderPath;
+        
+        if(displayText.length() * 8.0f > maxW) { // Une lettre fait environ 8 pixels de large
+            string fileName = ofFilePath::getFileName(currentFolderPath);
+            int charsAllowed = std::max(0, (int)(maxW / 8.0f) - (int)fileName.length() - 4); // -4 pour ".../"
+            
+            if(charsAllowed > 0) displayText = currentFolderPath.substr(0, charsAllowed) + ".../" + fileName;
+            else displayText = ".../" + fileName;
+        }
+        ofDrawBitmapStringHighlight(displayText, textureDropZone.x + 10, textureDropZone.getBottom() + 20, ofColor(0, 200), ofColor(200, 220, 255));
+    }
+
     ofPopStyle();
 }
 
@@ -77,7 +92,6 @@ void PlaylistTextureUI::loadFolder(const string& path, RoomApp* roomApp) {
     if(!textureFiles.empty()) {
         currentTextureIndex = 0;
         textureScrollOffset = 0;
-        bTextureControlOn = true;
         if(roomApp) roomApp->atmosphere.loadTexture(textureFiles[currentTextureIndex]);
     }
     ofLogNotice("PlaylistTextureUI") << "Dossier textures charge : " << textureFiles.size() << " fichiers.";
@@ -86,6 +100,7 @@ void PlaylistTextureUI::loadFolder(const string& path, RoomApp* roomApp) {
 bool PlaylistTextureUI::handleFolderDrop(const string& path, ofVec2f dropPos, RoomApp* roomApp) {
     if(textureDropZone.inside(dropPos)) {
         loadFolder(path, roomApp);
+        bTextureControlOn = true; // On active les commandes seulement lors d'un glisser/déposer manuel
         return true;
     }
     return false;
@@ -168,7 +183,8 @@ void PlaylistTextureUI::loadSettings(const ofJson& pt) {
         textureDropZone.y = pt["textureUI"].value("y", textureDropZone.y);
         textureDropZone.width = pt["textureUI"].value("w", textureDropZone.width);
         textureDropZone.height = pt["textureUI"].value("h", textureDropZone.height);
-        bTextureControlOn = pt["textureUI"].value("bControlOn", bTextureControlOn);
+        // Force la désactivation au démarrage/chargement JSON
+        bTextureControlOn = false;
         currentFolderPath = pt["textureUI"].value("folderPath", currentFolderPath);
     }
 }
