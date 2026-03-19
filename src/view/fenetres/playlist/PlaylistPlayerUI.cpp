@@ -11,7 +11,8 @@ void PlaylistPlayerUI::updateLayout(float startX, float startY) {
     doubleSpeedBtnRect.y = startY + 120;
     muteBtnRect.y = startY + 160;
     crop106BtnRect.y = startY + 200;
-    pauseAccordionBtn.y = startY + 240;
+    useDiskImagesBtnRect.y = startY + 240;
+    pauseAccordionBtn.y = startY + 280;
     
     loopButtonRect.x = startX;
     toggleButtonRect.x = startX;
@@ -19,6 +20,7 @@ void PlaylistPlayerUI::updateLayout(float startX, float startY) {
     doubleSpeedBtnRect.x = startX;
     muteBtnRect.x = startX;
     crop106BtnRect.x = startX;
+    useDiskImagesBtnRect.x = startX;
     pauseAccordionBtn.x = startX;
     
     videoInfoBox.x = startX + 200;
@@ -128,6 +130,13 @@ void PlaylistPlayerUI::draw(Scene360VideoPlayer* player, const PlaylistNodeGraph
     ofDrawBitmapString("CROP 106%: " + string(player->isCrop106() ? "ON" : "OFF"), 10, 20);
     ofPopMatrix();
 
+    if (player->isUsingDiskPauseImages()) ofSetColor(100, 200, 150); else ofSetColor(100);
+    ofFill(); ofDrawRectangle(useDiskImagesBtnRect);
+    ofSetColor(255); 
+    ofPushMatrix(); ofTranslate(useDiskImagesBtnRect.x, useDiskImagesBtnRect.y); ofScale(useDiskImagesBtnRect.height/30.0f, useDiskImagesBtnRect.height/30.0f);
+    ofDrawBitmapString("USE DISK IMGS: " + string(player->isUsingDiskPauseImages() ? "ON" : "OFF"), 5, 20);
+    ofPopMatrix();
+
     if (bPauseAccordionOpen) ofSetColor(150, 150, 200); else ofSetColor(100);
     ofFill(); ofDrawRectangle(pauseAccordionBtn);
     ofSetColor(255);
@@ -215,6 +224,7 @@ bool PlaylistPlayerUI::mousePressed(ofVec2f worldM, Scene360VideoPlayer* player,
     if (doubleSpeedBtnRect.inside(worldM)) { player->toggleDoubleSpeed(); return true; }
     if (muteBtnRect.inside(worldM)) { player->toggleMute(); return true; }
     if (crop106BtnRect.inside(worldM)) { player->toggleCrop106(); return true; }
+    if (useDiskImagesBtnRect.inside(worldM)) { player->toggleUseDiskPauseImages(); return true; }
     if (infinitePauseBtnRect.inside(worldM)) { player->toggleInfinitePause(); return true; }
     if (pauseAccordionBtn.inside(worldM)) { bPauseAccordionOpen = !bPauseAccordionOpen; return true; }
     if (fadeAccordionBtn.inside(worldM)) { bFadeAccordionOpen = !bFadeAccordionOpen; return true; }
@@ -248,6 +258,7 @@ string PlaylistPlayerUI::getTooltip(ofVec2f worldM, PlaylistTooltipManager& tool
     if(doubleSpeedBtnRect.inside(worldM)) return tooltipManager.getTooltipText("SPEED_X2");
     if(muteBtnRect.inside(worldM)) return tooltipManager.getTooltipText("MUTE");
     if(crop106BtnRect.inside(worldM)) return tooltipManager.getTooltipText("106CROP");
+    if(useDiskImagesBtnRect.inside(worldM)) return tooltipManager.getTooltipText("USE_DISK_IMGS");
     if(infinitePauseBtnRect.inside(worldM)) return tooltipManager.getTooltipText("HOLD_FRAME");
     if(fadeAccordionBtn.inside(worldM)) return tooltipManager.getTooltipText("FADE");
     if(videoInfoBox.inside(worldM)) return tooltipManager.getTooltipText("VIDEO_INFO");
@@ -275,6 +286,7 @@ void PlaylistPlayerUI::saveSettings(ofJson& pt) {
     saveR("speedX2", doubleSpeedBtnRect);
     saveR("mute", muteBtnRect);
     saveR("crop106", crop106BtnRect);
+    saveR("useDiskImages", useDiskImagesBtnRect);
     saveR("videoInfo", videoInfoBox);
     saveR("pause", pauseAccordionBtn);
     // On ne sauvegarde pas infinitePauseBtnRect ni pauseOptionRects car ils sont fixés dynamiquement à l'accordéon dans update()
@@ -294,8 +306,17 @@ void PlaylistPlayerUI::loadSettings(const ofJson& pt) {
     loadR("speedX2", doubleSpeedBtnRect);
     loadR("mute", muteBtnRect);
     loadR("crop106", crop106BtnRect);
+    loadR("useDiskImages", useDiskImagesBtnRect);
     loadR("videoInfo", videoInfoBox);
     loadR("pause", pauseAccordionBtn);
+    
+    // Si le bouton n'existe pas dans le JSON ou a une taille nulle (nouvel ajout), on l'aligne sur "CROP 106%"
+    if (!pt.contains("useDiskImages") || useDiskImagesBtnRect.width == 0) {
+        useDiskImagesBtnRect.x = crop106BtnRect.x;
+        useDiskImagesBtnRect.y = crop106BtnRect.getBottom() + 15;
+        useDiskImagesBtnRect.width = crop106BtnRect.width > 0 ? crop106BtnRect.width : 180;
+        useDiskImagesBtnRect.height = crop106BtnRect.height > 0 ? crop106BtnRect.height : 30;
+    }
 }
 
 vector<ofRectangle*> PlaylistPlayerUI::getInteractableRects() {
@@ -310,6 +331,7 @@ vector<ofRectangle*> PlaylistPlayerUI::getInteractableRects() {
     rects.push_back(&doubleSpeedBtnRect);
     rects.push_back(&muteBtnRect);
     rects.push_back(&crop106BtnRect);
+    rects.push_back(&useDiskImagesBtnRect);
     rects.push_back(&videoInfoBox);
     rects.push_back(&infinitePauseBtnRect);
     rects.push_back(&fadeAccordionBtn);
@@ -330,6 +352,7 @@ ofRectangle* PlaylistPlayerUI::findButtonAt(ofVec2f pos) {
     if(doubleSpeedBtnRect.inside(pos)) return &doubleSpeedBtnRect;
     if(muteBtnRect.inside(pos)) return &muteBtnRect;
     if(crop106BtnRect.inside(pos)) return &crop106BtnRect;
+    if(useDiskImagesBtnRect.inside(pos)) return &useDiskImagesBtnRect;
     if(videoInfoBox.inside(pos)) return &videoInfoBox;
     if(infinitePauseBtnRect.inside(pos)) return &infinitePauseBtnRect;
     if(fadeAccordionBtn.inside(pos)) return &fadeAccordionBtn;

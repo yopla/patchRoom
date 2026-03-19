@@ -1054,6 +1054,7 @@ vector<SearchableButton> PlaylistVisualizerApp::getAllSearchableButtons() {
     res.push_back({"Speed x2", &playerUI.doubleSpeedBtnRect});
     res.push_back({"Mute", &playerUI.muteBtnRect});
     res.push_back({"Crop 106", &playerUI.crop106BtnRect});
+    res.push_back({"Use Disk Images", &playerUI.useDiskImagesBtnRect});
     res.push_back({"Infinite Pause", &playerUI.infinitePauseBtnRect});
     res.push_back({"Pause Accordion", &playerUI.pauseAccordionBtn});
     

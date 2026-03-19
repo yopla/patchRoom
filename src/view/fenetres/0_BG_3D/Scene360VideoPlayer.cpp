@@ -325,13 +325,15 @@ void Scene360VideoPlayer::update() {
         bHasPauseImage = false;
         string foundPath = "";
         
-        // On teste toutes les extensions courantes (y compris avec majuscules)
-        vector<string> extensions = {".png", ".jpg", ".jpeg", ".PNG", ".JPG", ".JPEG"};
-        for (const string& ext : extensions) {
-            string testPath = ofFilePath::join(folderPath, endFrame + ext);
-            if (ofFile(testPath).exists()) {
-                foundPath = testPath;
-                break;
+        if (bUseDiskPauseImages) {
+            // On teste toutes les extensions courantes (y compris avec majuscules)
+            vector<string> extensions = {".png", ".jpg", ".jpeg", ".PNG", ".JPG", ".JPEG"};
+            for (const string& ext : extensions) {
+                string testPath = ofFilePath::join(folderPath, endFrame + ext);
+                if (ofFile(testPath).exists()) {
+                    foundPath = testPath;
+                    break;
+                }
             }
         }
         

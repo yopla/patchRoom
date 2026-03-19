@@ -83,6 +83,7 @@ void PlaylistTooltipManager::setup() {
     texts["SPEED_X2"] = "Double la vitesse de lecture de la video en cours (x2).";
     texts["MUTE"] = "Coupe ou reactive le son de la video en cours.";
     texts["106CROP"] = "Grossit l'image de pause fixe a 106% pour cropper les bords et correspondre au cadrage video.";
+    texts["USE_DISK_IMGS"] = "Utilise ou non les images fixes du disque (.png, .jpg) pendant les pauses et les fondus.";
     texts["PAUSE"] = "Definit le temps (en frames) d'arret sur la derniere image";
     texts["FADE"] = "Definit la duree (en frames) du fondu entre la derniere image de la video et l'image de pause";
     texts["HOLD_FRAME"] = "Maintient indefiniment la derniere image de la video en pause (Ignore le compteur de frames).";

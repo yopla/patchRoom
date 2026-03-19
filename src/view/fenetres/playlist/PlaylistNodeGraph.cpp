@@ -237,7 +237,8 @@ void PlaylistNodeGraph::draw(Scene360VideoPlayer* player, const ofRectangle& dia
         }
         
         if(kv.second.hasImage) {
-            ofDrawBitmapStringHighlight("(i)", kv.second.pos.x + 20, kv.second.pos.y + 22, ofColor(0, 150), ofColor(255, 200, 100));
+            string imgLabel = player && player->isUsingDiskPauseImages() ? "i" : "(i)";
+            ofDrawBitmapStringHighlight(imgLabel, kv.second.pos.x + 20, kv.second.pos.y + 22, ofColor(0, 150), ofColor(255, 200, 100));
         }
     }
 

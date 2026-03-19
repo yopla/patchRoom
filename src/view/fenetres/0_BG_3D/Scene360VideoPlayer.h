@@ -35,6 +35,9 @@ public:
     void toggleCrop106() { bCrop106 = !bCrop106; }
     bool isCrop106() const { return bCrop106; }
 
+    void toggleUseDiskPauseImages() { bUseDiskPauseImages = !bUseDiskPauseImages; }
+    bool isUsingDiskPauseImages() const { return bUseDiskPauseImages; }
+
     // Durée de la pause sur l'image fixe avant la prochaine vidéo (en frames)
     int pauseDurationFrames = 5;
     
@@ -85,6 +88,7 @@ private:
     bool bUserSelectedNext = false;
     bool bSimulate32Videos = false;
     bool bCrop106 = false; // Grossit l'image de 106% pour matcher le raccord avec la vidéo
+    bool bUseDiskPauseImages = true;
     float mockPosition = 0.0f;
     float lastVideoPosition = 0.0f; // Sauvegarde de la position pour détecter les boucles forcées
     int pauseCounter = 0;

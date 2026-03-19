@@ -28,6 +28,7 @@ public:
     ofRectangle doubleSpeedBtnRect;
     ofRectangle muteBtnRect;
     ofRectangle crop106BtnRect;
+    ofRectangle useDiskImagesBtnRect;
     ofRectangle infinitePauseBtnRect;
     ofRectangle videoInfoBox;
 
