@@ -116,6 +116,30 @@ void InteractionVisualizer::draw(shared_ptr<ofApp> mainApp, shared_ptr<Scene2D_S
             }
         }
     }
+    
+    // d) Pour les CousinCreature de Scene2D_SIDE
+    if(sceneSide && !sceneSide->layerManager.creatureSystem.cousins.empty()) {
+        for(auto& cousin : sceneSide->layerManager.creatureSystem.cousins) {
+            ofVec2f pos2D = cousin->getPos();
+            ofVec3f cousinPos3D = sceneSide->get3DPos(pos2D.x, pos2D.y);
+            
+            vector<BtnDist> distances;
+            for(const auto& btn : allButtons) {
+                distances.push_back({glm::distance2(glm::vec3(cousinPos3D), btn.first), btn.first, btn.second});
+            }
+
+            size_t n = std::min((size_t)maxButtonsToConsider, distances.size());
+            std::partial_sort(distances.begin(), distances.begin() + n, distances.end(), compareDist);
+
+            for(size_t k=0; k<n; ++k) {
+                if(distances[k].active) {
+                    ofPushStyle(); ofSetColor(255, 255, 0); ofSetLineWidth(1);
+                    ofDrawLine(ofVec3f(distances[k].pos), cousinPos3D);
+                    ofPopStyle();
+                }
+            }
+        }
+    }
 
     // 3. Visualisation des autres interactions (Poulpe, Fluides) qui dépendent uniquement des boutons actifs
 

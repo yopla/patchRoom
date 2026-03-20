@@ -8,7 +8,7 @@ class RoomApp;
 
 class PlaylistTextureUI {
 public:
-    void update();
+    void update(RoomApp* roomApp = nullptr);
     void draw();
     
     void loadFolder(const string& path, RoomApp* roomApp);
@@ -34,4 +34,6 @@ public:
     
     float lastClickTime = 0;
     int lastClickedIndex = -1;
+    
+    float lastCheckTime = 0.0f;
 };

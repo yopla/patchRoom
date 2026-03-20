@@ -1,8 +1,57 @@
 #include "PlaylistTextureUI.h"
 #include "RoomApp.h"
 
-void PlaylistTextureUI::update() {
+void PlaylistTextureUI::update(RoomApp* roomApp) {
     textureToggleBtn.set(textureDropZone.x, textureDropZone.y - 40, textureDropZone.width, 30);
+    
+    if (!currentFolderPath.empty() && ofGetElapsedTimef() - lastCheckTime > 3.0f) {
+        lastCheckTime = ofGetElapsedTimef();
+        ofDirectory dir(currentFolderPath);
+        if (dir.exists()) {
+            dir.allowExt("png"); dir.allowExt("jpg"); dir.allowExt("jpeg");
+            dir.allowExt("mp4"); dir.allowExt("mov");
+            dir.allowExt("PNG"); dir.allowExt("JPG"); dir.allowExt("JPEG");
+            dir.allowExt("MP4"); dir.allowExt("MOV");
+            dir.listDir();
+            dir.sort();
+            
+            bool changed = false;
+            if (dir.size() != textureFiles.size()) {
+                changed = true;
+            } else {
+                for(int i=0; i<dir.size(); i++) {
+                    if (dir.getPath(i) != textureFiles[i]) {
+                        changed = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (changed) {
+                string currentFile = "";
+                if(currentTextureIndex >= 0 && currentTextureIndex < textureFiles.size()) {
+                    currentFile = textureFiles[currentTextureIndex];
+                }
+                
+                textureFiles.clear();
+                for(int i=0; i<dir.size(); i++) textureFiles.push_back(dir.getPath(i));
+                
+                if(!currentFile.empty()) {
+                    auto it = std::find(textureFiles.begin(), textureFiles.end(), currentFile);
+                    if(it != textureFiles.end()) {
+                        currentTextureIndex = std::distance(textureFiles.begin(), it);
+                    } else {
+                        currentTextureIndex = 0;
+                        if(roomApp && !textureFiles.empty()) roomApp->atmosphere.loadTexture(textureFiles[currentTextureIndex]);
+                    }
+                } else if (!textureFiles.empty()) {
+                    currentTextureIndex = 0;
+                    if(roomApp) roomApp->atmosphere.loadTexture(textureFiles[currentTextureIndex]);
+                }
+                ofLogNotice("PlaylistTextureUI") << "Dossier textures rafraichi : " << textureFiles.size() << " fichiers.";
+            }
+        }
+    }
 }
 
 void PlaylistTextureUI::draw() {

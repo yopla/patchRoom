@@ -378,13 +378,15 @@ void RoomApp::draw(){
     bool isLeftShift  = ofGetKeyPressed(OF_KEY_LEFT_SHIFT);
     bool isRightShift = ofGetKeyPressed(OF_KEY_RIGHT_SHIFT);
     bool isSpacePressed = ofGetKeyPressed(' ');
+    bool isAltPressed = ofGetKeyPressed(OF_KEY_ALT);
     bool isTabPressed = ofGetKeyPressed(OF_KEY_TAB);
 
     if(isLeftShift) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 1 SEUL (Camera Lock)", 20, 85, ofColor::red, ofColor::white);
-    else if(isRightShift) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 1 + CAMERA", 20, 85, ofColor::green, ofColor::black);
+    else if(isRightShift) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 1 + INTERACTION", 20, 85, ofColor::green, ofColor::black);
 
-    if(isSpacePressed) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 2 SEUL (Camera Lock)", 20, 105, ofColor::blue, ofColor::white);
+    if(isAltPressed) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 2 SEUL (Camera Lock)", 20, 105, ofColor::blue, ofColor::white);
     if(isTabPressed) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 3 SEUL (Camera Lock)", 20, 125, ofColor::magenta, ofColor::white);
+    if(isSpacePressed) ofDrawBitmapStringHighlight("MODE: CAMERA SEULE (No Interact)", 20, 145, ofColor::orange, ofColor::black);
 }
 
 //--------------------------------------------------------------

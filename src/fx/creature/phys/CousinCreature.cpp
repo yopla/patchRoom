@@ -22,7 +22,8 @@ void CousinHair::setup(float len, int numSegs) {
     uniqueOffset = ofRandom(1000.0f);
 }
 
-void CousinHair::update(float targetX, float targetY, float time) {
+void CousinHair::update(float targetX, float targetY, float time, float scale) {
+    currentScale = scale;
     // Drag du premier segment vers la cible
     float tx = targetX + offsetX;
     float ty = targetY + offsetY;
@@ -48,8 +49,9 @@ void CousinHair::update(float targetX, float targetY, float time) {
         
         // On place le segment pour que sa "tête" touche la cible (tx, ty)
         // Dans Flash: x = target - cos(angle)*len
-        seg.x = tx - cos(angle) * seg.length;
-        seg.y = ty - sin(angle) * seg.length;
+        float currentSegLen = seg.length * currentScale;
+        seg.x = tx - cos(angle) * currentSegLen;
+        seg.y = ty - sin(angle) * currentSegLen;
         
         // La cible du prochain segment est la "queue" de celui-ci
         tx = seg.x;
@@ -64,8 +66,9 @@ void CousinHair::draw() {
     ofPolyline poly;
 
     if(segments.size() > 0) {
-        float startX = segments[0].x + cos(segments[0].angle) * segments[0].length;
-        float startY = segments[0].y + sin(segments[0].angle) * segments[0].length;
+        float currentSegLen = segments[0].length * currentScale;
+        float startX = segments[0].x + cos(segments[0].angle) * currentSegLen;
+        float startY = segments[0].y + sin(segments[0].angle) * currentSegLen;
         
         poly.addVertex(startX, startY);
         
@@ -101,6 +104,8 @@ CousinCreature::CousinCreature(float startX, float startY) {
     headY = startY;
     time = 0;
     isDragging = false;
+    bHovered = false;
+    hairScale = 1.0f;
     
     initArrays();
     
@@ -114,7 +119,7 @@ CousinCreature::CousinCreature(float startX, float startY) {
         hair.attSide = (ofRandom(1.0f) > 0.5f);
         
         // Longueur variable
-        float len = ofRandom(100, 250); 
+        float len = ofRandom(200, 450); // Plus long à la base comme demandé
         int segs = 10 + (int)ofRandom(5);
         
         hair.setup(len, segs);
@@ -180,6 +185,14 @@ void CousinCreature::update(float mx, float my) {
         // headX/headY restent à leur position initiale
     }
     
+    // Dynamique de rétractation des poils sur 35 frames et 55 frames (ragrandit)
+    float minScale = 0.15f;
+    if (bHovered) {
+        hairScale = max(minScale, hairScale - (1.0f - minScale) / 35.0f);
+    } else {
+        hairScale = std::min(1.0f, hairScale + (1.0f - minScale) / 55.0f);
+    }
+
     updateBody();
     updateHairs();
 }
@@ -260,7 +273,7 @@ void CousinCreature::updateHairs() {
             tx = ofLerp(rx[i], rx[i+1], t);
             ty = ofLerp(ry[i], ry[i+1], t);
         }
-        hair.update(tx, ty, time);
+        hair.update(tx, ty, time, hairScale);
     }
 }
 

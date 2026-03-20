@@ -104,7 +104,7 @@ void PlaylistVisualizerApp::update() {
     // --- MISE A JOUR DYNAMIQUE DE L'ACCORDEON (ASCENSEUR) ---
     playerUI.update();
     geminiUI.update(mainAppPtr);
-    textureUI.update();
+    textureUI.update(roomApp);
     
     imageGraphPlayer.update();
 

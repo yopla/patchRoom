@@ -136,7 +136,10 @@ void PerceptionSystem::update(shared_ptr<ButtonApp> buttonApp,
         updateHalos(ring.creatures, haloPositionsRing, allButtons);
     }
 
-
+    // 4. Mettre à jour la perception pour les CousinCreature de la scène 2D
+    if (sceneSide) {
+        updateCousins(sceneSide, allButtons);
+    }
 
     
 }
@@ -225,6 +228,44 @@ void PerceptionSystem::updatePlanColle(shared_ptr<RoomApp> roomApp,
     roomApp->projection.setPlanColleExternalHover(isTriggered);
 }
 
+void PerceptionSystem::updateCousins(shared_ptr<Scene2D_SIDE> sceneSide, 
+                                     const vector<pair<glm::vec3, bool>>& allButtons) {
+    
+    if (!sceneSide || sceneSide->layerManager.creatureSystem.cousins.empty()) return;
+
+    for(auto& cousin : sceneSide->layerManager.creatureSystem.cousins) {
+        ofVec2f pos2D = cousin->getPos();
+        glm::vec3 pos3D = sceneSide->get3DPos(pos2D.x, pos2D.y);
+
+        struct BtnDist {
+            float distSq;
+            bool active;
+        };
+        vector<BtnDist> distances;
+        distances.reserve(allButtons.size());
+
+        for(const auto& btn : allButtons) {
+            float d2 = glm::distance2(pos3D, btn.first);
+            distances.push_back({d2, btn.second});
+        }
+
+        size_t n = std::min((size_t)maxButtonsToConsider, distances.size());
+        std::partial_sort(distances.begin(), distances.begin() + n, distances.end(), 
+            [](const BtnDist& a, const BtnDist& b){ return a.distSq < b.distSq; });
+
+        bool isTriggered = false;
+        float radiusSq = maxPerceptionRadius * maxPerceptionRadius;
+
+        for(size_t k=0; k<n; ++k) {
+            if(distances[k].active && distances[k].distSq < radiusSq) {
+                isTriggered = true;
+                break;
+            }
+        }
+        
+        cousin->setHovering(isTriggered);
+    }
+}
 
 void PerceptionSystem::updateFluids(const vector<glm::vec3>& activeButtons3DPositions,
                                     shared_ptr<Scene2D_SIDE> sceneSide,

@@ -31,7 +31,7 @@ void RoomInputHandler::updateKeyStates() {
 void RoomInputHandler::handleCameraAndProjection() {
     // This logic was in RoomApp::draw()
     // 1. Gestion de la Caméra (EasyCam)
-    if(bLeftShiftPressed || bSpacePressed || bTabPressed) {
+    if(bLeftShiftPressed || bRightShiftPressed || bTabPressed || ofGetKeyPressed(OF_KEY_ALT)) {
         app->camGlobal.disableMouseInput();
     } else {
         app->camGlobal.enableMouseInput();
@@ -44,15 +44,17 @@ void RoomInputHandler::handleCameraAndProjection() {
     }
 
     // 2. Gestion du Projecteur
-    if(ofGetMousePressed(0)) { 
-        if (bLeftShiftPressed || bRightShiftPressed) {
-            app->projection.updateTarget(app->camGlobal, app->walls);
-        }
-        if (bSpacePressed) {
-            app->projection.updateTarget2(app->camGlobal, app->walls);
-        }
-        if (bTabPressed) {
-            app->projection.updateTarget3(app->camGlobal, app->walls);
+    if (!bSpacePressed) {
+        if(ofGetMousePressed(0)) { 
+            if (bLeftShiftPressed || bRightShiftPressed) {
+                app->projection.updateTarget(app->camGlobal, app->walls);
+            }
+            if (ofGetKeyPressed(OF_KEY_ALT)) {
+                app->projection.updateTarget2(app->camGlobal, app->walls);
+            }
+            if (bTabPressed) {
+                app->projection.updateTarget3(app->camGlobal, app->walls);
+            }
         }
     }
 }
@@ -64,35 +66,37 @@ void RoomInputHandler::updateFluidRingInteraction() {
     float localX = -1000.0f;
     float localY = -1000.0f;
 
-    // Note: bFluidRingEnabled est une variable membre publique (bool) à ajouter à la classe RoomApp.
-    ofVec3f rayOrigin = app->camGlobal.getPosition();
-    ofVec3f rayDir = app->camGlobal.screenToWorld(ofVec3f(ofGetMouseX(), ofGetMouseY(), 0)) - rayOrigin;
-    rayDir.normalize();
+    if (!bSpacePressed) {
+        // Note: bFluidRingEnabled est une variable membre publique (bool) à ajouter à la classe RoomApp.
+        ofVec3f rayOrigin = app->camGlobal.getPosition();
+        ofVec3f rayDir = app->camGlobal.screenToWorld(ofVec3f(ofGetMouseX(), ofGetMouseY(), 0)) - rayOrigin;
+        rayDir.normalize();
 
-    float R = app->fluidRing.radius;
-    float A = rayDir.x * rayDir.x + rayDir.z * rayDir.z;
-    float B = 2 * (rayOrigin.x * rayDir.x + rayOrigin.z * rayDir.z);
-    float C = rayOrigin.x * rayOrigin.x + rayOrigin.z * rayOrigin.z - R * R;
-    float delta = B*B - 4*A*C;
+        float R = app->fluidRing.radius;
+        float A = rayDir.x * rayDir.x + rayDir.z * rayDir.z;
+        float B = 2 * (rayOrigin.x * rayDir.x + rayOrigin.z * rayDir.z);
+        float C = rayOrigin.x * rayOrigin.x + rayOrigin.z * rayOrigin.z - R * R;
+        float delta = B*B - 4*A*C;
 
-    if(delta >= 0) {
-        float t1 = (-B - sqrt(delta)) / (2*A);
-        float t2 = (-B + sqrt(delta)) / (2*A);
-        
-        float t = -1;
-        if (t1 > 0) t = t1;
-        else if (t2 > 0) t = t2;
+        if(delta >= 0) {
+            float t1 = (-B - sqrt(delta)) / (2*A);
+            float t2 = (-B + sqrt(delta)) / (2*A);
+            
+            float t = -1;
+            if (t1 > 0) t = t1;
+            else if (t2 > 0) t = t2;
 
-        if(t > 0) {
-            ofVec3f hit = rayOrigin + rayDir * t;
-            if(hit.y <= app->fluidRing.height && hit.y >= -app->fluidRing.bottomExt) {
-                float angle = atan2(hit.z, hit.x);
-                if(angle < 0) angle += TWO_PI;
-                float u = angle / TWO_PI;
-                float v = (app->fluidRing.height - hit.y) / (app->fluidRing.height + app->fluidRing.bottomExt);
-                
-                localX = u * app->fluidRing.fluid.width;
-                localY = v * app->fluidRing.fluid.height;
+            if(t > 0) {
+                ofVec3f hit = rayOrigin + rayDir * t;
+                if(hit.y <= app->fluidRing.height && hit.y >= -app->fluidRing.bottomExt) {
+                    float angle = atan2(hit.z, hit.x);
+                    if(angle < 0) angle += TWO_PI;
+                    float u = angle / TWO_PI;
+                    float v = (app->fluidRing.height - hit.y) / (app->fluidRing.height + app->fluidRing.bottomExt);
+                    
+                    localX = u * app->fluidRing.fluid.width;
+                    localY = v * app->fluidRing.fluid.height;
+                }
             }
         }
     }
@@ -106,32 +110,34 @@ void RoomInputHandler::updateLightFlyInteraction() {
     float u = -1.0f;
     float v = -1.0f;
 
-    ofVec3f rayOrigin = app->camGlobal.getPosition();
-    ofVec3f rayDir = app->camGlobal.screenToWorld(ofVec3f(ofGetMouseX(), ofGetMouseY(), 0)) - rayOrigin;
-    rayDir.normalize();
+    if (!bSpacePressed) {
+        ofVec3f rayOrigin = app->camGlobal.getPosition();
+        ofVec3f rayDir = app->camGlobal.screenToWorld(ofVec3f(ofGetMouseX(), ofGetMouseY(), 0)) - rayOrigin;
+        rayDir.normalize();
 
-    float R = app->lightFlyRing.radius;
-    float A = rayDir.x * rayDir.x + rayDir.z * rayDir.z;
-    float B = 2 * (rayOrigin.x * rayDir.x + rayOrigin.z * rayDir.z);
-    float C = rayOrigin.x * rayOrigin.x + rayOrigin.z * rayOrigin.z - R * R;
-    float delta = B*B - 4*A*C;
+        float R = app->lightFlyRing.radius;
+        float A = rayDir.x * rayDir.x + rayDir.z * rayDir.z;
+        float B = 2 * (rayOrigin.x * rayDir.x + rayOrigin.z * rayDir.z);
+        float C = rayOrigin.x * rayOrigin.x + rayOrigin.z * rayOrigin.z - R * R;
+        float delta = B*B - 4*A*C;
 
-    if(delta >= 0) {
-        float t1 = (-B - sqrt(delta)) / (2*A);
-        float t2 = (-B + sqrt(delta)) / (2*A);
-        
-        float t = -1;
-        if (t1 > 0) t = t1;
-        else if (t2 > 0) t = t2;
+        if(delta >= 0) {
+            float t1 = (-B - sqrt(delta)) / (2*A);
+            float t2 = (-B + sqrt(delta)) / (2*A);
+            
+            float t = -1;
+            if (t1 > 0) t = t1;
+            else if (t2 > 0) t = t2;
 
-        if(t > 0) {
-            ofVec3f hit = rayOrigin + rayDir * t;
-            if(hit.y <= app->lightFlyRing.height && hit.y >= -app->lightFlyRing.bottomExt) {
-                cursor3DPos = hit;
-                float angle = atan2(hit.z, hit.x);
-                if(angle < 0) angle += TWO_PI;
-                u = angle / TWO_PI;
-                v = (app->lightFlyRing.height - hit.y) / (app->lightFlyRing.height + app->lightFlyRing.bottomExt);
+            if(t > 0) {
+                ofVec3f hit = rayOrigin + rayDir * t;
+                if(hit.y <= app->lightFlyRing.height && hit.y >= -app->lightFlyRing.bottomExt) {
+                    cursor3DPos = hit;
+                    float angle = atan2(hit.z, hit.x);
+                    if(angle < 0) angle += TWO_PI;
+                    u = angle / TWO_PI;
+                    v = (app->lightFlyRing.height - hit.y) / (app->lightFlyRing.height + app->lightFlyRing.bottomExt);
+                }
             }
         }
     }
@@ -145,38 +151,40 @@ void RoomInputHandler::updateLiquidSphereInteraction() {
     float localX = -1000.0f;
     float localY = -1000.0f;
 
-    ofVec3f rayOrigin = app->camGlobal.getPosition();
-    ofVec3f rayDir = app->camGlobal.screenToWorld(ofVec3f(ofGetMouseX(), ofGetMouseY(), 0)) - rayOrigin;
-    rayDir.normalize();
+    if (!bSpacePressed) {
+        ofVec3f rayOrigin = app->camGlobal.getPosition();
+        ofVec3f rayDir = app->camGlobal.screenToWorld(ofVec3f(ofGetMouseX(), ofGetMouseY(), 0)) - rayOrigin;
+        rayDir.normalize();
 
-    ofVec3f center = app->liquidSphereRing.center;
-    float R = app->liquidSphereRing.radius;
-    ofVec3f oc = rayOrigin - center;
+        ofVec3f center = app->liquidSphereRing.center;
+        float R = app->liquidSphereRing.radius;
+        ofVec3f oc = rayOrigin - center;
 
-    float a = rayDir.lengthSquared(); // RayDir normalisé
-    float b = 2.0f * oc.dot(rayDir);
-    float c = oc.lengthSquared() - R * R;
-    float delta = b * b - 4 * a * c;
+        float a = rayDir.lengthSquared(); // RayDir normalisé
+        float b = 2.0f * oc.dot(rayDir);
+        float c = oc.lengthSquared() - R * R;
+        float delta = b * b - 4 * a * c;
 
-    if(delta >= 0) {
-        float t1 = (-b - sqrt(delta)) / (2.0f * a);
-        float t2 = (-b + sqrt(delta)) / (2.0f * a);
-        
-        float t = (t1 > 0) ? t1 : ((t2 > 0) ? t2 : -1);
-        if(t > 0) {
-            ofVec3f hit = rayOrigin + rayDir * t;
-            ofVec3f localHit = (hit - center).getNormalized();
+        if(delta >= 0) {
+            float t1 = (-b - sqrt(delta)) / (2.0f * a);
+            float t2 = (-b + sqrt(delta)) / (2.0f * a);
             
-            // 1. Inversion de la rotation Y pour s'aligner avec le rendu visuel
-            localHit.rotate(90.0f, ofVec3f(0, 1, 0));
-            
-            float v = acos(localHit.y) / PI;
-            float phi = atan2(localHit.z, localHit.x);
-            if(phi < 0) phi += TWO_PI;
-            float u = phi / TWO_PI;
+            float t = (t1 > 0) ? t1 : ((t2 > 0) ? t2 : -1);
+            if(t > 0) {
+                ofVec3f hit = rayOrigin + rayDir * t;
+                ofVec3f localHit = (hit - center).getNormalized();
                 
-            localX = u * app->liquidSphereRing.fluid.width;
-            localY = v * app->liquidSphereRing.fluid.height;
+                // 1. Inversion de la rotation Y pour s'aligner avec le rendu visuel
+                localHit.rotate(90.0f, ofVec3f(0, 1, 0));
+                
+                float v = acos(localHit.y) / PI;
+                float phi = atan2(localHit.z, localHit.x);
+                if(phi < 0) phi += TWO_PI;
+                float u = phi / TWO_PI;
+                    
+                localX = u * app->liquidSphereRing.fluid.width;
+                localY = v * app->liquidSphereRing.fluid.height;
+            }
         }
     }
     
@@ -189,36 +197,38 @@ void RoomInputHandler::updateJellySphereInteraction() {
 
     if (!app->bDrawJellySphere) return;
 
-    ofVec3f rayOrigin = app->camGlobal.getPosition();
-    ofVec3f rayDir = app->camGlobal.screenToWorld(ofVec3f(ofGetMouseX(), ofGetMouseY(), 0)) - rayOrigin;
-    rayDir.normalize();
+    if (!bSpacePressed) {
+        ofVec3f rayOrigin = app->camGlobal.getPosition();
+        ofVec3f rayDir = app->camGlobal.screenToWorld(ofVec3f(ofGetMouseX(), ofGetMouseY(), 0)) - rayOrigin;
+        rayDir.normalize();
 
-    ofVec3f center = app->jellySphereRing.center;
-    float R = app->jellySphereRing.radius;
-    ofVec3f oc = rayOrigin - center;
+        ofVec3f center = app->jellySphereRing.center;
+        float R = app->jellySphereRing.radius;
+        ofVec3f oc = rayOrigin - center;
 
-    float a = rayDir.lengthSquared(); 
-    float b = 2.0f * oc.dot(rayDir);
-    float c = oc.lengthSquared() - R * R;
-    float delta = b * b - 4 * a * c;
+        float a = rayDir.lengthSquared(); 
+        float b = 2.0f * oc.dot(rayDir);
+        float c = oc.lengthSquared() - R * R;
+        float delta = b * b - 4 * a * c;
 
-    if(delta >= 0) {
-        float t1 = (-b - sqrt(delta)) / (2.0f * a);
-        float t2 = (-b + sqrt(delta)) / (2.0f * a);
-        
-        float t = (t1 > 0) ? t1 : ((t2 > 0) ? t2 : -1);
-        if(t > 0) {
-            ofVec3f hit = rayOrigin + rayDir * t;
-            ofVec3f localHit = (hit - center).getNormalized();
-            localHit.rotate(90.0f, ofVec3f(0, 1, 0));
+        if(delta >= 0) {
+            float t1 = (-b - sqrt(delta)) / (2.0f * a);
+            float t2 = (-b + sqrt(delta)) / (2.0f * a);
             
-            float v = acos(localHit.y) / PI;
-            float phi = atan2(localHit.z, localHit.x);
-            if(phi < 0) phi += TWO_PI;
-            float u = phi / TWO_PI;
+            float t = (t1 > 0) ? t1 : ((t2 > 0) ? t2 : -1);
+            if(t > 0) {
+                ofVec3f hit = rayOrigin + rayDir * t;
+                ofVec3f localHit = (hit - center).getNormalized();
+                localHit.rotate(90.0f, ofVec3f(0, 1, 0));
                 
-            jellyLocalX = u * app->jellySphereRing.fbo.getWidth();
-            jellyLocalY = v * app->jellySphereRing.fbo.getHeight();
+                float v = acos(localHit.y) / PI;
+                float phi = atan2(localHit.z, localHit.x);
+                if(phi < 0) phi += TWO_PI;
+                float u = phi / TWO_PI;
+                    
+                jellyLocalX = u * app->jellySphereRing.fbo.getWidth();
+                jellyLocalY = v * app->jellySphereRing.fbo.getHeight();
+            }
         }
     }
 }
@@ -344,6 +354,8 @@ void RoomInputHandler::mouseDragged(int x, int y, int button) {
 void RoomInputHandler::mousePressed(int x, int y, int button) {
     if (!app || button != 0) return;
 
+    if (bSpacePressed) return;
+
     if (app->bDrawCloudRing) {
         // --- RAYCAST CLOUD RING (SPHERE) ---
         ofVec3f rayOrigin = app->camGlobal.getPosition();
@@ -389,6 +401,7 @@ void RoomInputHandler::mousePressed(int x, int y, int button) {
 
 void RoomInputHandler::mouseReleased(int x, int y, int button) {
     if (!app || button != 0) return;
+    if (bSpacePressed) return;
     if (app->bDrawJellySphere) {
         app->jellySphereRing.mouseReleased(jellyLocalX, jellyLocalY);
     }

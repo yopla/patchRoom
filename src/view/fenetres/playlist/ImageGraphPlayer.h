@@ -59,4 +59,8 @@ public:
     void loadSettings(const ofJson& pt, const ofRectangle& bnds);
     vector<ofRectangle*> getInteractableRects();
     ofRectangle* findButtonAt(ofVec2f pos);
+    
+    float lastCheckTime = 0.0f;
+    vector<string> lastFileList;
+    void checkFolderUpdate();
 };

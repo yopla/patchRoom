@@ -35,6 +35,10 @@ private:
     // Nouvelle méthode pour le PlanColle
     void updatePlanColle(shared_ptr<RoomApp> roomApp, 
                          const vector<pair<glm::vec3, bool>>& allButtons);
+                         
+    // Nouvelle méthode pour les CousinCreatures
+    void updateCousins(shared_ptr<Scene2D_SIDE> sceneSide, 
+                       const vector<pair<glm::vec3, bool>>& allButtons);
 
     float maxPerceptionRadius;
     int maxButtonsToConsider;

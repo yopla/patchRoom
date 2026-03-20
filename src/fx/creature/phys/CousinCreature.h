@@ -12,7 +12,7 @@ struct HairSegment {
 class CousinHair {
 public:
     void setup(float len, int numSegs);
-    void update(float targetX, float targetY, float time);
+    void update(float targetX, float targetY, float time, float scale = 1.0f);
     void draw();
 
     vector<HairSegment> segments;
@@ -21,6 +21,7 @@ public:
     ofColor color;
     float offsetX, offsetY; // Décalage pour l'écartement
     float uniqueOffset;     // Pour le bruit individuel
+    float currentScale = 1.0f;
 
     int attIndex = 0;
     float attPct = 0.0f;
@@ -39,6 +40,9 @@ public:
     bool isInside(float mx, float my);
     void onPress(float mx, float my);
     void onRelease(float mx, float my);
+    
+    void setHovering(bool state) { bHovered = state; }
+    ofVec2f getPos() const { return ofVec2f(headX, headY); }
 
 private:
     // --- Paramètres du Corps (corp.as / glob.as) ---
@@ -71,6 +75,9 @@ private:
     float time;
     float speedFactor;
     float headX, headY;
+    
+    bool bHovered = false;
+    float hairScale = 1.0f;
     
     // Interaction
     bool isDragging;

@@ -18,6 +18,8 @@ void ImageGraphPlayer::generateGraph(const ofRectangle& bnds) {
     bounds = bnds;
     
     for (size_t i = 0; i < nodes.size(); i++) {
+        if (nodes[i].pos.lengthSquared() > 1.0f) continue;
+        
         bool placed = false;
         for (int tries = 0; i == 0 || tries < 200; tries++) {
             ofVec2f candidate(ofRandom(bounds.x + 20, bounds.getRight() - 20),
@@ -108,8 +110,11 @@ void ImageGraphPlayer::loadFolder(const string& folderPath, const ofRectangle& b
     nextIndex = -1;
     state = 0;
     
+    lastFileList.clear();
+    
     int maxChars = std::max(8, (int)(bnds.width / 25.0f)); // Limite la taille en fonction du cadre
     for (int i = 0; i < dir.size(); i++) {
+        lastFileList.push_back(dir.getPath(i));
         ImageGraphNode n;
         n.path = dir.getPath(i);
         string baseName = ofFilePath::getBaseName(dir.getName(i)); // Sans l'extension
@@ -126,6 +131,11 @@ void ImageGraphPlayer::loadFolder(const string& folderPath, const ofRectangle& b
 }
 
 void ImageGraphPlayer::update() {
+    if (!currentFolderPath.empty() && ofGetElapsedTimef() - lastCheckTime > 3.0f) {
+        lastCheckTime = ofGetElapsedTimef();
+        checkFolderUpdate();
+    }
+    
     if (!isPlaying || nodes.empty() || !atmosphere) return;
     
     if (currentIndex == -1) {
@@ -527,4 +537,86 @@ ofRectangle* ImageGraphPlayer::findButtonAt(ofVec2f pos) {
     if (pauseBtn.inside(pos)) return &pauseBtn;
     if (fadeBtn.inside(pos)) return &fadeBtn;
     return nullptr;
+}
+
+void ImageGraphPlayer::checkFolderUpdate() {
+    ofDirectory dir(currentFolderPath);
+    if (!dir.exists()) return;
+    
+    dir.allowExt("png"); dir.allowExt("jpg"); dir.allowExt("jpeg");
+    dir.allowExt("PNG"); dir.allowExt("JPG"); dir.allowExt("JPEG");
+    dir.listDir();
+    
+    bool changed = false;
+    if (dir.size() != lastFileList.size()) {
+        changed = true;
+    } else {
+        for (int i = 0; i < dir.size(); i++) {
+            if (dir.getPath(i) != lastFileList[i]) {
+                changed = true;
+                break;
+            }
+        }
+    }
+    
+    if (changed) {
+        string currentFile = "";
+        if (currentIndex >= 0 && currentIndex < nodes.size()) currentFile = nodes[currentIndex].path;
+        string nextFile = "";
+        if (nextIndex >= 0 && nextIndex < nodes.size()) nextFile = nodes[nextIndex].path;
+        
+        map<string, ofVec2f> oldPositions;
+        for (auto& n : nodes) oldPositions[n.path] = n.pos;
+        
+        lastFileList.clear();
+        nodes.clear();
+        plannedPath.clear();
+        
+        if (dir.size() == 0) {
+            currentIndex = -1;
+            nextIndex = -1;
+            state = 0;
+            return;
+        }
+        
+        int maxChars = std::max(8, (int)(bounds.width / 25.0f));
+        for (int i = 0; i < dir.size(); i++) {
+            lastFileList.push_back(dir.getPath(i));
+            ImageGraphNode n;
+            n.path = dir.getPath(i);
+            string baseName = ofFilePath::getBaseName(dir.getName(i));
+            if (baseName.length() > maxChars) {
+                int partLen = (maxChars - 2) / 2;
+                n.name = baseName.substr(0, partLen + (maxChars % 2)) + ".." + baseName.substr(baseName.length() - partLen);
+            } else {
+                n.name = baseName;
+            }
+            if (oldPositions.count(n.path)) n.pos = oldPositions[n.path];
+            nodes.push_back(n);
+        }
+        
+        generateGraph(bounds);
+        
+        currentIndex = -1;
+        nextIndex = -1;
+        if (!currentFile.empty()) {
+            for (size_t i = 0; i < nodes.size(); i++) {
+                if (nodes[i].path == currentFile) { currentIndex = i; break; }
+            }
+        }
+        if (!nextFile.empty()) {
+            for (size_t i = 0; i < nodes.size(); i++) {
+                if (nodes[i].path == nextFile) { nextIndex = i; break; }
+            }
+        }
+        
+        if (currentIndex == -1 && !nodes.empty()) {
+            currentIndex = 0;
+            currentImg.load(nodes[currentIndex].path);
+            updateAtmosphere(currentImg, 1.0f);
+            state = 0;
+            stateTimer = pauseDuration;
+        }
+        ofLogNotice("ImageGraphPlayer") << "Dossier images rafraichi : " << nodes.size() << " fichiers.";
+    }
 }
