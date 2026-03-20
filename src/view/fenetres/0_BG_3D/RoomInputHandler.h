@@ -45,4 +45,7 @@ private:
     bool bSpacePressed = false;
     bool bTabPressed = false;
     bool bLPressed = false;
+    bool bCommandPressed = false;
+    bool bAngleBracketPressed = false;
+    bool bAltPressed = false;
 };

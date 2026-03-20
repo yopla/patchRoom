@@ -26,12 +26,17 @@ void RoomInputHandler::updateKeyStates() {
     bSpacePressed = ofGetKeyPressed(' ');
     bTabPressed = ofGetKeyPressed(OF_KEY_TAB);
     bLPressed = app->bLockCameraCenter;
+    bCommandPressed = ofGetKeyPressed(OF_KEY_COMMAND) || ofGetKeyPressed(OF_KEY_SUPER);
+    bAngleBracketPressed = ofGetKeyPressed('<') || ofGetKeyPressed('>');
+    bAltPressed = ofGetKeyPressed(OF_KEY_ALT);
 }
 
 void RoomInputHandler::handleCameraAndProjection() {
     // This logic was in RoomApp::draw()
+    bool bShiftPressed = bLeftShiftPressed || bRightShiftPressed;
+
     // 1. Gestion de la Caméra (EasyCam)
-    if(bLeftShiftPressed || bRightShiftPressed || bTabPressed || ofGetKeyPressed(OF_KEY_ALT)) {
+    if(bShiftPressed || bCommandPressed || bTabPressed || bAngleBracketPressed) {
         app->camGlobal.disableMouseInput();
     } else {
         app->camGlobal.enableMouseInput();
@@ -44,15 +49,15 @@ void RoomInputHandler::handleCameraAndProjection() {
     }
 
     // 2. Gestion du Projecteur
-    if (!bSpacePressed) {
+    if (!bSpacePressed && !bAltPressed) {
         if(ofGetMousePressed(0)) { 
-            if (bLeftShiftPressed || bRightShiftPressed) {
+            if (bCommandPressed) {
                 app->projection.updateTarget(app->camGlobal, app->walls);
             }
-            if (ofGetKeyPressed(OF_KEY_ALT)) {
+            if (bTabPressed) {
                 app->projection.updateTarget2(app->camGlobal, app->walls);
             }
-            if (bTabPressed) {
+            if (bAngleBracketPressed) {
                 app->projection.updateTarget3(app->camGlobal, app->walls);
             }
         }
@@ -66,7 +71,7 @@ void RoomInputHandler::updateFluidRingInteraction() {
     float localX = -1000.0f;
     float localY = -1000.0f;
 
-    if (!bSpacePressed) {
+    if (!bSpacePressed && !bAltPressed) {
         // Note: bFluidRingEnabled est une variable membre publique (bool) à ajouter à la classe RoomApp.
         ofVec3f rayOrigin = app->camGlobal.getPosition();
         ofVec3f rayDir = app->camGlobal.screenToWorld(ofVec3f(ofGetMouseX(), ofGetMouseY(), 0)) - rayOrigin;
@@ -110,7 +115,7 @@ void RoomInputHandler::updateLightFlyInteraction() {
     float u = -1.0f;
     float v = -1.0f;
 
-    if (!bSpacePressed) {
+    if (!bSpacePressed && !bAltPressed) {
         ofVec3f rayOrigin = app->camGlobal.getPosition();
         ofVec3f rayDir = app->camGlobal.screenToWorld(ofVec3f(ofGetMouseX(), ofGetMouseY(), 0)) - rayOrigin;
         rayDir.normalize();
@@ -151,7 +156,7 @@ void RoomInputHandler::updateLiquidSphereInteraction() {
     float localX = -1000.0f;
     float localY = -1000.0f;
 
-    if (!bSpacePressed) {
+    if (!bSpacePressed && !bAltPressed) {
         ofVec3f rayOrigin = app->camGlobal.getPosition();
         ofVec3f rayDir = app->camGlobal.screenToWorld(ofVec3f(ofGetMouseX(), ofGetMouseY(), 0)) - rayOrigin;
         rayDir.normalize();
@@ -197,7 +202,7 @@ void RoomInputHandler::updateJellySphereInteraction() {
 
     if (!app->bDrawJellySphere) return;
 
-    if (!bSpacePressed) {
+    if (!bSpacePressed && !bAltPressed) {
         ofVec3f rayOrigin = app->camGlobal.getPosition();
         ofVec3f rayDir = app->camGlobal.screenToWorld(ofVec3f(ofGetMouseX(), ofGetMouseY(), 0)) - rayOrigin;
         rayDir.normalize();
@@ -354,7 +359,7 @@ void RoomInputHandler::mouseDragged(int x, int y, int button) {
 void RoomInputHandler::mousePressed(int x, int y, int button) {
     if (!app || button != 0) return;
 
-    if (bSpacePressed) return;
+    if (bSpacePressed || bAltPressed) return;
 
     if (app->bDrawCloudRing) {
         // --- RAYCAST CLOUD RING (SPHERE) ---
@@ -401,7 +406,7 @@ void RoomInputHandler::mousePressed(int x, int y, int button) {
 
 void RoomInputHandler::mouseReleased(int x, int y, int button) {
     if (!app || button != 0) return;
-    if (bSpacePressed) return;
+    if (bSpacePressed || bAltPressed) return;
     if (app->bDrawJellySphere) {
         app->jellySphereRing.mouseReleased(jellyLocalX, jellyLocalY);
     }

@@ -375,18 +375,20 @@ void RoomApp::draw(){
     }
 
     // Petit feedback visuel pour savoir quel mode est actif
-    bool isLeftShift  = ofGetKeyPressed(OF_KEY_LEFT_SHIFT);
-    bool isRightShift = ofGetKeyPressed(OF_KEY_RIGHT_SHIFT);
+    bool isCommandPressed = ofGetKeyPressed(OF_KEY_COMMAND) || ofGetKeyPressed(OF_KEY_SUPER);
+    bool isAngleBracketPressed = ofGetKeyPressed('<') || ofGetKeyPressed('>');
     bool isSpacePressed = ofGetKeyPressed(' ');
-    bool isAltPressed = ofGetKeyPressed(OF_KEY_ALT);
     bool isTabPressed = ofGetKeyPressed(OF_KEY_TAB);
+    bool isShiftPressed = ofGetKeyPressed(OF_KEY_LEFT_SHIFT) || ofGetKeyPressed(OF_KEY_RIGHT_SHIFT);
+    bool isAltPressed = ofGetKeyPressed(OF_KEY_ALT);
 
-    if(isLeftShift) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 1 SEUL (Camera Lock)", 20, 85, ofColor::red, ofColor::white);
-    else if(isRightShift) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 1 + INTERACTION", 20, 85, ofColor::green, ofColor::black);
-
-    if(isAltPressed) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 2 SEUL (Camera Lock)", 20, 105, ofColor::blue, ofColor::white);
-    if(isTabPressed) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 3 SEUL (Camera Lock)", 20, 125, ofColor::magenta, ofColor::white);
-    if(isSpacePressed) ofDrawBitmapStringHighlight("MODE: CAMERA SEULE (No Interact)", 20, 145, ofColor::orange, ofColor::black);
+    if(isCommandPressed) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 1 SEUL (Camera Lock)", 20, 85, ofColor::red, ofColor::white);
+    if(isTabPressed) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 2 SEUL (Camera Lock)", 20, 105, ofColor::blue, ofColor::white);
+    if(isAngleBracketPressed) ofDrawBitmapStringHighlight("MODE: PROJECTEUR 3 SEUL (< ou >)", 20, 125, ofColor::magenta, ofColor::white);
+    
+    if(isSpacePressed) ofDrawBitmapStringHighlight("MODE: CAMERA SEULE (Espace)", 20, 145, ofColor::orange, ofColor::black);
+    else if(isShiftPressed) ofDrawBitmapStringHighlight("MODE: INTERACT SEUL (Shift)", 20, 145, ofColor::green, ofColor::black);
+    else if(isAltPressed) ofDrawBitmapStringHighlight("MODE: EASYCAM NATIVE (Option)", 20, 145, ofColor::cyan, ofColor::black);
 }
 
 //--------------------------------------------------------------
