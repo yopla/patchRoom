@@ -150,6 +150,8 @@ void PlaylistControlsUI::setupRoomToggles(RoomApp* roomApp, ofApp* mainAppPtr) {
     addToggle("Light Fly", [roomApp](){ return roomApp->bLightFlyRingEnabled; }, [roomApp](){ roomApp->bLightFlyRingEnabled = !roomApp->bLightFlyRingEnabled; });
     addToggle("Alpha Cur", [roomApp](){ return roomApp->cursorSquare.bLowAlpha; }, [roomApp](){ roomApp->cursorSquare.bLowAlpha = !roomApp->cursorSquare.bLowAlpha; });
     addToggle("Gen 360", [](){ return false; }, [roomApp](){ roomApp->generateEquirectangularImage(); });
+    addToggle("Gen 360 Full", [](){ return false; }, [roomApp](){ roomApp->generateFull360EquirectangularImage(); });
+    addToggle("360fullW", [](){ return false; }, [roomApp](){ roomApp->generate360FullW(); });
     addToggle("Show Beams", [roomApp](){ return roomApp->projection.getShowBeams(); }, [roomApp](){ roomApp->projection.keyPressed('t'); });
     addToggle("Plan Colle", [roomApp](){ return roomApp->projection.getShowPlanColle(); }, [roomApp](){ roomApp->projection.keyPressed('n'); });
     addToggle("Cur Reflet", [roomApp](){ return roomApp->cursorSquare.bDrawReflections; }, [roomApp](){ roomApp->cursorSquare.bDrawReflections = !roomApp->cursorSquare.bDrawReflections; });
@@ -313,7 +315,7 @@ void PlaylistControlsUI::setupGlobalActionBtns(ofApp* mainAppPtr) {
     addAction("GAB 3-OFF-3 [G]", [mainAppPtr](){ 
         if(mainAppPtr) {
             mainAppPtr->gabMode = 3;
-            if(mainAppPtr->roomApp) mainAppPtr->roomApp->wallAlpha = 0.0f;
+            if(mainAppPtr->roomApp) { mainAppPtr->roomApp->wallAlpha = 0.0f; mainAppPtr->roomApp->bgMode = 1; }
             if(mainAppPtr->scene2D) mainAppPtr->scene2D->bgDisplayMode = 3;
         }
     }, false);

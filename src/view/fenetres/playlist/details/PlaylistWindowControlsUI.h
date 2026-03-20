@@ -40,4 +40,13 @@ public:
     string focusNames[6] = {"->MAIN", "->W", "->X", "->C", "->V", "->B"};
     
     ofRectangle gabBtns[4];
+    
+    bool bGabAccordionOpen[4] = {false, false, false, false};
+    vector<string> gabOptions[4];
+    vector<ofRectangle> gabOptionRects[4];
+    
+    ofRectangle roomAlphaBtn;
+    bool bRoomAlphaAccordionOpen = false;
+    vector<string> roomAlphaOptions;
+    vector<ofRectangle> roomAlphaOptionRects;
 };

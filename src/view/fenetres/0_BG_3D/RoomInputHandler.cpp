@@ -260,7 +260,11 @@ void RoomInputHandler::keyPressed(int key) {
         }
     }
     if(key == '5') { // <--- AJOUT GENERATION 360
-        app->generateEquirectangularImage();
+        if (bLeftShiftPressed || bRightShiftPressed) {
+            app->generateFull360EquirectangularImage();
+        } else {
+            app->generateEquirectangularImage();
+        }
     }
     if(key == '6') { // <--- AJOUT TOGGLE CLOUD RING
         app->bDrawCloudRing = !app->bDrawCloudRing;
@@ -294,8 +298,10 @@ void RoomInputHandler::keyPressed(int key) {
     if(key == 'g' || key == 'G') {
         if (app->wallAlpha > 50.0f) {
             app->wallAlpha = 0.0f;
+            app->bgMode = 1; // Synchronise l'état OFF
         } else {
             app->wallAlpha = 100.0f;
+            app->bgMode = 0; // Retour à GAB Normal ON
         }
     }
     if(key == 'f' || key == 'F') app->bDrawBeam = !app->bDrawBeam;

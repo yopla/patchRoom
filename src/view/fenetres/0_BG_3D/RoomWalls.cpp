@@ -79,7 +79,11 @@ void RoomWalls::setup() {
     pTopJarTL = peakBack; pTopJarBL = wJB; pTopJarBR = wJF;
 }
 
-void RoomWalls::draw(bool showRoof, float alpha) {
+void RoomWalls::draw(bool showRoof, float alpha, int mode,
+                     ofFbo* fFront, ofFbo* fBack, ofFbo* fCour, ofFbo* fJar,
+                     ofFbo* fSol, ofFbo* fTopCour, ofFbo* fTopJar) {
+    if (mode == 1 || alpha <= 0.0f) return; // Mode 1 = OFF
+
     ofPushStyle();
     ofEnableAlphaBlending(); 
     ofSetColor(255, 255, 255, alpha);
@@ -91,15 +95,28 @@ void RoomWalls::draw(bool showRoof, float alpha) {
         glDepthMask(GL_FALSE);
     }
 
-    imgFront.bind(); meshFront.draw(); imgFront.unbind();
-    imgBack.bind();  meshBack.draw();  imgBack.unbind();
-    imgJar.bind();   meshJar.draw();   imgJar.unbind();
-    imgCour.bind();  meshCour.draw();  imgCour.unbind();
-    imgSol.bind();   meshSol.draw();   imgSol.unbind();
+    if (mode == 2) { // 2 = FBOs de la Scene 2D
+        if(fFront && fFront->isAllocated()) { fFront->getTexture().bind(); meshFront.draw(); fFront->getTexture().unbind(); }
+        if(fBack && fBack->isAllocated()) { fBack->getTexture().bind(); meshBack.draw(); fBack->getTexture().unbind(); }
+        if(fJar && fJar->isAllocated()) { fJar->getTexture().bind(); meshJar.draw(); fJar->getTexture().unbind(); }
+        if(fCour && fCour->isAllocated()) { fCour->getTexture().bind(); meshCour.draw(); fCour->getTexture().unbind(); }
+        if(fSol && fSol->isAllocated()) { fSol->getTexture().bind(); meshSol.draw(); fSol->getTexture().unbind(); }
 
-    if(showRoof) {
-        imgTopCour.bind(); meshTopCour.draw(); imgTopCour.unbind(); 
-        imgTopJar.bind();  meshTopJar.draw();  imgTopJar.unbind(); 
+        if(showRoof) {
+            if(fTopCour && fTopCour->isAllocated()) { fTopCour->getTexture().bind(); meshTopCour.draw(); fTopCour->getTexture().unbind(); }
+            if(fTopJar && fTopJar->isAllocated()) { fTopJar->getTexture().bind(); meshTopJar.draw(); fTopJar->getTexture().unbind(); }
+        }
+    } else {
+        imgFront.bind(); meshFront.draw(); imgFront.unbind();
+        imgBack.bind();  meshBack.draw();  imgBack.unbind();
+        imgJar.bind();   meshJar.draw();   imgJar.unbind();
+        imgCour.bind();  meshCour.draw();  imgCour.unbind();
+        imgSol.bind();   meshSol.draw();   imgSol.unbind();
+
+        if(showRoof) {
+            imgTopCour.bind(); meshTopCour.draw(); imgTopCour.unbind(); 
+            imgTopJar.bind();  meshTopJar.draw();  imgTopJar.unbind(); 
+        }
     }
 
     // On restaure l'état par défaut pour le reste du rendu.
@@ -192,6 +209,71 @@ ofColor RoomWalls::getPixelFromRay(const ofVec3f& origin, const ofVec3f& dir) {
                     
                     // On récupère la couleur (getColor fait le clamp interne)
                     finalColor = w.i->getColor(px, py);
+                }
+            }
+        }
+    }
+
+    return finalColor;
+}
+
+ofColor RoomWalls::getPixelFromRayDynamic(const ofVec3f& origin, const ofVec3f& dir, int mode,
+                                          ofPixels* pFront, ofPixels* pBack, ofPixels* pCour, ofPixels* pJar,
+                                          ofPixels* pSol, ofPixels* pTopCour, ofPixels* pTopJar) {
+    float minT = 100000.0f;
+    ofColor finalColor(0, 0, 0, 0);
+    bool hit = false;
+
+    struct WallObj { ofMesh* m; ofImage* i; ofPixels* p; };
+    vector<WallObj> walls = {
+        {&meshFront, &imgFront, pFront}, {&meshBack, &imgBack, pBack},
+        {&meshCour, &imgCour, pCour}, {&meshJar, &imgJar, pJar},
+        {&meshSol, &imgSol, pSol}, {&meshTopCour, &imgTopCour, pTopCour},
+        {&meshTopJar, &imgTopJar, pTopJar}
+    };
+
+    for(auto& w : walls) {
+        if(w.m->getNumVertices() < 3) continue;
+
+        int numTris = w.m->getNumVertices() - 2;
+        
+        for(int i = 0; i < numTris; i++) {
+            int idx0 = 0;
+            int idx1 = i + 1;
+            int idx2 = i + 2;
+
+            ofVec3f v0 = w.m->getVertex(idx0);
+            ofVec3f v1 = w.m->getVertex(idx1);
+            ofVec3f v2 = w.m->getVertex(idx2);
+
+            float t, u, v;
+            if(rayTriangleIntersect(origin, dir, v0, v1, v2, t, u, v)) {
+                if(t > 0 && t < minT) {
+                    minT = t;
+                    hit = true;
+
+                    ofVec2f uv0 = w.m->getTexCoord(idx0);
+                    ofVec2f uv1 = w.m->getTexCoord(idx1);
+                    ofVec2f uv2 = w.m->getTexCoord(idx2);
+
+                    float w_bary = 1.0f - u - v;
+                    ofVec2f texCoord = uv0 * w_bary + uv1 * u + uv2 * v;
+
+                    float tx = ofClamp(texCoord.x, 0.0f, 1.0f);
+                    float ty = ofClamp(texCoord.y, 0.0f, 1.0f);
+                    
+                    ofPixels* activePix = nullptr;
+                    if (mode == 2 && w.p && w.p->isAllocated()) {
+                        activePix = w.p;
+                    } else {
+                        activePix = &w.i->getPixels();
+                    }
+
+                    if (activePix && activePix->isAllocated()) {
+                        int pxi = ofClamp((int)(tx * activePix->getWidth()), 0, (int)(activePix->getWidth() - 1));
+                        int pyi = ofClamp((int)(ty * activePix->getHeight()), 0, (int)(activePix->getHeight() - 1));
+                        finalColor = activePix->getColor(pxi, pyi);
+                    }
                 }
             }
         }

@@ -260,8 +260,10 @@ void RoomApp::drawSceneContent(bool showAtmosphere, bool isGlobalView) {
         jellySphereRing.draw();
     }
 
-    if(bDrawGab) {
-        walls.draw(bShowRoof, wallAlpha);
+   if(bDrawGab && bgMode != 1) {
+        walls.draw(bShowRoof, wallAlpha, bgMode,
+                   scene2DFboFront, scene2DFboBack, scene2DFboCour, scene2DFboJar,
+                   scene2DFboSol, scene2DFboTopCour, scene2DFboTopJar);
     }
 
     if (bDrawWorms) {
@@ -441,4 +443,130 @@ void RoomApp::generateEquirectangularImage() {
     
     ofSaveImage(pixels, "export_360_room.png");
     ofLogNotice("RoomApp") << "Image 360 sauvegardee : bin/data/export_360_room.png";
+}
+
+void RoomApp::generateFull360EquirectangularImage() {
+    int w = 3840;
+    int h = 2160;
+    
+    ofLogNotice("RoomApp") << "Debut generation image 360 Full (" << w << "x" << h << ")... Cela peut prendre quelques secondes.";
+    
+    // On lit les pixels des FBOs de la scene 2D s'ils sont disponibles
+    ofPixels pFront, pBack, pCour, pJar, pSol, pTopCour, pTopJar;
+    if(scene2DFboFront && scene2DFboFront->isAllocated()) scene2DFboFront->readToPixels(pFront);
+    if(scene2DFboBack && scene2DFboBack->isAllocated()) scene2DFboBack->readToPixels(pBack);
+    if(scene2DFboCour && scene2DFboCour->isAllocated()) scene2DFboCour->readToPixels(pCour);
+    if(scene2DFboJar && scene2DFboJar->isAllocated()) scene2DFboJar->readToPixels(pJar);
+    if(scene2DFboSol && scene2DFboSol->isAllocated()) scene2DFboSol->readToPixels(pSol);
+    if(scene2DFboTopCour && scene2DFboTopCour->isAllocated()) scene2DFboTopCour->readToPixels(pTopCour);
+    if(scene2DFboTopJar && scene2DFboTopJar->isAllocated()) scene2DFboTopJar->readToPixels(pTopJar);
+
+    ofPixels pixels;
+    pixels.allocate(w, h, OF_IMAGE_COLOR_ALPHA);
+    
+    ofVec3f center(0, 600, 0); 
+
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            float u = (float)x / (float)w;
+            float v = (float)y / (float)h;
+            
+            float theta = (u - 0.5f) * TWO_PI; 
+            float phi = (0.5f - v) * PI;
+            
+            float dx = cos(phi) * cos(theta - HALF_PI); 
+            float dy = sin(phi);
+            float dz = cos(phi) * sin(theta - HALF_PI);
+            
+            ofVec3f dir(dx, dy, dz);
+            dir.normalize();
+            
+            ofColor col = walls.getPixelFromRayDynamic(center, dir, bgMode, &pFront, &pBack, &pCour, &pJar, &pSol, &pTopCour, &pTopJar);
+            pixels.setColor(x, y, col);
+        }
+    }
+    
+    string filename = "360Full_" + ofGetTimestampString() + ".png";
+    ofSaveImage(pixels, filename);
+    ofLogNotice("RoomApp") << "Image 360 Full sauvegardee : bin/data/" << filename;
+}
+
+void RoomApp::generate360FullW() {
+    int w = 3840;
+    int h = 2160;
+    int faceSize = 2048; // Resolution interne pour chaque face du cube (4K global)
+    
+    ofLogNotice("RoomApp") << "Debut generation image 360 Full W (" << w << "x" << h << ") par Cubemap... Cela va prendre quelques secondes.";
+    
+    // Configuration des 6 cameras formant le Cubemap
+    ofCamera cams[6];
+    ofVec3f center(0, 600, 0); // Centre (Rig)
+    for(int i=0; i<6; i++) {
+        cams[i].setPosition(center);
+        cams[i].setFov(90.0f);
+        cams[i].setAspectRatio(1.0f); // Obligatoire pour eviter la distorsion
+        cams[i].setNearClip(10.0f);
+        cams[i].setFarClip(30000.0f); // Assez loin pour le sol ondulant
+    }
+    
+    cams[0].lookAt(center + ofVec3f(1, 0, 0), ofVec3f(0, 1, 0));   // +X (Droite)
+    cams[1].lookAt(center + ofVec3f(-1, 0, 0), ofVec3f(0, 1, 0));  // -X (Gauche)
+    cams[2].lookAt(center + ofVec3f(0, 1, 0), ofVec3f(0, 0, -1));  // +Y (Haut)
+    cams[3].lookAt(center + ofVec3f(0, -1, 0), ofVec3f(0, 0, 1));  // -Y (Bas)
+    cams[4].lookAt(center + ofVec3f(0, 0, 1), ofVec3f(0, 1, 0));   // +Z (Arriere)
+    cams[5].lookAt(center + ofVec3f(0, 0, -1), ofVec3f(0, 1, 0));  // -Z (Avant)
+
+    ofPixels faces[6];
+    ofFbo fbo;
+    fbo.allocate(faceSize, faceSize, GL_RGB);
+
+    // Rendu successif de la vraie scene 3D pour chaque face
+    for(int i=0; i<6; i++) {
+        fbo.begin();
+        ofClear(0, 255);
+        cams[i].begin();
+        drawSceneContent(bDrawAtmosphere, false); // On desactive la vue globale pour garder l'effet de tangage
+        cams[i].end();
+        fbo.end();
+        fbo.readToPixels(faces[i]);
+    }
+
+    ofPixels eqPixels;
+    eqPixels.allocate(w, h, OF_IMAGE_COLOR);
+
+    // Reconstruction Equirectangulaire a partir du Cubemap
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            float u = (float)x / (float)w;
+            float v = (float)y / (float)h;
+
+            float theta = (u - 0.5f) * TWO_PI;
+            float phi = (0.5f - v) * PI;
+
+            float dx = cos(phi) * cos(theta - HALF_PI);
+            float dy = sin(phi);
+            float dz = cos(phi) * sin(theta - HALF_PI);
+            ofVec3f dir(dx, dy, dz); dir.normalize();
+
+            float absX = fabs(dir.x), absY = fabs(dir.y), absZ = fabs(dir.z);
+            int faceIndex = 0;
+            float ma, faceU, faceV;
+
+            if (absX >= absY && absX >= absZ) {
+                ma = absX; if (dir.x > 0) { faceIndex = 0; faceU = dir.z; faceV = -dir.y; } else { faceIndex = 1; faceU = -dir.z; faceV = -dir.y; }
+            } else if (absY >= absX && absY >= absZ) {
+                ma = absY; if (dir.y > 0) { faceIndex = 2; faceU = -dir.x; faceV = dir.z; } else { faceIndex = 3; faceU = -dir.x; faceV = -dir.z; }
+            } else {
+                ma = absZ; if (dir.z > 0) { faceIndex = 4; faceU = -dir.x; faceV = -dir.y; } else { faceIndex = 5; faceU = dir.x; faceV = -dir.y; }
+            }
+
+            faceU = (faceU / ma + 1.0f) * 0.5f;
+            faceV = (faceV / ma + 1.0f) * 0.5f; // L'inversion Y est deja resolue dans les signes ci-dessus
+
+            eqPixels.setColor(x, y, faces[faceIndex].getColor(ofClamp(faceU * faceSize, 0, faceSize - 1), ofClamp(faceV * faceSize, 0, faceSize - 1)));
+        }
+    }
+    string filename = "360FullW_" + ofGetTimestampString() + ".png";
+    ofSaveImage(eqPixels, filename);
+    ofLogNotice("RoomApp") << "Image 360 Full W sauvegardee par Cubemap : bin/data/" << filename;
 }

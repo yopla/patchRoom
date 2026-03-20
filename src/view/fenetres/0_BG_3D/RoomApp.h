@@ -69,6 +69,8 @@ public:
     // La fonction qui centralise le rendu pour tous les FBOs
     void drawSceneContent(bool showAtmosphere = true, bool isGlobalView = false); 
     void generateEquirectangularImage(); // <--- AJOUT
+    void generateFull360EquirectangularImage();
+    void generate360FullW();
 
     // Oscillation de la Room (Effet Bateau)
    
@@ -103,6 +105,15 @@ public:
     // --- FBOs (Accessibles par ofApp et RoomPreview) ---
     ofFbo fboFront, fboBack, fboCour, fboJar, fboSol;
     ofFbo fboTopCour, fboTopJar;
+    
+    // --- FBOs de la Scene 2D pour le Mode GAB R "Scene2D" ---
+    ofFbo* scene2DFboFront = nullptr;
+    ofFbo* scene2DFboBack = nullptr;
+    ofFbo* scene2DFboCour = nullptr;
+    ofFbo* scene2DFboJar = nullptr;
+    ofFbo* scene2DFboSol = nullptr;
+    ofFbo* scene2DFboTopCour = nullptr;
+    ofFbo* scene2DFboTopJar = nullptr;
 
     // --- Les 3 Nouveaux Modules ---
     RoomWalls walls;
@@ -116,6 +127,7 @@ public:
 
     // --- Flags de contrôle ---
     bool bShowRoof = true;
+    int bgMode = 0; // 0: GAB par defaut, 1: OFF, 2: SCENE2D
     float wallAlpha = 100.0f;
     bool respire = false;
     bool bDrawRipples = false; // Optionnel : pour activer/désactiver

@@ -168,8 +168,6 @@ void PlaylistVisualizerApp::draw() {
         frame->draw(isSelected);
     }
 
-    windowControlsUI.draw(mainAppPtr);
-
     controlsUI.draw(mainAppPtr);
 
     // --- DESSIN DES BOUTONS DE LECTURE (TOUJOURS VISIBLES) ---
@@ -185,6 +183,9 @@ void PlaylistVisualizerApp::draw() {
     for(auto& note : textNotes) {
         note->draw();
     }
+    
+    // Dessiné en dernier pour que les accordéons (GAB) s'affichent par-dessus les autres éléments
+    windowControlsUI.draw(mainAppPtr);
 
     // --- DETECTION DES TOOLTIPS (Au survol) ---
     ofVec2f worldM = getTransformedMouse(ofGetMouseX(), ofGetMouseY());

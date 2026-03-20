@@ -153,15 +153,6 @@ void Scene2D_SIDE::draw() {
     ofSetColor(255, 255, 255, 50);
     ofDrawLine(0, hMax, totalSceneWidth, hMax);
 
-    if (overlayMode > 0 && overlayImg.isAllocated()) {
-        ofPushStyle();
-        if (overlayMode == 1) ofSetColor(255, 255, 255, 84); // ~33%
-        else if (overlayMode == 2) ofSetColor(255, 255, 255, 191); // ~75%
-        else if (overlayMode == 3) ofSetColor(255, 255, 255, 255); // 100%
-        overlayImg.draw(0, -912); // Positionnement pour correspondre aux exports et GABs
-        ofPopStyle();
-    }
-
     // Affichage des coordonnées 3D pour les Halos
     bool drawCoordDebug = false;
     if (drawCoordDebug) {   
@@ -235,6 +226,21 @@ void Scene2D_SIDE::captureSection(ofFbo& targetFbo, float worldX, float worldTop
                 ofTranslate(-worldX, -worldTopY);
                 drawDynamicElements(); // This now calls layerManager.draw()
             ofPopMatrix();
+        }
+        
+        // L'overlay est maintenant injecté DIRECTEMENT dans les FBOs
+        if (overlayMode > 0 && overlayImg.isAllocated()) {
+            ofPushStyle();
+            ofEnableAlphaBlending();
+            if (overlayMode == 1) ofSetColor(255, 255, 255, 84);
+            else if (overlayMode == 2) ofSetColor(255, 255, 255, 191);
+            else if (overlayMode == 3) ofSetColor(255, 255, 255, 255);
+            
+            ofPushMatrix();
+            ofTranslate(-worldX, -worldTopY);
+            overlayImg.draw(0, -912);
+            ofPopMatrix();
+            ofPopStyle();
         }
         
     targetFbo.end();
@@ -321,9 +327,11 @@ void Scene2D_SIDE::dragEvent(ofDragInfo dragInfo) {
         } else {
             ofImage fullImg;
             if (fullImg.load(file)) {
+                float exportHeight = 912 + 1472 + 2368; // 4752
+                fullImg.resize(totalSceneWidth, exportHeight); // Redimensionnement pour correspondre a la scene
                 overlayImg = fullImg;
                 overlayMode = 3;
-                ofLogNotice("Scene2D_SIDE") << "Overlay image chargee : " << file;
+                ofLogNotice("Scene2D_SIDE") << "Overlay image chargee et redimensionnee : " << file;
             }
         }
     }
@@ -429,15 +437,6 @@ void Scene2D_SIDE::exportFullScene() {
     fboSol.draw(srcX_Front, hMax); 
     fboTopCour.draw(srcX_Cour, hMax - 1072 - 1008);
     
-    if (overlayMode > 0 && overlayImg.isAllocated()) {
-        ofPushStyle();
-        if (overlayMode == 1) ofSetColor(255, 255, 255, 84); // ~33%
-        else if (overlayMode == 2) ofSetColor(255, 255, 255, 191); // ~75%
-        else if (overlayMode == 3) ofSetColor(255, 255, 255, 255); // 100%
-        overlayImg.draw(0, -912); // Positionnement absolu (-912 annule le translate)
-        ofPopStyle();
-    }
-
     ofPopMatrix();
     fboExp.end();
     ofPixels pix;
@@ -493,15 +492,6 @@ void Scene2D_SIDE::export7Murs() {
     fboSol.draw(srcX_Front, hMax); 
     fboTopCour.draw(srcX_Cour, hMax - 1072 - 1008);
 
-    if (overlayMode > 0 && overlayImg.isAllocated()) {
-        ofPushStyle();
-        if (overlayMode == 1) ofSetColor(255, 255, 255, 84);
-        else if (overlayMode == 2) ofSetColor(255, 255, 255, 191);
-        else if (overlayMode == 3) ofSetColor(255, 255, 255, 255);
-        overlayImg.draw(0, -912);
-        ofPopStyle();
-    }
-    
     ofPopMatrix();
     fboExp.end();
 

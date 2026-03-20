@@ -68,6 +68,8 @@ void PlaylistTooltipManager::setup() {
     texts["Alpha Cur"] = "Rend le curseur carre de la Room plus transparent";
     texts["Alpha Wall"] = "Affiche ou cache les murs de la piece (transparence)";
     texts["Gen 360"] = "Genere une image equirectangulaire 360 de la piece actuelle";
+    texts["Gen 360 Full"] = "Genere une image 360 en utilisant les textures actuelles (FBOs Scene 2D) au lieu des images par defaut.";
+    texts["360fullW"] = "Genere une image 360 de TOUTE la scene 3D par rendu Cubemap (Inclut le Kraken, Plan Colle, etc.)";
     texts["Show Beams"] = "Affiche ou cache les 3 faisceaux de projection (Touche T)";
     texts["Plan Colle"] = "Affiche ou cache le plan de collage de projection (Touche N)";
     texts["Cur Reflet"] = "Bascule le debordement du curseur carre sur les murs adjacents";

@@ -120,6 +120,17 @@ void ofApp::update(){
         scene2D->roomFboTopJar  = &roomApp->fboTopJar;
     }
 
+    // --- LIAISON DES FBOs DE SCENE2D VERS ROOMAPP ---
+    if(roomApp && scene2D && !roomApp->scene2DFboFront) {
+        roomApp->scene2DFboFront   = &scene2D->fboFront;
+        roomApp->scene2DFboBack    = &scene2D->fboBack;
+        roomApp->scene2DFboCour    = &scene2D->fboCour;
+        roomApp->scene2DFboJar     = &scene2D->fboJar;
+        roomApp->scene2DFboSol     = &scene2D->fboSol;
+        roomApp->scene2DFboTopCour = &scene2D->fboTopCour;
+        roomApp->scene2DFboTopJar  = &scene2D->fboTopJar;
+    }
+
     // --- LIAISON DU PLAYER VERS LE VISUALISEUR ---
     if(playlistApp && roomApp) {
         playlistApp->player = &(roomApp->scene360VideoPlayer);

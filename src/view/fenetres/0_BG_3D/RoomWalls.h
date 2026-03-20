@@ -4,8 +4,13 @@
 class RoomWalls {
 public:
     void setup();
-void draw(bool showRoof, float alpha);
+    void draw(bool showRoof, float alpha, int mode = 0,
+              ofFbo* fFront = nullptr, ofFbo* fBack = nullptr, ofFbo* fCour = nullptr, ofFbo* fJar = nullptr,
+              ofFbo* fSol = nullptr, ofFbo* fTopCour = nullptr, ofFbo* fTopJar = nullptr);
     ofColor getPixelFromRay(const ofVec3f& origin, const ofVec3f& dir);
+    ofColor getPixelFromRayDynamic(const ofVec3f& origin, const ofVec3f& dir, int mode,
+                                   ofPixels* pFront, ofPixels* pBack, ofPixels* pCour, ofPixels* pJar,
+                                   ofPixels* pSol, ofPixels* pTopCour, ofPixels* pTopJar);
 
     // Dimensions
     const float roomWidth = 2400.0f;

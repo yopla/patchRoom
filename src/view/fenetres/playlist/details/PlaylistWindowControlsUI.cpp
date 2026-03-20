@@ -32,6 +32,14 @@ void PlaylistWindowControlsUI::setup() {
     for(int i=0; i<4; i++) {
         gabBtns[i].set(startX + 240 + i * 60, startY + 105, 56, 30); 
     }
+    
+    gabOptions[0] = {"100%", "75%", "33%", "10%", "OFF"};
+    gabOptions[1] = {"ON", "OFF", "Scene2D"};
+    gabOptions[2] = {"Opaque", "Transp", "FBOs", "Rien"};
+    gabOptions[3] = {"OFF", "33%", "75%", "100%"};
+    
+    roomAlphaBtn.set(startX + 240 + 1 * 60, startY + 140, 56, 30);
+    roomAlphaOptions = {"100%", "75%", "33%", "0%"};
 }
 
 void PlaylistWindowControlsUI::draw(ofApp* mainAppPtr) {
@@ -169,38 +177,41 @@ void PlaylistWindowControlsUI::draw(ofApp* mainAppPtr) {
         ofPushStyle();
         ofEnableAlphaBlending();
         bool isLoaded = (mainAppPtr != nullptr);
-        string text = "GAB ";
+        string text = "";
         int alpha = 255;
         bool isWireframe = false;
         
+        int currentState = 0;
+        
         if(isLoaded) {
             if(i == 0) {
-                text += "M:" + ofToString(mainAppPtr->gabMode);
-                if(mainAppPtr->gabMode == 0) alpha = 255;
-                else if(mainAppPtr->gabMode == 1) alpha = 200;
-                else if(mainAppPtr->gabMode == 2) alpha = 150;
-                else if(mainAppPtr->gabMode == 3) alpha = 100;
+                currentState = mainAppPtr->gabMode;
+                text = "M:" + ofToString(currentState);
+                if(currentState == 0) alpha = 255;
+                else if(currentState == 1) alpha = 200;
+                else if(currentState == 2) alpha = 150;
+                else if(currentState == 3) alpha = 100;
                 else alpha = 5; 
             }
             else if(i == 1 && mainAppPtr->roomApp) {
-                bool isOn = mainAppPtr->roomApp->wallAlpha > 50;
-                text += "R:" + string(isOn ? "ON" : "OFF");
-                alpha = isOn ? 255 : 5;
+                currentState = mainAppPtr->roomApp->bgMode;
+                text = "R:" + gabOptions[1][currentState];
+                alpha = (currentState == 1) ? 5 : 255;
             }
             else if(i == 2 && mainAppPtr->scene2D) {
-                int mode = mainAppPtr->scene2D->bgDisplayMode;
-                text += "S:" + ofToString(mode);
-                if(mode == 0) alpha = 255;      
-                else if(mode == 1) alpha = 100;  
-                else if(mode == 2) { alpha = 255; isWireframe = true; } 
+                currentState = mainAppPtr->scene2D->bgDisplayMode;
+                text = "S:" + ofToString(currentState);
+                if(currentState == 0) alpha = 255;      
+                else if(currentState == 1) alpha = 100;  
+                else if(currentState == 2) { alpha = 255; isWireframe = true; } 
                 else alpha = 5;
             }
             else if(i == 3 && mainAppPtr->scene2D) {
-                int mode = mainAppPtr->scene2D->overlayMode;
-                text += "O:" + (mode == 0 ? string("OFF") : (mode == 1 ? string("33") : (mode == 2 ? string("75") : string("100"))));
-                if(mode == 0) alpha = 5;
-                else if(mode == 1) alpha = 84;
-                else if(mode == 2) alpha = 191;
+                currentState = mainAppPtr->scene2D->overlayMode;
+                text = "O:" + (currentState == 0 ? string("OFF") : (currentState == 1 ? string("33") : (currentState == 2 ? string("75") : string("100"))));
+                if(currentState == 0) alpha = 5;
+                else if(currentState == 1) alpha = 84;
+                else if(currentState == 2) alpha = 191;
                 else alpha = 255;
             }
         }
@@ -210,18 +221,105 @@ void PlaylistWindowControlsUI::draw(ofApp* mainAppPtr) {
             ofFill();
             ofDrawRectangle(gabBtns[i]);
         } else {
-            ofSetColor(255, 150, 0, alpha); 
-            if(isWireframe) { ofNoFill(); ofSetLineWidth(3); } 
-            else { ofFill(); }
+            if (bGabAccordionOpen[i]) {
+                ofSetColor(150, 150, 200, 255);
+                ofFill();
+            } else {
+                ofSetColor(255, 150, 0, alpha); 
+                if(isWireframe) { ofNoFill(); ofSetLineWidth(3); } 
+                else { ofFill(); }
+            }
             ofDrawRectangle(gabBtns[i]);
         }
         
         ofNoFill(); ofSetLineWidth(1); ofSetColor(255);
         ofDrawRectangle(gabBtns[i]);
+        
+        text += bGabAccordionOpen[i] ? "[-]" : "[+]";
+        
         ofPushMatrix(); ofTranslate(gabBtns[i].x, gabBtns[i].y); ofScale(gabBtns[i].height / 30.0f, gabBtns[i].height / 30.0f);
         ofDrawBitmapString(text, 2, 20);
         ofPopMatrix();
         ofPopStyle();
+    }
+    
+    if(mainAppPtr && mainAppPtr->roomApp) {
+        ofPushStyle();
+        float currentAlpha = mainAppPtr->roomApp->wallAlpha;
+        string alphaStr = "100";
+        if (currentAlpha <= 0.0f) alphaStr = "0";
+        else if (currentAlpha <= 85.0f) alphaStr = "33";
+        else if (currentAlpha <= 192.0f) alphaStr = "75";
+
+        if (bRoomAlphaAccordionOpen) {
+            ofSetColor(150, 150, 200, 255);
+            ofFill();
+        } else {
+            ofSetColor(255, 150, 0, std::max(25.0f, currentAlpha)); // Reste visible même à 0%
+            ofFill();
+        }
+        ofDrawRectangle(roomAlphaBtn);
+        ofNoFill();
+        ofSetColor(255);
+        ofDrawRectangle(roomAlphaBtn);
+        
+        ofPushMatrix();
+        ofTranslate(roomAlphaBtn.x, roomAlphaBtn.y);
+        ofScale(roomAlphaBtn.height / 30.0f, roomAlphaBtn.height / 30.0f);
+        ofDrawBitmapString("A:" + alphaStr + (bRoomAlphaAccordionOpen ? "[-]" : "[+]"), 2, 20);
+        ofPopMatrix();
+        ofPopStyle();
+    }
+    
+    for(int i=0; i<4; i++) {
+        gabOptionRects[i].clear();
+        if (bGabAccordionOpen[i] && mainAppPtr) {
+            int currentState = 0;
+            if(i == 0) currentState = mainAppPtr->gabMode;
+            else if(i == 1 && mainAppPtr->roomApp) currentState = mainAppPtr->roomApp->bgMode;
+            else if(i == 2 && mainAppPtr->scene2D) currentState = mainAppPtr->scene2D->bgDisplayMode;
+            else if(i == 3 && mainAppPtr->scene2D) currentState = mainAppPtr->scene2D->overlayMode;
+
+            for(size_t j=0; j<gabOptions[i].size(); j++) {
+                ofRectangle optRect(gabBtns[i].x, gabBtns[i].getBottom() + j * gabBtns[i].height, gabBtns[i].width + 20, gabBtns[i].height);
+                gabOptionRects[i].push_back(optRect);
+                
+                ofPushStyle();
+                if (currentState == j) ofSetColor(200, 200, 50); else ofSetColor(80);
+                ofFill(); ofDrawRectangle(optRect);
+                ofNoFill(); ofSetColor(200); ofDrawRectangle(optRect);
+                ofSetColor(255);
+                ofPushMatrix(); ofTranslate(optRect.x, optRect.y); ofScale(optRect.height / 30.0f, optRect.height / 30.0f);
+                ofDrawBitmapString(gabOptions[i][j], 4, 20);
+                ofPopMatrix();
+                ofPopStyle();
+            }
+        }
+    }
+    
+    if (bRoomAlphaAccordionOpen && mainAppPtr && mainAppPtr->roomApp) {
+        roomAlphaOptionRects.clear();
+        float currentAlpha = mainAppPtr->roomApp->wallAlpha;
+        for(size_t j=0; j < roomAlphaOptions.size(); j++) {
+            ofRectangle optRect(roomAlphaBtn.x, roomAlphaBtn.getBottom() + j * roomAlphaBtn.height, roomAlphaBtn.width + 20, roomAlphaBtn.height);
+            roomAlphaOptionRects.push_back(optRect);
+            
+            ofPushStyle();
+            bool isSelected = false;
+            if (j == 0 && currentAlpha > 192.0f) isSelected = true;
+            if (j == 1 && currentAlpha > 85.0f && currentAlpha <= 192.0f) isSelected = true;
+            if (j == 2 && currentAlpha > 0.0f && currentAlpha <= 85.0f) isSelected = true;
+            if (j == 3 && currentAlpha <= 0.0f) isSelected = true;
+
+            if (isSelected) ofSetColor(200, 200, 50); else ofSetColor(80);
+            ofFill(); ofDrawRectangle(optRect);
+            ofNoFill(); ofSetColor(200); ofDrawRectangle(optRect);
+            ofSetColor(255);
+            ofPushMatrix(); ofTranslate(optRect.x, optRect.y); ofScale(optRect.height / 30.0f, optRect.height / 30.0f);
+            ofDrawBitmapString(roomAlphaOptions[j], 4, 20);
+            ofPopMatrix();
+            ofPopStyle();
+        }
     }
     
     ofPopStyle();
@@ -381,16 +479,66 @@ bool PlaylistWindowControlsUI::mousePressed(ofVec2f worldM, ofApp* mainAppPtr) {
         }
     }
 
+    if (bRoomAlphaAccordionOpen) {
+        for(size_t i = 0; i < roomAlphaOptionRects.size(); i++) {
+            if(roomAlphaOptionRects[i].inside(worldM)) {
+                if(mainAppPtr && mainAppPtr->roomApp) {
+                    // Si l'alpha est mis au-dessus de 0% alors que la room etait OFF, on la rallume
+                    if (i == 0) { mainAppPtr->roomApp->wallAlpha = 255.0f; if (mainAppPtr->roomApp->bgMode == 1) mainAppPtr->roomApp->bgMode = 0; }
+                    else if (i == 1) { mainAppPtr->roomApp->wallAlpha = 191.0f; if (mainAppPtr->roomApp->bgMode == 1) mainAppPtr->roomApp->bgMode = 0; }
+                    else if (i == 2) { mainAppPtr->roomApp->wallAlpha = 84.0f; if (mainAppPtr->roomApp->bgMode == 1) mainAppPtr->roomApp->bgMode = 0; }
+                    else if (i == 3) { mainAppPtr->roomApp->wallAlpha = 0.0f; } // On ne force plus le mode à 1 (OFF) pour conserver Scene2D en mémoire
+                }
+                bRoomAlphaAccordionOpen = false;
+                return true;
+            }
+        }
+    }
+
+    for(int i=0; i<4; i++) {
+        if(bGabAccordionOpen[i]) {
+            for(size_t j=0; j<gabOptionRects[i].size(); j++) {
+                if(gabOptionRects[i][j].inside(worldM)) {
+                    if(mainAppPtr) {
+                        if(i == 0) mainAppPtr->gabMode = j;
+                        else if(i == 1 && mainAppPtr->roomApp) {
+                            if(j == 2 && mainAppPtr->scene2D && mainAppPtr->scene2D->bgDisplayMode == 2) {
+                                mainAppPtr->scene2D->bgDisplayMode = 1; // Force Scene2D à "Transp" pour éviter la recursion
+                            }
+                            mainAppPtr->roomApp->bgMode = j;
+                            mainAppPtr->roomApp->wallAlpha = (j == 1) ? 0.0f : 100.0f;
+                        }
+                        else if(i == 2 && mainAppPtr->scene2D) {
+                            if(j == 2 && mainAppPtr->roomApp && mainAppPtr->roomApp->bgMode == 2) {
+                                mainAppPtr->roomApp->bgMode = 0; // Force RoomApp à "ON" pour éviter la recursion
+                                mainAppPtr->roomApp->wallAlpha = 100.0f;
+                            }
+                            mainAppPtr->scene2D->bgDisplayMode = j;
+                        }
+                        else if(i == 3 && mainAppPtr->scene2D) mainAppPtr->scene2D->overlayMode = j;
+                    }
+                    bGabAccordionOpen[i] = false;
+                    return true;
+                }
+            }
+        }
+    }
+
     for(int i=0; i<4; i++) {
         if(gabBtns[i].inside(worldM)) {
             if(mainAppPtr) {
-                if(i == 0) mainAppPtr->keyPressed('g');
-                else if(i == 1 && mainAppPtr->roomApp) mainAppPtr->roomApp->keyPressed('g');
-                else if(i == 2 && mainAppPtr->scene2D) mainAppPtr->scene2D->keyPressed('g');
-                else if(i == 3 && mainAppPtr->scene2D) mainAppPtr->scene2D->keyPressed('h');
+                bGabAccordionOpen[i] = !bGabAccordionOpen[i];
+                for(int k=0; k<4; k++) if(k != i) bGabAccordionOpen[k] = false;
+                bRoomAlphaAccordionOpen = false;
             }
             return true;
         }
+    }
+    
+    if (roomAlphaBtn.inside(worldM)) {
+        bRoomAlphaAccordionOpen = !bRoomAlphaAccordionOpen;
+        for(int k=0; k<4; k++) bGabAccordionOpen[k] = false;
+        return true;
     }
     return false;
 }
@@ -407,7 +555,20 @@ string PlaylistWindowControlsUI::getTooltip(ofVec2f worldM, PlaylistTooltipManag
         if(wxcvbBtns[i].inside(worldM)) return tooltipManager.getTooltipText(wxcvbNames[i]);
         if(focusBtns[i].inside(worldM)) return tooltipManager.getTooltipText(focusNames[i]);
     }
-    for(int i=0; i<4; i++) if(gabBtns[i].inside(worldM)) return tooltipManager.getTooltipText("GAB " + ofToString(i));
+    for(int i=0; i<4; i++) {
+        if (bGabAccordionOpen[i]) {
+            for (size_t j=0; j<gabOptionRects[i].size(); j++) {
+                if (gabOptionRects[i][j].inside(worldM)) return "Definit le GAB " + ofToString(i) + " sur " + gabOptions[i][j];
+            }
+        }
+        if(gabBtns[i].inside(worldM)) return tooltipManager.getTooltipText("GAB " + ofToString(i));
+    }
+    if (bRoomAlphaAccordionOpen) {
+        for (size_t i = 0; i < roomAlphaOptionRects.size(); i++) {
+            if (roomAlphaOptionRects[i].inside(worldM)) return "Definit l'opacite de la Room a " + roomAlphaOptions[i];
+        }
+    }
+    if(roomAlphaBtn.inside(worldM)) return "Definit l'opacite des murs de la Room (GAB R)";
     return "";
 }
 
@@ -422,6 +583,7 @@ void PlaylistWindowControlsUI::saveSettings(ofJson& pt) {
     saveR("arrangeWinBtn", arrangeWinBtn);
     for(int i=0; i<6; i++) { saveR("wxcvb_" + ofToString(i), wxcvbBtns[i]); saveR("focus_" + ofToString(i), focusBtns[i]); }
     for(int i=0; i<4; i++) saveR("gab_" + ofToString(i), gabBtns[i]);
+    saveR("roomAlphaBtn", roomAlphaBtn);
 }
 
 void PlaylistWindowControlsUI::loadSettings(const ofJson& pt) {
@@ -455,6 +617,8 @@ void PlaylistWindowControlsUI::loadSettings(const ofJson& pt) {
 
     for(int i=0; i<6; i++) { loadR("wxcvb_" + ofToString(i), wxcvbBtns[i]); loadR("focus_" + ofToString(i), focusBtns[i]); }
     for(int i=0; i<4; i++) loadR("gab_" + ofToString(i), gabBtns[i]);
+    if(pt.contains("roomAlphaBtn")) loadR("roomAlphaBtn", roomAlphaBtn); 
+    else roomAlphaBtn.set(gabBtns[1].x, gabBtns[1].y + 35, 56, 30);
 }
 
 vector<ofRectangle*> PlaylistWindowControlsUI::getInteractableRects() {
@@ -467,7 +631,16 @@ vector<ofRectangle*> PlaylistWindowControlsUI::getInteractableRects() {
     rects.push_back(&qualityBtn);
     rects.push_back(&arrangeWinBtn);
     for(int i=0; i<6; i++) { rects.push_back(&wxcvbBtns[i]); rects.push_back(&focusBtns[i]); }
-    for(int i=0; i<4; i++) rects.push_back(&gabBtns[i]);
+    for(int i=0; i<4; i++) {
+        rects.push_back(&gabBtns[i]);
+        if (bGabAccordionOpen[i]) {
+            for(auto& r : gabOptionRects[i]) rects.push_back(&r);
+        }
+    }
+    rects.push_back(&roomAlphaBtn);
+    if (bRoomAlphaAccordionOpen) {
+        for(auto& r : roomAlphaOptionRects) rects.push_back(&r);
+    }
     return rects;
 }
 
@@ -483,6 +656,15 @@ ofRectangle* PlaylistWindowControlsUI::findButtonAt(ofVec2f pos) {
         if(wxcvbBtns[i].inside(pos)) return &wxcvbBtns[i];
         if(focusBtns[i].inside(pos)) return &focusBtns[i];
     }
-    for(int i=0; i<4; i++) if(gabBtns[i].inside(pos)) return &gabBtns[i];
+    for(int i=0; i<4; i++) {
+        if (bGabAccordionOpen[i]) {
+            for(auto& r : gabOptionRects[i]) if(r.inside(pos)) return &r;
+        }
+        if(gabBtns[i].inside(pos)) return &gabBtns[i];
+    }
+    if (bRoomAlphaAccordionOpen) {
+        for(auto& r : roomAlphaOptionRects) if(r.inside(pos)) return &r;
+    }
+    if (roomAlphaBtn.inside(pos)) return &roomAlphaBtn;
     return nullptr;
 }
