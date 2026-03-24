@@ -368,15 +368,6 @@ void ofApp::mouseMoved(int x, int y){}
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
-// bool bCallFocus = false; // pour plus tard
-
-    if(key == OF_KEY_ESC) {
-        bGlobalPause = !bGlobalPause;
-        if(bGlobalPause) {
-            oscTime = localTime;
-        }
-    }
-
     // Reset Navigation
     if(key == 'r' || key == 'R') {
         float scaleX = (float)ofGetWidth() / canvasManager.width;
@@ -401,7 +392,7 @@ void ofApp::keyPressed(int key){
             else if (playlistApp->controlsUI.selectedMainBrushIndex == 1) creatureSystem.addRandomCreature(m.x, m.y);
         }
     }
-    if(key == 'd' || key == 'D' || key == 'z' || key == 'Z') {
+    if(key == 'z' || key == 'Z') {
         if(ofGetKeyPressed(OF_KEY_SHIFT)) {
             creatureSystem.clear();
         } else {
@@ -411,32 +402,49 @@ void ofApp::keyPressed(int key){
 
 
 
-    // TOUCHE I : Générer une image IA
-    if((key == 'i' || key == 'I') && ofGetKeyPressed(OF_KEY_SHIFT)) {
-        geminiGen.generateImage("A futuristic mechanical doll with neon lights");
-    }
-    
-    // TOUCHE O : Générer une vidéo IA (Veo)
-    if((key == 'o' || key == 'O') && ofGetKeyPressed(OF_KEY_SHIFT)) {
-        geminiGen.generateVideo("Panomarmic Hdri image 360° VR (Equirectangular projection) (donc avec texture bouclé) D’une bete poilu dans un marais enchanté ");
-    }
-    
+    // bool bCallFocus = false; // pour plus tard
 
-
-
-
-    // TOUCHE P : Générer une image 360 (Shift + P)
-    if((key == 'p' || key == 'P') && ofGetKeyPressed(OF_KEY_SHIFT)) {
-        geminiGen.generateImage360("Panoramic 360 degree equirectangular projection (donc avec texture bouclée) of a surreal landscape, high resolution, 8k");
+    if(key == OF_KEY_ESC) {
+        bGlobalPause = !bGlobalPause;
+        if(bGlobalPause) {
+            oscTime = localTime;
+        }
     }
 
-    // TOUCHE M : Générer une image 360 Nano (Shift + M)
-    if((key == 'm' || key == 'M') && ofGetKeyPressed(OF_KEY_SHIFT)) {
-        geminiGen.generateNano360("Panoramic 360 degree equirectangular projection (donc avec texture bouclée) of a surreal landscape, high resolution, 8k");
+
+    
+    // Toggles Layers
+    if(key == 'w' || key == 'W') {
+         bDrawRoom = !bDrawRoom; 
+         if(roomApp) roomApp->setEnabled(bDrawRoom); 
+    }
+   
+    if(key == 'x' || key == 'X') { 
+        bDrawZenit = !bDrawZenit; 
+        if(sceneZenit) sceneZenit->setEnabled(bDrawZenit); 
     }
     
-    /*
+        if(key == 'c' || key == 'C') {
+         bDrawScene2D = !bDrawScene2D; 
+         if(scene2D) scene2D->setEnabled(bDrawScene2D); 
+        }
+
+    if(key == 'v' || key == 'V'){
+        if(roomPreviewApp){
+            bool bShow = roomPreviewApp->bPaused; // Si c'était en pause (caché), on veut afficher
+            roomPreviewApp->setPaused(!bShow);           
+        }
+    }
+
+    if(key == 'b' || key == 'B'){
+        bDrawButtons = !bDrawButtons;
+        if(buttonApp) buttonApp->setEnabled(bDrawButtons);
+    }
+
     
+
+
+    /*   
 Transform this room into
 vector illustration of 
 
@@ -456,6 +464,30 @@ et termine bien sur la dernière frame précisement
 (n'essaie pas de relancer un début d'autre chose, il faut de bonnes coutures)
 */
 
+
+
+
+    /*
+    // TOUCHE I : Générer une image IA
+    if((key == 'i' || key == 'I') && ofGetKeyPressed(OF_KEY_SHIFT)) {
+        geminiGen.generateImage("A futuristic mechanical doll with neon lights");
+    }
+    
+    // TOUCHE O : Générer une vidéo IA (Veo)
+    if((key == 'o' || key == 'O') && ofGetKeyPressed(OF_KEY_SHIFT)) {
+        geminiGen.generateVideo("Panomarmic Hdri image 360° VR (Equirectangular projection) (donc avec texture bouclé) D’une bete poilu dans un marais enchanté ");
+    }
+
+    // TOUCHE P : Générer une image 360 (Shift + P)
+    if((key == 'p' || key == 'P') && ofGetKeyPressed(OF_KEY_SHIFT)) {
+        geminiGen.generateImage360("Panoramic 360 degree equirectangular projection (donc avec texture bouclée) of a surreal landscape, high resolution, 8k");
+    }
+
+    // TOUCHE M : Générer une image 360 Nano (Shift + M)
+    if((key == 'm' || key == 'M') && ofGetKeyPressed(OF_KEY_SHIFT)) {
+        geminiGen.generateNano360("Panoramic 360 degree equirectangular projection (donc avec texture bouclée) of a surreal landscape, high resolution, 8k");
+    }
+  
     // TOUCHE L : Générer une image 360 depuis l'export Room (Shift + L)
     if((key == 'l' || key == 'L') && ofGetKeyPressed(OF_KEY_SHIFT)) {
         string theme = "a surreal jukebox music machine";
@@ -479,9 +511,6 @@ et termine bien sur la dernière frame précisement
         ); // sur le 5 dans roomApp
     }
 
-
-
-
     if((key == 'k' || key == 'K') && ofGetKeyPressed(OF_KEY_SHIFT)) {
         geminiGen.generateVideoFromImage("une bete poilu dans un marais enchanté, slow cinematic movement", "gen360_last.jpg");
     }
@@ -491,37 +520,8 @@ et termine bien sur la dernière frame précisement
         geminiGen.generateVideoFromDeuxImages("A cinematic, haunting surealist video.", "gen360.jpg", "gen360_last.jpg");
     }
 
-
+  */
   
-    
-    // Toggles Layers
-    if(key == 'w' || key == 'W') {
-         bDrawRoom = !bDrawRoom; 
-         if(roomApp) roomApp->setEnabled(bDrawRoom); 
-    }
-   
-    if(key == 'x' || key == 'X') { 
-        bDrawZenit = !bDrawZenit; 
-        if(sceneZenit) sceneZenit->setEnabled(bDrawZenit); 
-    }
-    
-        if(key == 'c' || key == 'C') {
-         bDrawScene2D = !bDrawScene2D; 
-         if(scene2D) scene2D->setEnabled(bDrawScene2D); 
-        }
-
-// TOUCHE V : PREVIEW (Celle qui crashait)
-    if(key == 'v' || key == 'V'){
-        if(roomPreviewApp){
-            bool bShow = roomPreviewApp->bPaused; // Si c'était en pause (caché), on veut afficher
-            roomPreviewApp->setPaused(!bShow);           
-        }
-    }
-
-    if(key == 'b' || key == 'B'){
-        bDrawButtons = !bDrawButtons;
-        if(buttonApp) buttonApp->setEnabled(bDrawButtons);
-    }
 }
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){

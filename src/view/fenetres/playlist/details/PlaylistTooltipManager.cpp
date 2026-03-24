@@ -54,6 +54,7 @@ void PlaylistTooltipManager::setup() {
     texts["Cloud Ring"] = "Affiche une sphere de nuages volumetriques";
     texts["Liq Sphere"] = "Affiche une sphere d'eau liquide flottante";
     texts["Jelly Sphere"] = "Affiche une sphere de Jellies interactifs (Touche 0)";
+    texts["Color Cop"] = "Affiche une sphere texturee que des petits vaisseaux peuvent detruire par morceaux en cliquant dessus.";
     texts["Scene360Vid"] = "Affiche la video 360 en cours sur la sphere environnementale";
     texts["Beam Proj"] = "Affiche le faisceau volumetrique du videoprojecteur virtuel";
     texts["AtmoPreview"] = "Active ou desactive la vue de sphere d'environnement 360 en preview (reste rendu)";
@@ -128,6 +129,10 @@ void PlaylistTooltipManager::setup() {
     
     texts["MAIN_BRUSH_MainCrea"] = "Touche [A] sur le Main : Ajoute une Creature standard.";
     texts["MAIN_BRUSH_MainRand"] = "Touche [A] sur le Main : Ajoute une Creature aleatoire.";
+    texts["Avoider"] = "Affiche des entites autonomes qui evitent les objets (A faire) et interagissent avec les fluides";
+    texts["Avoider2"] = "Affiche des entites autonomes cycliques inspirées de oAnj.as (évitement a faire plus tard)";
+    texts["Avoider4"] = "Affiche un mini jeu d'evitement sur 8 directions (inspire de 2Sdk.as)";
+    texts["AutoPong"] = "Affiche un mini jeu de pong automatique (inspire de 9iU9.as)";
 }
 
 std::string PlaylistTooltipManager::getTooltipText(const std::string& key) {

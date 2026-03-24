@@ -47,6 +47,12 @@
 #include "GroPuyoLayer.h"
 #include "WalkingSquareLayer.h"
 #include "TripodEyeLayer.h"
+#include "AvoiderLayer.h"
+#include "Avoider2Layer.h"
+#include "Avoider4Layer.h"
+#include "TourellesLayer.h"
+#include "AutoPongLayer.h"
+#include "AutoSnakeLayer.h"
 
 class Scene2DLayerManager {
 public:
@@ -109,6 +115,12 @@ public:
     bool bDrawGroPuyo = false;
     bool bDrawWalkingSquare = false;
     bool bDrawTripodEye = false;
+    bool bDrawAvoider = false;
+    bool bDrawAvoider2 = false;
+    bool bDrawAvoider4 = false;
+    bool bDrawTourelles = false;
+    bool bDrawAutoPong = false;
+    bool bDrawAutoSnake = false;
 
     // Layer objects
     CreatureSystem creatureSystem;
@@ -158,6 +170,12 @@ public:
     GroPuyoLayer groPuyoLayer;
     WalkingSquareLayer walkingSquareLayer;
     TripodEyeLayer tripodEyeLayer;
+    AvoiderLayer avoiderLayer;
+    Avoider2Layer avoider2Layer;
+    Avoider4Layer avoider4Layer;
+    TourellesLayer tourellesLayer;
+    AutoPongLayer autoPongLayer;
+    AutoSnakeLayer autoSnakeLayer;
 
     // State for lightning
     bool bLightningHasStart = false;

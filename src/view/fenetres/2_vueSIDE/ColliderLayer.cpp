@@ -26,12 +26,19 @@ void ColliderLayer::generateWalls() {
     // 1. Chargement de l'image et génération des colliders blancs
     ofImage mapImg;
     if(mapImg.load(currentMapPath)) {
-        // Support dynamique: Ancienne map (1472) vs Nouvelle full size (4752)
-        bool isFullSize = (mapImg.getHeight() > 2000);
+        float imgW = mapImg.getWidth();
+        float imgH = mapImg.getHeight();
+        float imgRatio = imgW / imgH;
+
+        // Support dynamique: Ancienne map (Ratio ~6.8) vs Nouvelle full size (Ratio ~2.1)
+        // On se base sur le ratio plutot que la hauteur absolue pour eviter les bugs 
+        // si on glisse une image deja petite ou a la mauvaise echelle.
+        bool isFullSize = (imgRatio < 4.0f);
         float offsetWorldY = isFullSize ? 912.0f : 0.0f;
         mapSimOffsetY = offsetWorldY / scale;
         
-        float targetHeight = mapImg.getHeight() / scale;
+        // Redimensionnement proportionnel parfait basé sur la largeur (simWidth)
+        float targetHeight = simWidth / imgRatio;
         mapImg.resize(simWidth, targetHeight);
         mapPixels = mapImg.getPixels();
         bHasMap = true;

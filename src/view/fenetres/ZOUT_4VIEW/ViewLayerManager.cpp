@@ -41,6 +41,7 @@ void ViewLayerManager::keyPressed(int key) {
         return;
     }
 
+    
     CropLayer & l = layers[selectedIndex];
     float speed = ofGetKeyPressed(OF_KEY_SHIFT) ? 20.0 : 5.0;
 

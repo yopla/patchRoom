@@ -405,6 +405,38 @@ void RoomInputHandler::mousePressed(int x, int y, int button) {
             }
         }
     }
+    
+    if (app->bDrawColorCop) {
+        // --- RAYCAST COLOR COP RING (SPHERE) ---
+        ofVec3f rayOrigin = app->camGlobal.getPosition();
+        ofVec3f rayDir = app->camGlobal.screenToWorld(ofVec3f(x, y, 0)) - rayOrigin;
+        rayDir.normalize();
+
+        ofVec3f center = app->colorCopRing.center;
+        float R = app->colorCopRing.radius;
+        ofVec3f oc = rayOrigin - center;
+
+        float a = rayDir.lengthSquared();
+        float b = 2.0f * oc.dot(rayDir);
+        float c = oc.lengthSquared() - R * R;
+        float delta = b * b - 4 * a * c;
+
+        if(delta >= 0) {
+            float t1 = (-b - sqrt(delta)) / (2.0f * a);
+            float t2 = (-b + sqrt(delta)) / (2.0f * a);
+            
+            float t = (t1 > 0) ? t1 : ((t2 > 0) ? t2 : -1);
+            if(t > 0) {
+                ofVec3f hit = rayOrigin + rayDir * t;
+                ofVec3f localHit = (hit - center).getNormalized();
+                localHit.rotate(90.0f, ofVec3f(0, 1, 0));
+                float v = acos(localHit.y) / PI;
+                float u = fmod((atan2(localHit.z, localHit.x) + TWO_PI), TWO_PI) / TWO_PI;
+                app->colorCopRing.mousePressed(u, v, app->cursorSquare.squareSize);
+            }
+        }
+    }
+
     if (app->bDrawJellySphere && jellyLocalX >= 0) {
         app->jellySphereRing.mousePressed(jellyLocalX, jellyLocalY);
     }
@@ -450,6 +482,10 @@ void RoomInputHandler::dragEvent(ofDragInfo dragInfo) {
         }
         if(app->bDrawJellySphere) {
             app->jellySphereRing.loadTexture(file);
+            sphereActive = true;
+        }
+        if(app->bDrawColorCop) {
+            app->colorCopRing.loadTexture(file);
             sphereActive = true;
         }
         

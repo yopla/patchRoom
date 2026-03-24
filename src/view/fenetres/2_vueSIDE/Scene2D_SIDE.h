@@ -58,6 +58,9 @@ public:
     ofImage overlayImg;
     int overlayMode = 0; // 0: OFF, 1: 33%, 2: 75%, 3: 100%
 
+    string warningMessage = "";
+    float warningEndTime = 0.0f;
+
 private:
     void captureSection(ofFbo& targetFbo, float worldX, float worldTopY, ofImage& img, ofFbo* roomFbo = nullptr, bool bDrawDynamics = true);
     void drawDynamicElements(); 

@@ -193,6 +193,16 @@ void Scene2D_SIDE::draw() {
 
     ofDrawBitmapStringHighlight(stats, 20, 30); 
     */
+
+    // Message d'avertissement clignotant
+    if (ofGetElapsedTimef() < warningEndTime) {
+        if (sin(ofGetElapsedTimef() * 15.0f) > 0) { // Clignotement rapide
+            ofPushStyle();
+            ofSetColor(255);
+            ofDrawBitmapStringHighlight(warningMessage, ofGetWidth() / 2.0f - warningMessage.length() * 4.0f, 50, ofColor(255, 0, 0), ofColor(255));
+            ofPopStyle();
+        }
+    }
 }
 
 
@@ -302,7 +312,7 @@ void Scene2D_SIDE::keyPressed(int key) {
             exportColliders();
         }
     }
-
+    
     layerManager.keyPressed(key, getTransformedMouse());
 }
 
@@ -321,15 +331,24 @@ void Scene2D_SIDE::dragEvent(ofDragInfo dragInfo) {
     if (dragInfo.files.size() > 0) {
         string file = dragInfo.files[0];
         
-        if (layerManager.bDrawColliders && layerManager.colliderLayer) {
-            layerManager.colliderLayer->loadMap(file);
-            ofLogNotice("Scene2D_SIDE") << "Collider map image chargee : " << file;
-        } else {
-            ofImage fullImg;
-            if (fullImg.load(file)) {
+        ofImage checkImg;
+        if (checkImg.load(file)) {
+            float imgRatio = checkImg.getWidth() / checkImg.getHeight();
+            
+            // Verification des proportions attendues (10048/1472 = ~6.82, 10048/4752 = ~2.11)
+            if (abs(imgRatio - 6.826f) > 0.2f && abs(imgRatio - 2.114f) > 0.2f) {
+                warningMessage = "ATTENTION : Fichier aux mauvaises proportions ! (Ratio: " + ofToString(imgRatio, 2) + ")";
+                warningEndTime = ofGetElapsedTimef() + 4.0f; // Affiche pendant 4 secondes
+                ofLogWarning("Scene2D_SIDE") << warningMessage;
+            }
+
+            if (layerManager.bDrawColliders && layerManager.colliderLayer) {
+                layerManager.colliderLayer->loadMap(file);
+                ofLogNotice("Scene2D_SIDE") << "Collider map image chargee : " << file;
+            } else {
                 float exportHeight = 912 + 1472 + 2368; // 4752
-                fullImg.resize(totalSceneWidth, exportHeight); // Redimensionnement pour correspondre a la scene
-                overlayImg = fullImg;
+                checkImg.resize(totalSceneWidth, exportHeight); // Redimensionnement pour correspondre a la scene
+                overlayImg = checkImg;
                 overlayMode = 3;
                 ofLogNotice("Scene2D_SIDE") << "Overlay image chargee et redimensionnee : " << file;
             }

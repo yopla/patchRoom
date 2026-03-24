@@ -58,6 +58,12 @@ void PlaylistControlsUI::setupLayerToggles(Scene2D_SIDE* scene2D) {
     addToggle("GroPuyo", scene2D->layerManager.bDrawGroPuyo);
     addToggle("WalkSquare", scene2D->layerManager.bDrawWalkingSquare);
     addToggle("TripodEye", scene2D->layerManager.bDrawTripodEye);
+    addToggle("Avoider", scene2D->layerManager.bDrawAvoider);
+    addToggle("Avoider2", scene2D->layerManager.bDrawAvoider2);
+    addToggle("Avoider4", scene2D->layerManager.bDrawAvoider4);
+    addToggle("Tourelles", scene2D->layerManager.bDrawTourelles);
+    addToggle("AutoPong", scene2D->layerManager.bDrawAutoPong);
+    addToggle("AutoSnake", scene2D->layerManager.bDrawAutoSnake);
 
     int cols = 3;
     float bw = 110;
@@ -134,6 +140,10 @@ void PlaylistControlsUI::setupRoomToggles(RoomApp* roomApp, ofApp* mainAppPtr) {
     addToggle("Jelly Sphere", [roomApp](){ return roomApp->bDrawJellySphere; }, [roomApp](){ 
         roomApp->bDrawJellySphere = !roomApp->bDrawJellySphere; 
         if(!roomApp->bDrawJellySphere) roomApp->jellySphereRing.clearJellies();
+    });
+    addToggle("Color Cop", [roomApp](){ return roomApp->bDrawColorCop; }, [roomApp](){ 
+        roomApp->bDrawColorCop = !roomApp->bDrawColorCop; 
+        if(roomApp->bDrawColorCop) roomApp->colorCopRing.resetTexture();
     });
     addToggle("Beam Proj", [roomApp](){ return roomApp->bDrawBeam; }, [roomApp](){ roomApp->bDrawBeam = !roomApp->bDrawBeam; });
     addToggle("AtmoPreview", [roomApp](){ return roomApp->bDrawAtmosphere; }, [roomApp](){ roomApp->bDrawAtmosphere = !roomApp->bDrawAtmosphere; });

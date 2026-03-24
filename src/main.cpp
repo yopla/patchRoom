@@ -78,9 +78,9 @@ int main( ){
 
     // --- TOGGLES VUES ---
     bool bEnableView1 = true;
-    bool bEnableView2 = true;
-    bool bEnableView3 = true;
-    bool bEnableView4 = true;
+    bool bEnableView2 = false;
+    bool bEnableView3 = false;
+    bool bEnableView4 = false;
     bool bEnableZenit = false; // Toggle pour la vue Zenit
 
     shared_ptr<ofAppBaseWindow> viewWindow1;

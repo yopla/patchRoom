@@ -148,6 +148,26 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
     
     // --- SETUP TRIPOD EYE LAYER ---
     tripodEyeLayer.setup(totalSceneWidth, 1472.0f, colliderLayer);
+
+    // --- SETUP AVOIDER LAYER ---
+    avoiderLayer.setup(totalSceneWidth, 1472.0f);
+
+    // --- SETUP AVOIDER 2 LAYER ---
+    avoider2Layer.setup(totalSceneWidth, 1472.0f);
+    avoider2Layer.setCollider(colliderLayer);
+    avoider2Layer.setScale(scale);
+
+    // --- SETUP AVOIDER 4 LAYER ---
+    avoider4Layer.setup(totalSceneWidth, 1472.0f);
+
+    // --- SETUP TOURELLES LAYER ---
+    tourellesLayer.setup(totalSceneWidth, 1472.0f);
+
+    // --- SETUP AUTO PONG LAYER ---
+    autoPongLayer.setup(totalSceneWidth, 1472.0f);
+
+    // --- SETUP AUTO SNAKE LAYER ---
+    autoSnakeLayer.setup(totalSceneWidth, 1472.0f, colliderLayer);
 }
 
 void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePressed) {
@@ -242,6 +262,35 @@ void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePress
     if (bDrawMongolfier) mongolfierLayer.update(m.x, m.y);
     if (bDrawWalkingSquare) walkingSquareLayer.update(m.x, m.y, time);
     if (bDrawTripodEye) tripodEyeLayer.update(m.x, m.y, time);
+    
+    if (bDrawAvoider) {
+        avoiderLayer.update(time);
+        // Interaction avec le fluide
+        if (bDrawFluidFloor || fluidFloorLayer.globalAlpha > 0.0f) {
+            for(const auto& a : avoiderLayer.avoiders) {
+                float simX = a.pos.x / fluidFloorLayer.scale;
+                float simY = a.pos.y / fluidFloorLayer.scale;
+                fluidFloorLayer.addForce(simX, simY, a.vel.x / fluidFloorLayer.scale * 0.4f, a.vel.y / fluidFloorLayer.scale * 0.4f);
+            }
+        }
+    }
+
+    if (bDrawAvoider2) {
+        avoider2Layer.update(time);
+        // Interaction avec le fluide
+        if (bDrawFluidFloor || fluidFloorLayer.globalAlpha > 0.0f) {
+            for(const auto& a : avoider2Layer.avoiders) {
+                float simX = a.pos.x / fluidFloorLayer.scale;
+                float simY = a.pos.y / fluidFloorLayer.scale;
+                fluidFloorLayer.addForce(simX, simY, a.vel.x / fluidFloorLayer.scale * 0.4f, a.vel.y / fluidFloorLayer.scale * 0.4f);
+            }
+        }
+    }
+
+    if (bDrawAvoider4) avoider4Layer.update(time);
+    if (bDrawTourelles) tourellesLayer.update(time);
+    if (bDrawAutoPong) autoPongLayer.update(time);
+    if (bDrawAutoSnake) autoSnakeLayer.update(time);
 }
 
 void Scene2DLayerManager::draw(const ofVec2f& m) {
@@ -312,6 +361,12 @@ void Scene2DLayerManager::draw(const ofVec2f& m) {
     if (bDrawMongolfier) mongolfierLayer.draw();
     if (bDrawWalkingSquare) walkingSquareLayer.draw();
     if (bDrawTripodEye) tripodEyeLayer.draw();
+    if (bDrawAvoider) avoiderLayer.draw();
+    if (bDrawAvoider2) avoider2Layer.draw();
+    if (bDrawAvoider4) avoider4Layer.draw();
+    if (bDrawTourelles) tourellesLayer.draw();
+    if (bDrawAutoPong) autoPongLayer.draw();
+    if (bDrawAutoSnake) autoSnakeLayer.draw();
 }
 
 void Scene2DLayerManager::addCousinCon(float x, float y) {

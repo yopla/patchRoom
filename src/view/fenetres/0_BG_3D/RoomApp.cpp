@@ -38,6 +38,9 @@ void RoomApp::setup(){
     // Initialisation du JellySphereRing
     jellySphereRing.setup(3000.0f, ofVec3f(0, 600, 0));
 
+    // Initialisation du ColorCopRing
+    colorCopRing.setup(3000.0f, ofVec3f(0, 600, 0), 20);
+
     // 3. Allocation des FBOs (Sorties visuelles)
     fboFront.allocate(roomWidth, heightFrontBack, GL_RGB);
     fboBack.allocate(roomWidth, heightFrontBack, GL_RGB);
@@ -183,6 +186,11 @@ void RoomApp::update(){
     if (bDrawJellySphere) {
         jellySphereRing.update(inputHandler.jellyLocalX, inputHandler.jellyLocalY);
     }
+    
+    // --- MISE A JOUR DU COLOR COP RING ---
+    if (bDrawColorCop) {
+        colorCopRing.update(ofGetLastFrameTime());
+    }
 
     // --- MISE A JOUR DU LECTEUR VIDEO 360 ---
     if (bDrawScene360Video) {
@@ -258,6 +266,11 @@ void RoomApp::drawSceneContent(bool showAtmosphere, bool isGlobalView) {
     // --- DESSIN DU JELLY SPHERE ---
     if (bDrawJellySphere) {
         jellySphereRing.draw();
+    }
+    
+    // --- DESSIN DU COLOR COP RING ---
+    if (bDrawColorCop) {
+        colorCopRing.draw();
     }
 
    if(bDrawGab && bgMode != 1) {
@@ -362,6 +375,7 @@ void RoomApp::draw(){
     ofDrawBitmapString("CLOUD RING [6]: " + ofToString(bDrawCloudRing), 20, 125); // <--- AJOUT
     ofDrawBitmapString("LIQUID SPHERE [7]: " + ofToString(bDrawLiquidSphere), 20, 140);
     ofDrawBitmapString("JELLY SPHERE [0]: " + ofToString(bDrawJellySphere), 20, 155); // <--- AJOUT
+    ofDrawBitmapString("COLOR COP: " + ofToString(bDrawColorCop), 20, 170); // <--- AJOUT NOUVEAU
     ofDrawBitmapString("SCENE 360 [8]: " + ofToString(bDrawScene360Video), 20, 170); // <--- AJOUT
     
     if(cursorSquare.isVisible) {

@@ -250,11 +250,13 @@ void RoomPreview::keyPressed(int key){
         camGlobal.setPosition(2000, 2500, 3000);
         camGlobal.lookAt(ofVec3f(0, 600, 0));
     }
+    
     if(key == 'a' || key == 'A') {
         if(mainApp && mainApp->roomApp) {
             mainApp->roomApp->bShowRoof = !mainApp->roomApp->bShowRoof;
         }
     }
+
     if(key == 'b' || key == 'B'){
         bDrawInteraction = !bDrawInteraction;
     }
