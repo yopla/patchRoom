@@ -232,6 +232,7 @@ void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePress
     if (bDrawSlime2) slime2Layer.update(time);
     if (bDrawTeaa) teaaLayer.update(time);
     
+    balletLayer.bActive = bDrawBallet;
     if (bDrawBallet) {
         balletLayer.update(time);
         if (bDrawFluidFloor || fluidFloorLayer.globalAlpha > 0.0f) {
