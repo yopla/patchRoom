@@ -67,6 +67,7 @@ void PlaylistControlsUI::setupLayerToggles(Scene2D_SIDE* scene2D) {
     addToggle("eatMap", scene2D->layerManager.bDrawEatMap);
     addToggle("Crayon", scene2D->layerManager.bDrawCrayon);
     addToggle("SurSauteurs", scene2D->layerManager.bDrawSurSauteurs);
+    addToggle("PaperLight", scene2D->layerManager.bDrawPaperLight);
 
     int cols = 3;
     float bw = 110;
@@ -104,7 +105,7 @@ void PlaylistControlsUI::setupLayerToggles(Scene2D_SIDE* scene2D) {
     resetCollidersBtn.set(resetEatMapBtn.getRight() + pad, startY + cRows*(bh+pad) + 10, bw, bh);
 
     float iStartY = clearAllCreaturesBtn.y + bh + 20; 
-    vector<string> iNames = {"AddGroPuyo", "AddPuyo", "AddBubble", "TargetPoulpe", "Sardine", "Shark"};
+    vector<string> iNames = {"AddGroPuyo", "AddPuyo", "AddBubble", "TargetPoulpe", "Sardine", "Shark", "AddPaperLight"};
     
     interactiveButtons.clear();
     for(int i=0; i<iNames.size(); i++) {
@@ -370,6 +371,7 @@ void PlaylistControlsUI::clearAllCreatures(Scene2D_SIDE* scene2D) {
     mgr.cousinCons.clear();
     mgr.halos.clear();
     mgr.groPuyoLayer.puyos.clear();
+    mgr.paperLightLayer.lights.clear();
 }
 
 void PlaylistControlsUI::draw(ofApp* mainAppPtr) {

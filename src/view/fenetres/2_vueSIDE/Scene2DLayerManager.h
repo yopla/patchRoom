@@ -56,6 +56,7 @@
 #include "EatMapLayer.h"
 #include "SurSauteurLayer.h"
 #include "Crayon.h"
+#include "PaperLightLayer.h"
 
 class Scene2DLayerManager {
 public:
@@ -128,6 +129,7 @@ public:
     bool bDrawEatMap = false;
     bool bDrawCrayon = false;
     bool bDrawSurSauteurs = false;
+    bool bDrawPaperLight = false;
 
     // Layer objects
     CreatureSystem creatureSystem;
@@ -186,6 +188,7 @@ public:
     shared_ptr<EatMapLayer> eatMapLayer;
     SurSauteurLayer surSauteurLayer;
     Crayon crayon;
+    PaperLightLayer paperLightLayer;
 
     // State for lightning
     bool bLightningHasStart = false;

@@ -173,6 +173,8 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
     eatMapLayer->setup(simWidth, simHeight, scale);
     surSauteurLayer.setup(totalSceneWidth, 1472.0f, colliderLayer, eatMapLayer);
     crayon.setup();
+    
+    paperLightLayer.setup(totalSceneWidth, 1472.0f);
 }
 
 void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePressed) {
@@ -302,6 +304,8 @@ void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePress
         surSauteurLayer.bActive = true;
         surSauteurLayer.update(m.x, m.y, time);
     } else { surSauteurLayer.bActive = false; }
+    
+    if (bDrawPaperLight) paperLightLayer.update(m.x, m.y, isSpacePressed);
 }
 
 void Scene2DLayerManager::draw(const ofVec2f& m) {
@@ -382,6 +386,8 @@ void Scene2DLayerManager::draw(const ofVec2f& m) {
     
     // Les colliders sont dessinés en tout dernier pour apparaître au premier plan
     if (bDrawColliders && colliderLayer) colliderLayer->draw();
+    
+    if (bDrawPaperLight) paperLightLayer.draw();
 }
 
 void Scene2DLayerManager::addCousinCon(float x, float y) {
@@ -454,6 +460,8 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
                     fishSchoolLayer.addSardine(m.x, m.y);
                 } else if (selectedInteractiveLayer == "Shark" && bDrawFish) {
                     fishSchoolLayer.addShark(m.x, m.y);
+                } else if (selectedInteractiveLayer == "AddPaperLight" && bDrawPaperLight) {
+                    paperLightLayer.addLight(m.x, m.y);
                 }
             } else if (selectedCreatureToSpawn != "") {
                 spawnSelectedCreature(m.x, m.y); 
@@ -594,6 +602,8 @@ void Scene2DLayerManager::mousePressed(const ofVec2f& m, int button) {
             bubbleLayer.addBubble(m.x / bubbleLayer.scale, m.y / bubbleLayer.scale);
         } else if (selectedInteractiveLayer == "TargetPoulpe" && bDrawPoulpe) {
             poulpeLayer.setTarget(m.x, m.y);
+        } else if (selectedInteractiveLayer == "AddPaperLight" && bDrawPaperLight) {
+            paperLightLayer.addLight(m.x, m.y);
         }
     }
     if (bDrawCrayon) {
