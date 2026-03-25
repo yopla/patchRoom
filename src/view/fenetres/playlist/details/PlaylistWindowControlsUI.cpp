@@ -40,6 +40,9 @@ void PlaylistWindowControlsUI::setup() {
     
     roomAlphaBtn.set(startX + 240 + 1 * 60, startY + 140, 56, 30);
     roomAlphaOptions = {"100%", "75%", "33%", "0%"};
+
+    diffuseRoomBtn.set(startX + 240 + 1 * 60, startY + 175, 56, 30);
+    diffuseScene2DBtn.set(startX + 240 + 3 * 60, startY + 140, 56, 30);
 }
 
 void PlaylistWindowControlsUI::draw(ofApp* mainAppPtr) {
@@ -267,6 +270,24 @@ void PlaylistWindowControlsUI::draw(ofApp* mainAppPtr) {
         ofTranslate(roomAlphaBtn.x, roomAlphaBtn.y);
         ofScale(roomAlphaBtn.height / 30.0f, roomAlphaBtn.height / 30.0f);
         ofDrawBitmapString("A:" + alphaStr + (bRoomAlphaAccordionOpen ? "[-]" : "[+]"), 2, 20);
+        ofPopMatrix();
+        ofPopStyle();
+    }
+
+    if (mainAppPtr) {
+        ofPushStyle();
+        if (mainAppPtr->bDiffuseRoom) ofSetColor(50, 200, 50); else ofSetColor(200, 50, 50);
+        ofFill(); ofDrawRectangle(diffuseRoomBtn);
+        ofNoFill(); ofSetColor(255); ofDrawRectangle(diffuseRoomBtn);
+        ofPushMatrix(); ofTranslate(diffuseRoomBtn.x, diffuseRoomBtn.y); ofScale(diffuseRoomBtn.height / 30.0f, diffuseRoomBtn.height / 30.0f);
+        ofDrawBitmapString(mainAppPtr->bDiffuseRoom ? "DIF:ON" : "DIF:OFF", 4, 20);
+        ofPopMatrix();
+        
+        if (mainAppPtr->bDiffuseScene2D) ofSetColor(50, 200, 50); else ofSetColor(200, 50, 50);
+        ofFill(); ofDrawRectangle(diffuseScene2DBtn);
+        ofNoFill(); ofSetColor(255); ofDrawRectangle(diffuseScene2DBtn);
+        ofPushMatrix(); ofTranslate(diffuseScene2DBtn.x, diffuseScene2DBtn.y); ofScale(diffuseScene2DBtn.height / 30.0f, diffuseScene2DBtn.height / 30.0f);
+        ofDrawBitmapString(mainAppPtr->bDiffuseScene2D ? "DIF:ON" : "DIF:OFF", 4, 20);
         ofPopMatrix();
         ofPopStyle();
     }
@@ -540,6 +561,15 @@ bool PlaylistWindowControlsUI::mousePressed(ofVec2f worldM, ofApp* mainAppPtr) {
         for(int k=0; k<4; k++) bGabAccordionOpen[k] = false;
         return true;
     }
+    
+    if (diffuseRoomBtn.inside(worldM)) {
+        if (mainAppPtr) mainAppPtr->bDiffuseRoom = !mainAppPtr->bDiffuseRoom;
+        return true;
+    }
+    if (diffuseScene2DBtn.inside(worldM)) {
+        if (mainAppPtr) mainAppPtr->bDiffuseScene2D = !mainAppPtr->bDiffuseScene2D;
+        return true;
+    }
     return false;
 }
 
@@ -569,6 +599,8 @@ string PlaylistWindowControlsUI::getTooltip(ofVec2f worldM, PlaylistTooltipManag
         }
     }
     if(roomAlphaBtn.inside(worldM)) return "Definit l'opacite des murs de la Room (GAB R)";
+    if(diffuseRoomBtn.inside(worldM)) return "Active/Desactive la diffusion de la Room sur le Canvas Master";
+    if(diffuseScene2DBtn.inside(worldM)) return "Active/Desactive la diffusion de la Scene 2D sur le Canvas Master";
     return "";
 }
 
@@ -584,6 +616,8 @@ void PlaylistWindowControlsUI::saveSettings(ofJson& pt) {
     for(int i=0; i<6; i++) { saveR("wxcvb_" + ofToString(i), wxcvbBtns[i]); saveR("focus_" + ofToString(i), focusBtns[i]); }
     for(int i=0; i<4; i++) saveR("gab_" + ofToString(i), gabBtns[i]);
     saveR("roomAlphaBtn", roomAlphaBtn);
+    saveR("diffuseRoomBtn", diffuseRoomBtn);
+    saveR("diffuseScene2DBtn", diffuseScene2DBtn);
 }
 
 void PlaylistWindowControlsUI::loadSettings(const ofJson& pt) {
@@ -619,6 +653,12 @@ void PlaylistWindowControlsUI::loadSettings(const ofJson& pt) {
     for(int i=0; i<4; i++) loadR("gab_" + ofToString(i), gabBtns[i]);
     if(pt.contains("roomAlphaBtn")) loadR("roomAlphaBtn", roomAlphaBtn); 
     else roomAlphaBtn.set(gabBtns[1].x, gabBtns[1].y + 35, 56, 30);
+
+    if(pt.contains("diffuseRoomBtn")) loadR("diffuseRoomBtn", diffuseRoomBtn);
+    else diffuseRoomBtn.set(gabBtns[1].x, gabBtns[1].y + 70, 56, 30);
+    
+    if(pt.contains("diffuseScene2DBtn")) loadR("diffuseScene2DBtn", diffuseScene2DBtn);
+    else diffuseScene2DBtn.set(gabBtns[3].x, gabBtns[3].y + 35, 56, 30);
 }
 
 vector<ofRectangle*> PlaylistWindowControlsUI::getInteractableRects() {
@@ -641,6 +681,8 @@ vector<ofRectangle*> PlaylistWindowControlsUI::getInteractableRects() {
     if (bRoomAlphaAccordionOpen) {
         for(auto& r : roomAlphaOptionRects) rects.push_back(&r);
     }
+    rects.push_back(&diffuseRoomBtn);
+    rects.push_back(&diffuseScene2DBtn);
     return rects;
 }
 
@@ -666,5 +708,7 @@ ofRectangle* PlaylistWindowControlsUI::findButtonAt(ofVec2f pos) {
         for(auto& r : roomAlphaOptionRects) if(r.inside(pos)) return &r;
     }
     if (roomAlphaBtn.inside(pos)) return &roomAlphaBtn;
+    if (diffuseRoomBtn.inside(pos)) return &diffuseRoomBtn;
+    if (diffuseScene2DBtn.inside(pos)) return &diffuseScene2DBtn;
     return nullptr;
 }

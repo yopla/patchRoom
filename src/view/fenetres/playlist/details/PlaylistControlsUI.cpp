@@ -64,6 +64,8 @@ void PlaylistControlsUI::setupLayerToggles(Scene2D_SIDE* scene2D) {
     addToggle("Tourelles", scene2D->layerManager.bDrawTourelles);
     addToggle("AutoPong", scene2D->layerManager.bDrawAutoPong);
     addToggle("AutoSnake", scene2D->layerManager.bDrawAutoSnake);
+    addToggle("eatMap", scene2D->layerManager.bDrawEatMap);
+    addToggle("SurSauteurs", scene2D->layerManager.bDrawSurSauteurs);
 
     int cols = 3;
     float bw = 110;
@@ -495,6 +497,9 @@ bool PlaylistControlsUI::mousePressed(ofVec2f worldM, Scene2D_SIDE* scene2D) {
             *(t.valuePtr) = !(*(t.valuePtr));
             if (t.name == "GroPuyo" && !(*(t.valuePtr))) {
                 if (scene2D) scene2D->layerManager.groPuyoLayer.puyos.clear();
+            }
+            if (t.name == "SurSauteurs" && *(t.valuePtr)) {
+                if (scene2D) scene2D->layerManager.surSauteurLayer.reset();
             }
             return true;
         }

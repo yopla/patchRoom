@@ -49,4 +49,7 @@ public:
     bool bRoomAlphaAccordionOpen = false;
     vector<string> roomAlphaOptions;
     vector<ofRectangle> roomAlphaOptionRects;
+
+    ofRectangle diffuseRoomBtn;
+    ofRectangle diffuseScene2DBtn;
 };

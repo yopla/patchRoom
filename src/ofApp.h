@@ -34,6 +34,8 @@ GeminiImageGenerator geminiGen;
     bool bDrawScene2D = true;  
     bool bDrawButtons = true;
     bool bDrawPlaylist = true;
+    bool bDiffuseRoom = true;
+    bool bDiffuseScene2D = true;
     int gabMode = 0; // 0:100%, 1:75%, 2:33%, 3:10%, 4:OFF
 
     // --- ENREGISTREMENT ---

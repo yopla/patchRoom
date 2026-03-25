@@ -53,6 +53,8 @@
 #include "TourellesLayer.h"
 #include "AutoPongLayer.h"
 #include "AutoSnakeLayer.h"
+#include "EatMapLayer.h"
+#include "SurSauteurLayer.h"
 
 class Scene2DLayerManager {
 public:
@@ -121,6 +123,8 @@ public:
     bool bDrawTourelles = false;
     bool bDrawAutoPong = false;
     bool bDrawAutoSnake = false;
+    bool bDrawEatMap = false;
+    bool bDrawSurSauteurs = false;
 
     // Layer objects
     CreatureSystem creatureSystem;
@@ -176,6 +180,8 @@ public:
     TourellesLayer tourellesLayer;
     AutoPongLayer autoPongLayer;
     AutoSnakeLayer autoSnakeLayer;
+    shared_ptr<EatMapLayer> eatMapLayer;
+    SurSauteurLayer surSauteurLayer;
 
     // State for lightning
     bool bLightningHasStart = false;

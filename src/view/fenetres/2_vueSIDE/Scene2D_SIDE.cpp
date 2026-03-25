@@ -345,6 +345,12 @@ void Scene2D_SIDE::dragEvent(ofDragInfo dragInfo) {
             if (layerManager.bDrawColliders && layerManager.colliderLayer) {
                 layerManager.colliderLayer->loadMap(file);
                 ofLogNotice("Scene2D_SIDE") << "Collider map image chargee : " << file;
+            } else if (layerManager.bDrawEatMap && layerManager.eatMapLayer) {
+                layerManager.eatMapLayer->loadMap(file);
+                ofLogNotice("Scene2D_SIDE") << "EatMap image chargee : " << file;
+            } else if (layerManager.bDrawSurSauteurs) {
+                layerManager.surSauteurLayer.loadTexture(file);
+                ofLogNotice("Scene2D_SIDE") << "SurSauteur texture chargee : " << file;
             } else {
                 float exportHeight = 912 + 1472 + 2368; // 4752
                 checkImg.resize(totalSceneWidth, exportHeight); // Redimensionnement pour correspondre a la scene

@@ -168,6 +168,10 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
 
     // --- SETUP AUTO SNAKE LAYER ---
     autoSnakeLayer.setup(totalSceneWidth, 1472.0f, colliderLayer);
+
+    eatMapLayer = make_shared<EatMapLayer>();
+    eatMapLayer->setup(simWidth, simHeight, scale);
+    surSauteurLayer.setup(totalSceneWidth, 1472.0f, colliderLayer, eatMapLayer);
 }
 
 void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePressed) {
@@ -291,6 +295,11 @@ void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePress
     if (bDrawTourelles) tourellesLayer.update(time);
     if (bDrawAutoPong) autoPongLayer.update(time);
     if (bDrawAutoSnake) autoSnakeLayer.update(time);
+    
+    if (bDrawSurSauteurs) {
+        surSauteurLayer.bActive = true;
+        surSauteurLayer.update(m.x, m.y, time);
+    } else { surSauteurLayer.bActive = false; }
 }
 
 void Scene2DLayerManager::draw(const ofVec2f& m) {
@@ -342,7 +351,6 @@ void Scene2DLayerManager::draw(const ofVec2f& m) {
     if (bDrawKundelich) kundelichLayer.draw();
     if (bDrawKineShad) kineShadLayer.draw();
     if (bDrawMultiPendulum) multiPendulumLayer.draw();
-    if (bDrawColliders && colliderLayer) colliderLayer->draw();
     if (bDrawPancarte) pancarteLayer.draw();
     if (bDrawPendulum) pendulumLayer.draw();
     if (bDrawPince) pinceLayer.draw();
@@ -367,6 +375,11 @@ void Scene2DLayerManager::draw(const ofVec2f& m) {
     if (bDrawTourelles) tourellesLayer.draw();
     if (bDrawAutoPong) autoPongLayer.draw();
     if (bDrawAutoSnake) autoSnakeLayer.draw();
+    if (bDrawSurSauteurs) surSauteurLayer.draw();
+    if (bDrawEatMap && eatMapLayer) eatMapLayer->draw();
+    
+    // Les colliders sont dessinés en tout dernier pour apparaître au premier plan
+    if (bDrawColliders && colliderLayer) colliderLayer->draw();
 }
 
 void Scene2DLayerManager::addCousinCon(float x, float y) {

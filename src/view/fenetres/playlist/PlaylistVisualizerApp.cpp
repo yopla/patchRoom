@@ -1072,6 +1072,8 @@ vector<SearchableButton> PlaylistVisualizerApp::getAllSearchableButtons() {
         res.push_back({windowControlsUI.focusNames[i], &windowControlsUI.focusBtns[i]});
     }
     for(int i=0; i<4; i++) res.push_back({"GAB " + ofToString(i), &windowControlsUI.gabBtns[i]});
+    res.push_back({"Diffuse Room", &windowControlsUI.diffuseRoomBtn});
+    res.push_back({"Diffuse Scene2D", &windowControlsUI.diffuseScene2DBtn});
     
     // Controls UI
     for(auto& t : controlsUI.roomToggles) res.push_back({t.name, &t.rect});

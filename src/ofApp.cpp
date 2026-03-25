@@ -244,9 +244,9 @@ void ofApp::draw(){
         scene2D, 
         sceneZenit, 
         gabAlpha,
-        bDrawRoom,    // W
+        bDrawRoom && bDiffuseRoom,    // W
         bDrawZenit,   // X
-        bDrawScene2D  // C
+        bDrawScene2D && bDiffuseScene2D  // C
     );
 
     // Réinitialise la couleur et l'alpha pour ne pas affecter les créatures
