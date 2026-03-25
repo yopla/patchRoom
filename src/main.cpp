@@ -7,9 +7,22 @@
 #include "Scene2DZenit.h" // <--- AJOUT
 #include "PlaylistVisualizerApp.h"
 #include "ButtonApp.h"
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
 
 // Forward declaration pour la connexion
 class ButtonApp;
+
+// --- FILTRE GLOBAL POUR IGNORER CAPS LOCK ---
+class CapsLockFilter {
+public:
+    bool onKey(ofKeyEventArgs& args) {
+        if(args.keycode == GLFW_KEY_CAPS_LOCK) {
+            return true; // Retourner true consomme l'événement et l'annule pour tout le reste
+        }
+        return false;
+    }
+};
 
 // Classe dérivée pour gérer l'enregistrement de la RoomPreview (Vue ESC)
 class RecordingRoomPreview : public RoomPreview {
@@ -253,20 +266,34 @@ int main( ){
     mainApp->playlistWindowPtr = playlistWindow;
     playlistApp->mainAppPtr = mainApp.get();
 
+    CapsLockFilter capsFilter; // Instancié dans le main
+
+    // Fonction utilitaire pour appliquer le filtre et les écouteurs globaux
+    auto setupGlobalKeys = [&](shared_ptr<ofAppBaseWindow> win) {
+        if(win) {
+            // 1. Intercepte et bloque la touche Caps Lock avant tout le monde (OF_EVENT_ORDER_BEFORE_APP)
+            ofAddListener(win->events().keyPressed, &capsFilter, &CapsLockFilter::onKey, OF_EVENT_ORDER_BEFORE_APP);
+            ofAddListener(win->events().keyReleased, &capsFilter, &CapsLockFilter::onKey, OF_EVENT_ORDER_BEFORE_APP);
+            
+            // 2. Ecoute globale de la touche N (ofApp::globalKeyPressed)
+            ofAddListener(win->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
+        }
+    };
+
     // --- ECOUTE GLOBALE DE LA TOUCHE N POUR TOUTES LES FENETRES ---
     // On s'abonne explicitement aux événements clavier de CHAQUE fenêtre créée
-    ofAddListener(mainWindow->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
-    ofAddListener(roomWindow->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
-    ofAddListener(scene2DWindow->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
-    if(bEnableZenit) ofAddListener(zenitWindow->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
-    ofAddListener(buttonWindow->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
-    ofAddListener(previewWindow->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
-    ofAddListener(playlistWindow->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
+    setupGlobalKeys(mainWindow);
+    setupGlobalKeys(roomWindow);
+    setupGlobalKeys(scene2DWindow);
+    if(bEnableZenit) setupGlobalKeys(zenitWindow);
+    setupGlobalKeys(buttonWindow);
+    setupGlobalKeys(previewWindow);
+    setupGlobalKeys(playlistWindow);
     
-    if(bEnableView1) ofAddListener(viewWindow1->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
-    if(bEnableView2) ofAddListener(viewWindow2->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
-    if(bEnableView3) ofAddListener(viewWindow3->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
-    if(bEnableView4) ofAddListener(viewWindow4->events().keyPressed, mainApp.get(), &ofApp::globalKeyPressed);
+    if(bEnableView1) setupGlobalKeys(viewWindow1);
+    if(bEnableView2) setupGlobalKeys(viewWindow2);
+    if(bEnableView3) setupGlobalKeys(viewWindow3);
+    if(bEnableView4) setupGlobalKeys(viewWindow4);
 
     // ------------------------------------------------
     // 4. CONFIGURATION DES CROPS (LAYERS)
