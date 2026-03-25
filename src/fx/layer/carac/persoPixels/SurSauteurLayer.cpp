@@ -157,10 +157,6 @@ void SurSauteurLayer::update(float mouseX, float mouseY, float time) {
 }
 
 void SurSauteurLayer::explode(float x, float y, float radius) {
-    if (eatMapLayer) {
-        eatMapLayer->explode(x, y, radius);
-    }
-    
     if (bHasText) {
         int cx = (int)x;
         int cy = (int)(y + textSimOffsetY);
@@ -178,17 +174,25 @@ void SurSauteurLayer::explode(float x, float y, float radius) {
                     if (distSq <= r * r) {
                         ofColor c = pix.getColor(ix, iy);
                         if (c.a > 0) {
-                            if (ofRandom(1.0) < 0.2) { 
-                                ExplodingPixel ep;
-                                ep.pos.set(ix, iy - textSimOffsetY);
-                                ep.vel.set(ofRandom(-2, 2), ofRandom(-4, 0));
-                                ep.color = c;
-                                ep.life = ofRandom(20, 60);
-                                ep.maxLife = ep.life;
-                                particles.push_back(ep);
+                            // On vérifie d'abord si la EatMap autorise la destruction à cet endroit
+                            bool canDestroy = true;
+                            if (eatMapLayer) {
+                                canDestroy = eatMapLayer->isWall(ix, iy - textSimOffsetY);
                             }
-                            pix.setColor(ix, iy, ofColor(0, 0, 0, 0));
-                            modified = true;
+                            
+                            if (canDestroy) {
+                                if (ofRandom(1.0) < 0.2) { 
+                                    ExplodingPixel ep;
+                                    ep.pos.set(ix, iy - textSimOffsetY);
+                                    ep.vel.set(ofRandom(-2, 2), ofRandom(-4, 0));
+                                    ep.color = c;
+                                    ep.life = ofRandom(20, 60);
+                                    ep.maxLife = ep.life;
+                                    particles.push_back(ep);
+                                }
+                                pix.setColor(ix, iy, ofColor(0, 0, 0, 0));
+                                modified = true;
+                            }
                         }
                     }
                 }
@@ -197,6 +201,11 @@ void SurSauteurLayer::explode(float x, float y, float radius) {
         if (modified) {
             textSurSaut.update();
         }
+    }
+    
+    // On détruit la EatMap en dernier, sinon isWall() retournerait toujours false juste au-dessus !
+    if (eatMapLayer) {
+        eatMapLayer->explode(x, y, radius);
     }
 }
 

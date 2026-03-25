@@ -1,9 +1,10 @@
 #include "AutoPongLayer.h"
 #include <algorithm>
 
-void AutoPongLayer::setup(float w, float h) {
+void AutoPongLayer::setup(float w, float h, shared_ptr<ColliderLayer> colliders) {
     simWidth = w;
     simHeight = h;
+    colliderLayer = colliders;
     wbar = 160.0f; // Scale x2
     hbar = 20.0f;  // Scale x2
     xbar = w * 0.5f;
@@ -105,7 +106,37 @@ void AutoPongLayer::update(float time) {
 
     for (int i = balls.size() - 1; i >= 0; i--) {
         auto& b = balls[i];
+        ofVec2f oldPos = b.pos;
         b.pos += b.vel;
+
+        // Rebond sur les colliders
+        if (colliderLayer) {
+            float scale = colliderLayer->scale;
+            float cx = b.pos.x / scale;
+            float cy = b.pos.y / scale;
+            
+            if (colliderLayer->isWall(cx, cy)) {
+                float oldCx = oldPos.x / scale;
+                float oldCy = oldPos.y / scale;
+                
+                bool hitX = colliderLayer->isWall(cx, oldCy);
+                bool hitY = colliderLayer->isWall(oldCx, cy);
+                
+                if (hitX) {
+                    b.vel.x = -b.vel.x;
+                    b.pos.x = oldPos.x;
+                }
+                if (hitY) {
+                    b.vel.y = -b.vel.y;
+                    b.pos.y = oldPos.y;
+                }
+                if (!hitX && !hitY) { // Rebond parfait sur un coin isolé
+                    b.vel.x = -b.vel.x;
+                    b.vel.y = -b.vel.y;
+                    b.pos = oldPos;
+                }
+            }
+        }
 
         // Wrapping des balles
         if (b.pos.x < 0) b.pos.x += simWidth;

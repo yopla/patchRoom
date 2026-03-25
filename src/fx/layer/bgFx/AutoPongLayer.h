@@ -1,5 +1,6 @@
 #pragma once
 #include "ofMain.h"
+#include "ColliderLayer.h"
 
 struct AutoPongBall {
     ofVec2f pos;
@@ -25,7 +26,7 @@ struct AutoPongRet {
 
 class AutoPongLayer {
 public:
-    void setup(float w, float h);
+    void setup(float w, float h, shared_ptr<ColliderLayer> colliders = nullptr);
     void update(float time);
     void draw();
 
@@ -34,6 +35,7 @@ public:
 private:
     vector<AutoPongBall> balls;
     float xbar, ybar, wbar, hbar, vbar;
+    shared_ptr<ColliderLayer> colliderLayer;
     int frameCount = 0;
 
     float algo();

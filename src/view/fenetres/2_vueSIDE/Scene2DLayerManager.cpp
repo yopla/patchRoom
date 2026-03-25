@@ -164,7 +164,7 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
     tourellesLayer.setup(totalSceneWidth, 1472.0f);
 
     // --- SETUP AUTO PONG LAYER ---
-    autoPongLayer.setup(totalSceneWidth, 1472.0f);
+    autoPongLayer.setup(totalSceneWidth, 1472.0f, colliderLayer);
 
     // --- SETUP AUTO SNAKE LAYER ---
     autoSnakeLayer.setup(totalSceneWidth, 1472.0f, colliderLayer);
