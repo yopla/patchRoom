@@ -7,23 +7,12 @@ void ColliderLayer::setup(float simulationWidth, float simulationHeight, float d
     simHeight = simulationHeight;
     scale = displayScale;
 
-    generateWalls();
+    loadMap(currentMapPath);
 }
 
 //--------------------------------------------------------------
 void ColliderLayer::loadMap(string path) {
     currentMapPath = path;
-    generateWalls();
-}
-
-//--------------------------------------------------------------
-void ColliderLayer::generateWalls() {
-    walls.clear();
-    randomWalls.clear();
-    wallMesh.clear();
-    wallMesh.setMode(OF_PRIMITIVE_TRIANGLES);
-
-    // 1. Chargement de l'image et génération des colliders blancs
     ofImage mapImg;
     if(mapImg.load(currentMapPath)) {
         float imgW = mapImg.getWidth();
@@ -40,30 +29,57 @@ void ColliderLayer::generateWalls() {
         // Redimensionnement proportionnel parfait basé sur la largeur (simWidth)
         float targetHeight = simWidth / imgRatio;
         mapImg.resize(simWidth, targetHeight);
+        mapImg.setImageType(OF_IMAGE_COLOR_ALPHA);
         mapPixels = mapImg.getPixels();
+        originalPixels = mapPixels;
         bHasMap = true;
 
         // Optimisation : Mise en cache des dimensions pour éviter les appels dans isWall
         mapW = mapPixels.getWidth();
         mapH = mapPixels.getHeight();
         mapC = mapPixels.getNumChannels();
-        
+    } else {
+        bHasMap = false;
+        ofLogWarning("ColliderLayer") << currentMapPath << " introuvable !";
+    }
+
+    generateWalls();
+}
+
+//--------------------------------------------------------------
+void ColliderLayer::reset() {
+    if (bHasMap && originalPixels.isAllocated()) {
+        mapPixels = originalPixels;
+        generateWalls();
+    }
+}
+
+//--------------------------------------------------------------
+void ColliderLayer::generateWalls() {
+    walls.clear();
+    randomWalls.clear();
+    wallMesh.clear();
+    wallMesh.setMode(OF_PRIMITIVE_TRIANGLES);
+
+    if (bHasMap) {
         int w = mapW;
         int h = mapH;
         
         // Génération de rectangles horizontaux pour les pixels blancs
         for(int y=0; y<h; y++) {
             for(int x=0; x<w; x++) {
-                if(mapPixels.getColor(x,y).getBrightness() > 128) {
+                ofColor c = mapPixels.getColor(x, y);
+                if(c.getBrightness() > 128 && c.a > 128) {
                     int startX = x;
-                    while(x < w && mapPixels.getColor(x,y).getBrightness() > 128) x++;
+                    while(x < w) {
+                        ofColor nextC = mapPixels.getColor(x, y);
+                        if(nextC.getBrightness() > 128 && nextC.a > 128) x++;
+                        else break;
+                    }
                     walls.push_back(ofRectangle(startX, y - mapSimOffsetY, x - startX, 1));
                 }
             }
         }
-    } else {
-        bHasMap = false;
-        ofLogWarning("ColliderLayer") << currentMapPath << " introuvable !";
     }
 
     // Couleur des murs (Mauve comme dans ton ancien code Fish)
@@ -71,20 +87,22 @@ void ColliderLayer::generateWalls() {
     ofColor whiteColor(255, 255, 255, 127);
 
     // 2. Ajout des 20 murs violets aléatoires
-    int numWalls = 20; 
+    bool addRndWall = false;
+        if (addRndWall) {
+        int numWalls = 20; 
 
-    for(int i=0; i<numWalls; i++) {
-        float w = ofRandom(30, 50);
-        float h = ofRandom(3, 6);
-        float x = ofRandom(0, simWidth - w);
-        // On évite les extrêmes haut/bas pour ne pas coincer les entités
-        float y = ofRandom(50, simHeight - 5);
+        for(int i=0; i<numWalls; i++) {
+            float w = ofRandom(30, 50);
+            float h = ofRandom(3, 6);
+            float x = ofRandom(0, simWidth - w);
+            // On évite les extrêmes haut/bas pour ne pas coincer les entités
+            float y = ofRandom(50, simHeight - 5);
 
-        ofRectangle rect(x, y, w, h);
-        walls.push_back(rect);
-        randomWalls.push_back(rect);
+            ofRectangle rect(x, y, w, h);
+            walls.push_back(rect);
+            randomWalls.push_back(rect);
+        }
     }
-
 
         // 3. Construction du Mesh (Murs blancs de l'image + Murs violets)
     size_t numImageWalls = walls.size() - randomWalls.size();
@@ -131,7 +149,11 @@ bool ColliderLayer::isWall(float x, float y) {
         if (ix >= 0 && ix < mapW) {
             const unsigned char* data = mapPixels.getData();
             int index = (iy * mapW + ix) * mapC;
-            if (data[index] > 128) return true;
+            if (mapC == 4) {
+                if (data[index] > 128 && data[index + 3] > 128) return true;
+            } else {
+                if (data[index] > 128) return true;
+            }
         }
     } else {
         // Comportement par défaut sans map (Limites strictes de la vue 1472)
@@ -156,4 +178,37 @@ void ColliderLayer::draw() {
     ofEnableAlphaBlending();
     wallMesh.draw();
     ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void ColliderLayer::drawBrush(float x, float y, float radius, int colorType) {
+    if (!bHasMap) {
+        mapW = simWidth;
+        mapH = simHeight;
+        mapC = 4;
+        mapPixels.allocate(mapW, mapH, OF_IMAGE_COLOR_ALPHA);
+        mapPixels.setColor(ofColor(0, 0, 0, 0));
+        originalPixels = mapPixels;
+        mapSimOffsetY = 0;
+        bHasMap = true;
+    }
+    int cx = (int)x;
+    int cy = (int)(y + mapSimOffsetY);
+    int r = (int)radius;
+    bool modified = false;
+    ofColor col = (colorType == 1) ? ofColor(255, 255, 255, 255) : ofColor(0, 0, 0, 0); // Blanc ou Transparent
+    
+    for (int iy = cy - r; iy <= cy + r; iy++) {
+        for (int ix = cx - r; ix <= cx + r; ix++) {
+            if (ix >= 0 && ix < mapW && iy >= 0 && iy < mapH) {
+                if ((ix - cx) * (ix - cx) + (iy - cy) * (iy - cy) <= r * r) {
+                    mapPixels.setColor(ix, iy, col);
+                    modified = true;
+                }
+            }
+        }
+    }
+    if (modified) {
+        generateWalls();
+    }
 }

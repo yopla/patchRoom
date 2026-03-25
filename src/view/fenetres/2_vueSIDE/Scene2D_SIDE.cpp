@@ -139,6 +139,12 @@ void Scene2D_SIDE::draw() {
     ofTranslate(viewPan.x, viewPan.y);
     ofScale(viewZoom);
     ofSetColor(255);
+    
+    // Pinceau curseur en direct dans le monde
+    if (layerManager.bDrawCrayon) {
+        ofVec2f m = getTransformedMouse();
+        layerManager.crayon.drawCursor(m);
+    }
 
     // Dessin debug de tous les FBOs assemblés
     fboJar.draw(srcX_Jar, hMax - 784);
@@ -170,6 +176,11 @@ void Scene2D_SIDE::draw() {
         int complete = 0;
         layerManager.puyoLayer.getStats(folded, complete);
         ofDrawBitmapStringHighlight("Puyos: " + ofToString(complete) + " OK / " + ofToString(folded) + " Folded", 20, ofGetHeight() - 50);
+    }
+
+    // UI Pinceau statique par dessus le canevas
+    if (layerManager.bDrawCrayon) {
+        layerManager.crayon.drawUI(20, 20);
     }
 
     /*
@@ -269,6 +280,12 @@ void Scene2D_SIDE::mouseScrolled(int x, int y, float sx, float sy) {
 void Scene2D_SIDE::mousePressed(int x, int y, int button) { 
     lastMouse.set(x, y); 
     
+    if (layerManager.bDrawCrayon) {
+        if (layerManager.crayon.mousePressedScreen(x, y, 20, 20)) {
+            return; // Clic capturé par l'interface du crayon
+        }
+    }
+    
     if(!isSpacePressed) {
         ofVec2f m = getTransformedMouse();
         layerManager.mousePressed(m, button);
@@ -281,9 +298,12 @@ void Scene2D_SIDE::mouseReleased(int x, int y, int button) {
 }
 
 void Scene2D_SIDE::mouseDragged(int x, int y, int button) {
-    // Le panning est actif sur le clic+drag, SAUF si la touche SHIFT est enfoncée
-    // Cela permet d'utiliser les outils "pinceau" (Sardines, Poulpe) sans déplacer la vue.
-    if (!ofGetKeyPressed(OF_KEY_SHIFT)) {
+    if (isSpacePressed) {
+        viewPan += (ofVec2f(x, y) - lastMouse);
+    } else if (layerManager.bDrawCrayon) {
+        ofVec2f m = getTransformedMouse();
+        layerManager.mouseDragged(m, button);
+    } else if (!ofGetKeyPressed(OF_KEY_SHIFT)) {
         viewPan += (ofVec2f(x, y) - lastMouse);
     }
     lastMouse.set(x, y);
@@ -489,6 +509,33 @@ void Scene2D_SIDE::exportColliders() {
     fboExp.readToPixels(pix);
     ofSaveImage(pix, "colliders_export_" + ofGetTimestampString() + ".png");
     ofLogNotice("Scene2D_SIDE") << "Export colliders (10048x4752) sauvegarde: colliders_export_...";
+}
+
+//--------------------------------------------------------------
+void Scene2D_SIDE::exportEatMap() {
+    // EXPORT EATMAP
+    float exportHeight = 912 + 1472 + 2368; // 4752
+    ofFbo fboExp;
+    fboExp.allocate(totalSceneWidth, exportHeight, GL_RGBA);
+    fboExp.begin();
+    ofClear(0, 0, 0, 0);
+    ofPushMatrix();
+    ofTranslate(0, 912); // Décalage pour inclure les toits
+    if(layerManager.eatMapLayer && layerManager.eatMapLayer->bHasMap) {
+        ofSetColor(255, 255, 255, 255); // Dessin opaque pour récupérer la vraie couche (sans la transparence d'affichage)
+        layerManager.eatMapLayer->mapImage.draw(
+            0, 
+            -layerManager.eatMapLayer->mapSimOffsetY * layerManager.eatMapLayer->scale, 
+            layerManager.eatMapLayer->simWidth * layerManager.eatMapLayer->scale, 
+            layerManager.eatMapLayer->mapH * layerManager.eatMapLayer->scale
+        );
+    }
+    ofPopMatrix();
+    fboExp.end();
+    ofPixels pix;
+    fboExp.readToPixels(pix);
+    ofSaveImage(pix, "eatmap_export_" + ofGetTimestampString() + ".png");
+    ofLogNotice("Scene2D_SIDE") << "Export eatmap (10048x4752) sauvegarde: eatmap_export_...";
 }
 
 //--------------------------------------------------------------

@@ -1085,6 +1085,8 @@ vector<SearchableButton> PlaylistVisualizerApp::getAllSearchableButtons() {
     for(auto& b : controlsUI.mainBrushButtons) res.push_back({b.name, &b.rect});
     res.push_back({"Clear All Creatures", &controlsUI.clearAllCreaturesBtn});
     res.push_back({"Undo Creature", &controlsUI.undoCreatureBtn});
+    res.push_back({"Reset EatMap", &controlsUI.resetEatMapBtn});
+    res.push_back({"Reset Colliders", &controlsUI.resetCollidersBtn});
     
     // Player UI
     res.push_back({"Loop", &playerUI.loopButtonRect});

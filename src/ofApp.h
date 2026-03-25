@@ -40,8 +40,8 @@ GeminiImageGenerator geminiGen;
 
     // --- ENREGISTREMENT ---
     string recordFormat = "jpg";
-    ofImageQualityType recordQuality = OF_IMAGE_QUALITY_BEST;
-    int qualityIndex = 0; // 0: BEST, 1: HIGH, 2: MEDIUM, 3: LOW, 4: WORST
+    ofImageQualityType recordQuality = OF_IMAGE_QUALITY_HIGH;
+    int qualityIndex = 0; // 0: HIGH, 1: BEST, 2: MEDIUM, 3: LOW, 4: WORST
     bool bRecordCanvas = false;
     string canvasRecordFolder = "";
 

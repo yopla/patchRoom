@@ -8,6 +8,7 @@ public:
     
     bool isWall(float x, float y);
     void explode(float x, float y, float radius);
+    void drawBrush(float x, float y, float radius, int colorType);
     void loadMap(string path);
     void reset();
     

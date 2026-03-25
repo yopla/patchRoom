@@ -55,6 +55,7 @@
 #include "AutoSnakeLayer.h"
 #include "EatMapLayer.h"
 #include "SurSauteurLayer.h"
+#include "Crayon.h"
 
 class Scene2DLayerManager {
 public:
@@ -64,6 +65,7 @@ public:
     void keyPressed(int key, const ofVec2f& mouse);
     void mousePressed(const ofVec2f& mouse, int button);
     void mouseReleased(const ofVec2f& mouse, int button);
+    void mouseDragged(const ofVec2f& mouse, int button);
     void addCousinCon(float x, float y);
     void addHalo(float x, float y);
     
@@ -124,6 +126,7 @@ public:
     bool bDrawAutoPong = false;
     bool bDrawAutoSnake = false;
     bool bDrawEatMap = false;
+    bool bDrawCrayon = false;
     bool bDrawSurSauteurs = false;
 
     // Layer objects
@@ -182,6 +185,7 @@ public:
     AutoSnakeLayer autoSnakeLayer;
     shared_ptr<EatMapLayer> eatMapLayer;
     SurSauteurLayer surSauteurLayer;
+    Crayon crayon;
 
     // State for lightning
     bool bLightningHasStart = false;

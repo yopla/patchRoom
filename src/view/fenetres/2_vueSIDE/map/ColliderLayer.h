@@ -12,6 +12,9 @@ public:
     // Accès direct aux rectangles (pour la répulsion des poissons)
     const vector<ofRectangle>& getWalls() const;
     
+    // Pinceau pour dessiner les colliders manuellement
+    void drawBrush(float x, float y, float radius, int colorType);
+
     // Dimensions de la simulation
     float simWidth;
     float simHeight;
@@ -24,6 +27,7 @@ public:
     void clearCustomWalls();
 
     void loadMap(string path);
+    void reset();
     string currentMapPath = "GAB0/COLL.png";
 
 private:
@@ -32,6 +36,7 @@ private:
     vector<ofRectangle> walls;
     vector<ofRectangle> randomWalls; // Sous-ensemble pour optimisation isWall
     ofPixels mapPixels;              // Pour optimisation isWall
+    ofPixels originalPixels;
     bool bHasMap = false;
     ofMesh wallMesh;
     vector<ofRectangle> customWalls;

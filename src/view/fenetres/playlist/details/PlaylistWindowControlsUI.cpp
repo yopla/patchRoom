@@ -124,8 +124,8 @@ void PlaylistWindowControlsUI::draw(ofApp* mainAppPtr) {
         ofSetColor(100, 150, 100);
         ofFill(); ofDrawRectangle(qualityBtn);
         ofNoFill(); ofSetColor(255); ofDrawRectangle(qualityBtn);
-        string qStr = "BEST";
-        if(mainAppPtr->qualityIndex == 1) qStr = "HIGH";
+        string qStr = "HIGH";
+        if(mainAppPtr->qualityIndex == 1) qStr = "BEST";
         else if(mainAppPtr->qualityIndex == 2) qStr = "MED";
         else if(mainAppPtr->qualityIndex == 3) qStr = "LOW";
         else if(mainAppPtr->qualityIndex == 4) qStr = "WORST";
@@ -415,8 +415,8 @@ bool PlaylistWindowControlsUI::mousePressed(ofVec2f worldM, ofApp* mainAppPtr) {
     if(qualityBtn.inside(worldM)) {
         if(mainAppPtr) {
             mainAppPtr->qualityIndex = (mainAppPtr->qualityIndex + 1) % 5;
-            if(mainAppPtr->qualityIndex == 0) mainAppPtr->recordQuality = OF_IMAGE_QUALITY_BEST;
-            else if(mainAppPtr->qualityIndex == 1) mainAppPtr->recordQuality = OF_IMAGE_QUALITY_HIGH;
+            if(mainAppPtr->qualityIndex == 0) mainAppPtr->recordQuality = OF_IMAGE_QUALITY_HIGH;
+            else if(mainAppPtr->qualityIndex == 1) mainAppPtr->recordQuality = OF_IMAGE_QUALITY_BEST;
             else if(mainAppPtr->qualityIndex == 2) mainAppPtr->recordQuality = OF_IMAGE_QUALITY_MEDIUM;
             else if(mainAppPtr->qualityIndex == 3) mainAppPtr->recordQuality = OF_IMAGE_QUALITY_LOW;
             else if(mainAppPtr->qualityIndex == 4) mainAppPtr->recordQuality = OF_IMAGE_QUALITY_WORST;

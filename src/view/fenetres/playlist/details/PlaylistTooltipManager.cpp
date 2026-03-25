@@ -93,6 +93,8 @@ void PlaylistTooltipManager::setup() {
     texts["VIDEO_INFO"] = "Affiche les informations sur la video en cours. Deplacable en mode EDIT.";
     texts["CLEAR_CREATURES"] = "Supprime toutes les creatures de la Scene 2D";
     texts["UNDO_SCENE2D_CREATURE"] = "Retire la derniere creature ajoutee dans la Scene 2D";
+    texts["RESET_EATMAP"] = "Reinitialise la EatMap (restaure les pixels effaces de ce calque).";
+    texts["RESET_COLLIDERS"] = "Reinitialise les colliders (restaure les pixels originaux de ce calque).";
     
     // Actions globales
     texts["PAUSE [ESC]"] = "Met en pause ou reprend l'ecoulement du temps global (Touche ESC)";
@@ -104,6 +106,7 @@ void PlaylistTooltipManager::setup() {
     texts["BLUR SHADER"] = "Active ou desactive le flou du shader";
     texts["EXP SCENE2D"] = "Exporte la frame complete (tout l'environnement 2D assemble)";
     texts["EXP COLLIDER"] = "Exporte uniquement le calque des colliders (sur fond transparent)";
+    texts["EXP EATMAP"] = "Exporte uniquement le calque de la EatMap (sur fond transparent)";
     texts["EXP 7 MURS"] = "Decoupe l'image superposee (overlay) en 7 fichiers dans le dossier export/murs2D";
     texts["GAB 3-OFF-3 [G]"] = "Touche [G] : Configure les gabarits : Master a 3 (10%), Room en OFF, Scene 2D a 3 (Rien).";
     texts["BTN WORMS"] = "Active ou desactive les vers fluo dans la fenetre des boutons OSC.";
@@ -126,6 +129,7 @@ void PlaylistTooltipManager::setup() {
     texts["INT_TargetPoulpe"] = "Touche [A] ou Clic / Maintenu (Shift pour bloquer la vue) : Attire le Poulpe a la position du curseur.";
     texts["INT_Sardine"] = "Touche [A] ou Clic / Maintenu (Shift pour bloquer la vue) : Ajoute une Sardine a la position du curseur.";
     texts["INT_Shark"] = "Touche [A] ou Clic / Maintenu (Shift pour bloquer la vue) : Ajoute un Requin a la position du curseur.";
+    texts["Crayon"] = "Active le pinceau pour dessiner des colliders ou de la EatMap.";
     
     texts["MAIN_BRUSH_MainCrea"] = "Touche [A] sur le Main : Ajoute une Creature standard.";
     texts["MAIN_BRUSH_MainRand"] = "Touche [A] sur le Main : Ajoute une Creature aleatoire.";

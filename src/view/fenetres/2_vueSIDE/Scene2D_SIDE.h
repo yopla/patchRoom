@@ -26,6 +26,7 @@ public:
     
     void exportFullScene();
     void exportColliders();
+    void exportEatMap();
     void export7Murs();
 
     // Temps local pour pouvoir mettre en pause l'animation de la balle

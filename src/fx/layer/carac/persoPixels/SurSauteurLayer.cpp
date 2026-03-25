@@ -41,9 +41,6 @@ void SurSauteurLayer::reset() {
     if (bHasText && originalTextPixels.isAllocated()) {
         textSurSaut.setFromPixels(originalTextPixels);
     }
-    if (eatMapLayer) {
-        eatMapLayer->reset();
-    }
     particles.clear();
 }
 

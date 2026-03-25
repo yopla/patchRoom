@@ -172,6 +172,7 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
     eatMapLayer = make_shared<EatMapLayer>();
     eatMapLayer->setup(simWidth, simHeight, scale);
     surSauteurLayer.setup(totalSceneWidth, 1472.0f, colliderLayer, eatMapLayer);
+    crayon.setup();
 }
 
 void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePressed) {
@@ -595,6 +596,10 @@ void Scene2DLayerManager::mousePressed(const ofVec2f& m, int button) {
             poulpeLayer.setTarget(m.x, m.y);
         }
     }
+    if (bDrawCrayon) {
+        if (bDrawColliders && colliderLayer) colliderLayer->drawBrush(m.x / colliderLayer->scale, m.y / colliderLayer->scale, crayon.radius / colliderLayer->scale, crayon.colorType);
+        if (bDrawEatMap && eatMapLayer) eatMapLayer->drawBrush(m.x / eatMapLayer->scale, m.y / eatMapLayer->scale, crayon.radius / eatMapLayer->scale, crayon.colorType);
+    }
 
     if(bDrawCreatures) {
         creatureSystem.onPress(m.x, m.y);
@@ -641,6 +646,13 @@ void Scene2DLayerManager::mouseReleased(const ofVec2f& m, int button) {
     if (bDrawFluidDeux) fluidDeuxLayer.mouseReleased(m.x, m.y, button);
     if (bDrawFluidTrois) fluidTroisLayer.mouseReleased(m.x, m.y, button);
     if (bDrawFireA) fireALayer.mouseReleased(m.x, m.y);
+}
+
+void Scene2DLayerManager::mouseDragged(const ofVec2f& m, int button) {
+    if (bDrawCrayon) {
+        if (bDrawColliders && colliderLayer) colliderLayer->drawBrush(m.x / colliderLayer->scale, m.y / colliderLayer->scale, crayon.radius / colliderLayer->scale, crayon.colorType);
+        if (bDrawEatMap && eatMapLayer) eatMapLayer->drawBrush(m.x / eatMapLayer->scale, m.y / eatMapLayer->scale, crayon.radius / eatMapLayer->scale, crayon.colorType);
+    }
 }
 
 int Scene2DLayerManager::getSardineCount() {

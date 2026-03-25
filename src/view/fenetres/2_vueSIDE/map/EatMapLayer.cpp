@@ -77,10 +77,44 @@ void EatMapLayer::explode(float x, float y, float radius) {
     }
 }
 
+void EatMapLayer::drawBrush(float x, float y, float radius, int colorType) {
+    if (!bHasMap) {
+        mapW = simWidth;
+        mapH = simHeight;
+        mapC = 4;
+        mapPixels.allocate(mapW, mapH, OF_IMAGE_COLOR_ALPHA);
+        mapPixels.setColor(ofColor(0, 0, 0, 0));
+        mapImage.allocate(mapW, mapH, OF_IMAGE_COLOR_ALPHA);
+        originalPixels = mapPixels;
+        mapSimOffsetY = 0;
+        bHasMap = true;
+    }
+    int cx = (int)x;
+    int cy = (int)(y + mapSimOffsetY);
+    int r = (int)radius;
+    bool modified = false;
+    ofColor col = (colorType == 1) ? ofColor(255, 255, 255, 255) : ofColor(0, 0, 0, 0);
+    
+    for (int iy = cy - r; iy <= cy + r; iy++) {
+        for (int ix = cx - r; ix <= cx + r; ix++) {
+            if (ix >= 0 && ix < mapW && iy >= 0 && iy < mapH) {
+                if ((ix - cx) * (ix - cx) + (iy - cy) * (iy - cy) <= r * r) {
+                    mapPixels.setColor(ix, iy, col);
+                    modified = true;
+                }
+            }
+        }
+    }
+    if (modified) {
+        mapImage.setFromPixels(mapPixels);
+    }
+}
+
 void EatMapLayer::draw() {
     if (bHasMap) {
         ofPushStyle();
         ofEnableAlphaBlending();
+        ofSetColor(255, 255, 255, 127);
         mapImage.draw(0, -mapSimOffsetY * scale, simWidth * scale, mapH * scale);
         ofPopStyle();
     }

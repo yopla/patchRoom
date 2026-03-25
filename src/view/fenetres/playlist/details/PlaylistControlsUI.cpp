@@ -65,6 +65,7 @@ void PlaylistControlsUI::setupLayerToggles(Scene2D_SIDE* scene2D) {
     addToggle("AutoPong", scene2D->layerManager.bDrawAutoPong);
     addToggle("AutoSnake", scene2D->layerManager.bDrawAutoSnake);
     addToggle("eatMap", scene2D->layerManager.bDrawEatMap);
+    addToggle("Crayon", scene2D->layerManager.bDrawCrayon);
     addToggle("SurSauteurs", scene2D->layerManager.bDrawSurSauteurs);
 
     int cols = 3;
@@ -99,6 +100,8 @@ void PlaylistControlsUI::setupLayerToggles(Scene2D_SIDE* scene2D) {
     int cRows = (cNames.size() + cCols - 1) / cCols;
     clearAllCreaturesBtn.set(cStartX, startY + cRows*(bh+pad) + 10, bw*2+pad, bh);
     undoCreatureBtn.set(clearAllCreaturesBtn.getRight() + pad, startY + cRows*(bh+pad) + 10, bw, bh);
+    resetEatMapBtn.set(undoCreatureBtn.getRight() + pad, startY + cRows*(bh+pad) + 10, bw, bh);
+    resetCollidersBtn.set(resetEatMapBtn.getRight() + pad, startY + cRows*(bh+pad) + 10, bw, bh);
 
     float iStartY = clearAllCreaturesBtn.y + bh + 20; 
     vector<string> iNames = {"AddGroPuyo", "AddPuyo", "AddBubble", "TargetPoulpe", "Sardine", "Shark"};
@@ -324,6 +327,10 @@ void PlaylistControlsUI::setupGlobalActionBtns(ofApp* mainAppPtr) {
         if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->exportColliders();
     }, false);
 
+    addAction("EXP EATMAP", [mainAppPtr](){ 
+        if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->exportEatMap();
+    }, false);
+
     addAction("GAB 3-OFF-3 [G]", [mainAppPtr](){ 
         if(mainAppPtr) {
             mainAppPtr->gabMode = 3;
@@ -454,6 +461,20 @@ void PlaylistControlsUI::draw(ofApp* mainAppPtr) {
     ofDrawBitmapString("UNDO CREA [Z]", 5, 14);
     ofPopMatrix();
 
+    ofSetColor(50, 150, 200);
+    ofFill(); ofDrawRectangle(resetEatMapBtn);
+    ofNoFill(); ofSetColor(255); ofDrawRectangle(resetEatMapBtn);
+    ofPushMatrix(); ofTranslate(resetEatMapBtn.x, resetEatMapBtn.y); ofScale(resetEatMapBtn.height / 20.0f, resetEatMapBtn.height / 20.0f);
+    ofDrawBitmapString("RESET EATMAP", 5, 14);
+    ofPopMatrix();
+
+    ofSetColor(150, 50, 200);
+    ofFill(); ofDrawRectangle(resetCollidersBtn);
+    ofNoFill(); ofSetColor(255); ofDrawRectangle(resetCollidersBtn);
+    ofPushMatrix(); ofTranslate(resetCollidersBtn.x, resetCollidersBtn.y); ofScale(resetCollidersBtn.height / 20.0f, resetCollidersBtn.height / 20.0f);
+    ofDrawBitmapString("RESET COLLIDER", 5, 14);
+    ofPopMatrix();
+
     // Interactives
     ofSetColor(255);
     ofDrawBitmapString("INTERACTIVE LAYERS (Touche 'A')", clearAllCreaturesBtn.x, clearAllCreaturesBtn.y + 40);
@@ -550,6 +571,14 @@ bool PlaylistControlsUI::mousePressed(ofVec2f worldM, Scene2D_SIDE* scene2D) {
         if(scene2D) scene2D->layerManager.removeLastCreature();
         return true;
     }
+    if(resetEatMapBtn.inside(worldM)) {
+        if(scene2D && scene2D->layerManager.eatMapLayer) scene2D->layerManager.eatMapLayer->reset();
+        return true;
+    }
+    if(resetCollidersBtn.inside(worldM)) {
+        if(scene2D && scene2D->layerManager.colliderLayer) scene2D->layerManager.colliderLayer->reset();
+        return true;
+    }
     return false;
 }
 
@@ -575,6 +604,8 @@ string PlaylistControlsUI::getTooltip(ofVec2f worldM, PlaylistTooltipManager& to
     for(auto& b : mainBrushButtons) { if(b.rect.inside(worldM)) return tooltipManager.getTooltipText("MAIN_BRUSH_" + b.name); }
     if(clearAllCreaturesBtn.inside(worldM)) return tooltipManager.getTooltipText("CLEAR_CREATURES");
     if(undoCreatureBtn.inside(worldM)) return tooltipManager.getTooltipText("UNDO_SCENE2D_CREATURE");
+    if(resetEatMapBtn.inside(worldM)) return tooltipManager.getTooltipText("RESET_EATMAP");
+    if(resetCollidersBtn.inside(worldM)) return tooltipManager.getTooltipText("RESET_COLLIDERS");
     return "";
 }
 
@@ -589,6 +620,8 @@ void PlaylistControlsUI::saveSettings(ofJson& pt) {
     for(auto& b : mainBrushButtons) saveR("mainBrush_" + b.name, b.rect);
     saveR("clearAll", clearAllCreaturesBtn);
     saveR("undoCreature", undoCreatureBtn);
+    saveR("resetEatMap", resetEatMapBtn);
+    saveR("resetColliders", resetCollidersBtn);
 }
 
 void PlaylistControlsUI::loadSettings(const ofJson& pt) {
@@ -609,6 +642,8 @@ void PlaylistControlsUI::loadSettings(const ofJson& pt) {
     for(auto& b : mainBrushButtons) loadR("mainBrush_" + b.name, b.rect);
     loadR("clearAll", clearAllCreaturesBtn);
     loadR("undoCreature", undoCreatureBtn);
+    loadR("resetEatMap", resetEatMapBtn);
+    loadR("resetColliders", resetCollidersBtn);
 }
 
 vector<ofRectangle*> PlaylistControlsUI::getInteractableRects() {
@@ -622,6 +657,8 @@ vector<ofRectangle*> PlaylistControlsUI::getInteractableRects() {
     for(auto& b : mainBrushButtons) rects.push_back(&b.rect);
     rects.push_back(&clearAllCreaturesBtn);
     rects.push_back(&undoCreatureBtn);
+    rects.push_back(&resetEatMapBtn);
+    rects.push_back(&resetCollidersBtn);
     return rects;
 }
 
@@ -635,5 +672,7 @@ ofRectangle* PlaylistControlsUI::findButtonAt(ofVec2f pos) {
     for(auto& b : mainBrushButtons) if(b.rect.inside(pos)) return &b.rect;
     if(clearAllCreaturesBtn.inside(pos)) return &clearAllCreaturesBtn;
     if(undoCreatureBtn.inside(pos)) return &undoCreatureBtn;
+    if(resetEatMapBtn.inside(pos)) return &resetEatMapBtn;
+    if(resetCollidersBtn.inside(pos)) return &resetCollidersBtn;
     return nullptr;
 }
