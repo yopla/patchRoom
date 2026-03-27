@@ -344,6 +344,10 @@ void PlaylistControlsUI::setupGlobalActionBtns(ofApp* mainAppPtr) {
         if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->generateColliderFromDexined();
     }, false);
 
+    addAction("GEN DEPTH ANY", [mainAppPtr](){ 
+        if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->generateColliderFromDepthAnything();
+    }, false);
+
     addAction("EXP EATMAP", [mainAppPtr](){ 
         if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->exportEatMap();
     }, false);
@@ -364,6 +368,18 @@ void PlaylistControlsUI::setupGlobalActionBtns(ofApp* mainAppPtr) {
 
     addAction("EXP 7 MURS", [mainAppPtr](){ 
         if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->export7Murs();
+    }, false);
+
+    addAction("SAM CONTROL", [mainAppPtr](){ 
+        if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->toggleSamControl();
+    }, false);
+
+    addAction("SAM SAVE", [mainAppPtr](){ 
+        if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->saveSamSegmentation();
+    }, false);
+
+    addAction("SAM RESET", [mainAppPtr](){ 
+        if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->resetSamSelection();
     }, false);
 
     for(int i=0; i<globalActionBtns.size(); i++) {

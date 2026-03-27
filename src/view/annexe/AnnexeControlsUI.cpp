@@ -16,6 +16,7 @@ void AnnexeControlsUI::setup() {
     rippleBtnRect.set(150, 210, 110, 30);
     recordVideoBtnRect.set(150, 250, 110, 30);
     samControlBtnRect.set(150, 290, 110, 30);
+    genDepthAnythingBtnRect.set(150, 330, 110, 30);
 }
 
 void AnnexeControlsUI::draw(ofApp* mainAppPtr) {
@@ -43,6 +44,12 @@ void AnnexeControlsUI::draw(ofApp* mainAppPtr) {
     ofNoFill(); ofSetColor(255); ofDrawRectangle(genSAMBtnRect);
     ofSetColor(255);
     ofDrawBitmapString("GEN SAM", genSAMBtnRect.x + 8, genSAMBtnRect.y + 20);
+
+    ofSetColor(140, 80, 200);
+    ofFill(); ofDrawRectangle(genDepthAnythingBtnRect);
+    ofNoFill(); ofSetColor(255); ofDrawRectangle(genDepthAnythingBtnRect);
+    ofSetColor(255);
+    ofDrawBitmapString("DEPTH ANY", genDepthAnythingBtnRect.x + 8, genDepthAnythingBtnRect.y + 20);
 
     if (mainAppPtr && mainAppPtr->annexeApp) {
         if (mainAppPtr->annexeApp->bRippleEffect) ofSetColor(50, 180, 200);
@@ -144,6 +151,13 @@ bool AnnexeControlsUI::mousePressed(ofVec2f worldM, ofApp* mainAppPtr) {
         return true;
     }
 
+    if (genDepthAnythingBtnRect.inside(worldM)) {
+        if (mainAppPtr && mainAppPtr->annexeApp) {
+            mainAppPtr->annexeApp->generateDepthMapDepthAnything();
+        }
+        return true;
+    }
+
     if (rippleBtnRect.inside(worldM)) {
         if (mainAppPtr && mainAppPtr->annexeApp) {
             mainAppPtr->annexeApp->bRippleEffect = !mainAppPtr->annexeApp->bRippleEffect;
@@ -175,6 +189,7 @@ string AnnexeControlsUI::getTooltip(ofVec2f worldM, AnnexeTooltipManager& toolti
     if(saveFrameBtnRect.inside(worldM)) return tooltipManager.getTooltipText("SAVE FRAME");
     if(genAIBtnRect.inside(worldM)) return tooltipManager.getTooltipText("GEN AI");
     if(genSAMBtnRect.inside(worldM)) return tooltipManager.getTooltipText("GEN SAM");
+    if(genDepthAnythingBtnRect.inside(worldM)) return tooltipManager.getTooltipText("DEPTH ANY");
     if(rippleBtnRect.inside(worldM)) return tooltipManager.getTooltipText("RIPPLE FX");
     if(recordVideoBtnRect.inside(worldM)) return tooltipManager.getTooltipText("RECORD VIDEO");
     if(samControlBtnRect.inside(worldM)) return tooltipManager.getTooltipText("SAM CONTROL");
@@ -190,6 +205,8 @@ void AnnexeControlsUI::saveSettings(ofJson& pt) {
     pt["annexeControlsUI"]["genAIBtn"]["w"] = genAIBtnRect.width; pt["annexeControlsUI"]["genAIBtn"]["h"] = genAIBtnRect.height;
     pt["annexeControlsUI"]["genSAMBtn"]["x"] = genSAMBtnRect.x; pt["annexeControlsUI"]["genSAMBtn"]["y"] = genSAMBtnRect.y;
     pt["annexeControlsUI"]["genSAMBtn"]["w"] = genSAMBtnRect.width; pt["annexeControlsUI"]["genSAMBtn"]["h"] = genSAMBtnRect.height;
+    pt["annexeControlsUI"]["genDepthAnythingBtn"]["x"] = genDepthAnythingBtnRect.x; pt["annexeControlsUI"]["genDepthAnythingBtn"]["y"] = genDepthAnythingBtnRect.y;
+    pt["annexeControlsUI"]["genDepthAnythingBtn"]["w"] = genDepthAnythingBtnRect.width; pt["annexeControlsUI"]["genDepthAnythingBtn"]["h"] = genDepthAnythingBtnRect.height;
     pt["annexeControlsUI"]["rippleBtn"]["x"] = rippleBtnRect.x; pt["annexeControlsUI"]["rippleBtn"]["y"] = rippleBtnRect.y;
     pt["annexeControlsUI"]["rippleBtn"]["w"] = rippleBtnRect.width; pt["annexeControlsUI"]["rippleBtn"]["h"] = rippleBtnRect.height;
     pt["annexeControlsUI"]["recordVideoBtn"]["x"] = recordVideoBtnRect.x; pt["annexeControlsUI"]["recordVideoBtn"]["y"] = recordVideoBtnRect.y;
@@ -223,6 +240,12 @@ void AnnexeControlsUI::loadSettings(const ofJson& pt) {
         genSAMBtnRect.width = pt["annexeControlsUI"]["genSAMBtn"].value("w", genSAMBtnRect.width);
         genSAMBtnRect.height = pt["annexeControlsUI"]["genSAMBtn"].value("h", genSAMBtnRect.height);
     }
+    if(pt.contains("annexeControlsUI") && pt["annexeControlsUI"].contains("genDepthAnythingBtn")) {
+        genDepthAnythingBtnRect.x = pt["annexeControlsUI"]["genDepthAnythingBtn"].value("x", genDepthAnythingBtnRect.x);
+        genDepthAnythingBtnRect.y = pt["annexeControlsUI"]["genDepthAnythingBtn"].value("y", genDepthAnythingBtnRect.y);
+        genDepthAnythingBtnRect.width = pt["annexeControlsUI"]["genDepthAnythingBtn"].value("w", genDepthAnythingBtnRect.width);
+        genDepthAnythingBtnRect.height = pt["annexeControlsUI"]["genDepthAnythingBtn"].value("h", genDepthAnythingBtnRect.height);
+    }
     if(pt.contains("annexeControlsUI") && pt["annexeControlsUI"].contains("rippleBtn")) {
         rippleBtnRect.x = pt["annexeControlsUI"]["rippleBtn"].value("x", rippleBtnRect.x);
         rippleBtnRect.y = pt["annexeControlsUI"]["rippleBtn"].value("y", rippleBtnRect.y);
@@ -243,12 +266,13 @@ void AnnexeControlsUI::loadSettings(const ofJson& pt) {
     }
 }
 
-vector<ofRectangle*> AnnexeControlsUI::getInteractableRects() { return { &soloAnnexeBtnRect, &saveFrameBtnRect, &genAIBtnRect, &genSAMBtnRect, &rippleBtnRect, &recordVideoBtnRect, &samControlBtnRect }; }
+vector<ofRectangle*> AnnexeControlsUI::getInteractableRects() { return { &soloAnnexeBtnRect, &saveFrameBtnRect, &genAIBtnRect, &genSAMBtnRect, &genDepthAnythingBtnRect, &rippleBtnRect, &recordVideoBtnRect, &samControlBtnRect }; }
 ofRectangle* AnnexeControlsUI::findButtonAt(ofVec2f pos) { 
     if (soloAnnexeBtnRect.inside(pos)) return &soloAnnexeBtnRect; 
     if (saveFrameBtnRect.inside(pos)) return &saveFrameBtnRect; 
     if (genAIBtnRect.inside(pos)) return &genAIBtnRect; 
     if (genSAMBtnRect.inside(pos)) return &genSAMBtnRect;
+    if (genDepthAnythingBtnRect.inside(pos)) return &genDepthAnythingBtnRect;
     if (rippleBtnRect.inside(pos)) return &rippleBtnRect;
     if (recordVideoBtnRect.inside(pos)) return &recordVideoBtnRect;
     if (samControlBtnRect.inside(pos)) return &samControlBtnRect;

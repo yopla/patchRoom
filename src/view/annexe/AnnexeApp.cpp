@@ -295,18 +295,10 @@ void AnnexeApp::generateDepthMapAI() {
         depthMap.convertTo(depth8U, CV_8U, 255.0 / (maxVal - minVal), -minVal * 255.0 / (maxVal - minVal));
         
         cv::resize(depth8U, depth8U, cv::Size(w, h));
-        cv::threshold(depth8U, depth8U, 150, 255, cv::THRESH_BINARY); // Même seuillage que ColliderGenerator
+        // Le seuillage est retiré pour conserver toutes les nuances de la depth map.
 
         ofPixels outPix;
-        outPix.allocate(w, h, OF_PIXELS_RGBA);
-        int total = w * h;
-        for(int i = 0; i < total; i++) {
-            unsigned char val = depth8U.data[i];
-            outPix[i*4 + 0] = 255;
-            outPix[i*4 + 1] = 255;
-            outPix[i*4 + 2] = 255;
-            outPix[i*4 + 3] = val; // Le noir devient transparent, le blanc reste opaque
-        }
+        outPix.setFromExternalPixels(depth8U.data, w, h, OF_PIXELS_GRAY);
         
         ofDirectory dir("export");
         if(!dir.exists()) dir.create(true);
@@ -321,6 +313,108 @@ void AnnexeApp::generateDepthMapAI() {
     } catch(const cv::Exception& e) {
         ofLogError("AnnexeApp") << "Erreur OpenCV DNN : " << e.what();
         warningMessage = "Erreur IA (OpenCV DNN)";
+        warningEndTime = ofGetElapsedTimef() + 3.0f;
+    }
+}
+
+void AnnexeApp::generateDepthMapDepthAnything() {
+    // pip3 install onnx-simplifier
+    // onnxsim depth_anything_v2.onnx depth_anything_v2_simplified.onnx --input-shape 1,3,518,518
+
+    if (!img.isAllocated()) {
+        warningMessage = "Aucune image a analyser !";
+        warningEndTime = ofGetElapsedTimef() + 3.0f;
+        return;
+    }
+
+    string modelPath = ofToDataPath("models/depth_anything_v2_simplified.onnx");
+    if (!ofFile(modelPath).exists()) {
+        ofLogWarning("AnnexeApp") << "Modele IA introuvable : " << modelPath;
+        warningMessage = "Modele DepthAnything introuvable !";
+        warningEndTime = ofGetElapsedTimef() + 3.0f;
+        return;
+    }
+
+    try {
+        cv::dnn::Net net = cv::dnn::readNetFromONNX(modelPath);
+        net.setPreferableBackend(cv::dnn::DNN_BACKEND_DEFAULT);
+        net.setPreferableTarget(cv::dnn::DNN_TARGET_CPU);
+
+        int w = img.getWidth();
+        int h = img.getHeight();
+
+        ofPixels rgbPixels = img.getPixels();
+        rgbPixels.setImageType(OF_IMAGE_COLOR); 
+        
+        ofxCvColorImage colorImg;
+        colorImg.allocate(w, h);
+        colorImg.setFromPixels(rgbPixels);
+        cv::Mat cvImg = cv::cvarrToMat(colorImg.getCvImage());
+
+        // --- Pre-traitement correct pour Depth Anything v2 ---
+        // Le modele attend une entree de 518x518, mais en conservant le ratio de l'image.
+        int input_w = 518;
+        int input_h = 518;
+        cv::Mat resized_img;
+
+        // 1. Redimensionner en gardant le ratio
+        float scale = std::min(static_cast<float>(input_w) / w, static_cast<float>(input_h) / h);
+        cv::resize(cvImg, resized_img, cv::Size(), scale, scale, cv::INTER_CUBIC);
+
+        // 2. Ajouter un 'padding' pour atteindre 518x518
+        int top_pad = (input_h - resized_img.rows) / 2;
+        int bottom_pad = input_h - resized_img.rows - top_pad;
+        int left_pad = (input_w - resized_img.cols) / 2;
+        int right_pad = input_w - resized_img.cols - left_pad;
+
+        cv::Mat padded_img;
+        cv::copyMakeBorder(resized_img, padded_img, top_pad, bottom_pad, left_pad, right_pad, cv::BORDER_CONSTANT, cv::Scalar(0,0,0));
+
+        // 3. Creer le blob a partir de l'image avec padding
+        cv::Mat blob = cv::dnn::blobFromImage(padded_img, 1.0 / 255.0, cv::Size(input_w, input_h), cv::Scalar(123.675, 116.28, 103.53), true, false);
+        net.setInput(blob);
+
+        cv::Mat output = net.forward();
+        if(output.empty()) return;
+
+        // La sortie de DepthAnything est un tenseur 3D [1, H, W]. On extrait la carte de profondeur 2D.
+        cv::Mat depthMap = cv::Mat(output.size[1], output.size[2], CV_32F, output.ptr<float>(0));
+
+        // --- Post-traitement ---
+        // 1. Retirer le padding pour revenir a la taille redimensionnee
+        cv::Mat cropped_depth = depthMap(cv::Rect(left_pad, top_pad, resized_img.cols, resized_img.rows));
+
+        // 2. Redimensionner a la taille de l'image originale
+        cv::Mat final_depth;
+        cv::resize(cropped_depth, final_depth, cv::Size(w, h));
+
+        // 3. Normaliser et convertir en 8-bit pour l'affichage/sauvegarde
+        double minVal, maxVal;
+        cv::minMaxLoc(final_depth, &minVal, &maxVal);
+        if(minVal == maxVal) return;
+
+        cv::Mat depth8U;
+        final_depth.convertTo(depth8U, CV_8U, 255.0 / (maxVal - minVal), -minVal * 255.0 / (maxVal - minVal));
+        
+        // Le seuillage est retiré pour conserver toutes les nuances de la depth map.
+        // L'image est maintenant sauvegardée en niveaux de gris.
+
+        ofPixels outPix;
+        outPix.setFromExternalPixels(depth8U.data, w, h, OF_PIXELS_GRAY);
+        
+        ofDirectory dir("export");
+        if(!dir.exists()) dir.create(true);
+        
+        string filename = "export/annexe_depthanything_" + ofGetTimestampString() + ".png";
+        ofSaveImage(outPix, filename);
+        
+        warningMessage = "Depth map DepthAnything generee : " + filename;
+        warningEndTime = ofGetElapsedTimef() + 3.0f;
+        ofLogNotice("AnnexeApp") << "Depth map DepthAnything generee avec succes : " << filename;
+
+    } catch(const cv::Exception& e) {
+        ofLogError("AnnexeApp") << "Erreur OpenCV DNN (DepthAnything) : " << e.what();
+        warningMessage = "Erreur IA (DepthAnything)";
         warningEndTime = ofGetElapsedTimef() + 3.0f;
     }
 }

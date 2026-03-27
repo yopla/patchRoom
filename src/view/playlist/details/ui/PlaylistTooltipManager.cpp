@@ -107,9 +107,10 @@ void PlaylistTooltipManager::setup() {
     texts["EXP SCENE2D"] = "Exporte la frame complete (tout l'environnement 2D assemble)";
     texts["EXP COLLIDER"] = "Exporte uniquement le calque des colliders (sur fond transparent)";
     texts["GEN COLLIDER"] = "Analyse l'overlay de la Scene 2D pour generer et exporter une image de collider (contours blancs)";
-    texts["GEN COL IA"] = "Utilise l'IA (MiDaS Small) sur l'overlay pour deduire la profondeur et generer un collider";
+    texts["GEN COL IA"] = "Genere une Depth Map par IA (MiDaS) a partir de l'image de l'overlay et l'exporte.";
     texts["GEN SAM COL"] = "Tente de segmenter l'overlay via le modele EfficientSAM";
     texts["GEN DEX COL"] = "Utilise l'IA (Dexined) pour extraire intelligemment les contours (Edge Detection) de l'overlay et generer un collider";
+    texts["GEN DEPTH ANY"] = "Genere une Depth Map alternative avec le modele DepthAnything et l'exporte.";
     texts["EXP EATMAP"] = "Exporte uniquement le calque de la EatMap (sur fond transparent)";
     texts["EXP 7 MURS"] = "Decoupe l'image superposee (overlay) en 7 fichiers dans le dossier export/murs2D";
     texts["GAB 3-OFF-3 [G]"] = "Touche [G] : Configure les gabarits : Master a 3 (10%), Room en OFF, Scene 2D a 3 (Rien).";
@@ -125,6 +126,9 @@ void PlaylistTooltipManager::setup() {
     texts["IMG_SIZE_BTN"] = "Definit la taille de l'image generee (Par defaut, 2K, 4K)";
     texts["VID_RES_BTN"] = "Definit la resolution video generee (Par defaut, 4k)";
     texts["GEN_TEXT_ROOM"] = "Genere une image 360 a partir du texte (sans reference)";
+    texts["SAM CONTROL"] = "Active l'interface de controle interactif pour la segmentation avec SAM dans Scene2D.";
+    texts["SAM SAVE"] = "Sauvegarde le masque SAM interactif de Scene2D dans export/.";
+    texts["SAM RESET"] = "Reinitialise la selection de points SAM de Scene2D.";
     
     // Interactifs
     texts["INT_AddGroPuyo"] = "Touche [A] ou Clic : Ajoute un GroPuyo a la position du curseur.";

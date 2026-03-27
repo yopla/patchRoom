@@ -14,6 +14,7 @@ void AnnexeTooltipManager::setup() {
     texts["SAVE FRAME"] = "Sauvegarde une image en haute resolution de la frame actuelle dans le dossier export/.";
     texts["GEN AI"] = "Genere une Depth Map par IA (MiDaS) a partir de l'image de l'Annexe et l'exporte.";
     texts["GEN SAM"] = "Genere un masque de segmentation par IA (EfficientSAM) a partir de l'image de l'Annexe et l'exporte.";
+    texts["DEPTH ANY"] = "Genere une Depth Map alternative avec le modele DepthAnything et l'exporte.";
     texts["RIPPLE FX"] = "Active un effet d'ondulation sur l'image. Cliquez sur l'image pour creer des vagues.";
     texts["RECORD VIDEO"] = "Enregistre une sequence d'images en haute resolution dans un dossier dedie dans export/.";
     texts["SAM CONTROL"] = "Active l'interface de controle interactif pour la segmentation avec SAM.";

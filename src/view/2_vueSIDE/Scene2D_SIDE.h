@@ -32,6 +32,19 @@ public:
     void generateColliderFromAI();
     void generateColliderFromSAM();
     void generateColliderFromDexined();
+    void generateColliderFromDepthAnything();
+    
+    // --- SAM INTERACTIVE CONTROL ---
+    bool bSamControlActive = false;
+    vector<ofVec2f> samPoints;
+    vector<int> samLabels; // 0: bg, 1: fg, 2: box_tl, 3: box_br
+    ofImage samPreviewMask;
+    bool bSamMaskGenerated = false;
+
+    void toggleSamControl();
+    void runSamInference();
+    void saveSamSegmentation();
+    void resetSamSelection();
 
     // Temps local pour pouvoir mettre en pause l'animation de la balle
     float localTime = 0.0f; 
@@ -93,5 +106,9 @@ private:
     ofVec2f ballPos;
     vector<ofVec2f> waypoints;   
     
+    // Input states for SAM
+    bool bSamIsDragging = false;
+    ofVec2f samDragStart;
+    float samMousePressTime = 0;
     ofVec2f getTransformedMouse();
 };

@@ -21,6 +21,7 @@ public:
     ofRectangle soloAnnexeBtnRect;
     ofRectangle saveFrameBtnRect;
     ofRectangle genAIBtnRect;
+    ofRectangle genDepthAnythingBtnRect;
     ofRectangle genSAMBtnRect;
     ofRectangle rippleBtnRect;
     ofRectangle recordVideoBtnRect;

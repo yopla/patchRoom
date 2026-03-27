@@ -147,14 +147,13 @@ void ColliderGenerator::generateWithAI(const ofImage& inputImg, string outputPat
         // Redimensionnement vers la taille d'origine du calque en toute securite
         cv::resize(depth8U, depth8U, cv::Size(w, h));
 
-        // Seuillage : On garde les objets/zones les plus "proches"
-        cv::threshold(depth8U, depth8U, 150, 255, cv::THRESH_BINARY);
+        // Le seuillage est retiré pour conserver toutes les nuances de la depth map.
 
-        ofPixels threshPix;
-        threshPix.setFromExternalPixels(depth8U.ptr(), w, h, 1);
+        ofPixels outPix;
+        outPix.setFromExternalPixels(depth8U.data, w, h, OF_PIXELS_GRAY);
         
-        saveFile(threshPix, outputPath);
-        ofLogNotice("ColliderGenerator") << "Collider IA genere avec succes : " << outputPath;
+        ofSaveImage(outPix, outputPath);
+        ofLogNotice("ColliderGenerator") << "Depth map IA generee avec succes : " << outputPath;
 
     } catch(const cv::Exception& e) {
         ofLogError("ColliderGenerator") << "Erreur OpenCV DNN : " << e.what();
@@ -360,5 +359,75 @@ void ColliderGenerator::generateWithDexined(const ofImage& inputImg, string outp
 
     } catch(const cv::Exception& e) {
         ofLogError("ColliderGenerator") << "Erreur inference Dexined DNN : " << e.what();
+    }
+}
+
+void ColliderGenerator::generateWithDepthAnything(const ofImage& inputImg, string outputPath) {
+    if (!inputImg.isAllocated()) return;
+
+    string modelPath = ofToDataPath("models/depth_anything_v2_simplified.onnx");
+    if (!ofFile(modelPath).exists()) {
+        ofLogWarning("ColliderGenerator") << "Modele IA introuvable : " << modelPath;
+        return;
+    }
+
+    try {
+        cv::dnn::Net net = cv::dnn::readNetFromONNX(modelPath);
+        net.setPreferableBackend(cv::dnn::DNN_BACKEND_DEFAULT);
+        net.setPreferableTarget(cv::dnn::DNN_TARGET_CPU);
+
+        int w = inputImg.getWidth();
+        int h = inputImg.getHeight();
+
+        ofPixels rgbPixels = inputImg.getPixels();
+        rgbPixels.setImageType(OF_IMAGE_COLOR); 
+        
+        ofxCvColorImage colorImg;
+        colorImg.allocate(w, h);
+        colorImg.setFromPixels(rgbPixels);
+        cv::Mat cvImg = cv::cvarrToMat(colorImg.getCvImage());
+
+        // Pre-traitement correct pour Depth Anything v2
+        int input_w = 518;
+        int input_h = 518;
+        cv::Mat resized_img;
+
+        float scale = std::min(static_cast<float>(input_w) / w, static_cast<float>(input_h) / h);
+        cv::resize(cvImg, resized_img, cv::Size(), scale, scale, cv::INTER_CUBIC);
+
+        int top_pad = (input_h - resized_img.rows) / 2;
+        int bottom_pad = input_h - resized_img.rows - top_pad;
+        int left_pad = (input_w - resized_img.cols) / 2;
+        int right_pad = input_w - resized_img.cols - left_pad;
+
+        cv::Mat padded_img;
+        cv::copyMakeBorder(resized_img, padded_img, top_pad, bottom_pad, left_pad, right_pad, cv::BORDER_CONSTANT, cv::Scalar(0,0,0));
+
+        cv::Mat blob = cv::dnn::blobFromImage(padded_img, 1.0 / 255.0, cv::Size(input_w, input_h), cv::Scalar(123.675, 116.28, 103.53), true, false);
+        net.setInput(blob);
+
+        cv::Mat output = net.forward();
+        if(output.empty()) return;
+
+        cv::Mat depthMap = cv::Mat(output.size[1], output.size[2], CV_32F, output.ptr<float>(0));
+        cv::Mat cropped_depth = depthMap(cv::Rect(left_pad, top_pad, resized_img.cols, resized_img.rows));
+        cv::Mat final_depth;
+        cv::resize(cropped_depth, final_depth, cv::Size(w, h));
+
+        double minVal, maxVal;
+        cv::minMaxLoc(final_depth, &minVal, &maxVal);
+        if(minVal == maxVal) return;
+
+        cv::Mat depth8U;
+        final_depth.convertTo(depth8U, CV_8U, 255.0 / (maxVal - minVal), -minVal * 255.0 / (maxVal - minVal));
+        
+        ofPixels outPix;
+        outPix.setFromExternalPixels(depth8U.data, w, h, OF_PIXELS_GRAY);
+        
+        ofSaveImage(outPix, outputPath);
+        ofLogNotice("ColliderGenerator") << "Depth map DepthAnything generee avec succes : " << outputPath;
+
+    } catch(const cv::Exception& e) {
+        ofLogError("ColliderGenerator") << "Erreur OpenCV DNN (DepthAnything) : " << e.what();
     }
 }

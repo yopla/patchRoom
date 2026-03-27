@@ -15,6 +15,9 @@ public:
     // Analyse l'image overlay via le modèle Dexined (Edge Detection)
     static void generateWithDexined(const ofImage& inputImg, string outputPath);
 
+    // Analyse l'image overlay via le modèle DepthAnything (v2)
+    static void generateWithDepthAnything(const ofImage& inputImg, string outputPath);
+
 private:
     static void saveFile(const ofPixels& pixels, string outputPath);
 };

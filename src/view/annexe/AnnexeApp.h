@@ -17,6 +17,7 @@ public:
 
     void saveHighResFrame();
     void generateDepthMapAI();
+    void generateDepthMapDepthAnything();
     void generateSAMCollider();
     void toggleSamControl();
     void setupRipple();
