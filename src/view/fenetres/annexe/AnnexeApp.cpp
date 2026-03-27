@@ -583,15 +583,6 @@ void AnnexeApp::mouseReleased(int x, int y, int button) {
                 samLabels.push_back(0);
             }
         } else { // It's a drag -> bounding box
-            // On ne garde qu'une seule boite de selection pour la clarte.
-            // On supprime l'ancienne boite avant d'en creer une nouvelle.
-            for (int i = samLabels.size() - 1; i >= 0; --i) {
-                if (samLabels[i] == 2 || samLabels[i] == 3) {
-                    samLabels.erase(samLabels.begin() + i);
-                    samPoints.erase(samPoints.begin() + i);
-                }
-            }
-
             float x1 = std::min(startImgX, imgX);
             float y1 = std::min(startImgY, imgY);
             float x2 = std::max(startImgX, imgX);
