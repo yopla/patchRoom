@@ -106,6 +106,10 @@ void PlaylistTooltipManager::setup() {
     texts["BLUR SHADER"] = "Active ou desactive le flou du shader";
     texts["EXP SCENE2D"] = "Exporte la frame complete (tout l'environnement 2D assemble)";
     texts["EXP COLLIDER"] = "Exporte uniquement le calque des colliders (sur fond transparent)";
+    texts["GEN COLLIDER"] = "Analyse l'overlay de la Scene 2D pour generer et exporter une image de collider (contours blancs)";
+    texts["GEN COL IA"] = "Utilise l'IA (MiDaS Small) sur l'overlay pour deduire la profondeur et generer un collider";
+    texts["GEN SAM COL"] = "Tente de segmenter l'overlay via le modele EfficientSAM";
+    texts["GEN DEX COL"] = "Utilise l'IA (Dexined) pour extraire intelligemment les contours (Edge Detection) de l'overlay et generer un collider";
     texts["EXP EATMAP"] = "Exporte uniquement le calque de la EatMap (sur fond transparent)";
     texts["EXP 7 MURS"] = "Decoupe l'image superposee (overlay) en 7 fichiers dans le dossier export/murs2D";
     texts["GAB 3-OFF-3 [G]"] = "Touche [G] : Configure les gabarits : Master a 3 (10%), Room en OFF, Scene 2D a 3 (Rien).";

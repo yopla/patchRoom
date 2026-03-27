@@ -21,6 +21,8 @@ class ViewApp;
 class RoomPreview; 
 class ButtonApp;
 class PlaylistVisualizerApp;
+class AnnexeApp;
+class AnnexePlayerApp;
 
 class ofApp : public ofBaseApp {
 public:
@@ -61,12 +63,16 @@ GeminiImageGenerator geminiGen;
     shared_ptr<ofAppBaseWindow> zenitWindowPtr;   // <--- AJOUT POUR ZENIT
     shared_ptr<ofAppBaseWindow> buttonWindowPtr;  // <--- AJOUT POUR BUTTONS
     shared_ptr<ofAppBaseWindow> playlistWindowPtr; // <--- AJOUT POUR PLAYLIST
+    shared_ptr<ofAppBaseWindow> annexeWindowPtr;
+    shared_ptr<ofAppBaseWindow> annexePlayerWindowPtr;
 
     // AJOUT : Pointeur vers l'app Preview (tu l'as peut-être déjà ou pas, sinon ajoute-le)
     shared_ptr<RoomPreview> roomPreviewApp;
     shared_ptr<ButtonApp> buttonApp;
     shared_ptr<PlaylistVisualizerApp> playlistApp;
 
+    shared_ptr<AnnexeApp> annexeApp;
+    shared_ptr<AnnexePlayerApp> annexePlayerApp;
     
     void setup();
     void update();

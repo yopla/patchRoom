@@ -328,6 +328,22 @@ void PlaylistControlsUI::setupGlobalActionBtns(ofApp* mainAppPtr) {
         if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->exportColliders();
     }, false);
 
+    addAction("GEN COLLIDER", [mainAppPtr](){ 
+        if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->generateColliderFromOverlay();
+    }, false);
+
+    addAction("GEN COL IA", [mainAppPtr](){ 
+        if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->generateColliderFromAI();
+    }, false);
+
+    addAction("GEN SAM COL", [mainAppPtr](){ 
+        if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->generateColliderFromSAM();
+    }, false);
+
+    addAction("GEN DEX COL", [mainAppPtr](){ 
+        if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->generateColliderFromDexined();
+    }, false);
+
     addAction("EXP EATMAP", [mainAppPtr](){ 
         if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->exportEatMap();
     }, false);

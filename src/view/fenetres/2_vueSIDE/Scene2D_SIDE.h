@@ -28,6 +28,10 @@ public:
     void exportColliders();
     void exportEatMap();
     void export7Murs();
+    void generateColliderFromOverlay();
+    void generateColliderFromAI();
+    void generateColliderFromSAM();
+    void generateColliderFromDexined();
 
     // Temps local pour pouvoir mettre en pause l'animation de la balle
     float localTime = 0.0f; 

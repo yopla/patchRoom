@@ -7,6 +7,8 @@
 #include "Scene2DZenit.h" // <--- AJOUT
 #include "PlaylistVisualizerApp.h"
 #include "ButtonApp.h"
+#include "AnnexeApp.h"
+#include "AnnexePlayerApp.h"
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
@@ -95,6 +97,7 @@ int main( ){
     bool bEnableView3 = false;
     bool bEnableView4 = false;
     bool bEnableZenit = false; // Toggle pour la vue Zenit
+    bool bEnableAnnexe = true; // Toggle pour les vues Annexes
 
     shared_ptr<ofAppBaseWindow> viewWindow1;
     shared_ptr<ofAppBaseWindow> viewWindow2;
@@ -193,6 +196,24 @@ int main( ){
     settings.shareContextWith = mainWindow;
     shared_ptr<ofAppBaseWindow> playlistWindow = ofCreateWindow(settings);
 
+    // Fenêtres Annexe (Canvas et Player)
+    shared_ptr<ofAppBaseWindow> annexeWindow;
+    shared_ptr<ofAppBaseWindow> annexePlayerWindow;
+    if(bEnableAnnexe) {
+        settings.setSize(800, 600);
+        settings.setPosition(ofVec2f(100, 100));
+        settings.resizable = true;
+        settings.title = "Annexe Win";
+        settings.shareContextWith = mainWindow;
+        annexeWindow = ofCreateWindow(settings);
+
+        settings.setSize(600, 600);
+        settings.setPosition(ofVec2f(950, 100));
+        settings.resizable = true;
+        settings.title = "Annexe Player";
+        settings.shareContextWith = mainWindow;
+        annexePlayerWindow = ofCreateWindow(settings);
+    }
 
     // ------------------------------------------------
     // 2. CREATION DES APPS
@@ -217,6 +238,13 @@ int main( ){
     if(bEnableZenit) zenitApp = shared_ptr<Scene2DZenit>(new Scene2DZenit);
     shared_ptr<ButtonApp> buttonApp(new ButtonApp);
     shared_ptr<PlaylistVisualizerApp> playlistApp(new PlaylistVisualizerApp);
+    
+    shared_ptr<AnnexeApp> annexeApp;
+    shared_ptr<AnnexePlayerApp> annexePlayerApp;
+    if(bEnableAnnexe) {
+        annexeApp = make_shared<AnnexeApp>();
+        annexePlayerApp = make_shared<AnnexePlayerApp>();
+    }
     
     // ------------------------------------------------
     // 3. CONNEXIONS
@@ -265,6 +293,14 @@ int main( ){
     mainApp->playlistApp = playlistApp;
     mainApp->playlistWindowPtr = playlistWindow;
     playlistApp->mainAppPtr = mainApp.get();
+    
+    if(bEnableAnnexe) {
+        mainApp->annexeApp = annexeApp;
+        mainApp->annexePlayerApp = annexePlayerApp;
+        mainApp->annexeWindowPtr = annexeWindow;
+        mainApp->annexePlayerWindowPtr = annexePlayerWindow;
+        annexePlayerApp->mainAppPtr = mainApp.get();
+    }
 
     CapsLockFilter capsFilter; // Instancié dans le main
 
@@ -289,6 +325,10 @@ int main( ){
     setupGlobalKeys(buttonWindow);
     setupGlobalKeys(previewWindow);
     setupGlobalKeys(playlistWindow);
+    if(bEnableAnnexe) {
+        setupGlobalKeys(annexeWindow);
+        setupGlobalKeys(annexePlayerWindow);
+    }
     
     if(bEnableView1) setupGlobalKeys(viewWindow1);
     if(bEnableView2) setupGlobalKeys(viewWindow2);
@@ -328,6 +368,10 @@ int main( ){
     if(bEnableZenit) ofRunApp(zenitWindow, zenitApp); // Lancement fenêtre Zenit
     ofRunApp(buttonWindow, buttonApp); // Lancement fenêtre Boutons
     ofRunApp(playlistWindow, playlistApp); // Lancement fenêtre Playlist
+    if(bEnableAnnexe) {
+        ofRunApp(annexeWindow, annexeApp);
+        ofRunApp(annexePlayerWindow, annexePlayerApp);
+    }
     
     ofRunApp(mainWindow, dynamic_pointer_cast<ofBaseApp>(mainApp));
     

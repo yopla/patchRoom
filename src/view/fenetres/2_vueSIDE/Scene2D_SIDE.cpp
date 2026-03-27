@@ -1,6 +1,7 @@
 #include "Scene2D_SIDE.h"
 #include "Scene2DLayerManager.h"
 #include "ofApp.h"
+#include "ColliderGenerator.h"
 
 //--------------------------------------------------------------
 void Scene2D_SIDE::setup() {
@@ -240,15 +241,7 @@ void Scene2D_SIDE::captureSection(ofFbo& targetFbo, float worldX, float worldTop
         }
     }
 
-        
-        if (bDrawDynamics) {
-            ofSetColor(255);
-            ofPushMatrix();
-                ofTranslate(-worldX, -worldTopY);
-                drawDynamicElements(); // This now calls layerManager.draw()
-            ofPopMatrix();
-        }
-        
+
         // L'overlay est maintenant injecté DIRECTEMENT dans les FBOs
         if (overlayMode > 0 && overlayImg.isAllocated()) {
             ofPushStyle();
@@ -262,6 +255,14 @@ void Scene2D_SIDE::captureSection(ofFbo& targetFbo, float worldX, float worldTop
             overlayImg.draw(0, -912);
             ofPopMatrix();
             ofPopStyle();
+        }
+        
+        if (bDrawDynamics) {
+            ofSetColor(255);
+            ofPushMatrix();
+                ofTranslate(-worldX, -worldTopY);
+                drawDynamicElements(); // This now calls layerManager.draw()
+            ofPopMatrix();
         }
         
     targetFbo.end();
@@ -509,6 +510,55 @@ void Scene2D_SIDE::exportColliders() {
     fboExp.readToPixels(pix);
     ofSaveImage(pix, "colliders_export_" + ofGetTimestampString() + ".png");
     ofLogNotice("Scene2D_SIDE") << "Export colliders (10048x4752) sauvegarde: colliders_export_...";
+}
+
+//--------------------------------------------------------------
+void Scene2D_SIDE::generateColliderFromOverlay() {
+    if (overlayImg.isAllocated()) {
+        ofDirectory dir("export");
+        if(!dir.exists()) dir.create(true);
+        string path = "export/collider_generated_" + ofGetTimestampString() + ".png";
+        ColliderGenerator::generateAndSave(overlayImg, path);
+        ofLogNotice("Scene2D_SIDE") << "Collider genere et sauvegarde : " << path;
+    } else {
+        ofLogWarning("Scene2D_SIDE") << "Pas d'overlay charge pour generer le collider.";
+    }
+}
+
+//--------------------------------------------------------------
+void Scene2D_SIDE::generateColliderFromAI() {
+    if (overlayImg.isAllocated()) {
+        ofDirectory dir("export");
+        if(!dir.exists()) dir.create(true);
+        string path = "export/collider_AI_generated_" + ofGetTimestampString() + ".png";
+        ColliderGenerator::generateWithAI(overlayImg, path);
+    } else {
+        ofLogWarning("Scene2D_SIDE") << "Pas d'overlay charge pour generer le collider via l'IA.";
+    }
+}
+
+//--------------------------------------------------------------
+void Scene2D_SIDE::generateColliderFromSAM() {
+    if (overlayImg.isAllocated()) {
+        ofDirectory dir("export");
+        if(!dir.exists()) dir.create(true);
+        string path = "export/collider_SAM_generated_" + ofGetTimestampString() + ".png";
+        ColliderGenerator::generateWithSAM(overlayImg, path);
+    } else {
+        ofLogWarning("Scene2D_SIDE") << "Pas d'overlay charge pour generer le collider via SAM.";
+    }
+}
+
+//--------------------------------------------------------------
+void Scene2D_SIDE::generateColliderFromDexined() {
+    if (overlayImg.isAllocated()) {
+        ofDirectory dir("export");
+        if(!dir.exists()) dir.create(true);
+        string path = "export/collider_DEX_generated_" + ofGetTimestampString() + ".png";
+        ColliderGenerator::generateWithDexined(overlayImg, path);
+    } else {
+        ofLogWarning("Scene2D_SIDE") << "Pas d'overlay charge pour generer le collider via Dexined.";
+    }
 }
 
 //--------------------------------------------------------------

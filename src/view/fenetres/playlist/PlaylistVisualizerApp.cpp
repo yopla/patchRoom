@@ -51,6 +51,8 @@ void PlaylistVisualizerApp::setup() {
         windowPresetSaved[i] = false;
     }
 
+    focusAnnexesBtnRect.set(690, 5, 120, 30);
+
     // Init Gemini UI
     geminiUI.setup();
     
@@ -317,6 +319,14 @@ void PlaylistVisualizerApp::draw() {
             hoveredTooltip = "Fenetres A" + ofToString(i+1) + " (Shift+clic pour sauvegarder la dispo)";
         }
     }
+    
+    ofSetColor(50, 150, 200);
+    ofFill(); ofDrawRectangle(focusAnnexesBtnRect);
+    ofNoFill(); ofSetColor(255); ofDrawRectangle(focusAnnexesBtnRect);
+    ofDrawBitmapString("FOCUS ANNEXES", focusAnnexesBtnRect.x + 8, focusAnnexesBtnRect.y + 20);
+    if(focusAnnexesBtnRect.inside(ofGetMouseX(), ofGetMouseY())) {
+        hoveredTooltip = "Mettre au premier plan les fenetres Annexes";
+    }
     ofPopStyle();
     
     // Dessin du tooltip par-dessus tout, non affecte par le Zoom (en coordonnees ecran brutes)
@@ -382,6 +392,24 @@ void PlaylistVisualizerApp::mousePressed(int x, int y, int button) {
             }
             return;
         }
+    }
+    
+    if (focusAnnexesBtnRect.inside(x, y)) {
+        if (mainAppPtr) {
+            auto focusWin = [](shared_ptr<ofAppBaseWindow> win) {
+                if(win) {
+                    auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(win);
+                    if(glfwWin) {
+                        glfwShowWindow(glfwWin->getGLFWWindow());
+                        glfwRestoreWindow(glfwWin->getGLFWWindow());
+                        glfwFocusWindow(glfwWin->getGLFWWindow());
+                    }
+                }
+            };
+            focusWin(mainAppPtr->annexeWindowPtr);
+            focusWin(mainAppPtr->annexePlayerWindowPtr);
+        }
+        return;
     }
 
     // Clics dans le HUD Fixe
@@ -1072,6 +1100,7 @@ vector<SearchableButton> PlaylistVisualizerApp::getAllSearchableButtons() {
         res.push_back({windowControlsUI.focusNames[i], &windowControlsUI.focusBtns[i]});
     }
     for(int i=0; i<4; i++) res.push_back({"GAB " + ofToString(i), &windowControlsUI.gabBtns[i]});
+    res.push_back({"Focus Annexes", &focusAnnexesBtnRect});
     res.push_back({"Diffuse Room", &windowControlsUI.diffuseRoomBtn});
     res.push_back({"Diffuse Scene2D", &windowControlsUI.diffuseScene2DBtn});
     

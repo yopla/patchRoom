@@ -95,6 +95,8 @@ public:
     ofRectangle windowPresets[5][6];
     bool windowPresetSaved[5] = {false};
     shared_ptr<ofAppBaseWindow> getAppWindow(int index);
+    
+    ofRectangle focusAnnexesBtnRect;
 
     vector<shared_ptr<PlaylistTextNote>> textNotes;
     shared_ptr<PlaylistTextNote> editingNote = nullptr;
