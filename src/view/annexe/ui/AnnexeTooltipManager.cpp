@@ -18,6 +18,11 @@ void AnnexeTooltipManager::setup() {
     texts["RIPPLE FX"] = "Active un effet d'ondulation sur l'image. Cliquez sur l'image pour creer des vagues.";
     texts["RECORD VIDEO"] = "Enregistre une sequence d'images en haute resolution dans un dossier dedie dans export/.";
     texts["SAM CONTROL"] = "Active l'interface de controle interactif pour la segmentation avec SAM.";
+    texts["LAYER VOLUM"] = "Active un layer supplementaire par-dessus l'image de base, pouvant passer en 3D.";
+    texts["DEPTH MAP"] = "Active le mode Depth Map. Deposez un fichier pour extruder le layer en 3D (alpha 44%).";
+    texts["RESET DEPTH"] = "Remet le LayerVolum a plat et reinitialise l'extrusion/rotation.";
+    texts["ROTATION"] = "Fait tourner le layer volumetrique sur lui-meme (maintenir le clic).";
+    texts["RESET ROT"] = "Remet la rotation 3D du Layer Volumetrique a plat (0, 0).";
 }
 
 std::string AnnexeTooltipManager::getTooltipText(const std::string& key) {

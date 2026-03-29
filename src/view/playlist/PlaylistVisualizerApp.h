@@ -97,6 +97,8 @@ public:
     shared_ptr<ofAppBaseWindow> getAppWindow(int index);
     
     ofRectangle focusAnnexesBtnRect;
+    ofRectangle toggleAnnexesBtnRect;
+    bool bAnnexesHidden = false;
 
     vector<shared_ptr<PlaylistTextNote>> textNotes;
     shared_ptr<PlaylistTextNote> editingNote = nullptr;

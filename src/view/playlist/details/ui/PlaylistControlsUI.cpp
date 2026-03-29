@@ -68,6 +68,8 @@ void PlaylistControlsUI::setupLayerToggles(Scene2D_SIDE* scene2D) {
     addToggle("Crayon", scene2D->layerManager.bDrawCrayon);
     addToggle("SurSauteurs", scene2D->layerManager.bDrawSurSauteurs);
     addToggle("PaperLight", scene2D->layerManager.bDrawPaperLight);
+    addToggle("PhysicSam", scene2D->layerManager.bDrawPhysicSam);
+    addToggle("Alive", scene2D->layerManager.bDrawAlive);
 
     int cols = 3;
     float bw = 110;
@@ -105,7 +107,7 @@ void PlaylistControlsUI::setupLayerToggles(Scene2D_SIDE* scene2D) {
     resetCollidersBtn.set(resetEatMapBtn.getRight() + pad, startY + cRows*(bh+pad) + 10, bw, bh);
 
     float iStartY = clearAllCreaturesBtn.y + bh + 20; 
-    vector<string> iNames = {"AddGroPuyo", "AddPuyo", "AddBubble", "TargetPoulpe", "Sardine", "Shark", "AddPaperLight"};
+    vector<string> iNames = {"AddGroPuyo", "AddPuyo", "AddBubble", "TargetPoulpe", "Sardine", "Shark", "AddPaperLight", "AddAlive"};
     
     interactiveButtons.clear();
     for(int i=0; i<iNames.size(); i++) {
@@ -374,14 +376,6 @@ void PlaylistControlsUI::setupGlobalActionBtns(ofApp* mainAppPtr) {
         if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->toggleSamControl();
     }, false);
 
-    addAction("SAM SAVE", [mainAppPtr](){ 
-        if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->saveSamSegmentation();
-    }, false);
-
-    addAction("SAM RESET", [mainAppPtr](){ 
-        if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->resetSamSelection();
-    }, false);
-
     for(int i=0; i<globalActionBtns.size(); i++) {
         int c = i % 2;
         int r = i / 2;
@@ -433,7 +427,8 @@ void PlaylistControlsUI::draw(ofApp* mainAppPtr) {
 
     // Action Globale
     for(auto& b : globalActionBtns) {
-        if (b.name == "PAUSE [ESC]" && mainAppPtr && mainAppPtr->bGlobalPause) ofSetColor(200, 50, 50); 
+        if (b.name == "SAM CONTROL" && mainAppPtr && mainAppPtr->scene2D && mainAppPtr->scene2D->samController.isActive()) ofSetColor(100, 180, 100);
+        else if (b.name == "PAUSE [ESC]" && mainAppPtr && mainAppPtr->bGlobalPause) ofSetColor(200, 50, 50); 
         else if (b.name == "BTN WORMS" && mainAppPtr && mainAppPtr->buttonApp && mainAppPtr->buttonApp->buttonWindow.bDrawWorms) ofSetColor(50, 200, 50); 
         else if ((b.name == "REC PREVIEW" || b.name == "REC CANVAS") && b.getState && b.getState()) {
             // Clignotement rouge pendant l'enregistrement

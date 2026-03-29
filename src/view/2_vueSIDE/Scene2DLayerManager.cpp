@@ -1,5 +1,6 @@
 #include "Scene2DLayerManager.h"
 #include "SwingLayer.h"
+#include "PhysicSamLayer.h"
 
 void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float frontW, float frontX) {
     totalSceneWidth = totalWidth;
@@ -173,8 +174,14 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
     eatMapLayer->setup(simWidth, simHeight, scale);
     surSauteurLayer.setup(totalSceneWidth, 1472.0f, colliderLayer, eatMapLayer);
     crayon.setup();
+
+    // --- SETUP PHYSIC SAM LAYER ---
+    physicSamLayer.setup(simWidth, simHeight, scale, colliderLayer);
     
     paperLightLayer.setup(totalSceneWidth, 1472.0f);
+    
+    // --- SETUP ALIVE LAYER ---
+    aliveLayer.setup(simWidth, simHeight, scale, colliderLayer);
 }
 
 void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePressed) {
@@ -306,6 +313,14 @@ void Scene2DLayerManager::update(const ofVec2f& m, float time, bool isSpacePress
     } else { surSauteurLayer.bActive = false; }
     
     if (bDrawPaperLight) paperLightLayer.update(m.x, m.y, isSpacePressed);
+
+    if (bDrawPhysicSam) {
+        physicSamLayer.bActive = true;
+        // mouse coords are already in world space, layer needs sim space
+        physicSamLayer.update(m.x / physicSamLayer.scale, m.y / physicSamLayer.scale, time);
+    } else { physicSamLayer.bActive = false; }
+    
+    if (bDrawAlive) aliveLayer.update(m.x, m.y, time);
 }
 
 void Scene2DLayerManager::draw(const ofVec2f& m) {
@@ -384,10 +399,13 @@ void Scene2DLayerManager::draw(const ofVec2f& m) {
     if (bDrawSurSauteurs) surSauteurLayer.draw();
     if (bDrawEatMap && eatMapLayer) eatMapLayer->draw();
     
+    if (bDrawPhysicSam) physicSamLayer.draw();
     // Les colliders sont dessinés en tout dernier pour apparaître au premier plan
     if (bDrawColliders && colliderLayer) colliderLayer->draw();
     
     if (bDrawPaperLight) paperLightLayer.draw();
+    
+    if (bDrawAlive) aliveLayer.draw();
 }
 
 void Scene2DLayerManager::addCousinCon(float x, float y) {
@@ -462,6 +480,8 @@ void Scene2DLayerManager::keyPressed(int key, const ofVec2f& m) {
                     fishSchoolLayer.addShark(m.x, m.y);
                 } else if (selectedInteractiveLayer == "AddPaperLight" && bDrawPaperLight) {
                     paperLightLayer.addLight(m.x, m.y);
+                } else if (selectedInteractiveLayer == "AddAlive" && bDrawAlive) {
+                    aliveLayer.addCreature(m.x / aliveLayer.scale, m.y / aliveLayer.scale);
                 }
             } else if (selectedCreatureToSpawn != "") {
                 spawnSelectedCreature(m.x, m.y); 
@@ -604,11 +624,19 @@ void Scene2DLayerManager::mousePressed(const ofVec2f& m, int button) {
             poulpeLayer.setTarget(m.x, m.y);
         } else if (selectedInteractiveLayer == "AddPaperLight" && bDrawPaperLight) {
             paperLightLayer.addLight(m.x, m.y);
+        } else if (selectedInteractiveLayer == "AddAlive" && bDrawAlive) {
+            aliveLayer.addCreature(m.x / aliveLayer.scale, m.y / aliveLayer.scale);
         }
     }
     if (bDrawCrayon) {
         if (bDrawColliders && colliderLayer) colliderLayer->drawBrush(m.x / colliderLayer->scale, m.y / colliderLayer->scale, crayon.radius / colliderLayer->scale, crayon.colorType);
         if (bDrawEatMap && eatMapLayer) eatMapLayer->drawBrush(m.x / eatMapLayer->scale, m.y / eatMapLayer->scale, crayon.radius / eatMapLayer->scale, crayon.colorType);
+    }
+    if (bDrawPhysicSam) {
+        physicSamLayer.mousePressed(m.x / physicSamLayer.scale, m.y / physicSamLayer.scale, button);
+    }
+    if (bDrawAlive) {
+        aliveLayer.mousePressed(m.x / aliveLayer.scale, m.y / aliveLayer.scale, button);
     }
 
     if(bDrawCreatures) {
@@ -643,6 +671,13 @@ void Scene2DLayerManager::mousePressed(const ofVec2f& m, int button) {
 }
 
 void Scene2DLayerManager::mouseReleased(const ofVec2f& m, int button) {
+    if (bDrawPhysicSam) {
+        physicSamLayer.mouseReleased(m.x / physicSamLayer.scale, m.y / physicSamLayer.scale, button);
+    }
+    if (bDrawAlive) {
+        aliveLayer.mouseReleased(m.x / aliveLayer.scale, m.y / aliveLayer.scale, button);
+    }
+
     if(bDrawCreatures) {
         creatureSystem.onRelease(m.x, m.y);
         for(auto& c : cousinCons) c->onRelease(m.x, m.y);
@@ -662,6 +697,12 @@ void Scene2DLayerManager::mouseDragged(const ofVec2f& m, int button) {
     if (bDrawCrayon) {
         if (bDrawColliders && colliderLayer) colliderLayer->drawBrush(m.x / colliderLayer->scale, m.y / colliderLayer->scale, crayon.radius / colliderLayer->scale, crayon.colorType);
         if (bDrawEatMap && eatMapLayer) eatMapLayer->drawBrush(m.x / eatMapLayer->scale, m.y / eatMapLayer->scale, crayon.radius / eatMapLayer->scale, crayon.colorType);
+    }
+    if (bDrawPhysicSam) {
+        physicSamLayer.mouseDragged(m.x / physicSamLayer.scale, m.y / physicSamLayer.scale, button);
+    }
+    if (bDrawAlive) {
+        aliveLayer.mouseDragged(m.x / aliveLayer.scale, m.y / aliveLayer.scale, button);
     }
 }
 

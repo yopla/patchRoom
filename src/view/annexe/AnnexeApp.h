@@ -1,5 +1,9 @@
 #pragma once
 #include "ofMain.h"
+#include "edit/SamController.h"
+#include "edit/AnnexeAIManager.h"
+#include "goods/RippleController.h"
+#include "goods/VolumetricLayerManager.h"
 
 class AnnexeApp : public ofBaseApp {
 public:
@@ -15,12 +19,13 @@ public:
     void keyReleased(int key) override;
     void dragEvent(ofDragInfo dragInfo) override;
 
+    void setEnabled(bool enable) { bEnabled = enable; }
+
     void saveHighResFrame();
     void generateDepthMapAI();
     void generateDepthMapDepthAnything();
     void generateSAMCollider();
     void toggleSamControl();
-    void setupRipple();
     void toggleRecording();
 
     float targetWidth = 2048.0f;
@@ -42,37 +47,17 @@ public:
     string recordFolder;
     int recordFrameCount = 0;
 
-    // Ripple Effect
-    void updateRipple();
-    void createRippleAt(int x, int y);
-    void processRipples();
-    void renderRipples();
-    bool bRippleEffect = false;
-    ofImage rippleOutputImage;
-    vector<int> rippleBuffer1;
-    vector<int> rippleBuffer2;
-    int rippleCols = 0, rippleRows = 0;
-    float rippleBufferScale = 0.5f;
-    int rippleSize = 5;
-        bool bSamControlActive = false;
+    bool bSamControlActive = false;
 
+    // Contrôleurs rendus publics pour garder la compatibilité avec l'UI s'ils sont appelés
+    RippleController rippleController;
+    VolumetricLayerManager volumManager;
 
 private:
-    // SAM Interactive Control
-    vector<ofVec2f> samPoints;
-    vector<int> samLabels; // 0: bg, 1: fg, 2: box_tl, 3: box_br
-    ofImage samPreviewMask;
-    bool bSamMaskGenerated = false;
-
-    ofRectangle samSaveBtn;
-    ofRectangle samResetBtn;
-
-    bool bSamIsDragging = false;
-    ofVec2f samDragStart;
-    float samMousePressTime = 0;
-
+    bool bEnabled = true;
+    SamController samController;
+    AnnexeAiManager aiManager;
     void saveRecordedFrame();
-    void runSamInference();
-    void saveSamSegmentation();
-    void resetSamSelection();
+public:
+    void resetDepthMap();
 };

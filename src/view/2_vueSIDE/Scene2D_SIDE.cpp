@@ -4,6 +4,7 @@
 #include "ColliderGenerator.h"
 #include "ofxOpenCv.h"
 #include <opencv2/dnn.hpp>
+#include "PhysicSamLayer.h"
 #include <opencv2/imgproc.hpp>
 
 //--------------------------------------------------------------
@@ -68,6 +69,8 @@ void Scene2D_SIDE::setup() {
     waypoints.push_back(pFront);  waypoints.push_back(pCour);   
     waypoints.push_back(pTopCour); waypoints.push_back(pCour);   
     waypoints.push_back(pBack);   
+
+    samController.setup();
 }
 
 //--------------------------------------------------------------
@@ -173,52 +176,12 @@ void Scene2D_SIDE::draw() {
     }
     
     // --- SAM INTERACTIVE PREVIEW ---
-    if (bSamControlActive && overlayImg.isAllocated()) {
+    if (samController.isActive() && overlayImg.isAllocated()) {
         ofPushMatrix();
         ofTranslate(0, -912); // overlayImg coordinates start at -912
         
-        if (bSamMaskGenerated && samPreviewMask.isAllocated()) {
-            ofPushStyle();
-            ofSetColor(255, 0, 0, 165);
-            samPreviewMask.draw(0, 0);
-            ofPopStyle();
-        }
-
-        for (size_t i = 0; i < samPoints.size(); i++) {
-            if (samLabels[i] != 0 && samLabels[i] != 1) continue;
-            ofPushStyle();
-            if (samLabels[i] == 1) ofSetColor(0, 255, 0);
-            else ofSetColor(255, 0, 0);
-            ofFill();
-            ofDrawCircle(samPoints[i].x, samPoints[i].y, 5 / viewZoom);
-            ofPopStyle();
-        }
-        
-        for (size_t i = 0; i < samPoints.size(); ++i) {
-            if (samLabels[i] == 2 && i + 1 < samPoints.size() && samLabels[i+1] == 3) {
-                ofVec2f p1 = samPoints[i];
-                ofVec2f p2 = samPoints[i+1];
-                ofPushStyle();
-                ofNoFill();
-                ofSetColor(0, 0, 255);
-                ofSetLineWidth(2 / viewZoom);
-                ofDrawRectangle(p1.x, p1.y, p2.x - p1.x, p2.y - p1.y);
-                ofPopStyle();
-                i++;
-            }
-        }
-        
-        if (bSamIsDragging) {
-            ofVec2f worldM = getTransformedMouse();
-            float currentImgX = worldM.x;
-            float currentImgY = worldM.y + 912;
-            ofPushStyle();
-            ofNoFill();
-            ofSetColor(0, 0, 255, 150);
-            ofSetLineWidth(1 / viewZoom);
-            ofDrawRectangle(samDragStart.x, samDragStart.y, currentImgX - samDragStart.x, currentImgY - samDragStart.y);
-            ofPopStyle();
-        }
+        ofVec2f currentMouseImgSpace = getTransformedMouse() + ofVec2f(0, 912);
+        samController.drawPreview(viewZoom, overlayImg, currentMouseImgSpace);
         
         ofPopMatrix();
     }
@@ -236,6 +199,9 @@ void Scene2D_SIDE::draw() {
     if (layerManager.bDrawCrayon) {
         layerManager.crayon.drawUI(20, 20);
     }
+
+    // --- SAM UI (Screen space) ---
+    samController.drawUI();
 
     /*
     // Stats
@@ -269,11 +235,6 @@ void Scene2D_SIDE::draw() {
         }
     }
     
-    if (bSamControlActive) {
-        ofPushStyle();
-        ofDrawBitmapStringHighlight("SAM CONTROL ACTIVE - FG: Clic | BG: TAB+Clic | BOX: Drag", 20, 100, ofColor(0), ofColor(255));
-        ofPopStyle();
-    }
 }
 
 
@@ -346,16 +307,11 @@ void Scene2D_SIDE::mousePressed(int x, int y, int button) {
         }
     }
     
-    if (bSamControlActive && !isSpacePressed) {
+    if (samController.isActive()) {
         ofVec2f worldM = getTransformedMouse();
-        float imgX = worldM.x;
-        float imgY = worldM.y + 912;
-        if (overlayImg.isAllocated() && imgX >= 0 && imgX < overlayImg.getWidth() && imgY >= 0 && imgY < overlayImg.getHeight()) {
-            samMousePressTime = ofGetElapsedTimef();
-            samDragStart = ofVec2f(imgX, imgY);
-            bSamIsDragging = true;
+        if (samController.mousePressed(x, y, worldM, overlayImg, layerManager, warningMessage, warningEndTime)) {
+            return;
         }
-        return; 
     }
 
     if(!isSpacePressed) {
@@ -365,33 +321,9 @@ void Scene2D_SIDE::mousePressed(int x, int y, int button) {
 }
 
 void Scene2D_SIDE::mouseReleased(int x, int y, int button) {
-    if (bSamControlActive && bSamIsDragging) {
-        bSamIsDragging = false;
+    if (samController.isActive() && samController.isDragging()) {
         ofVec2f worldM = getTransformedMouse();
-        float imgX = worldM.x;
-        float imgY = worldM.y + 912;
-
-        float dragDist = samDragStart.distance(ofVec2f(imgX, imgY));
-        
-        if (dragDist < 10) { // click
-            if (!ofGetKeyPressed(OF_KEY_TAB)) { // foreground
-                samPoints.push_back(ofVec2f(imgX, imgY));
-                samLabels.push_back(1);
-            } else { // background
-                samPoints.push_back(ofVec2f(imgX, imgY));
-                samLabels.push_back(0);
-            }
-        } else { // drag box
-            float x1 = std::min(samDragStart.x, imgX);
-            float y1 = std::min(samDragStart.y, imgY);
-            float x2 = std::max(samDragStart.x, imgX);
-            float y2 = std::max(samDragStart.y, imgY);
-            samPoints.push_back(ofVec2f(x1, y1));
-            samLabels.push_back(2);
-            samPoints.push_back(ofVec2f(x2, y2));
-            samLabels.push_back(3);
-        }
-        runSamInference();
+        samController.mouseReleased(worldM, overlayImg, warningMessage, warningEndTime);
         return;
     }
 
@@ -400,18 +332,30 @@ void Scene2D_SIDE::mouseReleased(int x, int y, int button) {
 }
 
 void Scene2D_SIDE::mouseDragged(int x, int y, int button) {
-    if (bSamControlActive && bSamIsDragging) {
+    if (samController.isActive() && samController.isDragging()) {
         lastMouse.set(x, y);
         return;
     }
+    
+    ofVec2f m = getTransformedMouse();
+    
     if (isSpacePressed) {
         viewPan += (ofVec2f(x, y) - lastMouse);
+    } else if (layerManager.bDrawPhysicSam && layerManager.physicSamLayer.draggedBody != nullptr) {
+        // Si on a attrapé un objet physique, on transmet l'event et on bloque la navigation
+        layerManager.mouseDragged(m, button);
+    } else if (layerManager.bDrawAlive && layerManager.aliveLayer.draggedCreature != nullptr) {
+        // Même comportement pour les AliveCreatures de la layer classique
+        layerManager.mouseDragged(m, button);
     } else if (layerManager.bDrawCrayon) {
-        ofVec2f m = getTransformedMouse();
         layerManager.mouseDragged(m, button);
     } else if (!ofGetKeyPressed(OF_KEY_SHIFT)) {
         viewPan += (ofVec2f(x, y) - lastMouse);
+    } else {
+        // Touche MAJ enfoncée seule, on envoie aux calques au cas où
+        layerManager.mouseDragged(m, button);
     }
+    
     lastMouse.set(x, y);
 }
 
@@ -762,191 +706,5 @@ void Scene2D_SIDE::export7Murs() {
 
 //--------------------------------------------------------------
 void Scene2D_SIDE::toggleSamControl() {
-    bSamControlActive = !bSamControlActive;
-    if (bSamControlActive) {
-        if (!overlayImg.isAllocated()) {
-            warningMessage = "Chargez un overlay (drag&drop) d'abord !";
-            warningEndTime = ofGetElapsedTimef() + 3.0f;
-            bSamControlActive = false;
-            return;
-        }
-        resetSamSelection();
-        warningMessage = "Mode Controle SAM active";
-        warningEndTime = ofGetElapsedTimef() + 2.0f;
-    } else {
-        warningMessage = "Mode Controle SAM desactive";
-        warningEndTime = ofGetElapsedTimef() + 2.0f;
-    }
-}
-
-void Scene2D_SIDE::resetSamSelection() {
-    samPoints.clear();
-    samLabels.clear();
-    samPreviewMask.clear();
-    bSamMaskGenerated = false;
-}
-
-void Scene2D_SIDE::saveSamSegmentation() {
-    if (!bSamMaskGenerated || !samPreviewMask.isAllocated()) {
-        warningMessage = "Aucun masque a sauvegarder !";
-        warningEndTime = ofGetElapsedTimef() + 3.0f;
-        return;
-    }
-    ofDirectory dir("export");
-    if(!dir.exists()) dir.create(true);
-    string filename = "export/scene2d_sam_interactive_" + ofGetTimestampString() + ".png";
-    
-    ofPixels finalPix;
-    finalPix.allocate(samPreviewMask.getWidth(), samPreviewMask.getHeight(), OF_PIXELS_RGBA);
-    for(int i=0; i<samPreviewMask.getPixels().size(); i++){
-        unsigned char val = samPreviewMask.getPixels()[i];
-        finalPix[i*4+0] = 255;
-        finalPix[i*4+1] = 255;
-        finalPix[i*4+2] = 255;
-        finalPix[i*4+3] = val;
-    }
-    ofSaveImage(finalPix, filename);
-    
-    warningMessage = "Masque SAM sauvegarde : " + filename;
-    warningEndTime = ofGetElapsedTimef() + 3.0f;
-    ofLogNotice("Scene2D_SIDE") << "Masque SAM interactif sauvegarde : " << filename;
-}
-
-void Scene2D_SIDE::runSamInference() {
-    if (!overlayImg.isAllocated() || samPoints.empty()) {
-        samPreviewMask.clear();
-        bSamMaskGenerated = false;
-        return;
-    }
-
-    string modelPath = ofToDataPath("models/SAM/image_segmentation_efficientsam_ti_2025april_int8.onnx");
-    if (!ofFile(modelPath).exists()) {
-        ofLogWarning("Scene2D_SIDE") << "Modele IA introuvable : " << modelPath;
-        warningMessage = "Modele SAM introuvable !";
-        warningEndTime = ofGetElapsedTimef() + 3.0f;
-        return;
-    }
-
-    try {
-        cv::dnn::Net net = cv::dnn::readNetFromONNX(modelPath);
-        net.setPreferableBackend(cv::dnn::DNN_BACKEND_DEFAULT);
-        net.setPreferableTarget(cv::dnn::DNN_TARGET_CPU);
-
-        int w = overlayImg.getWidth();
-        int h = overlayImg.getHeight();
-
-        ofPixels rgbPixels = overlayImg.getPixels();
-        rgbPixels.setImageType(OF_IMAGE_COLOR);
-        
-        ofxCvColorImage colorImg;
-        colorImg.allocate(w, h);
-        colorImg.setFromPixels(rgbPixels);
-        cv::Mat cvImg = cv::cvarrToMat(colorImg.getCvImage());
-
-        cv::Mat image_blob = cv::dnn::blobFromImage(cvImg, 1.0 / 255.0, cv::Size(1024, 1024), cv::Scalar(0, 0, 0), false, false);
-        
-        const int max_points = 6;
-        int shape_pts[4] = {1, 1, max_points, 2};
-        cv::Mat points_blob(4, shape_pts, CV_32F, cv::Scalar(0));
-        
-        int shape_lbls[4] = {1, 1, max_points, 1};
-        cv::Mat labels_blob(4, shape_lbls, CV_32F, cv::Scalar(-1));
-        
-        float* points_ptr = points_blob.ptr<float>();
-        float* labels_ptr = labels_blob.ptr<float>();
-
-        vector<ofVec2f> backgroundPoints;
-        int fg_point_idx = 0;
-        for (size_t i = 0; i < samPoints.size(); ++i) {
-            if (samLabels[i] == 0) { // Background point
-                backgroundPoints.push_back(samPoints[i]);
-            } else { // Foreground or box point
-                if (fg_point_idx < max_points) {
-                    float scaled_x = samPoints[i].x * 1024.0f / w;
-                    float scaled_y = samPoints[i].y * 1024.0f / h;
-                    points_ptr[fg_point_idx * 2 + 0] = scaled_x;
-                    points_ptr[fg_point_idx * 2 + 1] = scaled_y;
-                    labels_ptr[fg_point_idx] = (float)samLabels[i];
-                    fg_point_idx++;
-                }
-            }
-        }
-
-        if (fg_point_idx == 0) {
-            samPreviewMask.clear();
-            bSamMaskGenerated = false;
-            return;
-        }
-
-        net.setInput(image_blob, "batched_images");
-        net.setInput(points_blob, "batched_point_coords");
-        net.setInput(labels_blob, "batched_point_labels");
-
-        std::vector<cv::String> outNames = {"output_masks", "iou_predictions"};
-        std::vector<cv::Mat> outputs;
-        net.forward(outputs, outNames);
-
-        if(outputs.size() < 2 || outputs[0].empty() || outputs[1].empty()) {
-            ofLogError("Scene2D_SIDE") << "Erreur: Le modele SAM n'a pas retourne les masques attendus.";
-            return;
-        }
-
-        cv::Mat outputBlob = outputs[0];
-        cv::Mat outputIou = outputs[1];
-
-        vector<pair<float, int>> sorted_ious;
-        const float* iou_ptr = outputIou.ptr<float>();
-        for(int i = 0; i < outputIou.total(); ++i) {
-            sorted_ious.push_back({iou_ptr[i], i});
-        }
-        std::sort(sorted_ious.rbegin(), sorted_ious.rend());
-
-        int outH = outputBlob.size[outputBlob.dims - 2];
-        int outW = outputBlob.size[outputBlob.dims - 1];
-        cv::Mat bestMask;
-
-        for (const auto& iou_pair : sorted_ious) {
-            int mask_idx = iou_pair.second;
-            const float* mask_ptr = outputBlob.ptr<float>() + mask_idx * (outH * outW);
-            cv::Mat maskMap(outH, outW, CV_32F, (void*)mask_ptr);
-            
-            cv::Mat mask8U;
-            cv::threshold(maskMap, mask8U, 0.0, 255.0, cv::THRESH_BINARY);
-            mask8U.convertTo(mask8U, CV_8U);
-            cv::resize(mask8U, mask8U, cv::Size(w, h), 0, 0, cv::INTER_NEAREST);
-
-            bool contains_bg = false;
-            for (const auto& bg_pt : backgroundPoints) {
-                if (mask8U.at<unsigned char>((int)bg_pt.y, (int)bg_pt.x) > 0) {
-                    contains_bg = true;
-                    break;
-                }
-            }
-
-            if (!contains_bg) {
-                bestMask = mask8U;
-                break;
-            }
-        }
-
-        if (bestMask.empty() && !sorted_ious.empty()) {
-            int best_mask_idx = sorted_ious[0].second;
-            const float* mask_ptr = outputBlob.ptr<float>() + best_mask_idx * (outH * outW);
-            cv::Mat maskMap(outH, outW, CV_32F, (void*)mask_ptr);
-            cv::threshold(maskMap, bestMask, 0.0, 255.0, cv::THRESH_BINARY);
-            bestMask.convertTo(bestMask, CV_8U);
-            cv::resize(bestMask, bestMask, cv::Size(w, h), 0, 0, cv::INTER_NEAREST);
-        }
-
-        if (!bestMask.empty()) {
-            samPreviewMask.getPixels().setFromExternalPixels(bestMask.data, w, h, 1);
-            samPreviewMask.update();
-            bSamMaskGenerated = true;
-        }
-
-    } catch(const cv::Exception& e) {
-        ofLogError("Scene2D_SIDE") << "Erreur inference SAM DNN : " << e.what();
-        warningMessage = "Erreur IA (SAM DNN)";
-        warningEndTime = ofGetElapsedTimef() + 3.0f;
-    }
+    samController.toggle(overlayImg, warningMessage, warningEndTime);
 }

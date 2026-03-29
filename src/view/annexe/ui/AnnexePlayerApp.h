@@ -22,8 +22,10 @@ public:
     void keyPressed(int key) override;
     void keyReleased(int key) override;
 
-    ofApp* mainAppPtr = nullptr;
+    void setEnabled(bool enable) { bEnabled = enable; }
 
+    ofApp* mainAppPtr = nullptr;
+    bool bEnabled = true;
     ofVec2f pan;
     float zoom;
     bool isSpacePressed = false;

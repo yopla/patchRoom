@@ -50,9 +50,19 @@ void AnnexePlayerApp::setup() {
     loadButtonPositions();
 }
 
-void AnnexePlayerApp::update() {}
+void AnnexePlayerApp::update() {
+    if (ofGetMousePressed(0) && !isSpacePressed && !bIsDraggingPan && !bEditMode) {
+        ofVec2f worldM = getTransformedMouse(ofGetMouseX(), ofGetMouseY());
+        controlsUI.handleContinuousActions(worldM, mainAppPtr);
+    }
+}
 
 void AnnexePlayerApp::draw() {
+    if (!bEnabled) {
+        ofBackground(25);
+        return;
+    }
+
     ofBackground(25);
 
     ofPushMatrix();

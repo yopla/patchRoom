@@ -97,7 +97,7 @@ int main( ){
     bool bEnableView3 = false;
     bool bEnableView4 = false;
     bool bEnableZenit = false; // Toggle pour la vue Zenit
-    bool bEnableAnnexe = true; // Toggle pour les vues Annexes
+    bool bEnableAnnexe = false; // Toggle pour les vues Annexes
 
     shared_ptr<ofAppBaseWindow> viewWindow1;
     shared_ptr<ofAppBaseWindow> viewWindow2;

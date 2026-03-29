@@ -138,6 +138,8 @@ void PlaylistTooltipManager::setup() {
     texts["INT_Sardine"] = "Touche [A] ou Clic / Maintenu (Shift pour bloquer la vue) : Ajoute une Sardine a la position du curseur.";
     texts["INT_Shark"] = "Touche [A] ou Clic / Maintenu (Shift pour bloquer la vue) : Ajoute un Requin a la position du curseur.";
     texts["Crayon"] = "Active le pinceau pour dessiner des colliders ou de la EatMap.";
+    texts["Alive"] = "Affiche une simulation de mecanismes vivants s'inspirant d'alive.as (Caterpillar)";
+    texts["INT_AddAlive"] = "Touche [A] ou Clic : Ajoute une creature Alive a la position du curseur.";
     
     texts["MAIN_BRUSH_MainCrea"] = "Touche [A] sur le Main : Ajoute une Creature standard.";
     texts["MAIN_BRUSH_MainRand"] = "Touche [A] sur le Main : Ajoute une Creature aleatoire.";

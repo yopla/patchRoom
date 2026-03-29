@@ -57,6 +57,8 @@
 #include "SurSauteurLayer.h"
 #include "Crayon.h"
 #include "PaperLightLayer.h"
+#include "PhysicSamLayer.h"
+#include "AliveLayer.h"
 
 class Scene2DLayerManager {
 public:
@@ -130,6 +132,8 @@ public:
     bool bDrawCrayon = false;
     bool bDrawSurSauteurs = false;
     bool bDrawPaperLight = false;
+    bool bDrawPhysicSam = false;
+    bool bDrawAlive = false;
 
     // Layer objects
     CreatureSystem creatureSystem;
@@ -189,6 +193,8 @@ public:
     SurSauteurLayer surSauteurLayer;
     Crayon crayon;
     PaperLightLayer paperLightLayer;
+    PhysicSamLayer physicSamLayer;
+    AliveLayer aliveLayer;
 
     // State for lightning
     bool bLightningHasStart = false;

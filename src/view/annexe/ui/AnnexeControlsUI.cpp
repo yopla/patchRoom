@@ -17,6 +17,16 @@ void AnnexeControlsUI::setup() {
     recordVideoBtnRect.set(150, 250, 110, 30);
     samControlBtnRect.set(150, 290, 110, 30);
     genDepthAnythingBtnRect.set(150, 330, 110, 30);
+    
+    layerVolumBtnRect.set(150, 370, 110, 30);
+    depthMapBtnRect.set(150, 410, 110, 30);
+    resetDepthMapBtnRect.set(150, 450, 110, 30);
+    
+    rotUpBtnRect.set(185, 490, 40, 30);
+    rotLeftBtnRect.set(140, 525, 40, 30);
+    resetRotBtnRect.set(185, 525, 40, 30);
+    rotRightBtnRect.set(230, 525, 40, 30);
+    rotDownBtnRect.set(185, 560, 40, 30);
 }
 
 void AnnexeControlsUI::draw(ofApp* mainAppPtr) {
@@ -52,7 +62,7 @@ void AnnexeControlsUI::draw(ofApp* mainAppPtr) {
     ofDrawBitmapString("DEPTH ANY", genDepthAnythingBtnRect.x + 8, genDepthAnythingBtnRect.y + 20);
 
     if (mainAppPtr && mainAppPtr->annexeApp) {
-        if (mainAppPtr->annexeApp->bRippleEffect) ofSetColor(50, 180, 200);
+        if (mainAppPtr->annexeApp->rippleController.bActive) ofSetColor(50, 180, 200);
         else ofSetColor(60, 90, 100);
     } else {
         ofSetColor(60, 90, 100);
@@ -87,6 +97,36 @@ void AnnexeControlsUI::draw(ofApp* mainAppPtr) {
     ofNoFill(); ofSetColor(255); ofDrawRectangle(samControlBtnRect);
     ofSetColor(255);
     ofDrawBitmapString("SAM CONTROL", samControlBtnRect.x + 8, samControlBtnRect.y + 20);
+    
+    if (mainAppPtr && mainAppPtr->annexeApp && mainAppPtr->annexeApp->volumManager.bLayerVolumActive) ofSetColor(100, 180, 100);
+    else ofSetColor(80, 120, 80);
+    ofFill(); ofDrawRectangle(layerVolumBtnRect);
+    ofNoFill(); ofSetColor(255); ofDrawRectangle(layerVolumBtnRect);
+    ofSetColor(255);
+    ofDrawBitmapString("LAYER VOLUM", layerVolumBtnRect.x + 8, layerVolumBtnRect.y + 20);
+
+    if (mainAppPtr && mainAppPtr->annexeApp && mainAppPtr->annexeApp->volumManager.bDepthMapActive) ofSetColor(100, 180, 100);
+    else ofSetColor(80, 120, 80);
+    ofFill(); ofDrawRectangle(depthMapBtnRect);
+    ofNoFill(); ofSetColor(255); ofDrawRectangle(depthMapBtnRect);
+    ofSetColor(255);
+    ofDrawBitmapString("DEPTH MAP", depthMapBtnRect.x + 8, depthMapBtnRect.y + 20);
+
+    ofSetColor(150, 50, 50);
+    ofFill(); ofDrawRectangle(resetDepthMapBtnRect);
+    ofNoFill(); ofSetColor(255); ofDrawRectangle(resetDepthMapBtnRect);
+    ofSetColor(255);
+    ofDrawBitmapString("RESET DEPTH", resetDepthMapBtnRect.x + 8, resetDepthMapBtnRect.y + 20);
+
+    ofSetColor(60, 60, 80);
+    ofFill(); ofDrawRectangle(rotUpBtnRect); ofDrawRectangle(rotDownBtnRect); ofDrawRectangle(rotLeftBtnRect); ofDrawRectangle(rotRightBtnRect); ofDrawRectangle(resetRotBtnRect);
+    ofNoFill(); ofSetColor(255); ofDrawRectangle(rotUpBtnRect); ofDrawRectangle(rotDownBtnRect); ofDrawRectangle(rotLeftBtnRect); ofDrawRectangle(rotRightBtnRect); ofDrawRectangle(resetRotBtnRect);
+    ofSetColor(255);
+    ofDrawBitmapString("UP", rotUpBtnRect.x + 12, rotUpBtnRect.y + 20);
+    ofDrawBitmapString("DWN", rotDownBtnRect.x + 8, rotDownBtnRect.y + 20);
+    ofDrawBitmapString("LFT", rotLeftBtnRect.x + 8, rotLeftBtnRect.y + 20);
+    ofDrawBitmapString("RGT", rotRightBtnRect.x + 8, rotRightBtnRect.y + 20);
+    ofDrawBitmapString(" 0", resetRotBtnRect.x + 8, resetRotBtnRect.y + 20);
 
     ofPopStyle();
 }
@@ -160,9 +200,9 @@ bool AnnexeControlsUI::mousePressed(ofVec2f worldM, ofApp* mainAppPtr) {
 
     if (rippleBtnRect.inside(worldM)) {
         if (mainAppPtr && mainAppPtr->annexeApp) {
-            mainAppPtr->annexeApp->bRippleEffect = !mainAppPtr->annexeApp->bRippleEffect;
-            if (mainAppPtr->annexeApp->bRippleEffect) {
-                mainAppPtr->annexeApp->setupRipple();
+            mainAppPtr->annexeApp->rippleController.bActive = !mainAppPtr->annexeApp->rippleController.bActive;
+            if (mainAppPtr->annexeApp->rippleController.bActive) {
+                mainAppPtr->annexeApp->rippleController.setup(mainAppPtr->annexeApp->img);
             }
         }
         return true;
@@ -181,7 +221,50 @@ bool AnnexeControlsUI::mousePressed(ofVec2f worldM, ofApp* mainAppPtr) {
         }
         return true;
     }
+    
+    if (layerVolumBtnRect.inside(worldM)) {
+        if (mainAppPtr && mainAppPtr->annexeApp) {
+            mainAppPtr->annexeApp->volumManager.bLayerVolumActive = !mainAppPtr->annexeApp->volumManager.bLayerVolumActive;
+        }
+        return true;
+    }
+    
+    if (depthMapBtnRect.inside(worldM)) {
+        if (mainAppPtr && mainAppPtr->annexeApp) {
+            mainAppPtr->annexeApp->volumManager.bDepthMapActive = !mainAppPtr->annexeApp->volumManager.bDepthMapActive;
+            if (mainAppPtr->annexeApp->volumManager.bDepthMapActive) {
+                mainAppPtr->annexeApp->volumManager.bLayerVolumActive = true;
+            }
+        }
+        return true;
+    }
+    
+    if (resetDepthMapBtnRect.inside(worldM)) {
+        if (mainAppPtr && mainAppPtr->annexeApp) mainAppPtr->annexeApp->resetDepthMap();
+        return true;
+    }
+    
+    if (resetRotBtnRect.inside(worldM)) {
+        if (mainAppPtr && mainAppPtr->annexeApp) {
+            mainAppPtr->annexeApp->volumManager.rotX = 0;
+            mainAppPtr->annexeApp->volumManager.rotY = 0;
+        }
+        return true;
+    }
+    
+    if (rotUpBtnRect.inside(worldM) || rotDownBtnRect.inside(worldM) || rotLeftBtnRect.inside(worldM) || rotRightBtnRect.inside(worldM)) {
+        return true; // Intercepte le clic pour éviter que le canvas ne déclenche le "Drag Pan"
+    }
+    
     return false;
+}
+
+void AnnexeControlsUI::handleContinuousActions(ofVec2f worldM, ofApp* mainAppPtr) {
+    if (!mainAppPtr || !mainAppPtr->annexeApp) return;
+    if (rotUpBtnRect.inside(worldM)) mainAppPtr->annexeApp->volumManager.rotX -= mainAppPtr->annexeApp->volumManager.rotSpeed;
+    if (rotDownBtnRect.inside(worldM)) mainAppPtr->annexeApp->volumManager.rotX += mainAppPtr->annexeApp->volumManager.rotSpeed;
+    if (rotLeftBtnRect.inside(worldM)) mainAppPtr->annexeApp->volumManager.rotY -= mainAppPtr->annexeApp->volumManager.rotSpeed;
+    if (rotRightBtnRect.inside(worldM)) mainAppPtr->annexeApp->volumManager.rotY += mainAppPtr->annexeApp->volumManager.rotSpeed;
 }
 
 string AnnexeControlsUI::getTooltip(ofVec2f worldM, AnnexeTooltipManager& tooltipManager) {
@@ -193,6 +276,11 @@ string AnnexeControlsUI::getTooltip(ofVec2f worldM, AnnexeTooltipManager& toolti
     if(rippleBtnRect.inside(worldM)) return tooltipManager.getTooltipText("RIPPLE FX");
     if(recordVideoBtnRect.inside(worldM)) return tooltipManager.getTooltipText("RECORD VIDEO");
     if(samControlBtnRect.inside(worldM)) return tooltipManager.getTooltipText("SAM CONTROL");
+    if(layerVolumBtnRect.inside(worldM)) return tooltipManager.getTooltipText("LAYER VOLUM");
+    if(depthMapBtnRect.inside(worldM)) return tooltipManager.getTooltipText("DEPTH MAP");
+    if(resetDepthMapBtnRect.inside(worldM)) return tooltipManager.getTooltipText("RESET DEPTH");
+    if(rotUpBtnRect.inside(worldM) || rotDownBtnRect.inside(worldM) || rotLeftBtnRect.inside(worldM) || rotRightBtnRect.inside(worldM)) return tooltipManager.getTooltipText("ROTATION");
+    if(resetRotBtnRect.inside(worldM)) return tooltipManager.getTooltipText("RESET ROT");
     return "";
 }
 
@@ -213,6 +301,19 @@ void AnnexeControlsUI::saveSettings(ofJson& pt) {
     pt["annexeControlsUI"]["recordVideoBtn"]["w"] = recordVideoBtnRect.width; pt["annexeControlsUI"]["recordVideoBtn"]["h"] = recordVideoBtnRect.height;
     pt["annexeControlsUI"]["samControlBtn"]["x"] = samControlBtnRect.x; pt["annexeControlsUI"]["samControlBtn"]["y"] = samControlBtnRect.y;
     pt["annexeControlsUI"]["samControlBtn"]["w"] = samControlBtnRect.width; pt["annexeControlsUI"]["samControlBtn"]["h"] = samControlBtnRect.height;
+    
+    pt["annexeControlsUI"]["layerVolumBtn"]["x"] = layerVolumBtnRect.x; pt["annexeControlsUI"]["layerVolumBtn"]["y"] = layerVolumBtnRect.y;
+    pt["annexeControlsUI"]["layerVolumBtn"]["w"] = layerVolumBtnRect.width; pt["annexeControlsUI"]["layerVolumBtn"]["h"] = layerVolumBtnRect.height;
+    pt["annexeControlsUI"]["depthMapBtn"]["x"] = depthMapBtnRect.x; pt["annexeControlsUI"]["depthMapBtn"]["y"] = depthMapBtnRect.y;
+    pt["annexeControlsUI"]["depthMapBtn"]["w"] = depthMapBtnRect.width; pt["annexeControlsUI"]["depthMapBtn"]["h"] = depthMapBtnRect.height;
+    pt["annexeControlsUI"]["resetDepthMapBtn"]["x"] = resetDepthMapBtnRect.x; pt["annexeControlsUI"]["resetDepthMapBtn"]["y"] = resetDepthMapBtnRect.y;
+    pt["annexeControlsUI"]["resetDepthMapBtn"]["w"] = resetDepthMapBtnRect.width; pt["annexeControlsUI"]["resetDepthMapBtn"]["h"] = resetDepthMapBtnRect.height;
+    pt["annexeControlsUI"]["rotUpBtn"]["x"] = rotUpBtnRect.x; pt["annexeControlsUI"]["rotUpBtn"]["y"] = rotUpBtnRect.y;
+    pt["annexeControlsUI"]["rotDownBtn"]["x"] = rotDownBtnRect.x; pt["annexeControlsUI"]["rotDownBtn"]["y"] = rotDownBtnRect.y;
+    pt["annexeControlsUI"]["rotLeftBtn"]["x"] = rotLeftBtnRect.x; pt["annexeControlsUI"]["rotLeftBtn"]["y"] = rotLeftBtnRect.y;
+    pt["annexeControlsUI"]["rotRightBtn"]["x"] = rotRightBtnRect.x; pt["annexeControlsUI"]["rotRightBtn"]["y"] = rotRightBtnRect.y;
+    pt["annexeControlsUI"]["resetRotBtn"]["x"] = resetRotBtnRect.x; pt["annexeControlsUI"]["resetRotBtn"]["y"] = resetRotBtnRect.y;
+    pt["annexeControlsUI"]["resetRotBtn"]["w"] = resetRotBtnRect.width; pt["annexeControlsUI"]["resetRotBtn"]["h"] = resetRotBtnRect.height;
 }
 
 void AnnexeControlsUI::loadSettings(const ofJson& pt) {
@@ -264,9 +365,45 @@ void AnnexeControlsUI::loadSettings(const ofJson& pt) {
         samControlBtnRect.width = pt["annexeControlsUI"]["samControlBtn"].value("w", samControlBtnRect.width);
         samControlBtnRect.height = pt["annexeControlsUI"]["samControlBtn"].value("h", samControlBtnRect.height);
     }
+    if(pt.contains("annexeControlsUI") && pt["annexeControlsUI"].contains("layerVolumBtn")) {
+        layerVolumBtnRect.x = pt["annexeControlsUI"]["layerVolumBtn"].value("x", layerVolumBtnRect.x);
+        layerVolumBtnRect.y = pt["annexeControlsUI"]["layerVolumBtn"].value("y", layerVolumBtnRect.y);
+        layerVolumBtnRect.width = pt["annexeControlsUI"]["layerVolumBtn"].value("w", layerVolumBtnRect.width);
+        layerVolumBtnRect.height = pt["annexeControlsUI"]["layerVolumBtn"].value("h", layerVolumBtnRect.height);
+    }
+    if(pt.contains("annexeControlsUI") && pt["annexeControlsUI"].contains("depthMapBtn")) {
+        depthMapBtnRect.x = pt["annexeControlsUI"]["depthMapBtn"].value("x", depthMapBtnRect.x);
+        depthMapBtnRect.y = pt["annexeControlsUI"]["depthMapBtn"].value("y", depthMapBtnRect.y);
+        depthMapBtnRect.width = pt["annexeControlsUI"]["depthMapBtn"].value("w", depthMapBtnRect.width);
+        depthMapBtnRect.height = pt["annexeControlsUI"]["depthMapBtn"].value("h", depthMapBtnRect.height);
+    }
+    if(pt.contains("annexeControlsUI") && pt["annexeControlsUI"].contains("resetDepthMapBtn")) {
+        resetDepthMapBtnRect.x = pt["annexeControlsUI"]["resetDepthMapBtn"].value("x", resetDepthMapBtnRect.x);
+        resetDepthMapBtnRect.y = pt["annexeControlsUI"]["resetDepthMapBtn"].value("y", resetDepthMapBtnRect.y);
+        resetDepthMapBtnRect.width = pt["annexeControlsUI"]["resetDepthMapBtn"].value("w", resetDepthMapBtnRect.width);
+        resetDepthMapBtnRect.height = pt["annexeControlsUI"]["resetDepthMapBtn"].value("h", resetDepthMapBtnRect.height);
+    }
+    if(pt.contains("annexeControlsUI") && pt["annexeControlsUI"].contains("rotUpBtn")) {
+        rotUpBtnRect.x = pt["annexeControlsUI"]["rotUpBtn"].value("x", rotUpBtnRect.x); rotUpBtnRect.y = pt["annexeControlsUI"]["rotUpBtn"].value("y", rotUpBtnRect.y);
+    }
+    if(pt.contains("annexeControlsUI") && pt["annexeControlsUI"].contains("rotDownBtn")) {
+        rotDownBtnRect.x = pt["annexeControlsUI"]["rotDownBtn"].value("x", rotDownBtnRect.x); rotDownBtnRect.y = pt["annexeControlsUI"]["rotDownBtn"].value("y", rotDownBtnRect.y);
+    }
+    if(pt.contains("annexeControlsUI") && pt["annexeControlsUI"].contains("rotLeftBtn")) {
+        rotLeftBtnRect.x = pt["annexeControlsUI"]["rotLeftBtn"].value("x", rotLeftBtnRect.x); rotLeftBtnRect.y = pt["annexeControlsUI"]["rotLeftBtn"].value("y", rotLeftBtnRect.y);
+    }
+    if(pt.contains("annexeControlsUI") && pt["annexeControlsUI"].contains("rotRightBtn")) {
+        rotRightBtnRect.x = pt["annexeControlsUI"]["rotRightBtn"].value("x", rotRightBtnRect.x); rotRightBtnRect.y = pt["annexeControlsUI"]["rotRightBtn"].value("y", rotRightBtnRect.y);
+    }
+    if(pt.contains("annexeControlsUI") && pt["annexeControlsUI"].contains("resetRotBtn")) {
+        resetRotBtnRect.x = pt["annexeControlsUI"]["resetRotBtn"].value("x", resetRotBtnRect.x);
+        resetRotBtnRect.y = pt["annexeControlsUI"]["resetRotBtn"].value("y", resetRotBtnRect.y);
+        resetRotBtnRect.width = pt["annexeControlsUI"]["resetRotBtn"].value("w", resetRotBtnRect.width);
+        resetRotBtnRect.height = pt["annexeControlsUI"]["resetRotBtn"].value("h", resetRotBtnRect.height);
+    }
 }
 
-vector<ofRectangle*> AnnexeControlsUI::getInteractableRects() { return { &soloAnnexeBtnRect, &saveFrameBtnRect, &genAIBtnRect, &genSAMBtnRect, &genDepthAnythingBtnRect, &rippleBtnRect, &recordVideoBtnRect, &samControlBtnRect }; }
+vector<ofRectangle*> AnnexeControlsUI::getInteractableRects() { return { &soloAnnexeBtnRect, &saveFrameBtnRect, &genAIBtnRect, &genSAMBtnRect, &genDepthAnythingBtnRect, &rippleBtnRect, &recordVideoBtnRect, &samControlBtnRect, &layerVolumBtnRect, &depthMapBtnRect, &resetDepthMapBtnRect, &rotUpBtnRect, &rotDownBtnRect, &rotLeftBtnRect, &rotRightBtnRect, &resetRotBtnRect }; }
 ofRectangle* AnnexeControlsUI::findButtonAt(ofVec2f pos) { 
     if (soloAnnexeBtnRect.inside(pos)) return &soloAnnexeBtnRect; 
     if (saveFrameBtnRect.inside(pos)) return &saveFrameBtnRect; 
@@ -276,5 +413,13 @@ ofRectangle* AnnexeControlsUI::findButtonAt(ofVec2f pos) {
     if (rippleBtnRect.inside(pos)) return &rippleBtnRect;
     if (recordVideoBtnRect.inside(pos)) return &recordVideoBtnRect;
     if (samControlBtnRect.inside(pos)) return &samControlBtnRect;
+    if (layerVolumBtnRect.inside(pos)) return &layerVolumBtnRect;
+    if (depthMapBtnRect.inside(pos)) return &depthMapBtnRect;
+    if (resetDepthMapBtnRect.inside(pos)) return &resetDepthMapBtnRect;
+    if (rotUpBtnRect.inside(pos)) return &rotUpBtnRect;
+    if (rotDownBtnRect.inside(pos)) return &rotDownBtnRect;
+    if (rotLeftBtnRect.inside(pos)) return &rotLeftBtnRect;
+    if (rotRightBtnRect.inside(pos)) return &rotRightBtnRect;
+    if (resetRotBtnRect.inside(pos)) return &resetRotBtnRect;
     return nullptr; 
 }

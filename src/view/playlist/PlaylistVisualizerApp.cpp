@@ -3,6 +3,8 @@
 #include "Scene2D_SIDE.h"
 #include "RoomApp.h"
 #include "ofApp.h"
+#include "AnnexeApp.h"
+#include "AnnexePlayerApp.h"
 #include "ofAppGLFWWindow.h"
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
@@ -52,6 +54,7 @@ void PlaylistVisualizerApp::setup() {
     }
 
     focusAnnexesBtnRect.set(690, 5, 120, 30);
+    toggleAnnexesBtnRect.set(820, 5, 120, 30);
 
     // Init Gemini UI
     geminiUI.setup();
@@ -320,12 +323,22 @@ void PlaylistVisualizerApp::draw() {
         }
     }
     
-    ofSetColor(50, 150, 200);
-    ofFill(); ofDrawRectangle(focusAnnexesBtnRect);
-    ofNoFill(); ofSetColor(255); ofDrawRectangle(focusAnnexesBtnRect);
-    ofDrawBitmapString("FOCUS ANNEXES", focusAnnexesBtnRect.x + 8, focusAnnexesBtnRect.y + 20);
-    if(focusAnnexesBtnRect.inside(ofGetMouseX(), ofGetMouseY())) {
-        hoveredTooltip = "Mettre au premier plan les fenetres Annexes";
+    if (mainAppPtr && mainAppPtr->annexeApp) {
+        ofSetColor(50, 150, 200);
+        ofFill(); ofDrawRectangle(focusAnnexesBtnRect);
+        ofNoFill(); ofSetColor(255); ofDrawRectangle(focusAnnexesBtnRect);
+        ofDrawBitmapString("FOCUS ANNEXES", focusAnnexesBtnRect.x + 8, focusAnnexesBtnRect.y + 20);
+        if(focusAnnexesBtnRect.inside(ofGetMouseX(), ofGetMouseY())) {
+            hoveredTooltip = "Mettre au premier plan les fenetres Annexes";
+        }
+        
+        ofSetColor(bAnnexesHidden ? ofColor(150, 50, 50) : ofColor(50, 150, 200));
+        ofFill(); ofDrawRectangle(toggleAnnexesBtnRect);
+        ofNoFill(); ofSetColor(255); ofDrawRectangle(toggleAnnexesBtnRect);
+        ofDrawBitmapString(bAnnexesHidden ? "ANNEXES OFF" : "ANNEXES ON", toggleAnnexesBtnRect.x + 18, toggleAnnexesBtnRect.y + 20);
+        if(toggleAnnexesBtnRect.inside(ofGetMouseX(), ofGetMouseY())) {
+            hoveredTooltip = "Afficher/Masquer les fenetres Annexes";
+        }
     }
     ofPopStyle();
     
@@ -394,8 +407,8 @@ void PlaylistVisualizerApp::mousePressed(int x, int y, int button) {
         }
     }
     
-    if (focusAnnexesBtnRect.inside(x, y)) {
-        if (mainAppPtr) {
+    if (mainAppPtr && mainAppPtr->annexeApp) {
+        if (focusAnnexesBtnRect.inside(x, y)) {
             auto focusWin = [](shared_ptr<ofAppBaseWindow> win) {
                 if(win) {
                     auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(win);
@@ -408,8 +421,14 @@ void PlaylistVisualizerApp::mousePressed(int x, int y, int button) {
             };
             focusWin(mainAppPtr->annexeWindowPtr);
             focusWin(mainAppPtr->annexePlayerWindowPtr);
+            return;
         }
-        return;
+        if (toggleAnnexesBtnRect.inside(x, y)) {
+            bAnnexesHidden = !bAnnexesHidden;
+            if (mainAppPtr->annexeApp) mainAppPtr->annexeApp->setEnabled(!bAnnexesHidden);
+            if (mainAppPtr->annexePlayerApp) mainAppPtr->annexePlayerApp->setEnabled(!bAnnexesHidden);
+            return;
+        }
     }
 
     // Clics dans le HUD Fixe
@@ -893,6 +912,7 @@ ofJson PlaylistVisualizerApp::serializeState() {
     
     geminiUI.saveSettings(pt);
     imageGraphPlayer.saveSettings(pt);
+    pt["annexes"]["hidden"] = bAnnexesHidden;
 
     return pt;
 }
@@ -991,6 +1011,14 @@ void PlaylistVisualizerApp::deserializeState(const ofJson& pt) {
     
     geminiUI.loadSettings(pt);
     imageGraphPlayer.loadSettings(pt, imageGraphDropZone);
+
+    if(pt.contains("annexes")) {
+        bAnnexesHidden = pt["annexes"].value("hidden", false);
+        if (mainAppPtr && mainAppPtr->annexeApp) {
+            if (mainAppPtr->annexeApp) mainAppPtr->annexeApp->setEnabled(!bAnnexesHidden);
+            if (mainAppPtr->annexePlayerApp) mainAppPtr->annexePlayerApp->setEnabled(!bAnnexesHidden);
+        }
+    }
 }
 
 void PlaylistVisualizerApp::saveUndoState() {
@@ -1100,7 +1128,10 @@ vector<SearchableButton> PlaylistVisualizerApp::getAllSearchableButtons() {
         res.push_back({windowControlsUI.focusNames[i], &windowControlsUI.focusBtns[i]});
     }
     for(int i=0; i<4; i++) res.push_back({"GAB " + ofToString(i), &windowControlsUI.gabBtns[i]});
-    res.push_back({"Focus Annexes", &focusAnnexesBtnRect});
+    if (mainAppPtr && mainAppPtr->annexeApp) {
+        res.push_back({"Focus Annexes", &focusAnnexesBtnRect});
+        res.push_back({"Toggle Annexes", &toggleAnnexesBtnRect});
+    }
     res.push_back({"Diffuse Room", &windowControlsUI.diffuseRoomBtn});
     res.push_back({"Diffuse Scene2D", &windowControlsUI.diffuseScene2DBtn});
     

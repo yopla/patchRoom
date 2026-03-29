@@ -10,6 +10,7 @@ public:
     void setup();
     void draw(ofApp* mainAppPtr);
     bool mousePressed(ofVec2f worldM, ofApp* mainAppPtr);
+    void handleContinuousActions(ofVec2f worldM, ofApp* mainAppPtr);
     string getTooltip(ofVec2f worldM, AnnexeTooltipManager& tooltipManager);
     
     void saveSettings(ofJson& pt);
@@ -26,6 +27,15 @@ public:
     ofRectangle rippleBtnRect;
     ofRectangle recordVideoBtnRect;
     ofRectangle samControlBtnRect;
+    
+    ofRectangle layerVolumBtnRect;
+    ofRectangle depthMapBtnRect;
+    ofRectangle resetDepthMapBtnRect;
+    ofRectangle rotUpBtnRect;
+    ofRectangle rotDownBtnRect;
+    ofRectangle rotLeftBtnRect;
+    ofRectangle rotRightBtnRect;
+    ofRectangle resetRotBtnRect;
     bool bIsSoloActive = false;
 
 private:

@@ -1,6 +1,7 @@
 #pragma once
 #include "ofMain.h"
 #include "Scene2DLayerManager.h"
+#include "Scene2DSamController.h"
 
 class Scene2D_SIDE : public ofBaseApp {
 public:
@@ -34,17 +35,9 @@ public:
     void generateColliderFromDexined();
     void generateColliderFromDepthAnything();
     
-    // --- SAM INTERACTIVE CONTROL ---
-    bool bSamControlActive = false;
-    vector<ofVec2f> samPoints;
-    vector<int> samLabels; // 0: bg, 1: fg, 2: box_tl, 3: box_br
-    ofImage samPreviewMask;
-    bool bSamMaskGenerated = false;
+    Scene2DSamController samController;
 
     void toggleSamControl();
-    void runSamInference();
-    void saveSamSegmentation();
-    void resetSamSelection();
 
     // Temps local pour pouvoir mettre en pause l'animation de la balle
     float localTime = 0.0f; 
@@ -106,9 +99,5 @@ private:
     ofVec2f ballPos;
     vector<ofVec2f> waypoints;   
     
-    // Input states for SAM
-    bool bSamIsDragging = false;
-    ofVec2f samDragStart;
-    float samMousePressTime = 0;
     ofVec2f getTransformedMouse();
 };
