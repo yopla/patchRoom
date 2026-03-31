@@ -9,7 +9,7 @@ public:
     float len;
     float width;
     
-    IKSegment(float l, float w) : len(l), width(w), x(0), y(0), angle(0) {}
+    IKSegment(float l, float w) : x(0), y(0), angle(0), len(l), width(w) {}
     
     ofVec2f getPin() {
         return ofVec2f(x + cos(angle) * len, y + sin(angle) * len);

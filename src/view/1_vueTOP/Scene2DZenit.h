@@ -26,8 +26,21 @@ public:
     ofFbo fboJar, fboFront, fboCour, fboBack;
     ofFbo fboSol, fboTopJar, fboTopCour;
 
+    // --- Pointeurs vers les FBOs de la RoomApp ---
+    ofFbo* roomFboFront = nullptr;
+    ofFbo* roomFboBack = nullptr;
+    ofFbo* roomFboCour = nullptr;
+    ofFbo* roomFboJar = nullptr;
+    ofFbo* roomFboSol = nullptr;
+    ofFbo* roomFboTopCour = nullptr;
+    ofFbo* roomFboTopJar = nullptr;
+    
+    int bgDisplayMode = 1; // 0: Opaque, 1: Transparent, 2: Room FBOs, 3: Rien
+
+    int layoutMode = 0; // 0: Centré sur SOL, 1: Centré sur TOP (Toits face-à-face)
+
 private:
-    void captureView(ofFbo& fbo, ofImage& img, ofMatrix4x4 globalTransform);
+    void captureView(ofFbo& fbo, ofImage& img, ofMatrix4x4 globalTransform, ofFbo* roomFbo = nullptr);
     void drawDynamicElements();
     void drawLabel(string text, float x, float y);
 

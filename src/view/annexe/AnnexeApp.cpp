@@ -56,6 +56,10 @@ void AnnexeApp::draw() {
         ofFill();
     }
     
+    // Rendu du layer Patteu
+    patteuLayer.draw(targetWidth, targetHeight);
+    deuPatteuLayer.draw(targetWidth, targetHeight);
+
     volumManager.draw(targetWidth, targetHeight);
     
     ofPopMatrix();
@@ -82,6 +86,28 @@ void AnnexeApp::draw() {
         ofPopStyle();
     }
 
+    // --- Previsualisation de la brush Patteu ---
+    if (patteuLayer.bActive) {
+        ofVec2f worldM = getTransformedMouse();
+        if (worldM.x >= 0 && worldM.x < targetWidth && worldM.y >= 0 && worldM.y < targetHeight) {
+            ofPushStyle();
+            ofNoFill();
+            ofSetColor(255, 150); ofDrawCircle(ofGetMouseX(), ofGetMouseY(), patteuLayer.brushSize * viewZoom);
+            ofSetColor(255, 50);  ofDrawCircle(ofGetMouseX(), ofGetMouseY(), patteuLayer.brushSize * patteuLayer.hardness * viewZoom);
+            ofPopStyle();
+        }
+    }
+    if (deuPatteuLayer.bActive) {
+        ofVec2f worldM = getTransformedMouse();
+        if (worldM.x >= 0 && worldM.x < targetWidth && worldM.y >= 0 && worldM.y < targetHeight) {
+            ofPushStyle();
+            ofNoFill();
+            ofSetColor(255, 100, 255, 150); ofDrawCircle(ofGetMouseX(), ofGetMouseY(), deuPatteuLayer.brushSize * viewZoom);
+            ofSetColor(255, 100, 255, 50);  ofDrawCircle(ofGetMouseX(), ofGetMouseY(), deuPatteuLayer.brushSize * deuPatteuLayer.hardness * viewZoom);
+            ofPopStyle();
+        }
+    }
+
     // Message d'avertissement clignotant
     if (ofGetElapsedTimef() < warningEndTime) {
         if (sin(ofGetElapsedTimef() * 15.0f) > 0) { // Clignotement
@@ -93,10 +119,10 @@ void AnnexeApp::draw() {
     
     // HUD Infos
     if (isSpacePressed) {
-        ofDrawBitmapStringHighlight("ESPACE + DRAG: Pan | MOLETTE: Zoom | R: Reset", 10, ofGetHeight() - 20, ofColor(50, 200, 50), ofColor(0));
+        ofDrawBitmapStringHighlight("ESPACE + DRAG: Pan | MOLETTE: Zoom | SHIFT: Force interaction | R: Reset", 10, ofGetHeight() - 20, ofColor(50, 200, 50), ofColor(0));
     } else {
         ofSetColor(255);
-        ofDrawBitmapStringHighlight("ESPACE + DRAG: Pan | MOLETTE: Zoom | R: Reset", 10, ofGetHeight() - 20, ofColor(30, 30, 30, 200), ofColor(255));
+        ofDrawBitmapStringHighlight("ESPACE + DRAG: Pan | MOLETTE: Zoom | SHIFT: Force interaction | R: Reset", 10, ofGetHeight() - 20, ofColor(30, 30, 30, 200), ofColor(255));
     }
 }
 
@@ -116,6 +142,9 @@ void AnnexeApp::saveHighResFrame() {
         ofDrawRectangle(0, 0, targetWidth, targetHeight);
         ofFill();
     }
+    patteuLayer.draw(targetWidth, targetHeight);
+    deuPatteuLayer.draw(targetWidth, targetHeight);
+
     volumManager.draw(targetWidth, targetHeight);
     fbo.end();
 
@@ -259,6 +288,8 @@ ofVec2f AnnexeApp::getTransformedMouse() {
 
 void AnnexeApp::mouseScrolled(int x, int y, float scrollX, float scrollY) {
     if (scrollY == 0) return;
+    
+
     ofVec2f worldM = getTransformedMouse();
     float zoomFactor = (scrollY > 0) ? 1.1f : 0.9f;
     viewZoom = ofClamp(viewZoom * zoomFactor, 0.01f, 10.0f);
@@ -268,9 +299,10 @@ void AnnexeApp::mouseScrolled(int x, int y, float scrollX, float scrollY) {
 
 void AnnexeApp::mousePressed(int x, int y, int button) {
     lastMouse.set(x, y); // Toujours mettre a jour pour eviter les sauts de vue au drag
+    ofVec2f worldM = getTransformedMouse();
+    lastPatteuMouse = worldM;
 
     if (samController.isActive() && !isSpacePressed) {
-        ofVec2f worldM = getTransformedMouse();
         if (worldM.x >= 0 && worldM.x < targetWidth && worldM.y >= 0 && worldM.y < targetHeight) {
             float imgMouseX = ofMap(worldM.x, 0, targetWidth, 0, img.getWidth());
             float imgMouseY = ofMap(worldM.y, 0, targetHeight, 0, img.getHeight());
@@ -285,7 +317,6 @@ void AnnexeApp::mousePressed(int x, int y, int button) {
     }
 
     if (rippleController.bActive && img.isAllocated() && !isSpacePressed) {
-        ofVec2f worldM = getTransformedMouse();
         // Check if click is inside the image area
         if (worldM.x >= 0 && worldM.x < targetWidth && worldM.y >= 0 && worldM.y < targetHeight) {
             int imgX = ofMap(worldM.x, 0, targetWidth, 0, img.getWidth());
@@ -303,7 +334,22 @@ void AnnexeApp::mouseDragged(int x, int y, int button) {
         samController.mouseDragged({imgMouseX, imgMouseY});
         return;
     }
-    if (isSpacePressed || !ofGetKeyPressed(OF_KEY_SHIFT)) {
+    
+    ofVec2f worldM = getTransformedMouse();
+
+    // Logique d'estompe Patteu (on bloque le Pan si SHIFT est pressé)
+    if (patteuLayer.bActive && (!isSpacePressed || isShiftPressed)) {
+        patteuLayer.smudge(worldM, lastPatteuMouse, targetWidth, targetHeight);
+        lastPatteuMouse = worldM;
+        return;
+    }
+    if (deuPatteuLayer.bActive && (!isSpacePressed || isShiftPressed)) {
+        deuPatteuLayer.smudge(worldM, lastPatteuMouse, targetWidth, targetHeight);
+        lastPatteuMouse = worldM;
+        return;
+    }
+
+    if (isSpacePressed || !isShiftPressed) {
         ofVec2f currentMouse(x, y);
         viewPan += (currentMouse - lastMouse);
     }
@@ -320,11 +366,13 @@ void AnnexeApp::mouseReleased(int x, int y, int button) {
 
 void AnnexeApp::keyPressed(int key) {
     if (key == ' ') isSpacePressed = true;
+    if (key == OF_KEY_SHIFT) isShiftPressed = true;
     if (key == 'r' || key == 'R') setup(); // Reset vue
 }
 
 void AnnexeApp::keyReleased(int key) {
     if (key == ' ') isSpacePressed = false;
+    if (key == OF_KEY_SHIFT) isShiftPressed = false;
 }
 
 void AnnexeApp::resetDepthMap() {

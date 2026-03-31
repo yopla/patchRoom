@@ -116,6 +116,15 @@ public:
     ofFbo* scene2DFboSol = nullptr;
     ofFbo* scene2DFboTopCour = nullptr;
     ofFbo* scene2DFboTopJar = nullptr;
+    
+    // --- FBOs de la Scene 2D Zenit pour le Mode GAB 3 ---
+    ofFbo* zenitFboFront = nullptr;
+    ofFbo* zenitFboBack = nullptr;
+    ofFbo* zenitFboCour = nullptr;
+    ofFbo* zenitFboJar = nullptr;
+    ofFbo* zenitFboSol = nullptr;
+    ofFbo* zenitFboTopCour = nullptr;
+    ofFbo* zenitFboTopJar = nullptr;
 
     // --- Les 3 Nouveaux Modules ---
     RoomWalls walls;
@@ -129,7 +138,7 @@ public:
 
     // --- Flags de contrôle ---
     bool bShowRoof = true;
-    int bgMode = 0; // 0: GAB par defaut, 1: OFF, 2: SCENE2D
+    int bgMode = 0; // 0: GAB par defaut, 1: OFF, 2: SCENE2D, 3: SCENE2D ZENIT
     float wallAlpha = 100.0f;
     bool respire = false;
     bool bDrawRipples = false; // Optionnel : pour activer/désactiver

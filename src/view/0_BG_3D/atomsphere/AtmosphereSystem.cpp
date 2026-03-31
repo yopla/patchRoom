@@ -12,7 +12,7 @@ void AtmosphereSystem::holdLastFrame() {
         }
         // Copie la texture de la vidéo dans le FBO
         lastFrameFbo.begin();
-        ofClear(0);
+        ofClear(0,0);
         ofPushStyle();
         ofSetColor(255);
         video360.getTexture().draw(0, 0);
@@ -77,7 +77,7 @@ void AtmosphereSystem::setup() {
     //bool success = texture360.load("Alexs_Apt_8k.jpg");
     bool success = texture360.load("GAB0/VR0.jpg");
     if(success) ofLog() << "Texture 360 chargee avec succes !";
-    else ofLog(OF_LOG_ERROR, "Erreur chargement VR0.jpg");
+    else ofLog(OF_LOG_ERROR) << "Erreur chargement VR0.jpg";
 
     // On aligne la sphère avec la position du Rig (0, 600, 0)
     offsetY = 600.0f;

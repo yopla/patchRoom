@@ -80,7 +80,7 @@ void ExternalTentacle::update(float time, ofVec3f headPos, float growth) {
         float z = pos.z;
         
         // Ondulation
-        float wave = sin(time * 2.0f + i * 0.2f) * 50.0f * growth;
+        // float wave = sin(time * 2.0f + i * 0.2f) * 50.0f * growth;
         
         // Ajout de bruit pour un aspect organique
         x += ofSignedNoise(time * 0.5, i * 0.1) * 100.0f;

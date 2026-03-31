@@ -114,4 +114,8 @@ GeminiImageGenerator geminiGen;
     ofVec2f getTransformedMouse();
     
     void onFirstFrameReady(ofEventArgs & args);
+
+    void setupConnections();
+    void createAnnexeWindows();
+    void createZenitWindow();
 };

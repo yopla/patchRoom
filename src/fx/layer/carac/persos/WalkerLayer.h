@@ -30,14 +30,14 @@ private:
 
     // Physique Walker
     ofVec2f pos;        // Position (X = jambes, Y = calculé dynamiquement)
-    float bodyY;        // Hauteur du corps relative aux jambes
+    // float bodyY;        // Hauteur du corps relative aux jambes
     float angleCycle;   // 'r' dans le code AS3 (cycle de marche)
     
     // Configuration
     vector<WalkerLeg> legs;
-    float walkerSpeed = 0.0f; // Vitesse calculée selon le déplacement
+    // float walkerSpeed = 0.0f; // Vitesse calculée selon le déplacement
     
     // Visuals
-    float bodyW = 80;
+    // float bodyW = 80;
     float bodyH = 60;
 };

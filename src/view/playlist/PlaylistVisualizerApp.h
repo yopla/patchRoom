@@ -12,9 +12,13 @@
 #include "PlaylistWindowControlsUI.h"
 #include "PlaylistTextureUI.h"
 #include "PlaylistSearchBar.h"
+#include "PlaylistHistoryUI.h"
+#include "PlaylistViewsUI.h"
+#include "PlaylistWinPosUI.h"
 #include "PlaylistTextNote.h"
 #include "PlaylistVisualFrame.h"
 #include "ImageGraphPlayer.h"
+#include "PlaylistSequenceUI.h"
 #include <deque>
 #include <memory>
 
@@ -24,11 +28,11 @@ class ofApp;
 
 class PlaylistVisualizerApp : public ofBaseApp {
 public:
-    void setup();
-    void update();
-    void draw();
-    void mousePressed(int x, int y, int button);
-    void dragEvent(ofDragInfo dragInfo);
+    void setup() override;
+    void update() override;
+    void draw() override;
+    void mousePressed(int x, int y, int button) override;
+    void dragEvent(ofDragInfo dragInfo) override;
     void mouseMoved(int x, int y) override;
     void mouseDragged(int x, int y, int button) override;
     void mouseReleased(int x, int y, int button) override;
@@ -85,19 +89,16 @@ public:
     ofRectangle addNoteBtnRect;
     ofRectangle addFrameBtnRect;
     ofRectangle searchBtnRect;
+    ofRectangle histBtnRect;
+    ofRectangle vuesBtnRect;
+    ofRectangle posWinBtnRect;
     bool bEditMode = false;
 
-    ofRectangle cameraPresetBtns[5];
-    ofVec2f presetPans[5];
-    float presetZooms[5];
-
-    ofRectangle windowPresetBtns[5];
-    ofRectangle windowPresets[5][6];
-    bool windowPresetSaved[5] = {false};
     shared_ptr<ofAppBaseWindow> getAppWindow(int index);
     
     ofRectangle focusAnnexesBtnRect;
     ofRectangle toggleAnnexesBtnRect;
+    ofRectangle createAnnexeBtnRect;
     bool bAnnexesHidden = false;
 
     vector<shared_ptr<PlaylistTextNote>> textNotes;
@@ -108,7 +109,7 @@ public:
     ofRectangle* resizingRect = nullptr;
     
     std::deque<ofJson> undoStack;
-    void saveUndoState();
+    void saveUndoState(string actionName = "Action");
     void undo();
     ofJson serializeState();
     void deserializeState(const ofJson& pt);
@@ -139,13 +140,20 @@ public:
     PlaylistTextureUI textureUI;
     
     PlaylistSearchBar searchBar;
+    PlaylistHistoryUI historyUI;
+    PlaylistViewsUI viewsUI;
+    PlaylistWinPosUI winPosUI;
     vector<SearchableButton> getAllSearchableButtons();
+    
+    PlaylistSequenceUI sequenceUI;
 
     // Indique si un champ de texte est actuellement actif pour bloquer les raccourcis globaux
     bool isTyping() const {
         if (searchBar.isVisible()) return true;
         if (editingNote != nullptr) return true;
         if (geminiUI.bApiKeyFocused || geminiUI.bThemeFocused || geminiUI.bPromptVid1Focused || geminiUI.bPromptVid2Focused) return true;
+        if (viewsUI.isEditing()) return true;
+        if (winPosUI.isEditing()) return true;
         return false;
     }
 };

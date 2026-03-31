@@ -356,7 +356,7 @@ void Scene360VideoPlayer::update() {
                 capturedVideoFbo.allocate(s);
             }
             capturedVideoFbo.begin();
-            ofClear(0);
+            ofClear(0,0);
             ofSetColor(255);
             atmosphere->video360.getTexture().draw(0, 0);
             capturedVideoFbo.end();
@@ -685,7 +685,7 @@ void Scene360VideoPlayer::updateFadeFbo(float alpha, bool useLiveVideo) {
     }
     
     atmosphere->lastFrameFbo.begin();
-    ofClear(0);
+    ofClear(0,0);
     ofPushStyle();
     ofSetColor(255);
     

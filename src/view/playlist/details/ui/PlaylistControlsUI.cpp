@@ -134,47 +134,47 @@ void PlaylistControlsUI::setupRoomToggles(RoomApp* roomApp, ofApp* mainAppPtr) {
     };
 
     addToggle("Sol 3D", [roomApp](){ return roomApp->bDrawUndulatingFloor; }, [roomApp](){ roomApp->bDrawUndulatingFloor = !roomApp->bDrawUndulatingFloor; });
-    addToggle("Oscillate", [roomApp](){ return roomApp->bOscillateRoom; }, [roomApp](){ roomApp->bOscillateRoom = !roomApp->bOscillateRoom; });
-    addToggle("Kraken", [roomApp](){ return roomApp->bDrawKraken; }, [roomApp](){ 
+    addToggle("Tangage", [roomApp](){ return roomApp->bOscillateRoom; }, [roomApp](){ roomApp->bOscillateRoom = !roomApp->bOscillateRoom; });
+    addToggle("Kraken In", [roomApp](){ return roomApp->bDrawKraken; }, [roomApp](){ 
         roomApp->bDrawKraken = !roomApp->bDrawKraken; 
         if(roomApp->bDrawKraken) roomApp->kraken.start(roomApp->localTime);
     });
-    addToggle("Ext Kraken", [roomApp](){ return roomApp->bDrawExternalKraken; }, [roomApp](){ 
+    addToggle("Kraken Ex", [roomApp](){ return roomApp->bDrawExternalKraken; }, [roomApp](){ 
         roomApp->bDrawExternalKraken = !roomApp->bDrawExternalKraken; 
         if(roomApp->bDrawExternalKraken) roomApp->externalKraken.start(roomApp->localTime);
     });
-    addToggle("Cloud Ring", [roomApp](){ return roomApp->bDrawCloudRing; }, [roomApp](){ roomApp->bDrawCloudRing = !roomApp->bDrawCloudRing; });
-    addToggle("Liq Sphere", [roomApp](){ return roomApp->bDrawLiquidSphere; }, [roomApp](){ roomApp->bDrawLiquidSphere = !roomApp->bDrawLiquidSphere; });
-    addToggle("Jelly Sphere", [roomApp](){ return roomApp->bDrawJellySphere; }, [roomApp](){ 
+    addToggle("Nuages", [roomApp](){ return roomApp->bDrawCloudRing; }, [roomApp](){ roomApp->bDrawCloudRing = !roomApp->bDrawCloudRing; });
+    addToggle("Eau Sphere", [roomApp](){ return roomApp->bDrawLiquidSphere; }, [roomApp](){ roomApp->bDrawLiquidSphere = !roomApp->bDrawLiquidSphere; });
+    addToggle("Jelly Sph", [roomApp](){ return roomApp->bDrawJellySphere; }, [roomApp](){ 
         roomApp->bDrawJellySphere = !roomApp->bDrawJellySphere; 
         if(!roomApp->bDrawJellySphere) roomApp->jellySphereRing.clearJellies();
     });
-    addToggle("Color Cop", [roomApp](){ return roomApp->bDrawColorCop; }, [roomApp](){ 
+    addToggle("Vaisseaux", [roomApp](){ return roomApp->bDrawColorCop; }, [roomApp](){ 
         roomApp->bDrawColorCop = !roomApp->bDrawColorCop; 
         if(roomApp->bDrawColorCop) roomApp->colorCopRing.resetTexture();
     });
-    addToggle("Beam Proj", [roomApp](){ return roomApp->bDrawBeam; }, [roomApp](){ roomApp->bDrawBeam = !roomApp->bDrawBeam; });
-    addToggle("AtmoPreview", [roomApp](){ return roomApp->bDrawAtmosphere; }, [roomApp](){ roomApp->bDrawAtmosphere = !roomApp->bDrawAtmosphere; });
-    addToggle("Use Texture", [roomApp](){ return roomApp->bUseTexture; }, [roomApp](){ roomApp->bUseTexture = !roomApp->bUseTexture; });
-    addToggle("Show Roof", [roomApp](){ return roomApp->bShowRoof; }, [roomApp](){ roomApp->bShowRoof = !roomApp->bShowRoof; });
-    addToggle("Respire", [roomApp](){ return roomApp->respire; }, [roomApp](){ roomApp->respire = !roomApp->respire; });
-    addToggle("Ripples", [roomApp](){ return roomApp->bDrawRipples; }, [roomApp](){ roomApp->bDrawRipples = !roomApp->bDrawRipples; });
-    addToggle("Worms", [roomApp](){ return roomApp->bDrawWorms; }, [roomApp](){ roomApp->bDrawWorms = !roomApp->bDrawWorms; });
-    addToggle("Wing Worms", [roomApp](){ return roomApp->bDrawWingedWorms; }, [roomApp](){ roomApp->bDrawWingedWorms = !roomApp->bDrawWingedWorms; });
-    addToggle("Fluid Ring", [roomApp](){ return roomApp->bFluidRingEnabled; }, [roomApp](){ 
+    addToggle("Faisceau", [roomApp](){ return roomApp->bDrawBeam; }, [roomApp](){ roomApp->bDrawBeam = !roomApp->bDrawBeam; });
+    addToggle("Prev 360", [roomApp](){ return roomApp->bDrawAtmosphere; }, [roomApp](){ roomApp->bDrawAtmosphere = !roomApp->bDrawAtmosphere; });
+    addToggle("Texture ON", [roomApp](){ return roomApp->bUseTexture; }, [roomApp](){ roomApp->bUseTexture = !roomApp->bUseTexture; });
+    addToggle("Plafond", [roomApp](){ return roomApp->bShowRoof; }, [roomApp](){ roomApp->bShowRoof = !roomApp->bShowRoof; });
+    addToggle("Respiration", [roomApp](){ return roomApp->respire; }, [roomApp](){ roomApp->respire = !roomApp->respire; });
+    addToggle("Vagues", [roomApp](){ return roomApp->bDrawRipples; }, [roomApp](){ roomApp->bDrawRipples = !roomApp->bDrawRipples; });
+    addToggle("Vers Murs", [roomApp](){ return roomApp->bDrawWorms; }, [roomApp](){ roomApp->bDrawWorms = !roomApp->bDrawWorms; });
+    addToggle("Vers Vol", [roomApp](){ return roomApp->bDrawWingedWorms; }, [roomApp](){ roomApp->bDrawWingedWorms = !roomApp->bDrawWingedWorms; });
+    addToggle("Portail", [roomApp](){ return roomApp->bFluidRingEnabled; }, [roomApp](){ 
         roomApp->bFluidRingEnabled = !roomApp->bFluidRingEnabled; 
         roomApp->fluidRing.setTargetAlpha(roomApp->bFluidRingEnabled ? 1.0f : 0.0f);
     });
-    addToggle("Light Fly", [roomApp](){ return roomApp->bLightFlyRingEnabled; }, [roomApp](){ roomApp->bLightFlyRingEnabled = !roomApp->bLightFlyRingEnabled; });
-    addToggle("Alpha Cur", [roomApp](){ return roomApp->cursorSquare.bLowAlpha; }, [roomApp](){ roomApp->cursorSquare.bLowAlpha = !roomApp->cursorSquare.bLowAlpha; });
+    addToggle("Lucioles", [roomApp](){ return roomApp->bLightFlyRingEnabled; }, [roomApp](){ roomApp->bLightFlyRingEnabled = !roomApp->bLightFlyRingEnabled; });
+    addToggle("Cur Alpha", [roomApp](){ return roomApp->cursorSquare.bLowAlpha; }, [roomApp](){ roomApp->cursorSquare.bLowAlpha = !roomApp->cursorSquare.bLowAlpha; });
     addToggle("Gen 360", [](){ return false; }, [roomApp](){ roomApp->generateEquirectangularImage(); });
-    addToggle("Gen 360 Full", [](){ return false; }, [roomApp](){ roomApp->generateFull360EquirectangularImage(); });
-    addToggle("360fullW", [](){ return false; }, [roomApp](){ roomApp->generate360FullW(); });
-    addToggle("Show Beams", [roomApp](){ return roomApp->projection.getShowBeams(); }, [roomApp](){ roomApp->projection.keyPressed('t'); });
+    addToggle("Gen 360 F", [](){ return false; }, [roomApp](){ roomApp->generateFull360EquirectangularImage(); });
+    addToggle("Gen 360 W", [](){ return false; }, [roomApp](){ roomApp->generate360FullW(); });
+    addToggle("Beams", [roomApp](){ return roomApp->projection.getShowBeams(); }, [roomApp](){ roomApp->projection.keyPressed('t'); });
     addToggle("Plan Colle", [roomApp](){ return roomApp->projection.getShowPlanColle(); }, [roomApp](){ roomApp->projection.keyPressed('n'); });
     addToggle("Cur Reflet", [roomApp](){ return roomApp->cursorSquare.bDrawReflections; }, [roomApp](){ roomApp->cursorSquare.bDrawReflections = !roomApp->cursorSquare.bDrawReflections; });
-    addToggle("Prev Interact", [mainAppPtr](){ return mainAppPtr && mainAppPtr->roomPreviewApp ? mainAppPtr->roomPreviewApp->bDrawInteraction : false; }, [mainAppPtr](){ if(mainAppPtr && mainAppPtr->roomPreviewApp) mainAppPtr->roomPreviewApp->bDrawInteraction = !mainAppPtr->roomPreviewApp->bDrawInteraction; });
-    addToggle("Prev Cursor", [mainAppPtr](){ return mainAppPtr && mainAppPtr->roomPreviewApp ? mainAppPtr->roomPreviewApp->bShowCursor : false; }, [mainAppPtr](){ if(mainAppPtr && mainAppPtr->roomPreviewApp) mainAppPtr->roomPreviewApp->bShowCursor = !mainAppPtr->roomPreviewApp->bShowCursor; });
+    addToggle("Prev Inter", [mainAppPtr](){ return mainAppPtr && mainAppPtr->roomPreviewApp ? mainAppPtr->roomPreviewApp->bDrawInteraction : false; }, [mainAppPtr](){ if(mainAppPtr && mainAppPtr->roomPreviewApp) mainAppPtr->roomPreviewApp->bDrawInteraction = !mainAppPtr->roomPreviewApp->bDrawInteraction; });
+    addToggle("Prev Curs", [mainAppPtr](){ return mainAppPtr && mainAppPtr->roomPreviewApp ? mainAppPtr->roomPreviewApp->bShowCursor : false; }, [mainAppPtr](){ if(mainAppPtr && mainAppPtr->roomPreviewApp) mainAppPtr->roomPreviewApp->bShowCursor = !mainAppPtr->roomPreviewApp->bShowCursor; });
 
     int cols = 2;
     float bw = 100;
@@ -198,8 +198,8 @@ void PlaylistControlsUI::setupRoomActionBtns(RoomApp* roomApp) {
         roomActionBtns.push_back({name, ofRectangle(), action, continuous, getState});
     };
 
-    addAction("Cam Reset [R]", [roomApp](){ roomApp->keyPressed('r'); }, false);
-    addAction("Cam Lock [L]", [roomApp](){ 
+    addAction("Reset Cam [R]", [roomApp](){ roomApp->keyPressed('r'); }, false);
+    addAction("Lock Cam [L]", [roomApp](){ 
         roomApp->bLockCameraCenter = !roomApp->bLockCameraCenter; 
         if (!roomApp->bLockCameraCenter) {
             roomApp->camGlobal.setDistance(4000);
@@ -209,8 +209,8 @@ void PlaylistControlsUI::setupRoomActionBtns(RoomApp* roomApp) {
     }, false, [roomApp](){ return roomApp->bLockCameraCenter; });
     addAction("Sphere [P]", [roomApp, this](){ roomApp->atmosphere.keyPressed('p'); uiStateSphereP = !uiStateSphereP; }, false, [this](){ return uiStateSphereP; });
     addAction("Disco [M]", [roomApp, this](){ roomApp->atmosphere.keyPressed('m'); uiStateDiscoM = !uiStateDiscoM; }, false, [this](){ return uiStateDiscoM; });
-    addAction("Mode 360 [O]", [roomApp](){ roomApp->atmosphere.keyPressed('o'); }, false, [roomApp](){ return roomApp->atmosphere.bShow360; });
-    addAction("AutoRot [I]", [roomApp](){ roomApp->atmosphere.keyPressed('i'); }, false);
+    addAction("Sph. 360 [O]", [roomApp](){ roomApp->atmosphere.keyPressed('o'); }, false, [roomApp](){ return roomApp->atmosphere.bShow360; });
+    addAction("Auto Rot [I]", [roomApp](){ roomApp->atmosphere.keyPressed('i'); }, false);
     
     addAction("RotY+ [->]", [roomApp](){ roomApp->atmosphere.keyPressed(OF_KEY_RIGHT); }, true);
     addAction("RotY- [<-]", [roomApp](){ roomApp->atmosphere.keyPressed(OF_KEY_LEFT); }, true);
@@ -233,7 +233,7 @@ void PlaylistControlsUI::setupRoomActionBtns(RoomApp* roomApp) {
     addAction("Plan Ang- [D]", [roomApp](){ roomApp->projection.movePlanColle(-1.0f, 0.0f); }, true);
     addAction("Plan Ele+ [Z]", [roomApp](){ roomApp->projection.movePlanColle(0.0f, 1.0f); }, true);
     addAction("Plan Ele- [S]", [roomApp](){ roomApp->projection.movePlanColle(0.0f, -1.0f); }, true);
-    addAction("Clear Flys [X]", [roomApp](){ roomApp->lightFlyRing.clearLights(); }, false);
+    addAction("Del Flys [X]", [roomApp](){ roomApp->lightFlyRing.clearLights(); }, false);
 
     int cols = 2;
     float bw = 100;
@@ -263,7 +263,7 @@ void PlaylistControlsUI::setupGlobalActionBtns(ofApp* mainAppPtr) {
         }
     }, false);
 
-    addAction("SAVE GAB", [mainAppPtr](){ 
+    addAction("SAVE MASTER", [mainAppPtr](){ 
         if(mainAppPtr && mainAppPtr->canvasManager.canvas.isAllocated()) {
             ofPixels pix;
             mainAppPtr->canvasManager.canvas.readToPixels(pix);
@@ -272,14 +272,14 @@ void PlaylistControlsUI::setupGlobalActionBtns(ofApp* mainAppPtr) {
         }
     }, false);
 
-    addAction("UNDO CREA [Z/D]", [mainAppPtr](){ 
+    addAction("UNDO CREA [Z]", [mainAppPtr](){ 
         if(mainAppPtr) {
             mainAppPtr->creatureSystem.removeLast();
             ofLogNotice("PlaylistControlsUI") << "Derniere creature retiree.";
         }
     }, false);
 
-    addAction("CLEAR ALL CREA", [mainAppPtr](){ 
+    addAction("CLEAR CREA", [mainAppPtr](){ 
         if(mainAppPtr) {
             mainAppPtr->creatureSystem.clear();
             ofLogNotice("PlaylistControlsUI") << "Toutes les creatures du Main Canvas retirees.";
@@ -294,7 +294,7 @@ void PlaylistControlsUI::setupGlobalActionBtns(ofApp* mainAppPtr) {
         }
     }, false, [this](){ return uiStateRecPreview; });
 
-    addAction("REC CANVAS", [mainAppPtr, this](){ 
+    addAction("REC MASTER", [mainAppPtr, this](){ 
         if(mainAppPtr) {
             mainAppPtr->bRecordCanvas = !mainAppPtr->bRecordCanvas;
             if(mainAppPtr->bRecordCanvas) {
@@ -309,7 +309,7 @@ void PlaylistControlsUI::setupGlobalActionBtns(ofApp* mainAppPtr) {
         }
     }, false, [this](){ return uiStateRecCanvas; });
 
-    addAction("BLUR SHADER", [mainAppPtr](){ 
+    addAction("BLUR VIEWS", [mainAppPtr](){ 
         if(mainAppPtr) {
             bool targetState = true;
             for(auto& vApp : mainAppPtr->viewApps) {
@@ -322,15 +322,15 @@ void PlaylistControlsUI::setupGlobalActionBtns(ofApp* mainAppPtr) {
         }
     }, false);
 
-    addAction("EXP SCENE2D", [mainAppPtr](){ 
+    addAction("EXP 2D FULL", [mainAppPtr](){ 
         if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->exportFullScene();
     }, false);
 
-    addAction("EXP COLLIDER", [mainAppPtr](){ 
+    addAction("EXP 2D COL", [mainAppPtr](){ 
         if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->exportColliders();
     }, false);
 
-    addAction("GEN COLLIDER", [mainAppPtr](){ 
+    addAction("GEN COL IMG", [mainAppPtr](){ 
         if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->generateColliderFromOverlay();
     }, false);
 
@@ -338,15 +338,15 @@ void PlaylistControlsUI::setupGlobalActionBtns(ofApp* mainAppPtr) {
         if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->generateColliderFromAI();
     }, false);
 
-    addAction("GEN SAM COL", [mainAppPtr](){ 
+    addAction("GEN COL SAM", [mainAppPtr](){ 
         if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->generateColliderFromSAM();
     }, false);
 
-    addAction("GEN DEX COL", [mainAppPtr](){ 
+    addAction("GEN COL DEX", [mainAppPtr](){ 
         if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->generateColliderFromDexined();
     }, false);
 
-    addAction("GEN DEPTH ANY", [mainAppPtr](){ 
+    addAction("GEN DEPTH", [mainAppPtr](){ 
         if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->generateColliderFromDepthAnything();
     }, false);
 
@@ -354,7 +354,7 @@ void PlaylistControlsUI::setupGlobalActionBtns(ofApp* mainAppPtr) {
         if(mainAppPtr && mainAppPtr->scene2D) mainAppPtr->scene2D->exportEatMap();
     }, false);
 
-    addAction("GAB 3-OFF-3 [G]", [mainAppPtr](){ 
+    addAction("GAB 3-0-3", [mainAppPtr](){ 
         if(mainAppPtr) {
             mainAppPtr->gabMode = 3;
             if(mainAppPtr->roomApp) { mainAppPtr->roomApp->wallAlpha = 0.0f; mainAppPtr->roomApp->bgMode = 1; }
@@ -430,7 +430,7 @@ void PlaylistControlsUI::draw(ofApp* mainAppPtr) {
         if (b.name == "SAM CONTROL" && mainAppPtr && mainAppPtr->scene2D && mainAppPtr->scene2D->samController.isActive()) ofSetColor(100, 180, 100);
         else if (b.name == "PAUSE [ESC]" && mainAppPtr && mainAppPtr->bGlobalPause) ofSetColor(200, 50, 50); 
         else if (b.name == "BTN WORMS" && mainAppPtr && mainAppPtr->buttonApp && mainAppPtr->buttonApp->buttonWindow.bDrawWorms) ofSetColor(50, 200, 50); 
-        else if ((b.name == "REC PREVIEW" || b.name == "REC CANVAS") && b.getState && b.getState()) {
+        else if ((b.name == "REC PREVIEW" || b.name == "REC MASTER") && b.getState && b.getState()) {
             // Clignotement rouge pendant l'enregistrement
             if (sin(ofGetElapsedTimef() * 10.0f) > 0) ofSetColor(255, 50, 50); else ofSetColor(150, 0, 0);
         }
@@ -452,7 +452,7 @@ void PlaylistControlsUI::draw(ofApp* mainAppPtr) {
         ofPushMatrix(); ofTranslate(t.rect.x, t.rect.y); ofScale(t.rect.height / 20.0f, t.rect.height / 20.0f);
         
         string displayName = t.name;
-        if(t.name == "Show Beams" && mainAppPtr && mainAppPtr->roomApp) {
+        if(t.name == "Beams" && mainAppPtr && mainAppPtr->roomApp) {
             int mode = mainAppPtr->roomApp->projection.getBeamAlphaMode();
             if(mode == 0) displayName = "Beams 100%";
             else if(mode == 1) displayName = "Beams 75%";

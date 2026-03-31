@@ -4,6 +4,8 @@
 #include "edit/AnnexeAIManager.h"
 #include "goods/RippleController.h"
 #include "goods/VolumetricLayerManager.h"
+#include "PatteuLayer.h"
+#include "DeuPatteuLayer.h"
 
 class AnnexeApp : public ofBaseApp {
 public:
@@ -36,7 +38,9 @@ public:
     float viewZoom = 1.0f;
     ofVec2f viewPan;
     ofVec2f lastMouse;
+    ofVec2f lastPatteuMouse;
     bool isSpacePressed = false;
+    bool isShiftPressed = false;
     
     string warningMessage = "";
     float warningEndTime = 0.0f;
@@ -52,6 +56,8 @@ public:
     // Contrôleurs rendus publics pour garder la compatibilité avec l'UI s'ils sont appelés
     RippleController rippleController;
     VolumetricLayerManager volumManager;
+    PatteuLayer patteuLayer;
+    DeuPatteuLayer deuPatteuLayer;
 
 private:
     bool bEnabled = true;

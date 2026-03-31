@@ -211,7 +211,7 @@ void WallWalkerLayer::updateWalker(WallWalker& w) {
         
         // --- ANTI-BLOCAGE GLOBAL ---
         // Si la position n'a pas changé par rapport à la frame précédente (vibration ou blocage)
-        if(w.pos.distanceSquared(w.lastPos) < 0.1f) {
+        if(w.pos.squareDistance(w.lastPos) < 0.1f) {
             w.stuckTimer++;
         } else {
             w.stuckTimer = 0;

@@ -59,9 +59,7 @@ void AliveSam::setup(const ofPolyline& contour, const ofRectangle& bbox, const o
     lastRigidAngle = angle;
 
     // 3. "Alive" bone setup
-    bool isWide = bbox.getWidth() > bbox.getHeight();
-    float long_axis = isWide ? bbox.getWidth() : bbox.getHeight();
-    float short_axis = isWide ? bbox.getHeight() : bbox.getWidth();
+    // bool isWide = bbox.getWidth() > bbox.getHeight();
     numBones = (int)ofRandom(4, 8); // Entre 4 et 7 os
     int numMotors = numBones - 1;
 

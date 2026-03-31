@@ -23,6 +23,17 @@ void AnnexeTooltipManager::setup() {
     texts["RESET DEPTH"] = "Remet le LayerVolum a plat et reinitialise l'extrusion/rotation.";
     texts["ROTATION"] = "Fait tourner le layer volumetrique sur lui-meme (maintenir le clic).";
     texts["RESET ROT"] = "Remet la rotation 3D du Layer Volumetrique a plat (0, 0).";
+    texts["PATTEU BTN"] = "Active l'outil Patteu pour deformer et estomper la texture de ce layer comme au doigt.";
+    texts["PATTEU DROP"] = "Zone de Drop : Glissez une image ici pour la charger dans le layer Patteu.";
+    texts["PATTEU RESET"] = "Reinitialise la texture du layer Patteu a son etat d'origine non modifie.";
+    texts["PATTEU TAILLE"] = "Ajuste la taille de la brosse Patteu.";
+    
+    texts["DEUPATTEU BTN"] = "Active l'outil DeuPatteu: frottez pour deformer ET effacer l'avant-plan, revelant le fond.";
+    texts["DEUPATTEU DROP FG"] = "Zone de Drop : Glissez une image ici pour l'Avant-Plan (Foreground).";
+    texts["DEUPATTEU DROP BG"] = "Zone de Drop : Glissez une image ici pour l'Arriere-Plan (Background).";
+    texts["DEUPATTEU RESET FG"] = "Reinitialise la texture d'Avant-Plan de DeuPatteu.";
+    texts["DEUPATTEU RESET BG"] = "Reinitialise la texture d'Arriere-Plan de DeuPatteu.";
+    texts["DEUPATTEU TAILLE"] = "Ajuste la taille de la brosse DeuPatteu.";
 }
 
 std::string AnnexeTooltipManager::getTooltipText(const std::string& key) {

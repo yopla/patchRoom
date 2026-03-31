@@ -52,7 +52,7 @@ public:
     GekoStandard(float x, float y);
     void update(float mx, float my) override;
 private:
-    int nextLegToMove;
+
 };
 
 // --- GEKO 2 : AGILE (Mouvement réactif, saccadé) ---

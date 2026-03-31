@@ -20,7 +20,7 @@ void ImageGraphPlayer::generateGraph(const ofRectangle& bnds) {
     for (size_t i = 0; i < nodes.size(); i++) {
         if (nodes[i].pos.lengthSquared() > 1.0f) continue;
         
-        bool placed = false;
+        // bool placed = false;
         for (int tries = 0; i == 0 || tries < 200; tries++) {
             ofVec2f candidate(ofRandom(bounds.x + 20, bounds.getRight() - 20),
                               ofRandom(bounds.y + 60, bounds.getBottom() - 20));
@@ -47,7 +47,7 @@ void ImageGraphPlayer::generateGraph(const ofRectangle& bnds) {
             if (inTree[i]) {
                 for (size_t j = 0; j < nodes.size(); j++) {
                     if (!inTree[j]) {
-                        float d = nodes[i].pos.distanceSquared(nodes[j].pos);
+                        float d = nodes[i].pos.squareDistance(nodes[j].pos);
                         if (d < minDist) {
                             minDist = d;
                             bestA = i;
@@ -67,7 +67,7 @@ void ImageGraphPlayer::generateGraph(const ofRectangle& bnds) {
     for (size_t i = 0; i < nodes.size(); i++) {
         vector<pair<float, int>> dists;
         for (size_t j = 0; j < nodes.size(); j++) {
-            if (i != j) dists.push_back({nodes[i].pos.distanceSquared(nodes[j].pos), (int)j});
+            if (i != j) dists.push_back({nodes[i].pos.squareDistance(nodes[j].pos), (int)j});
         }
         std::sort(dists.begin(), dists.end());
         for (int k = 0; k < std::min(3, (int)dists.size()); k++) {
@@ -176,7 +176,7 @@ void ImageGraphPlayer::update() {
         }
         
         crossfadeFbo.begin();
-        ofClear(0);
+        ofClear(0,0);
         ofSetColor(255);
         if (currentImg.isAllocated()) currentImg.draw(0, 0, crossfadeFbo.getWidth(), crossfadeFbo.getHeight());
         if (nextImg.isAllocated() && alpha > 0.0f) {
@@ -210,7 +210,7 @@ void ImageGraphPlayer::updateAtmosphere(ofImage& img, float alpha) {
         atmosphere->lastFrameFbo.allocate(s);
     }
     atmosphere->lastFrameFbo.begin();
-    ofClear(0);
+    ofClear(0,0);
     ofSetColor(255);
     img.draw(0, 0);
     atmosphere->lastFrameFbo.end();
@@ -231,7 +231,7 @@ void ImageGraphPlayer::updateAtmosphereFbo(ofFbo& fbo) {
         atmosphere->lastFrameFbo.allocate(s);
     }
     atmosphere->lastFrameFbo.begin();
-    ofClear(0);
+    ofClear(0,0);
     ofSetColor(255);
     fbo.draw(0, 0);
     atmosphere->lastFrameFbo.end();

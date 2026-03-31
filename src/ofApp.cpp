@@ -4,6 +4,8 @@
 #include "ButtonApp.h"        // <--- INDISPENSABLE pour accéder à setEnabled
 #include "ofAppGLFWWindow.h"  // <--- INDISPENSABLE pour accéder à setVisible
 #include "PlaylistVisualizerApp.h"
+#include "AnnexeApp.h"
+#include "AnnexePlayerApp.h"
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h" // <--- AJOUTEZ CETTE LIGNE
 
@@ -57,6 +59,72 @@ void ofApp::setup(){
     
     // Ajout d'un écouteur temporaire qui s'exécutera à la toute première frame affichée
     ofAddListener(ofEvents().draw, this, &ofApp::onFirstFrameReady);
+
+    setupConnections();
+}
+
+
+void ofApp::setupConnections(){
+    // --- CORRECTION : Lier scene2D à RoomPreview si ce n'est pas fait ---
+    if(roomPreviewApp && scene2D) {
+        roomPreviewApp->sceneSide = scene2D;
+    }
+    
+    // --- LIAISON DES FBOs DE ROOMAPP VERS SCENE2D ---
+    if(roomApp && scene2D) {
+        scene2D->roomFboFront   = &roomApp->fboFront;
+        scene2D->roomFboBack    = &roomApp->fboBack;
+        scene2D->roomFboCour    = &roomApp->fboCour;
+        scene2D->roomFboJar     = &roomApp->fboJar;
+        scene2D->roomFboSol     = &roomApp->fboSol;
+        scene2D->roomFboTopCour = &roomApp->fboTopCour;
+        scene2D->roomFboTopJar  = &roomApp->fboTopJar;
+    }
+
+    // --- LIAISON DES FBOs DE SCENE2D VERS ROOMAPP ---
+    if(roomApp && scene2D) {
+        roomApp->scene2DFboFront   = &scene2D->fboFront;
+        roomApp->scene2DFboBack    = &scene2D->fboBack;
+        roomApp->scene2DFboCour    = &scene2D->fboCour;
+        roomApp->scene2DFboJar     = &scene2D->fboJar;
+        roomApp->scene2DFboSol     = &scene2D->fboSol;
+        roomApp->scene2DFboTopCour = &scene2D->fboTopCour;
+        roomApp->scene2DFboTopJar  = &scene2D->fboTopJar;
+    }
+    
+    // --- LIAISON DES FBOs DE ROOMAPP VERS SCENE2DZENIT ---
+    if(roomApp && sceneZenit) {
+        sceneZenit->roomFboFront   = &roomApp->fboFront;
+        sceneZenit->roomFboBack    = &roomApp->fboBack;
+        sceneZenit->roomFboCour    = &roomApp->fboCour;
+        sceneZenit->roomFboJar     = &roomApp->fboJar;
+        sceneZenit->roomFboSol     = &roomApp->fboSol;
+        sceneZenit->roomFboTopCour = &roomApp->fboTopCour;
+        sceneZenit->roomFboTopJar  = &roomApp->fboTopJar;
+    }
+
+    // --- LIAISON DES FBOs DE SCENE2DZENIT VERS ROOMAPP ---
+    if(roomApp && sceneZenit) {
+        roomApp->zenitFboFront   = &sceneZenit->fboFront;
+        roomApp->zenitFboBack    = &sceneZenit->fboBack;
+        roomApp->zenitFboCour    = &sceneZenit->fboCour;
+        roomApp->zenitFboJar     = &sceneZenit->fboJar;
+        roomApp->zenitFboSol     = &sceneZenit->fboSol;
+        roomApp->zenitFboTopCour = &sceneZenit->fboTopCour;
+        roomApp->zenitFboTopJar  = &sceneZenit->fboTopJar;
+    }
+
+    // --- LIAISON DU PLAYER VERS LE VISUALISEUR ---
+    if(playlistApp && roomApp) {
+        playlistApp->player = &(roomApp->scene360VideoPlayer);
+        playlistApp->bDrawScene360VideoPtr = &(roomApp->bDrawScene360Video);
+        playlistApp->roomApp = roomApp.get();
+    }
+
+    // --- LIAISON DE SCENE2D VERS LE VISUALISEUR ---
+    if(playlistApp && scene2D) {
+        playlistApp->scene2D = scene2D.get();
+    }
 }
 
 //--------------------------------------------------------------
@@ -102,47 +170,105 @@ void ofApp::onFirstFrameReady(ofEventArgs & args){
     ofRemoveListener(ofEvents().draw, this, &ofApp::onFirstFrameReady);
 }
 
+// Classe helper pour le filtre Caps Lock, locale à ce fichier
+class CapsLockFilter {
+public:
+    bool onKey(ofKeyEventArgs& args) {
+        if(args.keycode == GLFW_KEY_CAPS_LOCK) {
+            return true; // Consomme l'événement
+        }
+        return false;
+    }
+};
+
+void ofApp::createAnnexeWindows() {
+    // Empêche la double création
+    if (annexeApp) {
+        ofLogWarning("ofApp") << "Les fenêtres Annexe existent déjà.";
+        return;
+    }
+
+    ofLogNotice("ofApp") << "Création des fenêtres Annexe...";
+
+    ofGLFWWindowSettings settings;
+    settings.shareContextWith = mainWindowPtr;
+    settings.numSamples = 0;
+    settings.decorated = true;
+    settings.resizable = true;
+
+    // Création de la fenêtre Annexe
+    settings.setSize(800, 600);
+    settings.setPosition(ofVec2f(100, 100));
+    settings.title = "Annexe Win";
+    annexeWindowPtr = ofCreateWindow(settings);
+
+    // Création de la fenêtre Annexe Player
+    settings.setSize(600, 600);
+    settings.setPosition(ofVec2f(950, 100));
+    settings.title = "Annexe Player";
+    annexePlayerWindowPtr = ofCreateWindow(settings);
+
+    // Création des Apps
+    annexeApp = make_shared<AnnexeApp>();
+    annexePlayerApp = make_shared<AnnexePlayerApp>();
+
+    // Connexions
+    annexePlayerApp->mainAppPtr = this;
+
+    // Configuration des écouteurs de touches globaux pour les nouvelles fenêtres
+    auto setupGlobalKeys = [&](shared_ptr<ofAppBaseWindow> win) {
+        if(win) {
+            static CapsLockFilter capsFilter; // Filtre statique pour ne pas le recréer
+            ofAddListener(win->events().keyPressed, &capsFilter, &CapsLockFilter::onKey, OF_EVENT_ORDER_BEFORE_APP);
+            ofAddListener(win->events().keyReleased, &capsFilter, &CapsLockFilter::onKey, OF_EVENT_ORDER_BEFORE_APP);
+            ofAddListener(win->events().keyPressed, this, &ofApp::globalKeyPressed);
+        }
+    };
+    
+    setupGlobalKeys(annexeWindowPtr);
+    setupGlobalKeys(annexePlayerWindowPtr);
+
+    // Lancement des Apps
+    ofRunApp(annexeWindowPtr, annexeApp);
+    ofRunApp(annexePlayerWindowPtr, annexePlayerApp);
+}
+
+void ofApp::createZenitWindow() {
+    if (sceneZenit) {
+        ofLogWarning("ofApp") << "La fenetre Zenit existe deja.";
+        return;
+    }
+
+    ofLogNotice("ofApp") << "Création de la fenêtre Zenit...";
+
+    ofGLFWWindowSettings settings;
+    settings.shareContextWith = mainWindowPtr;
+    settings.numSamples = 0;
+    settings.decorated = true;
+    settings.resizable = true;
+    settings.setSize(750, 750);
+    settings.setPosition(ofVec2f(1000, 50));
+    settings.title = "Scene2D Zenit";
+    zenitWindowPtr = ofCreateWindow(settings);
+
+    sceneZenit = make_shared<Scene2DZenit>();
+
+    auto setupGlobalKeys = [&](shared_ptr<ofAppBaseWindow> win) {
+        if(win) {
+            static CapsLockFilter capsFilter; 
+            ofAddListener(win->events().keyPressed, &capsFilter, &CapsLockFilter::onKey, OF_EVENT_ORDER_BEFORE_APP);
+            ofAddListener(win->events().keyReleased, &capsFilter, &CapsLockFilter::onKey, OF_EVENT_ORDER_BEFORE_APP);
+            ofAddListener(win->events().keyPressed, this, &ofApp::globalKeyPressed);
+        }
+    };
+    
+    setupGlobalKeys(zenitWindowPtr);
+
+    ofRunApp(zenitWindowPtr, sceneZenit);
+}
+
 // ----------------------------------------------------
 void ofApp::update(){
-    // --- CORRECTION : Lier scene2D à RoomPreview si ce n'est pas fait ---
-    if(roomPreviewApp && scene2D && !roomPreviewApp->sceneSide) {
-        roomPreviewApp->sceneSide = scene2D;
-    }
-    
-    // --- LIAISON DES FBOs DE ROOMAPP VERS SCENE2D ---
-    if(roomApp && scene2D && !scene2D->roomFboFront) {
-        scene2D->roomFboFront   = &roomApp->fboFront;
-        scene2D->roomFboBack    = &roomApp->fboBack;
-        scene2D->roomFboCour    = &roomApp->fboCour;
-        scene2D->roomFboJar     = &roomApp->fboJar;
-        scene2D->roomFboSol     = &roomApp->fboSol;
-        scene2D->roomFboTopCour = &roomApp->fboTopCour;
-        scene2D->roomFboTopJar  = &roomApp->fboTopJar;
-    }
-
-    // --- LIAISON DES FBOs DE SCENE2D VERS ROOMAPP ---
-    if(roomApp && scene2D && !roomApp->scene2DFboFront) {
-        roomApp->scene2DFboFront   = &scene2D->fboFront;
-        roomApp->scene2DFboBack    = &scene2D->fboBack;
-        roomApp->scene2DFboCour    = &scene2D->fboCour;
-        roomApp->scene2DFboJar     = &scene2D->fboJar;
-        roomApp->scene2DFboSol     = &scene2D->fboSol;
-        roomApp->scene2DFboTopCour = &scene2D->fboTopCour;
-        roomApp->scene2DFboTopJar  = &scene2D->fboTopJar;
-    }
-
-    // --- LIAISON DU PLAYER VERS LE VISUALISEUR ---
-    if(playlistApp && roomApp) {
-        playlistApp->player = &(roomApp->scene360VideoPlayer);
-        playlistApp->bDrawScene360VideoPtr = &(roomApp->bDrawScene360Video);
-        playlistApp->roomApp = roomApp.get();
-    }
-
-    // --- LIAISON DE SCENE2D VERS LE VISUALISEUR ---
-    if(playlistApp && scene2D) {
-        playlistApp->scene2D = scene2D.get();
-    }
-
     // --- GESTION OSC (Réception & Envoi Frame) ---
     oscManager.update(this);
 

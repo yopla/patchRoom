@@ -43,7 +43,6 @@ private:
 
     // --- Gestion des Poils ---
     vector<CousinHair> hairs;
-    float hairTargetX, hairTargetY;
 
     // --- Variables globales simulation ---
     float time;

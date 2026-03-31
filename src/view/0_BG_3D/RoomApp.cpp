@@ -274,9 +274,17 @@ void RoomApp::drawSceneContent(bool showAtmosphere, bool isGlobalView) {
     }
 
    if(bDrawGab && bgMode != 1) {
+        ofFbo* fFront = nullptr; ofFbo* fBack = nullptr; ofFbo* fCour = nullptr;
+        ofFbo* fJar = nullptr; ofFbo* fSol = nullptr; ofFbo* fTopCour = nullptr; ofFbo* fTopJar = nullptr;
+        if (bgMode == 2) {
+            fFront = scene2DFboFront; fBack = scene2DFboBack; fCour = scene2DFboCour; fJar = scene2DFboJar; fSol = scene2DFboSol; fTopCour = scene2DFboTopCour; fTopJar = scene2DFboTopJar;
+        } else if (bgMode == 3) {
+            fFront = zenitFboFront; fBack = zenitFboBack; fCour = zenitFboCour; fJar = zenitFboJar; fSol = zenitFboSol; fTopCour = zenitFboTopCour; fTopJar = zenitFboTopJar;
+        }
+        
         walls.draw(bShowRoof, wallAlpha, bgMode,
-                   scene2DFboFront, scene2DFboBack, scene2DFboCour, scene2DFboJar,
-                   scene2DFboSol, scene2DFboTopCour, scene2DFboTopJar);
+                   fFront, fBack, fCour, fJar,
+                   fSol, fTopCour, fTopJar);
     }
 
     if (bDrawWorms) {
@@ -467,13 +475,23 @@ void RoomApp::generateFull360EquirectangularImage() {
     
     // On lit les pixels des FBOs de la scene 2D s'ils sont disponibles
     ofPixels pFront, pBack, pCour, pJar, pSol, pTopCour, pTopJar;
-    if(scene2DFboFront && scene2DFboFront->isAllocated()) scene2DFboFront->readToPixels(pFront);
-    if(scene2DFboBack && scene2DFboBack->isAllocated()) scene2DFboBack->readToPixels(pBack);
-    if(scene2DFboCour && scene2DFboCour->isAllocated()) scene2DFboCour->readToPixels(pCour);
-    if(scene2DFboJar && scene2DFboJar->isAllocated()) scene2DFboJar->readToPixels(pJar);
-    if(scene2DFboSol && scene2DFboSol->isAllocated()) scene2DFboSol->readToPixels(pSol);
-    if(scene2DFboTopCour && scene2DFboTopCour->isAllocated()) scene2DFboTopCour->readToPixels(pTopCour);
-    if(scene2DFboTopJar && scene2DFboTopJar->isAllocated()) scene2DFboTopJar->readToPixels(pTopJar);
+    if(bgMode == 2) {
+        if(scene2DFboFront && scene2DFboFront->isAllocated()) scene2DFboFront->readToPixels(pFront);
+        if(scene2DFboBack && scene2DFboBack->isAllocated()) scene2DFboBack->readToPixels(pBack);
+        if(scene2DFboCour && scene2DFboCour->isAllocated()) scene2DFboCour->readToPixels(pCour);
+        if(scene2DFboJar && scene2DFboJar->isAllocated()) scene2DFboJar->readToPixels(pJar);
+        if(scene2DFboSol && scene2DFboSol->isAllocated()) scene2DFboSol->readToPixels(pSol);
+        if(scene2DFboTopCour && scene2DFboTopCour->isAllocated()) scene2DFboTopCour->readToPixels(pTopCour);
+        if(scene2DFboTopJar && scene2DFboTopJar->isAllocated()) scene2DFboTopJar->readToPixels(pTopJar);
+    } else if(bgMode == 3) {
+        if(zenitFboFront && zenitFboFront->isAllocated()) zenitFboFront->readToPixels(pFront);
+        if(zenitFboBack && zenitFboBack->isAllocated()) zenitFboBack->readToPixels(pBack);
+        if(zenitFboCour && zenitFboCour->isAllocated()) zenitFboCour->readToPixels(pCour);
+        if(zenitFboJar && zenitFboJar->isAllocated()) zenitFboJar->readToPixels(pJar);
+        if(zenitFboSol && zenitFboSol->isAllocated()) zenitFboSol->readToPixels(pSol);
+        if(zenitFboTopCour && zenitFboTopCour->isAllocated()) zenitFboTopCour->readToPixels(pTopCour);
+        if(zenitFboTopJar && zenitFboTopJar->isAllocated()) zenitFboTopJar->readToPixels(pTopJar);
+    }
 
     ofPixels pixels;
     pixels.allocate(w, h, OF_IMAGE_COLOR_ALPHA);

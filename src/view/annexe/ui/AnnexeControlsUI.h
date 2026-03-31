@@ -37,6 +37,23 @@ public:
     ofRectangle rotRightBtnRect;
     ofRectangle resetRotBtnRect;
     bool bIsSoloActive = false;
+    
+    ofRectangle patteuBtnRect;
+    ofRectangle patteuDropRect;
+    ofRectangle patteuResetBtnRect;
+    ofRectangle patteuIntensitySliderRect;
+    ofRectangle patteuHardnessSliderRect;
+    ofRectangle patteuBrushSizeSliderRect;
+    
+    ofRectangle deuPatteuBtnRect;
+    ofRectangle deuPatteuDropFgRect;
+    ofRectangle deuPatteuDropBgRect;
+    ofRectangle deuPatteuResetFgBtnRect;
+    ofRectangle deuPatteuResetBgBtnRect;
+    ofRectangle deuPatteuIntensitySliderRect;
+    ofRectangle deuPatteuHardnessSliderRect;
+    ofRectangle deuPatteuRevealSliderRect;
+    ofRectangle deuPatteuBrushSizeSliderRect;
 
 private:
     bool saved_bDrawMain = true;

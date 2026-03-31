@@ -1,5 +1,6 @@
 #include "AnnexePlayerApp.h"
 #include "ofApp.h"
+#include "AnnexeApp.h"
 #include "ofAppGLFWWindow.h"
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
@@ -341,6 +342,7 @@ void AnnexePlayerApp::mouseReleased(int x, int y, int button) {
 void AnnexePlayerApp::mouseMoved(int x, int y) { searchBar.mouseMoved(x, y, pan, zoom); }
 void AnnexePlayerApp::mouseScrolled(int x, int y, float scrollX, float scrollY) {
     if (searchBar.isVisible() || scrollY == 0) return;
+
     ofVec2f worldM = getTransformedMouse(x, y);
     float zoomFactor = (scrollY > 0) ? 1.1f : 0.9f;
     zoom = ofClamp(zoom * zoomFactor, 0.01f, 50.0f);
@@ -373,12 +375,16 @@ void AnnexePlayerApp::keyPressed(int key) {
         selectedRects.clear(); return;
     }
     if (key == ' ') isSpacePressed = true;
+    if (key == OF_KEY_SHIFT) isShiftPressed = true;
     if (key == 'r' || key == 'R') {
         zoom = 1.0f;
         pan.set(0, 0);
     }
 }
-void AnnexePlayerApp::keyReleased(int key) { if (key == ' ') isSpacePressed = false; }
+void AnnexePlayerApp::keyReleased(int key) { 
+    if (key == ' ') isSpacePressed = false; 
+    if (key == OF_KEY_SHIFT) isShiftPressed = false;
+}
 
 ofVec2f AnnexePlayerApp::getTransformedMouse(int x, int y) { return ofVec2f((x - pan.x) / zoom, (y - pan.y) / zoom); }
 ofRectangle* AnnexePlayerApp::findButtonAt(ofVec2f pos) {
@@ -406,6 +412,29 @@ vector<SearchableButton> AnnexePlayerApp::getAllSearchableButtons() {
         res.push_back({"Note: " + preview, &note->rect});
     }
     return res;
+}
+
+void AnnexePlayerApp::dragEvent(ofDragInfo dragInfo) {
+    if (dragInfo.files.empty()) return;
+    ofVec2f worldM = getTransformedMouse(dragInfo.position.x, dragInfo.position.y);
+    if (controlsUI.patteuDropRect.inside(worldM)) {
+        if (mainAppPtr && mainAppPtr->annexeApp) {
+            mainAppPtr->annexeApp->patteuLayer.load(dragInfo.files[0]);
+            mainAppPtr->annexeApp->patteuLayer.bActive = true;
+        }
+    }
+    if (controlsUI.deuPatteuDropFgRect.inside(worldM)) {
+        if (mainAppPtr && mainAppPtr->annexeApp) {
+            mainAppPtr->annexeApp->deuPatteuLayer.loadFg(dragInfo.files[0]);
+            mainAppPtr->annexeApp->deuPatteuLayer.bActive = true;
+        }
+    }
+    if (controlsUI.deuPatteuDropBgRect.inside(worldM)) {
+        if (mainAppPtr && mainAppPtr->annexeApp) {
+            mainAppPtr->annexeApp->deuPatteuLayer.loadBg(dragInfo.files[0]);
+            mainAppPtr->annexeApp->deuPatteuLayer.bActive = true;
+        }
+    }
 }
 
 ofJson AnnexePlayerApp::serializeState() {

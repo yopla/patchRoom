@@ -5,6 +5,7 @@
 #include "Scene2D_SIDE.h"
 #include "RoomPreview.h"
 #include "ButtonApp.h"
+#include "Scene2DZenit.h"
 #include "ofAppGLFWWindow.h"
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
@@ -29,20 +30,25 @@ void PlaylistWindowControlsUI::setup() {
         focusBtns[i].set(startX + 240 + i * 60, startY + 70, 56, 30);
     }
     
-    for(int i=0; i<4; i++) {
+    for(int i=0; i<5; i++) {
         gabBtns[i].set(startX + 240 + i * 60, startY + 105, 56, 30); 
     }
     
     gabOptions[0] = {"100%", "75%", "33%", "10%", "OFF"};
-    gabOptions[1] = {"ON", "OFF", "Scene2D"};
+    gabOptions[1] = {"ON", "OFF", "Scene2D", "Zenit"};
     gabOptions[2] = {"Opaque", "Transp", "FBOs", "Rien"};
     gabOptions[3] = {"OFF", "33%", "75%", "100%"};
+    gabOptions[4] = {"Opaque", "Transp", "FBOs", "Rien"};
     
     roomAlphaBtn.set(startX + 240 + 1 * 60, startY + 140, 56, 30);
     roomAlphaOptions = {"100%", "75%", "33%", "0%"};
 
     diffuseRoomBtn.set(startX + 240 + 1 * 60, startY + 175, 56, 30);
     diffuseScene2DBtn.set(startX + 240 + 3 * 60, startY + 140, 56, 30);
+    zenitLayoutBtn.set(startX + 240 + 4 * 60, startY + 140, 56, 30);
+    zenitLayoutOptions = {"SOL", "TOP", "JAR", "JAR+C"};
+    
+    createZenitBtn.set(startX + 240 + 4 * 60, startY + 105 - 35, 80, 30);
 }
 
 void PlaylistWindowControlsUI::draw(ofApp* mainAppPtr) {
@@ -176,7 +182,7 @@ void PlaylistWindowControlsUI::draw(ofApp* mainAppPtr) {
         ofPopStyle();
     }
 
-    for(int i=0; i<4; i++) {
+    for(int i=0; i<5; i++) {
         ofPushStyle();
         ofEnableAlphaBlending();
         bool isLoaded = (mainAppPtr != nullptr);
@@ -216,6 +222,14 @@ void PlaylistWindowControlsUI::draw(ofApp* mainAppPtr) {
                 else if(currentState == 1) alpha = 84;
                 else if(currentState == 2) alpha = 191;
                 else alpha = 255;
+            }
+            else if(i == 4 && mainAppPtr->sceneZenit) {
+                currentState = mainAppPtr->sceneZenit->bgDisplayMode;
+                text = "Z:" + ofToString(currentState);
+                if(currentState == 0) alpha = 255;
+                else if(currentState == 1) alpha = 100;
+                else if(currentState == 2) { alpha = 255; isWireframe = true; }
+                else alpha = 5;
             }
         }
 
@@ -292,7 +306,56 @@ void PlaylistWindowControlsUI::draw(ofApp* mainAppPtr) {
         ofPopStyle();
     }
     
-    for(int i=0; i<4; i++) {
+    if (mainAppPtr && mainAppPtr->sceneZenit) {
+        ofPushStyle();
+        int lMode = mainAppPtr->sceneZenit->layoutMode;
+        if (bZenitLayoutAccordionOpen) ofSetColor(150, 150, 200, 255);
+        else if (lMode > 0) ofSetColor(50, 200, 50); 
+        else ofSetColor(64, 104, 84);
+        
+        ofFill(); ofDrawRectangle(zenitLayoutBtn);
+        ofNoFill(); ofSetColor(255); ofDrawRectangle(zenitLayoutBtn);
+        ofPushMatrix();
+        ofTranslate(zenitLayoutBtn.x, zenitLayoutBtn.y);
+        ofScale(zenitLayoutBtn.height / 30.0f, zenitLayoutBtn.height / 30.0f);
+        
+        string modeStr = (lMode >= 0 && lMode < zenitLayoutOptions.size()) ? zenitLayoutOptions[lMode] : "SOL";
+        ofDrawBitmapString("L:" + modeStr + (bZenitLayoutAccordionOpen ? "[-]" : "[+]"), 2, 20);
+        ofPopMatrix();
+        
+        if (bZenitLayoutAccordionOpen) {
+            zenitLayoutOptionRects.clear();
+            for(size_t j = 0; j < zenitLayoutOptions.size(); j++) {
+                ofRectangle optRect(zenitLayoutBtn.x, zenitLayoutBtn.getBottom() + j * zenitLayoutBtn.height, zenitLayoutBtn.width + 20, zenitLayoutBtn.height);
+                zenitLayoutOptionRects.push_back(optRect);
+                
+                ofPushStyle();
+                if (lMode == j) ofSetColor(200, 200, 50); else ofSetColor(80);
+                ofFill(); ofDrawRectangle(optRect);
+                ofNoFill(); ofSetColor(200); ofDrawRectangle(optRect);
+                ofSetColor(255);
+                ofPushMatrix(); ofTranslate(optRect.x, optRect.y); ofScale(optRect.height / 30.0f, optRect.height / 30.0f);
+                ofDrawBitmapString("LAY:" + zenitLayoutOptions[j], 4, 20);
+                ofPopMatrix();
+                ofPopStyle();
+            }
+        }
+        ofPopStyle();
+    }
+    
+    // DESSIN DU BOUTON CREER ZENIT
+    ofPushStyle();
+    if (mainAppPtr && !mainAppPtr->sceneZenit) ofSetColor(80, 180, 80);
+    else ofSetColor(50, 50, 50); // Grisé si déjà créé
+    ofFill(); ofDrawRectangle(createZenitBtn);
+    ofNoFill(); ofSetColor(255); ofDrawRectangle(createZenitBtn);
+    ofSetColor(255);
+    ofPushMatrix(); ofTranslate(createZenitBtn.x, createZenitBtn.y); ofScale(createZenitBtn.height / 30.0f, createZenitBtn.height / 30.0f);
+    ofDrawBitmapString("CREER ZENIT", 2, 20);
+    ofPopMatrix();
+    ofPopStyle();
+    
+    for(int i=0; i<5; i++) {
         gabOptionRects[i].clear();
         if (bGabAccordionOpen[i] && mainAppPtr) {
             int currentState = 0;
@@ -300,6 +363,7 @@ void PlaylistWindowControlsUI::draw(ofApp* mainAppPtr) {
             else if(i == 1 && mainAppPtr->roomApp) currentState = mainAppPtr->roomApp->bgMode;
             else if(i == 2 && mainAppPtr->scene2D) currentState = mainAppPtr->scene2D->bgDisplayMode;
             else if(i == 3 && mainAppPtr->scene2D) currentState = mainAppPtr->scene2D->overlayMode;
+            else if(i == 4 && mainAppPtr->sceneZenit) currentState = mainAppPtr->sceneZenit->bgDisplayMode;
 
             for(size_t j=0; j<gabOptions[i].size(); j++) {
                 ofRectangle optRect(gabBtns[i].x, gabBtns[i].getBottom() + j * gabBtns[i].height, gabBtns[i].width + 20, gabBtns[i].height);
@@ -516,7 +580,14 @@ bool PlaylistWindowControlsUI::mousePressed(ofVec2f worldM, ofApp* mainAppPtr) {
         }
     }
 
-    for(int i=0; i<4; i++) {
+    if (createZenitBtn.inside(worldM)) {
+        if (mainAppPtr && !mainAppPtr->sceneZenit) {
+            mainAppPtr->createZenitWindow();
+        }
+        return true;
+    }
+
+    for(int i=0; i<5; i++) {
         if(bGabAccordionOpen[i]) {
             for(size_t j=0; j<gabOptionRects[i].size(); j++) {
                 if(gabOptionRects[i][j].inside(worldM)) {
@@ -525,6 +596,9 @@ bool PlaylistWindowControlsUI::mousePressed(ofVec2f worldM, ofApp* mainAppPtr) {
                         else if(i == 1 && mainAppPtr->roomApp) {
                             if(j == 2 && mainAppPtr->scene2D && mainAppPtr->scene2D->bgDisplayMode == 2) {
                                 mainAppPtr->scene2D->bgDisplayMode = 1; // Force Scene2D à "Transp" pour éviter la recursion
+                            }
+                            if(j == 3 && mainAppPtr->sceneZenit && mainAppPtr->sceneZenit->bgDisplayMode == 2) {
+                                mainAppPtr->sceneZenit->bgDisplayMode = 1; // Force Zenit à "Transp"
                             }
                             mainAppPtr->roomApp->bgMode = j;
                             mainAppPtr->roomApp->wallAlpha = (j == 1) ? 0.0f : 100.0f;
@@ -537,6 +611,13 @@ bool PlaylistWindowControlsUI::mousePressed(ofVec2f worldM, ofApp* mainAppPtr) {
                             mainAppPtr->scene2D->bgDisplayMode = j;
                         }
                         else if(i == 3 && mainAppPtr->scene2D) mainAppPtr->scene2D->overlayMode = j;
+                        else if(i == 4 && mainAppPtr->sceneZenit) {
+                            if(j == 2 && mainAppPtr->roomApp && mainAppPtr->roomApp->bgMode == 3) {
+                                mainAppPtr->roomApp->bgMode = 0; 
+                                mainAppPtr->roomApp->wallAlpha = 100.0f;
+                            }
+                            mainAppPtr->sceneZenit->bgDisplayMode = j;
+                        }
                     }
                     bGabAccordionOpen[i] = false;
                     return true;
@@ -545,12 +626,25 @@ bool PlaylistWindowControlsUI::mousePressed(ofVec2f worldM, ofApp* mainAppPtr) {
         }
     }
 
-    for(int i=0; i<4; i++) {
+    if (bZenitLayoutAccordionOpen) {
+        for(size_t i = 0; i < zenitLayoutOptionRects.size(); i++) {
+            if(zenitLayoutOptionRects[i].inside(worldM)) {
+                if (mainAppPtr && mainAppPtr->sceneZenit) {
+                    mainAppPtr->sceneZenit->layoutMode = i;
+                }
+                bZenitLayoutAccordionOpen = false;
+                return true;
+            }
+        }
+    }
+
+    for(int i=0; i<5; i++) {
         if(gabBtns[i].inside(worldM)) {
             if(mainAppPtr) {
                 bGabAccordionOpen[i] = !bGabAccordionOpen[i];
-                for(int k=0; k<4; k++) if(k != i) bGabAccordionOpen[k] = false;
+                for(int k=0; k<5; k++) if(k != i) bGabAccordionOpen[k] = false;
                 bRoomAlphaAccordionOpen = false;
+                bZenitLayoutAccordionOpen = false;
             }
             return true;
         }
@@ -558,7 +652,8 @@ bool PlaylistWindowControlsUI::mousePressed(ofVec2f worldM, ofApp* mainAppPtr) {
     
     if (roomAlphaBtn.inside(worldM)) {
         bRoomAlphaAccordionOpen = !bRoomAlphaAccordionOpen;
-        for(int k=0; k<4; k++) bGabAccordionOpen[k] = false;
+        for(int k=0; k<5; k++) bGabAccordionOpen[k] = false;
+        bZenitLayoutAccordionOpen = false;
         return true;
     }
     
@@ -568,6 +663,13 @@ bool PlaylistWindowControlsUI::mousePressed(ofVec2f worldM, ofApp* mainAppPtr) {
     }
     if (diffuseScene2DBtn.inside(worldM)) {
         if (mainAppPtr) mainAppPtr->bDiffuseScene2D = !mainAppPtr->bDiffuseScene2D;
+        return true;
+    }
+    
+    if (zenitLayoutBtn.inside(worldM)) {
+        bZenitLayoutAccordionOpen = !bZenitLayoutAccordionOpen;
+        for(int k=0; k<5; k++) bGabAccordionOpen[k] = false;
+        bRoomAlphaAccordionOpen = false;
         return true;
     }
     return false;
@@ -585,7 +687,7 @@ string PlaylistWindowControlsUI::getTooltip(ofVec2f worldM, PlaylistTooltipManag
         if(wxcvbBtns[i].inside(worldM)) return tooltipManager.getTooltipText(wxcvbNames[i]);
         if(focusBtns[i].inside(worldM)) return tooltipManager.getTooltipText(focusNames[i]);
     }
-    for(int i=0; i<4; i++) {
+    for(int i=0; i<5; i++) {
         if (bGabAccordionOpen[i]) {
             for (size_t j=0; j<gabOptionRects[i].size(); j++) {
                 if (gabOptionRects[i][j].inside(worldM)) return "Definit le GAB " + ofToString(i) + " sur " + gabOptions[i][j];
@@ -598,9 +700,16 @@ string PlaylistWindowControlsUI::getTooltip(ofVec2f worldM, PlaylistTooltipManag
             if (roomAlphaOptionRects[i].inside(worldM)) return "Definit l'opacite de la Room a " + roomAlphaOptions[i];
         }
     }
-    if(roomAlphaBtn.inside(worldM)) return "Definit l'opacite des murs de la Room (GAB R)";
-    if(diffuseRoomBtn.inside(worldM)) return "Active/Desactive la diffusion de la Room sur le Canvas Master";
-    if(diffuseScene2DBtn.inside(worldM)) return "Active/Desactive la diffusion de la Scene 2D sur le Canvas Master";
+    if(roomAlphaBtn.inside(worldM)) return "Opacite Murs Room : Definit l'opacite des murs 3D de la Room independamment de son fond.";
+    if(diffuseRoomBtn.inside(worldM)) return "Diffuse Room : Active/Desactive la diffusion du rendu de la Room sur le Canvas Master.";
+    if(diffuseScene2DBtn.inside(worldM)) return "Diffuse Scene 2D : Active/Desactive la diffusion du rendu de la Scene 2D sur le Canvas Master.";
+    if (bZenitLayoutAccordionOpen) {
+        for (size_t i = 0; i < zenitLayoutOptionRects.size(); i++) {
+            if (zenitLayoutOptionRects[i].inside(worldM)) return "Applique le layout Zenit : " + zenitLayoutOptions[i];
+        }
+    }
+    if(zenitLayoutBtn.inside(worldM)) return "Disposition Murs Zenit : Change le point de vue et la disposition de la piece (SOL, TOP, JAR, JAR+C).";
+    if(createZenitBtn.inside(worldM)) return "Crée et affiche la fenêtre Zénith (Scene2DZenit).";
     return "";
 }
 
@@ -614,10 +723,12 @@ void PlaylistWindowControlsUI::saveSettings(ofJson& pt) {
     saveR("qualityBtn", qualityBtn);
     saveR("arrangeWinBtn", arrangeWinBtn);
     for(int i=0; i<6; i++) { saveR("wxcvb_" + ofToString(i), wxcvbBtns[i]); saveR("focus_" + ofToString(i), focusBtns[i]); }
-    for(int i=0; i<4; i++) saveR("gab_" + ofToString(i), gabBtns[i]);
+    for(int i=0; i<5; i++) saveR("gab_" + ofToString(i), gabBtns[i]);
     saveR("roomAlphaBtn", roomAlphaBtn);
     saveR("diffuseRoomBtn", diffuseRoomBtn);
     saveR("diffuseScene2DBtn", diffuseScene2DBtn);
+    saveR("zenitLayoutBtn", zenitLayoutBtn);
+    saveR("createZenitBtn", createZenitBtn);
 }
 
 void PlaylistWindowControlsUI::loadSettings(const ofJson& pt) {
@@ -650,7 +761,10 @@ void PlaylistWindowControlsUI::loadSettings(const ofJson& pt) {
     if(pt.contains("arrangeWinBtn")) loadR("arrangeWinBtn", arrangeWinBtn); else arrangeWinBtn.set(400, viewBtns[0].y - 105, 100, 30);
 
     for(int i=0; i<6; i++) { loadR("wxcvb_" + ofToString(i), wxcvbBtns[i]); loadR("focus_" + ofToString(i), focusBtns[i]); }
-    for(int i=0; i<4; i++) loadR("gab_" + ofToString(i), gabBtns[i]);
+    for(int i=0; i<5; i++) {
+        if(pt.contains("gab_" + ofToString(i))) loadR("gab_" + ofToString(i), gabBtns[i]);
+        else gabBtns[i].set(240 + i * 60, viewBtns[0].y + 105, 56, 30);
+    }
     if(pt.contains("roomAlphaBtn")) loadR("roomAlphaBtn", roomAlphaBtn); 
     else roomAlphaBtn.set(gabBtns[1].x, gabBtns[1].y + 35, 56, 30);
 
@@ -659,6 +773,12 @@ void PlaylistWindowControlsUI::loadSettings(const ofJson& pt) {
     
     if(pt.contains("diffuseScene2DBtn")) loadR("diffuseScene2DBtn", diffuseScene2DBtn);
     else diffuseScene2DBtn.set(gabBtns[3].x, gabBtns[3].y + 35, 56, 30);
+    
+    if(pt.contains("zenitLayoutBtn")) loadR("zenitLayoutBtn", zenitLayoutBtn);
+    else zenitLayoutBtn.set(gabBtns[4].x, gabBtns[4].y + 35, 56, 30);
+    
+    if(pt.contains("createZenitBtn")) loadR("createZenitBtn", createZenitBtn);
+    else createZenitBtn.set(gabBtns[4].x, gabBtns[4].y - 35, 80, 30);
 }
 
 vector<ofRectangle*> PlaylistWindowControlsUI::getInteractableRects() {
@@ -671,7 +791,7 @@ vector<ofRectangle*> PlaylistWindowControlsUI::getInteractableRects() {
     rects.push_back(&qualityBtn);
     rects.push_back(&arrangeWinBtn);
     for(int i=0; i<6; i++) { rects.push_back(&wxcvbBtns[i]); rects.push_back(&focusBtns[i]); }
-    for(int i=0; i<4; i++) {
+    for(int i=0; i<5; i++) {
         rects.push_back(&gabBtns[i]);
         if (bGabAccordionOpen[i]) {
             for(auto& r : gabOptionRects[i]) rects.push_back(&r);
@@ -683,6 +803,11 @@ vector<ofRectangle*> PlaylistWindowControlsUI::getInteractableRects() {
     }
     rects.push_back(&diffuseRoomBtn);
     rects.push_back(&diffuseScene2DBtn);
+    rects.push_back(&zenitLayoutBtn);
+    if (bZenitLayoutAccordionOpen) {
+        for(auto& r : zenitLayoutOptionRects) rects.push_back(&r);
+    }
+    rects.push_back(&createZenitBtn);
     return rects;
 }
 
@@ -698,7 +823,7 @@ ofRectangle* PlaylistWindowControlsUI::findButtonAt(ofVec2f pos) {
         if(wxcvbBtns[i].inside(pos)) return &wxcvbBtns[i];
         if(focusBtns[i].inside(pos)) return &focusBtns[i];
     }
-    for(int i=0; i<4; i++) {
+    for(int i=0; i<5; i++) {
         if (bGabAccordionOpen[i]) {
             for(auto& r : gabOptionRects[i]) if(r.inside(pos)) return &r;
         }
@@ -710,5 +835,10 @@ ofRectangle* PlaylistWindowControlsUI::findButtonAt(ofVec2f pos) {
     if (roomAlphaBtn.inside(pos)) return &roomAlphaBtn;
     if (diffuseRoomBtn.inside(pos)) return &diffuseRoomBtn;
     if (diffuseScene2DBtn.inside(pos)) return &diffuseScene2DBtn;
+    if (bZenitLayoutAccordionOpen) {
+        for(auto& r : zenitLayoutOptionRects) if(r.inside(pos)) return &r;
+    }
+    if (zenitLayoutBtn.inside(pos)) return &zenitLayoutBtn;
+    if (createZenitBtn.inside(pos)) return &createZenitBtn;
     return nullptr;
 }

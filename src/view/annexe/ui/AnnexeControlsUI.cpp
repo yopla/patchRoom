@@ -27,6 +27,23 @@ void AnnexeControlsUI::setup() {
     resetRotBtnRect.set(185, 525, 40, 30);
     rotRightBtnRect.set(230, 525, 40, 30);
     rotDownBtnRect.set(185, 560, 40, 30);
+    
+    patteuBtnRect.set(150, 600, 110, 30);
+    patteuDropRect.set(270, 600, 60, 30);
+    patteuResetBtnRect.set(150, 640, 110, 30);
+    patteuIntensitySliderRect.set(150, 680, 110, 15);
+    patteuHardnessSliderRect.set(150, 705, 110, 15);
+    patteuBrushSizeSliderRect.set(150, 730, 110, 15);
+    
+    deuPatteuBtnRect.set(150, 765, 110, 30);
+    deuPatteuDropFgRect.set(270, 765, 60, 30);
+    deuPatteuDropBgRect.set(340, 765, 60, 30);
+    deuPatteuResetFgBtnRect.set(150, 805, 110, 30);
+    deuPatteuResetBgBtnRect.set(270, 805, 110, 30);
+    deuPatteuIntensitySliderRect.set(150, 845, 110, 15);
+    deuPatteuHardnessSliderRect.set(150, 870, 110, 15);
+    deuPatteuRevealSliderRect.set(150, 895, 110, 15);
+    deuPatteuBrushSizeSliderRect.set(150, 920, 110, 15);
 }
 
 void AnnexeControlsUI::draw(ofApp* mainAppPtr) {
@@ -127,6 +144,59 @@ void AnnexeControlsUI::draw(ofApp* mainAppPtr) {
     ofDrawBitmapString("LFT", rotLeftBtnRect.x + 8, rotLeftBtnRect.y + 20);
     ofDrawBitmapString("RGT", rotRightBtnRect.x + 8, rotRightBtnRect.y + 20);
     ofDrawBitmapString(" 0", resetRotBtnRect.x + 8, resetRotBtnRect.y + 20);
+    
+    // ---- PATTEU UI ----
+    if (mainAppPtr && mainAppPtr->annexeApp && mainAppPtr->annexeApp->patteuLayer.bActive) ofSetColor(100, 180, 100);
+    else ofSetColor(80, 120, 80);
+    ofFill(); ofDrawRectangle(patteuBtnRect); ofNoFill(); ofSetColor(255); ofDrawRectangle(patteuBtnRect);
+    ofSetColor(255); ofDrawBitmapString("LAYER PATTEU", patteuBtnRect.x + 8, patteuBtnRect.y + 20);
+
+    ofSetColor(150, 100, 50); ofFill(); ofDrawRectangle(patteuDropRect);
+    ofNoFill(); ofSetColor(255); ofDrawRectangle(patteuDropRect);
+    ofSetColor(255); ofDrawBitmapString("DROP", patteuDropRect.x + 12, patteuDropRect.y + 20);
+
+    ofSetColor(180, 60, 60); ofFill(); ofDrawRectangle(patteuResetBtnRect);
+    ofNoFill(); ofSetColor(255); ofDrawRectangle(patteuResetBtnRect);
+    ofSetColor(255); ofDrawBitmapString("RESET PATTEU", patteuResetBtnRect.x + 8, patteuResetBtnRect.y + 20);
+
+    if (mainAppPtr && mainAppPtr->annexeApp) {
+        float intensity = mainAppPtr->annexeApp->patteuLayer.intensity;
+        float hardness = mainAppPtr->annexeApp->patteuLayer.hardness;
+        float pNormBrush = ofMap(mainAppPtr->annexeApp->patteuLayer.brushSize, 5.0f, 500.0f, 0.0f, 1.0f, true);
+        ofSetColor(50); ofFill(); ofDrawRectangle(patteuIntensitySliderRect); ofSetColor(150, 150, 255); ofDrawRectangle(patteuIntensitySliderRect.x, patteuIntensitySliderRect.y, patteuIntensitySliderRect.width * intensity, patteuIntensitySliderRect.height); ofNoFill(); ofSetColor(255); ofDrawRectangle(patteuIntensitySliderRect); ofDrawBitmapString("Intensite", patteuIntensitySliderRect.x + 5, patteuIntensitySliderRect.y + 12);
+        ofSetColor(50); ofFill(); ofDrawRectangle(patteuHardnessSliderRect); ofSetColor(255, 150, 150); ofDrawRectangle(patteuHardnessSliderRect.x, patteuHardnessSliderRect.y, patteuHardnessSliderRect.width * hardness, patteuHardnessSliderRect.height); ofNoFill(); ofSetColor(255); ofDrawRectangle(patteuHardnessSliderRect); ofDrawBitmapString("Durete", patteuHardnessSliderRect.x + 5, patteuHardnessSliderRect.y + 12);
+        ofSetColor(50); ofFill(); ofDrawRectangle(patteuBrushSizeSliderRect); ofSetColor(200, 200, 150); ofDrawRectangle(patteuBrushSizeSliderRect.x, patteuBrushSizeSliderRect.y, patteuBrushSizeSliderRect.width * pNormBrush, patteuBrushSizeSliderRect.height); ofNoFill(); ofSetColor(255); ofDrawRectangle(patteuBrushSizeSliderRect); ofDrawBitmapString("Taille", patteuBrushSizeSliderRect.x + 5, patteuBrushSizeSliderRect.y + 12);
+    }
+
+    // ---- DEU PATTEU UI ----
+    if (mainAppPtr && mainAppPtr->annexeApp && mainAppPtr->annexeApp->deuPatteuLayer.bActive) ofSetColor(180, 100, 200);
+    else ofSetColor(120, 80, 140);
+    ofFill(); ofDrawRectangle(deuPatteuBtnRect); ofNoFill(); ofSetColor(255); ofDrawRectangle(deuPatteuBtnRect);
+    ofSetColor(255); ofDrawBitmapString("DEU PATTEU", deuPatteuBtnRect.x + 8, deuPatteuBtnRect.y + 20);
+
+    ofSetColor(50, 150, 100); ofFill(); ofDrawRectangle(deuPatteuDropFgRect);
+    ofNoFill(); ofSetColor(255); ofDrawRectangle(deuPatteuDropFgRect);
+    ofSetColor(255); ofDrawBitmapString("FG", deuPatteuDropFgRect.x + 12, deuPatteuDropFgRect.y + 20);
+
+    ofSetColor(50, 100, 150); ofFill(); ofDrawRectangle(deuPatteuDropBgRect);
+    ofNoFill(); ofSetColor(255); ofDrawRectangle(deuPatteuDropBgRect);
+    ofSetColor(255); ofDrawBitmapString("BG", deuPatteuDropBgRect.x + 12, deuPatteuDropBgRect.y + 20);
+
+    ofSetColor(180, 60, 60); ofFill(); ofDrawRectangle(deuPatteuResetFgBtnRect); ofDrawRectangle(deuPatteuResetBgBtnRect);
+    ofNoFill(); ofSetColor(255); ofDrawRectangle(deuPatteuResetFgBtnRect); ofDrawRectangle(deuPatteuResetBgBtnRect);
+    ofSetColor(255); ofDrawBitmapString("RESET FG", deuPatteuResetFgBtnRect.x + 15, deuPatteuResetFgBtnRect.y + 20);
+    ofDrawBitmapString("RESET BG", deuPatteuResetBgBtnRect.x + 15, deuPatteuResetBgBtnRect.y + 20);
+
+    if (mainAppPtr && mainAppPtr->annexeApp) {
+        float intensity = mainAppPtr->annexeApp->deuPatteuLayer.intensity;
+        float hardness = mainAppPtr->annexeApp->deuPatteuLayer.hardness;
+        float reveal = mainAppPtr->annexeApp->deuPatteuLayer.revealSpeed;
+        float dNormBrush = ofMap(mainAppPtr->annexeApp->deuPatteuLayer.brushSize, 5.0f, 500.0f, 0.0f, 1.0f, true);
+        ofSetColor(50); ofFill(); ofDrawRectangle(deuPatteuIntensitySliderRect); ofSetColor(150, 150, 255); ofDrawRectangle(deuPatteuIntensitySliderRect.x, deuPatteuIntensitySliderRect.y, deuPatteuIntensitySliderRect.width * intensity, deuPatteuIntensitySliderRect.height); ofNoFill(); ofSetColor(255); ofDrawRectangle(deuPatteuIntensitySliderRect); ofDrawBitmapString("Intensite", deuPatteuIntensitySliderRect.x + 5, deuPatteuIntensitySliderRect.y + 12);
+        ofSetColor(50); ofFill(); ofDrawRectangle(deuPatteuHardnessSliderRect); ofSetColor(255, 150, 150); ofDrawRectangle(deuPatteuHardnessSliderRect.x, deuPatteuHardnessSliderRect.y, deuPatteuHardnessSliderRect.width * hardness, deuPatteuHardnessSliderRect.height); ofNoFill(); ofSetColor(255); ofDrawRectangle(deuPatteuHardnessSliderRect); ofDrawBitmapString("Durete", deuPatteuHardnessSliderRect.x + 5, deuPatteuHardnessSliderRect.y + 12);
+        ofSetColor(50); ofFill(); ofDrawRectangle(deuPatteuRevealSliderRect); ofSetColor(150, 255, 150); ofDrawRectangle(deuPatteuRevealSliderRect.x, deuPatteuRevealSliderRect.y, deuPatteuRevealSliderRect.width * reveal, deuPatteuRevealSliderRect.height); ofNoFill(); ofSetColor(255); ofDrawRectangle(deuPatteuRevealSliderRect); ofDrawBitmapString("Reveal", deuPatteuRevealSliderRect.x + 5, deuPatteuRevealSliderRect.y + 12);
+        ofSetColor(50); ofFill(); ofDrawRectangle(deuPatteuBrushSizeSliderRect); ofSetColor(200, 200, 150); ofDrawRectangle(deuPatteuBrushSizeSliderRect.x, deuPatteuBrushSizeSliderRect.y, deuPatteuBrushSizeSliderRect.width * dNormBrush, deuPatteuBrushSizeSliderRect.height); ofNoFill(); ofSetColor(255); ofDrawRectangle(deuPatteuBrushSizeSliderRect); ofDrawBitmapString("Taille", deuPatteuBrushSizeSliderRect.x + 5, deuPatteuBrushSizeSliderRect.y + 12);
+    }
 
     ofPopStyle();
 }
@@ -256,6 +326,38 @@ bool AnnexeControlsUI::mousePressed(ofVec2f worldM, ofApp* mainAppPtr) {
         return true; // Intercepte le clic pour éviter que le canvas ne déclenche le "Drag Pan"
     }
     
+    if (patteuBtnRect.inside(worldM)) {
+        if (mainAppPtr && mainAppPtr->annexeApp) {
+            mainAppPtr->annexeApp->patteuLayer.bActive = !mainAppPtr->annexeApp->patteuLayer.bActive;
+        }
+        return true;
+    }
+    if (patteuResetBtnRect.inside(worldM)) {
+        if (mainAppPtr && mainAppPtr->annexeApp) mainAppPtr->annexeApp->patteuLayer.reset();
+        return true;
+    }
+    if (patteuDropRect.inside(worldM) || patteuIntensitySliderRect.inside(worldM) || patteuHardnessSliderRect.inside(worldM) || patteuBrushSizeSliderRect.inside(worldM)) {
+        return true; // Consommer les clics pour éviter le pan
+    }
+    
+    if (deuPatteuBtnRect.inside(worldM)) {
+        if (mainAppPtr && mainAppPtr->annexeApp) mainAppPtr->annexeApp->deuPatteuLayer.bActive = !mainAppPtr->annexeApp->deuPatteuLayer.bActive;
+        return true;
+    }
+    if (deuPatteuResetFgBtnRect.inside(worldM)) {
+        if (mainAppPtr && mainAppPtr->annexeApp) mainAppPtr->annexeApp->deuPatteuLayer.resetFg();
+        return true;
+    }
+    if (deuPatteuResetBgBtnRect.inside(worldM)) {
+        if (mainAppPtr && mainAppPtr->annexeApp) mainAppPtr->annexeApp->deuPatteuLayer.resetBg();
+        return true;
+    }
+    if (deuPatteuDropFgRect.inside(worldM) || deuPatteuDropBgRect.inside(worldM) || 
+        deuPatteuIntensitySliderRect.inside(worldM) || deuPatteuHardnessSliderRect.inside(worldM) || 
+        deuPatteuRevealSliderRect.inside(worldM) || deuPatteuBrushSizeSliderRect.inside(worldM)) {
+        return true;
+    }
+    
     return false;
 }
 
@@ -265,6 +367,29 @@ void AnnexeControlsUI::handleContinuousActions(ofVec2f worldM, ofApp* mainAppPtr
     if (rotDownBtnRect.inside(worldM)) mainAppPtr->annexeApp->volumManager.rotX += mainAppPtr->annexeApp->volumManager.rotSpeed;
     if (rotLeftBtnRect.inside(worldM)) mainAppPtr->annexeApp->volumManager.rotY -= mainAppPtr->annexeApp->volumManager.rotSpeed;
     if (rotRightBtnRect.inside(worldM)) mainAppPtr->annexeApp->volumManager.rotY += mainAppPtr->annexeApp->volumManager.rotSpeed;
+    
+    if (patteuIntensitySliderRect.inside(worldM)) {
+        mainAppPtr->annexeApp->patteuLayer.intensity = ofMap(worldM.x, patteuIntensitySliderRect.x, patteuIntensitySliderRect.x + patteuIntensitySliderRect.width, 0.0f, 1.0f, true);
+    }
+    if (patteuHardnessSliderRect.inside(worldM)) {
+        mainAppPtr->annexeApp->patteuLayer.hardness = ofMap(worldM.x, patteuHardnessSliderRect.x, patteuHardnessSliderRect.x + patteuHardnessSliderRect.width, 0.0f, 1.0f, true);
+    }
+    if (patteuBrushSizeSliderRect.inside(worldM)) {
+        mainAppPtr->annexeApp->patteuLayer.brushSize = ofMap(worldM.x, patteuBrushSizeSliderRect.x, patteuBrushSizeSliderRect.x + patteuBrushSizeSliderRect.width, 5.0f, 500.0f, true);
+    }
+    
+    if (deuPatteuIntensitySliderRect.inside(worldM)) {
+        mainAppPtr->annexeApp->deuPatteuLayer.intensity = ofMap(worldM.x, deuPatteuIntensitySliderRect.x, deuPatteuIntensitySliderRect.x + deuPatteuIntensitySliderRect.width, 0.0f, 1.0f, true);
+    }
+    if (deuPatteuHardnessSliderRect.inside(worldM)) {
+        mainAppPtr->annexeApp->deuPatteuLayer.hardness = ofMap(worldM.x, deuPatteuHardnessSliderRect.x, deuPatteuHardnessSliderRect.x + deuPatteuHardnessSliderRect.width, 0.0f, 1.0f, true);
+    }
+    if (deuPatteuRevealSliderRect.inside(worldM)) {
+        mainAppPtr->annexeApp->deuPatteuLayer.revealSpeed = ofMap(worldM.x, deuPatteuRevealSliderRect.x, deuPatteuRevealSliderRect.x + deuPatteuRevealSliderRect.width, 0.0f, 1.0f, true);
+    }
+    if (deuPatteuBrushSizeSliderRect.inside(worldM)) {
+        mainAppPtr->annexeApp->deuPatteuLayer.brushSize = ofMap(worldM.x, deuPatteuBrushSizeSliderRect.x, deuPatteuBrushSizeSliderRect.x + deuPatteuBrushSizeSliderRect.width, 5.0f, 500.0f, true);
+    }
 }
 
 string AnnexeControlsUI::getTooltip(ofVec2f worldM, AnnexeTooltipManager& tooltipManager) {
@@ -281,6 +406,18 @@ string AnnexeControlsUI::getTooltip(ofVec2f worldM, AnnexeTooltipManager& toolti
     if(resetDepthMapBtnRect.inside(worldM)) return tooltipManager.getTooltipText("RESET DEPTH");
     if(rotUpBtnRect.inside(worldM) || rotDownBtnRect.inside(worldM) || rotLeftBtnRect.inside(worldM) || rotRightBtnRect.inside(worldM)) return tooltipManager.getTooltipText("ROTATION");
     if(resetRotBtnRect.inside(worldM)) return tooltipManager.getTooltipText("RESET ROT");
+    if(patteuBtnRect.inside(worldM)) return tooltipManager.getTooltipText("PATTEU BTN");
+    if(patteuDropRect.inside(worldM)) return tooltipManager.getTooltipText("PATTEU DROP");
+    if(patteuResetBtnRect.inside(worldM)) return tooltipManager.getTooltipText("PATTEU RESET");
+    if(patteuBrushSizeSliderRect.inside(worldM)) return tooltipManager.getTooltipText("PATTEU TAILLE");
+    
+    if(deuPatteuBtnRect.inside(worldM)) return tooltipManager.getTooltipText("DEUPATTEU BTN");
+    if(deuPatteuDropFgRect.inside(worldM)) return tooltipManager.getTooltipText("DEUPATTEU DROP FG");
+    if(deuPatteuDropBgRect.inside(worldM)) return tooltipManager.getTooltipText("DEUPATTEU DROP BG");
+    if(deuPatteuResetFgBtnRect.inside(worldM)) return tooltipManager.getTooltipText("DEUPATTEU RESET FG");
+    if(deuPatteuResetBgBtnRect.inside(worldM)) return tooltipManager.getTooltipText("DEUPATTEU RESET BG");
+    if(deuPatteuBrushSizeSliderRect.inside(worldM)) return tooltipManager.getTooltipText("DEUPATTEU TAILLE");
+    
     return "";
 }
 
@@ -314,6 +451,23 @@ void AnnexeControlsUI::saveSettings(ofJson& pt) {
     pt["annexeControlsUI"]["rotRightBtn"]["x"] = rotRightBtnRect.x; pt["annexeControlsUI"]["rotRightBtn"]["y"] = rotRightBtnRect.y;
     pt["annexeControlsUI"]["resetRotBtn"]["x"] = resetRotBtnRect.x; pt["annexeControlsUI"]["resetRotBtn"]["y"] = resetRotBtnRect.y;
     pt["annexeControlsUI"]["resetRotBtn"]["w"] = resetRotBtnRect.width; pt["annexeControlsUI"]["resetRotBtn"]["h"] = resetRotBtnRect.height;
+    
+    pt["annexeControlsUI"]["patteuBtn"]["x"] = patteuBtnRect.x; pt["annexeControlsUI"]["patteuBtn"]["y"] = patteuBtnRect.y;
+    pt["annexeControlsUI"]["patteuDrop"]["x"] = patteuDropRect.x; pt["annexeControlsUI"]["patteuDrop"]["y"] = patteuDropRect.y;
+    pt["annexeControlsUI"]["patteuResetBtn"]["x"] = patteuResetBtnRect.x; pt["annexeControlsUI"]["patteuResetBtn"]["y"] = patteuResetBtnRect.y;
+    pt["annexeControlsUI"]["patteuIntensity"]["x"] = patteuIntensitySliderRect.x; pt["annexeControlsUI"]["patteuIntensity"]["y"] = patteuIntensitySliderRect.y;
+    pt["annexeControlsUI"]["patteuHardness"]["x"] = patteuHardnessSliderRect.x; pt["annexeControlsUI"]["patteuHardness"]["y"] = patteuHardnessSliderRect.y;
+    pt["annexeControlsUI"]["patteuBrushSize"]["x"] = patteuBrushSizeSliderRect.x; pt["annexeControlsUI"]["patteuBrushSize"]["y"] = patteuBrushSizeSliderRect.y;
+    
+    pt["annexeControlsUI"]["deuPatteuBtn"]["x"] = deuPatteuBtnRect.x; pt["annexeControlsUI"]["deuPatteuBtn"]["y"] = deuPatteuBtnRect.y;
+    pt["annexeControlsUI"]["deuPatteuDropFg"]["x"] = deuPatteuDropFgRect.x; pt["annexeControlsUI"]["deuPatteuDropFg"]["y"] = deuPatteuDropFgRect.y;
+    pt["annexeControlsUI"]["deuPatteuDropBg"]["x"] = deuPatteuDropBgRect.x; pt["annexeControlsUI"]["deuPatteuDropBg"]["y"] = deuPatteuDropBgRect.y;
+    pt["annexeControlsUI"]["deuPatteuResetFg"]["x"] = deuPatteuResetFgBtnRect.x; pt["annexeControlsUI"]["deuPatteuResetFg"]["y"] = deuPatteuResetFgBtnRect.y;
+    pt["annexeControlsUI"]["deuPatteuResetBg"]["x"] = deuPatteuResetBgBtnRect.x; pt["annexeControlsUI"]["deuPatteuResetBg"]["y"] = deuPatteuResetBgBtnRect.y;
+    pt["annexeControlsUI"]["deuPatteuIntensity"]["x"] = deuPatteuIntensitySliderRect.x; pt["annexeControlsUI"]["deuPatteuIntensity"]["y"] = deuPatteuIntensitySliderRect.y;
+    pt["annexeControlsUI"]["deuPatteuHardness"]["x"] = deuPatteuHardnessSliderRect.x; pt["annexeControlsUI"]["deuPatteuHardness"]["y"] = deuPatteuHardnessSliderRect.y;
+    pt["annexeControlsUI"]["deuPatteuReveal"]["x"] = deuPatteuRevealSliderRect.x; pt["annexeControlsUI"]["deuPatteuReveal"]["y"] = deuPatteuRevealSliderRect.y;
+    pt["annexeControlsUI"]["deuPatteuBrushSize"]["x"] = deuPatteuBrushSizeSliderRect.x; pt["annexeControlsUI"]["deuPatteuBrushSize"]["y"] = deuPatteuBrushSizeSliderRect.y;
 }
 
 void AnnexeControlsUI::loadSettings(const ofJson& pt) {
@@ -401,9 +555,28 @@ void AnnexeControlsUI::loadSettings(const ofJson& pt) {
         resetRotBtnRect.width = pt["annexeControlsUI"]["resetRotBtn"].value("w", resetRotBtnRect.width);
         resetRotBtnRect.height = pt["annexeControlsUI"]["resetRotBtn"].value("h", resetRotBtnRect.height);
     }
+    if(pt.contains("annexeControlsUI") && pt["annexeControlsUI"].contains("patteuBtn")) {
+        patteuBtnRect.x = pt["annexeControlsUI"]["patteuBtn"].value("x", patteuBtnRect.x); patteuBtnRect.y = pt["annexeControlsUI"]["patteuBtn"].value("y", patteuBtnRect.y);
+        patteuDropRect.x = pt["annexeControlsUI"]["patteuDrop"].value("x", patteuDropRect.x); patteuDropRect.y = pt["annexeControlsUI"]["patteuDrop"].value("y", patteuDropRect.y);
+        patteuResetBtnRect.x = pt["annexeControlsUI"]["patteuResetBtn"].value("x", patteuResetBtnRect.x); patteuResetBtnRect.y = pt["annexeControlsUI"]["patteuResetBtn"].value("y", patteuResetBtnRect.y);
+        patteuIntensitySliderRect.x = pt["annexeControlsUI"]["patteuIntensity"].value("x", patteuIntensitySliderRect.x); patteuIntensitySliderRect.y = pt["annexeControlsUI"]["patteuIntensity"].value("y", patteuIntensitySliderRect.y);
+        patteuHardnessSliderRect.x = pt["annexeControlsUI"]["patteuHardness"].value("x", patteuHardnessSliderRect.x); patteuHardnessSliderRect.y = pt["annexeControlsUI"]["patteuHardness"].value("y", patteuHardnessSliderRect.y);
+        patteuBrushSizeSliderRect.x = pt["annexeControlsUI"]["patteuBrushSize"].value("x", patteuBrushSizeSliderRect.x); patteuBrushSizeSliderRect.y = pt["annexeControlsUI"]["patteuBrushSize"].value("y", patteuBrushSizeSliderRect.y);
+    }
+    if(pt.contains("annexeControlsUI") && pt["annexeControlsUI"].contains("deuPatteuBtn")) {
+        deuPatteuBtnRect.x = pt["annexeControlsUI"]["deuPatteuBtn"].value("x", deuPatteuBtnRect.x); deuPatteuBtnRect.y = pt["annexeControlsUI"]["deuPatteuBtn"].value("y", deuPatteuBtnRect.y);
+        deuPatteuDropFgRect.x = pt["annexeControlsUI"]["deuPatteuDropFg"].value("x", deuPatteuDropFgRect.x); deuPatteuDropFgRect.y = pt["annexeControlsUI"]["deuPatteuDropFg"].value("y", deuPatteuDropFgRect.y);
+        deuPatteuDropBgRect.x = pt["annexeControlsUI"]["deuPatteuDropBg"].value("x", deuPatteuDropBgRect.x); deuPatteuDropBgRect.y = pt["annexeControlsUI"]["deuPatteuDropBg"].value("y", deuPatteuDropBgRect.y);
+        deuPatteuResetFgBtnRect.x = pt["annexeControlsUI"]["deuPatteuResetFg"].value("x", deuPatteuResetFgBtnRect.x); deuPatteuResetFgBtnRect.y = pt["annexeControlsUI"]["deuPatteuResetFg"].value("y", deuPatteuResetFgBtnRect.y);
+        deuPatteuResetBgBtnRect.x = pt["annexeControlsUI"]["deuPatteuResetBg"].value("x", deuPatteuResetBgBtnRect.x); deuPatteuResetBgBtnRect.y = pt["annexeControlsUI"]["deuPatteuResetBg"].value("y", deuPatteuResetBgBtnRect.y);
+        deuPatteuIntensitySliderRect.x = pt["annexeControlsUI"]["deuPatteuIntensity"].value("x", deuPatteuIntensitySliderRect.x); deuPatteuIntensitySliderRect.y = pt["annexeControlsUI"]["deuPatteuIntensity"].value("y", deuPatteuIntensitySliderRect.y);
+        deuPatteuHardnessSliderRect.x = pt["annexeControlsUI"]["deuPatteuHardness"].value("x", deuPatteuHardnessSliderRect.x); deuPatteuHardnessSliderRect.y = pt["annexeControlsUI"]["deuPatteuHardness"].value("y", deuPatteuHardnessSliderRect.y);
+        deuPatteuRevealSliderRect.x = pt["annexeControlsUI"]["deuPatteuReveal"].value("x", deuPatteuRevealSliderRect.x); deuPatteuRevealSliderRect.y = pt["annexeControlsUI"]["deuPatteuReveal"].value("y", deuPatteuRevealSliderRect.y);
+        deuPatteuBrushSizeSliderRect.x = pt["annexeControlsUI"]["deuPatteuBrushSize"].value("x", deuPatteuBrushSizeSliderRect.x); deuPatteuBrushSizeSliderRect.y = pt["annexeControlsUI"]["deuPatteuBrushSize"].value("y", deuPatteuBrushSizeSliderRect.y);
+    }
 }
 
-vector<ofRectangle*> AnnexeControlsUI::getInteractableRects() { return { &soloAnnexeBtnRect, &saveFrameBtnRect, &genAIBtnRect, &genSAMBtnRect, &genDepthAnythingBtnRect, &rippleBtnRect, &recordVideoBtnRect, &samControlBtnRect, &layerVolumBtnRect, &depthMapBtnRect, &resetDepthMapBtnRect, &rotUpBtnRect, &rotDownBtnRect, &rotLeftBtnRect, &rotRightBtnRect, &resetRotBtnRect }; }
+vector<ofRectangle*> AnnexeControlsUI::getInteractableRects() { return { &soloAnnexeBtnRect, &saveFrameBtnRect, &genAIBtnRect, &genSAMBtnRect, &genDepthAnythingBtnRect, &rippleBtnRect, &recordVideoBtnRect, &samControlBtnRect, &layerVolumBtnRect, &depthMapBtnRect, &resetDepthMapBtnRect, &rotUpBtnRect, &rotDownBtnRect, &rotLeftBtnRect, &rotRightBtnRect, &resetRotBtnRect, &patteuBtnRect, &patteuDropRect, &patteuResetBtnRect, &patteuIntensitySliderRect, &patteuHardnessSliderRect, &patteuBrushSizeSliderRect, &deuPatteuBtnRect, &deuPatteuDropFgRect, &deuPatteuDropBgRect, &deuPatteuResetFgBtnRect, &deuPatteuResetBgBtnRect, &deuPatteuIntensitySliderRect, &deuPatteuHardnessSliderRect, &deuPatteuRevealSliderRect, &deuPatteuBrushSizeSliderRect }; }
 ofRectangle* AnnexeControlsUI::findButtonAt(ofVec2f pos) { 
     if (soloAnnexeBtnRect.inside(pos)) return &soloAnnexeBtnRect; 
     if (saveFrameBtnRect.inside(pos)) return &saveFrameBtnRect; 
@@ -421,5 +594,20 @@ ofRectangle* AnnexeControlsUI::findButtonAt(ofVec2f pos) {
     if (rotLeftBtnRect.inside(pos)) return &rotLeftBtnRect;
     if (rotRightBtnRect.inside(pos)) return &rotRightBtnRect;
     if (resetRotBtnRect.inside(pos)) return &resetRotBtnRect;
+    if (patteuBtnRect.inside(pos)) return &patteuBtnRect;
+    if (patteuDropRect.inside(pos)) return &patteuDropRect;
+    if (patteuResetBtnRect.inside(pos)) return &patteuResetBtnRect;
+    if (patteuIntensitySliderRect.inside(pos)) return &patteuIntensitySliderRect;
+    if (patteuHardnessSliderRect.inside(pos)) return &patteuHardnessSliderRect;
+    if (patteuBrushSizeSliderRect.inside(pos)) return &patteuBrushSizeSliderRect;
+    if (deuPatteuBtnRect.inside(pos)) return &deuPatteuBtnRect;
+    if (deuPatteuDropFgRect.inside(pos)) return &deuPatteuDropFgRect;
+    if (deuPatteuDropBgRect.inside(pos)) return &deuPatteuDropBgRect;
+    if (deuPatteuResetFgBtnRect.inside(pos)) return &deuPatteuResetFgBtnRect;
+    if (deuPatteuResetBgBtnRect.inside(pos)) return &deuPatteuResetBgBtnRect;
+    if (deuPatteuIntensitySliderRect.inside(pos)) return &deuPatteuIntensitySliderRect;
+    if (deuPatteuHardnessSliderRect.inside(pos)) return &deuPatteuHardnessSliderRect;
+    if (deuPatteuRevealSliderRect.inside(pos)) return &deuPatteuRevealSliderRect;
+    if (deuPatteuBrushSizeSliderRect.inside(pos)) return &deuPatteuBrushSizeSliderRect;
     return nullptr; 
 }

@@ -1,4 +1,4 @@
-#include "AnnexeAiManager.h"
+#include "AnnexeAIManager.h"
 
 string AnnexeAiManager::generateDepthMapAI(const ofImage& img) {
     if (!img.isAllocated()) {
@@ -227,9 +227,7 @@ string AnnexeAiManager::generateSAMCollider(const ofImage& img) {
 
         // Simplification drastique de l'extraction de la map pour l'exemple (identique à l'original)
         cv::Mat outputBlob = outputs[0];
-        int dims = outputBlob.dims;
-        int outH = outputBlob.size[dims - 2];
-        int outW = outputBlob.size[dims - 1];
+        // int dims = outputBlob.dims;
         
         //... Processus identique ... (code raccourci visuellement, assurez-vous de copier l'intégralité du buffer pour finaliser)
         

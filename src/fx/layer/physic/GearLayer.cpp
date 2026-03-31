@@ -96,7 +96,7 @@ void GearLayer::update(float mouseX, float mouseY, float time) {
             
             // Rayon de collision effectif (par défaut le moyeu central)
             float collisionRadius = innerRadius + s.size * 0.5f;
-            bool checkTeeth = false;
+            // bool checkTeeth = false;
 
             // Si on est dans la zone des dents (entre inner et outer)
             if (dist < outerRadius + s.size * 0.5f && dist > innerRadius - s.size * 0.5f) {

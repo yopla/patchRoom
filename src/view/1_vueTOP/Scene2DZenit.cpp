@@ -83,30 +83,30 @@ void Scene2DZenit::update() {
 
     // 3. Captures FBO (Inchangé - utilise drawDynamicElements)
     ofMatrix4x4 mSol; 
-    captureView(fboSol, imgSol, mSol);
+    captureView(fboSol, imgSol, mSol, roomFboSol);
 
     ofMatrix4x4 mFront; mFront.makeTranslationMatrix(0, -hFront, 0);
-    captureView(fboFront, imgFront, mFront);
+    captureView(fboFront, imgFront, mFront, roomFboFront);
 
     ofMatrix4x4 mBack;
     mBack.makeIdentityMatrix(); mBack.glTranslate(0, hSol + gapBack, 0); mBack.glTranslate(wBack, hBack, 0); mBack.glRotate(180, 0, 0, 1);
-    captureView(fboBack, imgBack, mBack);
+    captureView(fboBack, imgBack, mBack, roomFboBack);
 
     ofMatrix4x4 mJar;
     mJar.makeIdentityMatrix(); mJar.glTranslate(0, hSol + gapBack, 0); mJar.glRotate(-90, 0, 0, 1); mJar.glTranslate(0, -hJar, 0);
-    captureView(fboJar, imgJar, mJar);
+    captureView(fboJar, imgJar, mJar, roomFboJar);
 
     ofMatrix4x4 mTopJar;
     mTopJar.makeIdentityMatrix(); mTopJar.glTranslate(0, hSol + gapBack, 0); mTopJar.glRotate(-90, 0, 0, 1); mTopJar.glTranslate(0, -hJar - hTopJar, 0);
-    captureView(fboTopJar, imgTopJar, mTopJar);
+    captureView(fboTopJar, imgTopJar, mTopJar, roomFboTopJar);
 
     ofMatrix4x4 mCour;
     mCour.makeIdentityMatrix(); mCour.glTranslate(wSol, 0, 0); mCour.glRotate(90, 0, 0, 1); mCour.glTranslate(0, -hCour, 0);
-    captureView(fboCour, imgCour, mCour);
+    captureView(fboCour, imgCour, mCour, roomFboCour);
 
     ofMatrix4x4 mTopCour;
     mTopCour.makeIdentityMatrix(); mTopCour.glTranslate(wSol, 0, 0); mTopCour.glRotate(90, 0, 0, 1); mTopCour.glTranslate(0, -hCour - hTopCour, 0);
-    captureView(fboTopCour, imgTopCour, mTopCour);
+    captureView(fboTopCour, imgTopCour, mTopCour, roomFboTopCour);
 }
 
 //--------------------------------------------------------------
@@ -127,13 +127,19 @@ void Scene2DZenit::drawDynamicElements() {
 }
 
 //--------------------------------------------------------------
-void Scene2DZenit::captureView(ofFbo& fbo, ofImage& img, ofMatrix4x4 globalTransform) {
+void Scene2DZenit::captureView(ofFbo& fbo, ofImage& img, ofMatrix4x4 globalTransform, ofFbo* roomFbo) {
     fbo.begin();
     ofClear(0, 0, 0, 0);
     
-    if(bShowImages && img.isAllocated()) {
-          ofSetColor(255, 255, 255, 180); // 80 = Transparence
+    if(bgDisplayMode == 0 && img.isAllocated()) {
+        ofSetColor(255, 255, 255, 255);
         img.draw(0, 0, fbo.getWidth(), fbo.getHeight());
+    } else if(bgDisplayMode == 1 && img.isAllocated()) {
+        ofSetColor(255, 255, 255, 180); // 80 = Transparence
+        img.draw(0, 0, fbo.getWidth(), fbo.getHeight());
+    } else if(bgDisplayMode == 2 && roomFbo != nullptr && roomFbo->isAllocated()) {
+        ofSetColor(255, 255, 255, 255);
+        roomFbo->draw(0, 0, fbo.getWidth(), fbo.getHeight());
     } else {
         bool lastDebug = false;
         if (lastDebug) {
@@ -162,22 +168,94 @@ void Scene2DZenit::draw() {
     ofPushMatrix();
     ofTranslate(viewPan);
     ofScale(viewZoom);
-    ofTranslate(-wSol/2, -hSol/2); 
+    
+    if (layoutMode == 0) {
+        ofTranslate(-wSol/2, -hSol/2); 
 
-    // Rendu global pour debug
-    ofSetColor(255); fboSol.draw(0,0); 
-    fboFront.draw(0, -hFront);
-    
-    ofPushMatrix(); ofTranslate(0, hSol + gapBack); ofRotateZDeg(-90);
-    fboJar.draw(0, -hJar); fboTopJar.draw(0, -hJar - hTopJar); ofPopMatrix();
-    
-    ofPushMatrix(); ofTranslate(wSol, 0); ofRotateZDeg(90);
-    fboCour.draw(0, -hCour); fboTopCour.draw(0, -hCour - hTopCour); ofPopMatrix();
-    
-    ofPushMatrix(); ofTranslate(0, hSol + gapBack); ofTranslate(wBack, hBack); ofRotateZDeg(180);
-    fboBack.draw(0, 0); ofPopMatrix();
+        // Rendu global pour debug
+        ofSetColor(255); fboSol.draw(0,0); 
+        fboFront.draw(0, -hFront);
+        
+        ofPushMatrix(); ofTranslate(0, hSol + gapBack); ofRotateZDeg(-90);
+        fboJar.draw(0, -hJar); fboTopJar.draw(0, -hJar - hTopJar); ofPopMatrix();
+        
+        ofPushMatrix(); ofTranslate(wSol, 0); ofRotateZDeg(90);
+        fboCour.draw(0, -hCour); fboTopCour.draw(0, -hCour - hTopCour); ofPopMatrix();
+        
+        ofPushMatrix(); ofTranslate(0, hSol + gapBack); ofTranslate(wBack, hBack); ofRotateZDeg(180);
+        fboBack.draw(0, 0); ofPopMatrix();
 
-    drawDynamicElements(); // Balle + Poissons
+        drawDynamicElements(); // Balle + Poissons
+    } else if (layoutMode == 1) {
+        // Mode dépliage UV (Centré sur les toits)
+        ofTranslate(-wTopJar/2, 0); 
+
+        ofSetColor(255); 
+        fboTopJar.draw(0, 0);
+        ofPushMatrix(); ofTranslate(wTopCour, 0); ofRotateZDeg(180); fboTopCour.draw(0, 0); ofPopMatrix();
+        fboJar.draw(0, hTopJar);
+        ofPushMatrix(); ofTranslate(wCour, -hTopCour); ofRotateZDeg(180); fboCour.draw(0, 0); ofPopMatrix();
+        
+        // On attache FRONT et BACK au SOL pour qu'ils se déplient ensemble
+        ofPushMatrix(); 
+        ofTranslate(wTopJar, hTopJar + hJar); 
+        ofRotateZDeg(90); 
+        
+        fboSol.draw(0, 0); 
+        fboFront.draw(0, -hFront); // Collé en haut du SOL
+        
+        ofPushMatrix(); ofTranslate(0, hSol + gapBack); ofTranslate(wBack, hBack); ofRotateZDeg(180);
+        fboBack.draw(0, 0); // Collé en bas du SOL (avec la marge gapBack), tourné à 180°
+        ofPopMatrix();
+        
+        ofPopMatrix();
+    } else if (layoutMode == 2) {
+        // Mode dépliage UV (Centré sur les toits, FRONT/BACK sur JAR)
+        ofTranslate(-wTopJar/2, 0); 
+
+        ofSetColor(255); 
+        fboTopJar.draw(0, 0);
+        ofPushMatrix(); ofTranslate(wTopCour, 0); ofRotateZDeg(180); fboTopCour.draw(0, 0); ofPopMatrix();
+        fboJar.draw(0, hTopJar);
+        ofPushMatrix(); ofTranslate(wCour, -hTopCour); ofRotateZDeg(180); fboCour.draw(0, 0); ofPopMatrix();
+        
+        // SOL attaché à JAR (en bas)
+        ofPushMatrix(); 
+        ofTranslate(wTopJar, hTopJar + hJar); 
+        ofRotateZDeg(90); 
+        fboSol.draw(0, 0); 
+        ofPopMatrix();
+
+        // FRONT attaché à droite de JAR (aligné par le bas)
+        fboFront.draw(wJar, hTopJar + hJar - hFront);
+
+        // BACK attaché à gauche de JAR (aligné par le bas)
+        fboBack.draw(-wBack, hTopJar + hJar - hBack);
+    } else if (layoutMode == 3) {
+        // Mode dépliage UV (Centré sur les toits, FRONT/BACK sur JAR, COUR à droite de FRONT)
+        ofTranslate(-wTopJar/2, 0); 
+
+        ofSetColor(255); 
+        fboTopJar.draw(0, 0);
+        ofPushMatrix(); ofTranslate(wTopCour, 0); ofRotateZDeg(180); fboTopCour.draw(0, 0); ofPopMatrix();
+        fboJar.draw(0, hTopJar);
+        
+        // SOL attaché à JAR (en bas)
+        ofPushMatrix(); 
+        ofTranslate(wTopJar, hTopJar + hJar); 
+        ofRotateZDeg(90); 
+        fboSol.draw(0, 0); 
+        ofPopMatrix();
+
+        // FRONT attaché à droite de JAR (aligné par le bas)
+        fboFront.draw(wJar, hTopJar + hJar - hFront);
+
+        // BACK attaché à gauche de JAR (aligné par le bas)
+        fboBack.draw(-wBack, hTopJar + hJar - hBack);
+        
+        // COUR attaché à droite de FRONT (aligné par le bas)
+        fboCour.draw(wJar + wFront, hTopJar + hJar - hCour);
+    }
 
     ofPopMatrix();
 }

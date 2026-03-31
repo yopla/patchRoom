@@ -42,7 +42,6 @@ void MachineAutoLayer::createCreature(float x, float y) {
     for(int i=0; i<2; i++) {
         // Patte Avant (liée au Thorax) et Patte Arrière (liée à l'Abdomen)
         int parent = (i==0) ? pThorax : pAbdomen;
-        float legOffset = (i==0) ? 0 : -PI; // Déphasage pour la marche
         
         // Genou
         int pKnee = addParticle(x, y, 0.5f);

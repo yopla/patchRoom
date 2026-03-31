@@ -21,6 +21,7 @@ public:
     void mouseScrolled(int x, int y, float scrollX, float scrollY) override;
     void keyPressed(int key) override;
     void keyReleased(int key) override;
+    void dragEvent(ofDragInfo dragInfo) override;
 
     void setEnabled(bool enable) { bEnabled = enable; }
 
@@ -29,6 +30,7 @@ public:
     ofVec2f pan;
     float zoom;
     bool isSpacePressed = false;
+    bool isShiftPressed = false;
     ofVec2f lastMouse;
     bool bIsDraggingPan = false;
 

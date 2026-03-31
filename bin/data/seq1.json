@@ -1,0 +1,22 @@
+{
+    "buttons": [
+        {
+            "name": "SurSauteurs",
+            "stateIdx": 0,
+            "x": 397.0,
+            "y": 218.0
+        },
+        {
+            "name": "Colliders",
+            "stateIdx": 0,
+            "x": 202.0,
+            "y": 195.0
+        }
+    ],
+    "frames": [],
+    "notes": [],
+    "pan_x": 250.0,
+    "pan_y": 0.0,
+    "presets": [],
+    "zoom": 1.0
+}

@@ -10,8 +10,6 @@ void Scene2DLayerManager::setup(float totalWidth, float jarW, float jarX, float 
 
     // --- SETUP CREATURE SYSTEM ---
     creatureSystem.setup();
-    float centerX = jarX + jarW / 2.0f;
-    float centerY = 1080.0f; 
 
     // --- INIT COLLIDERS & LAYERS ---
     colliderLayer = make_shared<ColliderLayer>();

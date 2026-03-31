@@ -58,7 +58,7 @@ public:
         }
     }
 
-    void update() {
+    void update() override {
         if(!bEnabled) return;
     }
 
@@ -75,7 +75,7 @@ public:
 
             // 1. Rendu de la scène dans FBO Ping
             fboPing.begin();
-            ofClear(0);
+            ofClear(0,0);
             if (mainApp) {
                 layerManager.draw(mainApp->canvas.getTexture());
             }
@@ -83,7 +83,7 @@ public:
 
             // 2. Blur Horizontal : Ping -> Pong
             fboPong.begin();
-            ofClear(0);
+            ofClear(0,0);
             shaderBlurX.begin();
             shaderBlurX.setUniform1f("blurAmnt", 2.0);
             shaderBlurX.setUniform1f("texwidth", fboPing.getWidth());

@@ -83,7 +83,7 @@ void PaperLightLayer::setup(float w, float h) {
     texFbo.allocate(texSettings);
 
     texFbo.begin();
-    ofClear(0);
+    ofClear(0,0);
     ofDisableDepthTest();
     ofSetColor(255);
     

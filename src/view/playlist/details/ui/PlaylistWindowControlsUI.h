@@ -39,11 +39,11 @@ public:
     ofRectangle focusBtns[6];
     string focusNames[6] = {"->MAIN", "->W", "->X", "->C", "->V", "->B"};
     
-    ofRectangle gabBtns[4];
+    ofRectangle gabBtns[5];
     
-    bool bGabAccordionOpen[4] = {false, false, false, false};
-    vector<string> gabOptions[4];
-    vector<ofRectangle> gabOptionRects[4];
+    bool bGabAccordionOpen[5] = {false, false, false, false, false};
+    vector<string> gabOptions[5];
+    vector<ofRectangle> gabOptionRects[5];
     
     ofRectangle roomAlphaBtn;
     bool bRoomAlphaAccordionOpen = false;
@@ -52,4 +52,11 @@ public:
 
     ofRectangle diffuseRoomBtn;
     ofRectangle diffuseScene2DBtn;
+    
+    ofRectangle zenitLayoutBtn;
+    bool bZenitLayoutAccordionOpen = false;
+    vector<string> zenitLayoutOptions;
+    vector<ofRectangle> zenitLayoutOptionRects;
+
+    ofRectangle createZenitBtn;
 };

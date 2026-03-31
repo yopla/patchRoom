@@ -8,6 +8,7 @@
 #include "ofAppGLFWWindow.h"
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
+#include "PlaylistWinPosUI.h"
 
 shared_ptr<ofAppBaseWindow> PlaylistVisualizerApp::getAppWindow(int index) {
     if(!mainAppPtr) return nullptr;
@@ -18,6 +19,7 @@ shared_ptr<ofAppBaseWindow> PlaylistVisualizerApp::getAppWindow(int index) {
         case 3: return mainAppPtr->scene2DWindowPtr;
         case 4: return mainAppPtr->previewWindowPtr;
         case 5: return mainAppPtr->buttonWindowPtr;
+        case 6: return mainAppPtr->playlistWindowPtr;
     }
     return nullptr;
 }
@@ -40,32 +42,25 @@ void PlaylistVisualizerApp::setup() {
     addNoteBtnRect.set(10, 160, 60, 30);
     addFrameBtnRect.set(10, 200, 60, 30);
     searchBtnRect.set(10, 240, 60, 30);
+    histBtnRect.set(10, 280, 60, 30);
+    vuesBtnRect.set(10, 320, 60, 30);
+    posWinBtnRect.set(10, 360, 60, 30);
     
-    for(int i=0; i<5; i++) {
-        cameraPresetBtns[i].set(250 + i * 40, 5, 30, 30);
-        presetPans[i].set(250, 0);
-        presetZooms[i] = 1.0f;
-        
-        windowPresetBtns[i].set(480 + i * 40, 5, 30, 30);
-        for(int w=0; w<6; w++) {
-            windowPresets[i][w].set(0,0,0,0);
-        }
-        windowPresetSaved[i] = false;
-    }
-
-    focusAnnexesBtnRect.set(690, 5, 120, 30);
-    toggleAnnexesBtnRect.set(820, 5, 120, 30);
-
     // Init Gemini UI
     geminiUI.setup();
     
     searchBar.setup();
+    historyUI.setup();
+    viewsUI.setup();
+    winPosUI.setup();
     
     // Positions par défaut des Drop Zones
     float boxSize = 406.0f;
     diagramDropZone.set(375.0f, 1438.0f, boxSize, boxSize);
     textureUI.textureDropZone.set(849.0f, 1423.0f, boxSize, boxSize);
     imageGraphDropZone.set(1300.0f, 1423.0f, boxSize, boxSize);
+    
+    sequenceUI.setup();
     
     loadButtonPositions();
 }
@@ -112,6 +107,8 @@ void PlaylistVisualizerApp::update() {
     textureUI.update(roomApp);
     
     imageGraphPlayer.update();
+
+    sequenceUI.update(this);
 
     // Pression continue pour les boutons d'action qui le supportent (rotation, etc.)
     if (bEnabled && ofGetMousePressed(0) && !isSpacePressed && !bIsDraggingPan && !bEditMode) {
@@ -162,7 +159,7 @@ void PlaylistVisualizerApp::draw() {
     }
 
     ofBackground(25);
-
+    
     ofPushMatrix();
     ofTranslate(pan);
     ofScale(zoom, zoom);
@@ -301,49 +298,79 @@ void PlaylistVisualizerApp::draw() {
     ofNoFill(); ofSetColor(255); ofDrawRectangle(searchBtnRect);
     ofDrawBitmapString("SEARCH", searchBtnRect.x + 6, searchBtnRect.y + 20);
     
-    for(int i=0; i<5; i++) {
-        ofSetColor(80);
-        ofFill(); ofDrawRectangle(cameraPresetBtns[i]);
-        ofNoFill(); ofSetColor(255); ofDrawRectangle(cameraPresetBtns[i]);
-        ofDrawBitmapString(ofToString(i+1), cameraPresetBtns[i].x + 11, cameraPresetBtns[i].y + 20);
-        
-        if(cameraPresetBtns[i].inside(ofGetMouseX(), ofGetMouseY())) {
-            hoveredTooltip = "Vue " + ofToString(i+1) + " (Shift+clic pour sauvegarder la position)";
-        }
-    }
+    ofSetColor(80);
+    ofFill(); ofDrawRectangle(histBtnRect);
+    ofNoFill(); ofSetColor(255); ofDrawRectangle(histBtnRect);
+    ofDrawBitmapString("HIST", histBtnRect.x + 14, histBtnRect.y + 20);
     
-    for(int i=0; i<5; i++) {
-        ofSetColor(windowPresetSaved[i] ? ofColor(150, 100, 200) : ofColor(80));
-        ofFill(); ofDrawRectangle(windowPresetBtns[i]);
-        ofNoFill(); ofSetColor(255); ofDrawRectangle(windowPresetBtns[i]);
-        ofDrawBitmapString("A" + ofToString(i+1), windowPresetBtns[i].x + 8, windowPresetBtns[i].y + 20);
-        
-        if(windowPresetBtns[i].inside(ofGetMouseX(), ofGetMouseY())) {
-            hoveredTooltip = "Fenetres A" + ofToString(i+1) + " (Shift+clic pour sauvegarder la dispo)";
-        }
-    }
+    ofSetColor(80);
+    ofFill(); ofDrawRectangle(vuesBtnRect);
+    ofNoFill(); ofSetColor(255); ofDrawRectangle(vuesBtnRect);
+    ofDrawBitmapString("VUES", vuesBtnRect.x + 14, vuesBtnRect.y + 20);
     
-    if (mainAppPtr && mainAppPtr->annexeApp) {
-        ofSetColor(50, 150, 200);
-        ofFill(); ofDrawRectangle(focusAnnexesBtnRect);
-        ofNoFill(); ofSetColor(255); ofDrawRectangle(focusAnnexesBtnRect);
-        ofDrawBitmapString("FOCUS ANNEXES", focusAnnexesBtnRect.x + 8, focusAnnexesBtnRect.y + 20);
-        if(focusAnnexesBtnRect.inside(ofGetMouseX(), ofGetMouseY())) {
-            hoveredTooltip = "Mettre au premier plan les fenetres Annexes";
-        }
-        
-        ofSetColor(bAnnexesHidden ? ofColor(150, 50, 50) : ofColor(50, 150, 200));
-        ofFill(); ofDrawRectangle(toggleAnnexesBtnRect);
-        ofNoFill(); ofSetColor(255); ofDrawRectangle(toggleAnnexesBtnRect);
-        ofDrawBitmapString(bAnnexesHidden ? "ANNEXES OFF" : "ANNEXES ON", toggleAnnexesBtnRect.x + 18, toggleAnnexesBtnRect.y + 20);
-        if(toggleAnnexesBtnRect.inside(ofGetMouseX(), ofGetMouseY())) {
-            hoveredTooltip = "Afficher/Masquer les fenetres Annexes";
+    ofSetColor(80);
+    ofFill(); ofDrawRectangle(posWinBtnRect);
+    ofNoFill(); ofSetColor(255); ofDrawRectangle(posWinBtnRect);
+    ofDrawBitmapString("POS WIN", posWinBtnRect.x + 5, posWinBtnRect.y + 20);
+    
+    if (mainAppPtr) {
+        float btnW = 100;
+        float btnH = 22;
+        float margin = 10;
+
+        if (mainAppPtr->annexeApp) {
+            // Les fenêtres Annexe existent, on affiche les boutons de contrôle
+            toggleAnnexesBtnRect.set(ofGetWidth() - btnW - margin, margin, btnW, btnH);
+            focusAnnexesBtnRect.set(toggleAnnexesBtnRect.x - btnW - margin, margin, btnW, btnH);
+
+            ofSetColor(50, 150, 200);
+            ofFill(); ofDrawRectangle(focusAnnexesBtnRect);
+            ofNoFill(); ofSetColor(255); ofDrawRectangle(focusAnnexesBtnRect);
+            string focusText = "FOCUS ANNEXE";
+            ofDrawBitmapString(focusText, focusAnnexesBtnRect.x + (btnW - focusText.length() * 8) / 2, focusAnnexesBtnRect.y + 15);
+            
+            ofSetColor(bAnnexesHidden ? ofColor(150, 50, 50) : ofColor(50, 150, 200));
+            ofFill(); ofDrawRectangle(toggleAnnexesBtnRect);
+            ofNoFill(); ofSetColor(255); ofDrawRectangle(toggleAnnexesBtnRect);
+            string toggleText = bAnnexesHidden ? "ANNEXE OFF" : "ANNEXE ON";
+            ofDrawBitmapString(toggleText, toggleAnnexesBtnRect.x + (btnW - toggleText.length() * 8) / 2, toggleAnnexesBtnRect.y + 15);
+        } else {
+            // Les fenêtres n'existent pas, on affiche le bouton de création
+            btnW = 120; // Un peu plus large
+            createAnnexeBtnRect.set(ofGetWidth() - btnW - margin, margin, btnW, btnH);
+
+            ofSetColor(80, 180, 80);
+            ofFill(); ofDrawRectangle(createAnnexeBtnRect);
+            ofNoFill(); ofSetColor(255); ofDrawRectangle(createAnnexeBtnRect);
+            string createText = "CREER ANNEXE";
+            ofDrawBitmapString(createText, createAnnexeBtnRect.x + (btnW - createText.length() * 8) / 2, createAnnexeBtnRect.y + 15);
         }
     }
     ofPopStyle();
     
     // Dessin du tooltip par-dessus tout, non affecte par le Zoom (en coordonnees ecran brutes)
-    if(!hoveredTooltip.empty()) {
+    if(hoveredTooltip.empty()) { // S'il n'y a pas déjà un tooltip du "monde", on vérifie le HUD
+        float mx = ofGetMouseX();
+        float my = ofGetMouseY();
+        if(editBtnRect.inside(mx, my)) hoveredTooltip = tooltipManager.getTooltipText("EDIT");
+        else if(saveBtnRect.inside(mx, my)) hoveredTooltip = tooltipManager.getTooltipText("SAVE");
+        else if(loadBtnRect.inside(mx, my)) hoveredTooltip = tooltipManager.getTooltipText("LOAD");
+        else if(addNoteBtnRect.inside(mx, my)) hoveredTooltip = tooltipManager.getTooltipText("+ NOTE");
+        else if(addFrameBtnRect.inside(mx, my)) hoveredTooltip = tooltipManager.getTooltipText("+ FRAME");
+        else if(searchBtnRect.inside(mx, my)) hoveredTooltip = tooltipManager.getTooltipText("SEARCH");
+        else if(histBtnRect.inside(mx, my)) hoveredTooltip = tooltipManager.getTooltipText("HIST");
+        else if(vuesBtnRect.inside(mx, my)) hoveredTooltip = tooltipManager.getTooltipText("VUES");
+        else if(posWinBtnRect.inside(mx, my)) hoveredTooltip = tooltipManager.getTooltipText("POS_WIN");
+        else if (mainAppPtr) {
+            if (mainAppPtr->annexeApp) {
+                if(focusAnnexesBtnRect.inside(mx, my)) hoveredTooltip = tooltipManager.getTooltipText("FOCUS_ANNEXES");
+                else if(toggleAnnexesBtnRect.inside(mx, my)) hoveredTooltip = tooltipManager.getTooltipText("TOGGLE_ANNEXES");
+            } else {
+                if(createAnnexeBtnRect.inside(mx, my)) hoveredTooltip = "Crée et affiche les fenêtres Annexe.";
+            }
+        }
+    }
+    if(!hoveredTooltip.empty()) { // On redessine le tooltip s'il y en a un (monde ou HUD)
         tooltipManager.drawTooltip(hoveredTooltip, ofGetMouseX(), ofGetMouseY());
     }
 
@@ -359,75 +386,108 @@ void PlaylistVisualizerApp::draw() {
     
     // DESSIN SEARCH BAR (par-dessus tout)
     searchBar.draw();
+    historyUI.draw();
+    viewsUI.draw();
+    winPosUI.draw();
+    
+    if(sequenceUI.isActive()) {
+        sequenceUI.draw(this);
+    }
+
+    sequenceUI.drawTopButtons();
+    sequenceUI.drawContextMenu();
 }
 
 void PlaylistVisualizerApp::mousePressed(int x, int y, int button) {
+    if (sequenceUI.mousePressed(x, y, button, this)) return;
+    if (sequenceUI.isActive()) return;
+
+    if (button == 2) { // Clic droit
+        ofVec2f worldM = getTransformedMouse(x, y);
+        ofRectangle* clicked = findButtonAt(worldM);
+        if (clicked) {
+            std::string btnName = "";
+            for (auto& sb : getAllSearchableButtons()) {
+                if (sb.rect == clicked) { btnName = sb.name; break; }
+            }
+            if (!btnName.empty()) {
+                sequenceUI.openContextMenu(ofVec2f(x, y), btnName); 
+                return;
+            }
+        }
+    }
+
     lastMouse.set(x, y);
     
+    if (searchBtnRect.inside(x, y)) {
+        searchBar.toggle(getAllSearchableButtons(), pan, zoom);
+        if (historyUI.isVisible()) historyUI.close();
+        if (viewsUI.isVisible()) viewsUI.close();
+        if (winPosUI.isVisible()) winPosUI.close();
+        return;
+    }
+    if (histBtnRect.inside(x, y)) {
+        historyUI.toggle(pan, zoom);
+        if (searchBar.isVisible()) searchBar.close();
+        if (viewsUI.isVisible()) viewsUI.close();
+        if (winPosUI.isVisible()) winPosUI.close();
+        return;
+    }
+    if (vuesBtnRect.inside(x, y)) {
+        viewsUI.toggle(pan, zoom, vuesBtnRect.getRight(), vuesBtnRect.y);
+        if (searchBar.isVisible()) searchBar.close();
+        if (historyUI.isVisible()) historyUI.close();
+        if (winPosUI.isVisible()) winPosUI.close();
+        return;
+    }
+    if (posWinBtnRect.inside(x, y)) {
+        winPosUI.toggle(posWinBtnRect.getRight(), posWinBtnRect.y);
+        if (searchBar.isVisible()) searchBar.close();
+        if (historyUI.isVisible()) historyUI.close();
+        if (viewsUI.isVisible()) viewsUI.close();
+        return;
+    }
+
     if (searchBar.mousePressed(x, y, pan, zoom)) return;
+    if (historyUI.mousePressed(x, y, pan, zoom)) return;
+    if (viewsUI.mousePressed(x, y, pan, zoom)) return;
+    if (winPosUI.mousePressed(x, y, this)) return;
     
     if (!bEnabled) return;
     if (isSpacePressed) return; // Bloque le clic sur les boutons lors du déplacement
     
-    bool isShiftPressed = ofGetKeyPressed(OF_KEY_SHIFT);
-    for(int i=0; i<5; i++) {
-        if(cameraPresetBtns[i].inside(x, y)) {
-            if(isShiftPressed) {
-                presetPans[i] = pan;
-                presetZooms[i] = zoom;
-            } else {
-                pan = presetPans[i];
-                zoom = presetZooms[i];
-            }
-            return;
-        }
-    }
     
-    for(int i=0; i<5; i++) {
-        if(windowPresetBtns[i].inside(x, y)) {
-            if(isShiftPressed) {
-                for(int w=0; w<6; w++) {
-                    auto win = getAppWindow(w);
+    if (mainAppPtr) {
+        if (mainAppPtr->annexeApp) {
+            if (focusAnnexesBtnRect.inside(x, y)) {
+                auto focusWin = [](shared_ptr<ofAppBaseWindow> win) {
                     if(win) {
-                        windowPresets[i][w].set(win->getWindowPosition().x, win->getWindowPosition().y, win->getWindowSize().x, win->getWindowSize().y);
+                        auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(win);
+                        if(glfwWin) {
+                            glfwShowWindow(glfwWin->getGLFWWindow());
+                            glfwRestoreWindow(glfwWin->getGLFWWindow());
+                            glfwFocusWindow(glfwWin->getGLFWWindow());
+                        }
                     }
-                }
-                windowPresetSaved[i] = true;
-                saveUndoState();
-            } else if (windowPresetSaved[i]) {
-                for(int w=0; w<6; w++) {
-                    auto win = getAppWindow(w);
-                    if(win && windowPresets[i][w].width > 50) {
-                        win->setWindowPosition(windowPresets[i][w].x, windowPresets[i][w].y);
-                        win->setWindowShape(windowPresets[i][w].width, windowPresets[i][w].height);
-                    }
-                }
+                };
+                focusWin(mainAppPtr->annexeWindowPtr);
+                focusWin(mainAppPtr->annexePlayerWindowPtr);
+                historyUI.addEvent("Focus Annexes", pan, zoom);
+                return;
             }
-            return;
-        }
-    }
-    
-    if (mainAppPtr && mainAppPtr->annexeApp) {
-        if (focusAnnexesBtnRect.inside(x, y)) {
-            auto focusWin = [](shared_ptr<ofAppBaseWindow> win) {
-                if(win) {
-                    auto glfwWin = dynamic_pointer_cast<ofAppGLFWWindow>(win);
-                    if(glfwWin) {
-                        glfwShowWindow(glfwWin->getGLFWWindow());
-                        glfwRestoreWindow(glfwWin->getGLFWWindow());
-                        glfwFocusWindow(glfwWin->getGLFWWindow());
-                    }
-                }
-            };
-            focusWin(mainAppPtr->annexeWindowPtr);
-            focusWin(mainAppPtr->annexePlayerWindowPtr);
-            return;
-        }
-        if (toggleAnnexesBtnRect.inside(x, y)) {
-            bAnnexesHidden = !bAnnexesHidden;
-            if (mainAppPtr->annexeApp) mainAppPtr->annexeApp->setEnabled(!bAnnexesHidden);
-            if (mainAppPtr->annexePlayerApp) mainAppPtr->annexePlayerApp->setEnabled(!bAnnexesHidden);
-            return;
+            if (toggleAnnexesBtnRect.inside(x, y)) {
+                bAnnexesHidden = !bAnnexesHidden;
+                if (mainAppPtr->annexeApp) mainAppPtr->annexeApp->setEnabled(!bAnnexesHidden);
+                if (mainAppPtr->annexePlayerApp) mainAppPtr->annexePlayerApp->setEnabled(!bAnnexesHidden);
+                historyUI.addEvent(bAnnexesHidden ? "Annexes OFF" : "Annexes ON", pan, zoom);
+                return;
+            }
+        } else {
+            if (createAnnexeBtnRect.inside(x, y)) {
+                mainAppPtr->createAnnexeWindows();
+                historyUI.addEvent("Create Annexe Windows", pan, zoom);
+                return;
+            }
         }
     }
 
@@ -437,15 +497,16 @@ void PlaylistVisualizerApp::mousePressed(int x, int y, int button) {
         selectedRects.clear(); 
         bIsSelecting = false; 
         bIsDraggingGroup = false; 
+        historyUI.addEvent(bEditMode ? "Mode Edit ON" : "Mode Edit OFF", pan, zoom);
         return; 
     }
-    if (saveBtnRect.inside(x, y)) { saveButtonPositions(); return; }
-    if (loadBtnRect.inside(x, y)) { loadButtonPositions(); return; }
+    if (saveBtnRect.inside(x, y)) { saveButtonPositions(); historyUI.addEvent("SAVE Workspace", pan, zoom); return; }
+    if (loadBtnRect.inside(x, y)) { loadButtonPositions(); historyUI.addEvent("LOAD Workspace", pan, zoom); return; }
     if (addNoteBtnRect.inside(x, y)) {
         geminiUI.unfocusAll();
         if (editingNote) editingNote->bIsEditing = false;
         
-            saveUndoState();
+        saveUndoState("Ajout Note");
         
         ofVec2f center = getTransformedMouse(ofGetWidth()/2, ofGetHeight()/2);
         auto newNote = make_shared<PlaylistTextNote>(center);
@@ -455,14 +516,10 @@ void PlaylistVisualizerApp::mousePressed(int x, int y, int button) {
         return;
     }
     if (addFrameBtnRect.inside(x, y)) {
-        saveUndoState();
+        saveUndoState("Ajout Cadre");
         ofVec2f center = getTransformedMouse(ofGetWidth()/2, ofGetHeight()/2);
         auto newFrame = make_shared<PlaylistVisualFrame>(center);
         visualFrames.push_back(newFrame);
-        return;
-    }
-    if (searchBtnRect.inside(x, y)) {
-        searchBar.toggle(getAllSearchableButtons(), pan, zoom);
         return;
     }
 
@@ -483,6 +540,7 @@ void PlaylistVisualizerApp::mousePressed(int x, int y, int button) {
         selectedRects.clear();
         bIsSelecting = false;
         bIsDraggingGroup = false;
+        historyUI.addEvent(bEditMode ? "Mode Edit ON" : "Mode Edit OFF", pan, zoom);
         return;
     }
 
@@ -492,7 +550,7 @@ void PlaylistVisualizerApp::mousePressed(int x, int y, int button) {
         for (auto& frame : visualFrames) {
             if (std::find(selectedRects.begin(), selectedRects.end(), &frame->rect) != selectedRects.end()) {
                 if (frame->isResizeHit(worldM)) {
-                    saveUndoState();
+                    saveUndoState("Redimensionnement Cadre");
                     resizingFrame = frame;
                     return; // On bloque le deplacement classique, on passe en mode redimensionnement
                 }
@@ -504,7 +562,7 @@ void PlaylistVisualizerApp::mousePressed(int x, int y, int button) {
             // Zone de clic un peu plus large pour être attrapée facilement (tolérance)
             ofRectangle handle(r->getRight() - 10, r->getBottom() - 10, 20, 20);
             if (handle.inside(worldM)) {
-                saveUndoState();
+                saveUndoState("Redimensionnement Element");
                 resizingRect = r;
                 return;
             }
@@ -525,7 +583,7 @@ void PlaylistVisualizerApp::mousePressed(int x, int y, int button) {
             for (auto* r : selectedRects) {
                 dragOffsets.push_back(worldM - ofVec2f(r->x, r->y));
             }
-            saveUndoState();
+            saveUndoState("Selection/Deplacement Element");
             bIsDraggingGroup = true;
         } else {
             // On clique dans le vide -> Début d'un lasso
@@ -537,6 +595,25 @@ void PlaylistVisualizerApp::mousePressed(int x, int y, int button) {
         return;
     }
     
+    // --- ENREGISTREMENT LÉGER DANS L'HISTORIQUE ---
+    if (!bEditMode && clickedRect) {
+        string actionName = "Action UI";
+        for (auto& btn : getAllSearchableButtons()) {
+            if (btn.rect == clickedRect) {
+                actionName = btn.name;
+                break;
+            }
+        }
+        
+        if (actionName == "Action UI") {
+            if (clickedRect == &diagramDropZone) actionName = "Diagram Playlist";
+            else if (clickedRect == &imageGraphDropZone) actionName = "Diagram Images";
+            else if (clickedRect == &textureUI.textureDropZone) actionName = "Textures";
+        }
+        
+        historyUI.addEvent(actionName, pan, zoom);
+    }
+
     if (!bEditMode) {
         for(auto& note : textNotes) {
             if (note->rect.inside(worldM)) {
@@ -578,6 +655,11 @@ void PlaylistVisualizerApp::mousePressed(int x, int y, int button) {
 }
 
 void PlaylistVisualizerApp::mouseDragged(int x, int y, int button) {
+    if (sequenceUI.isActive()) {
+        sequenceUI.mouseDragged(x, y, button);
+        return;
+    }
+    
     if(isSpacePressed || bIsDraggingPan) {
         ofVec2f currentMouse(x, y);
         pan += (currentMouse - lastMouse);
@@ -639,6 +721,11 @@ void PlaylistVisualizerApp::mouseDragged(int x, int y, int button) {
 }
 
 void PlaylistVisualizerApp::mouseReleased(int x, int y, int button) {
+    if (sequenceUI.isActive()) {
+        sequenceUI.mouseReleased(x, y, button);
+        return;
+    }
+
     if (bEditMode) {
         bIsDraggingGroup = false;
         bIsSelecting = false;
@@ -650,10 +737,19 @@ void PlaylistVisualizerApp::mouseReleased(int x, int y, int button) {
 
 void PlaylistVisualizerApp::mouseMoved(int x, int y) {
     searchBar.mouseMoved(x, y, pan, zoom);
+    historyUI.mouseMoved(x, y, pan, zoom);
+    viewsUI.mouseMoved(x, y, pan, zoom);
+    winPosUI.mouseMoved(x, y);
 }
 
 void PlaylistVisualizerApp::mouseScrolled(int x, int y, float scrollX, float scrollY) {
+    if (sequenceUI.isActive()) {
+        sequenceUI.mouseScrolled(x, y, scrollY);
+        return;
+    }
+
     if (searchBar.isVisible()) return;
+    if (historyUI.mouseScrolled(x, y, scrollY)) return;
     
     if (scrollY == 0) return;
     ofVec2f worldM = getTransformedMouse(x, y);
@@ -669,7 +765,15 @@ void PlaylistVisualizerApp::mouseScrolled(int x, int y, float scrollX, float scr
 }
 
 void PlaylistVisualizerApp::keyPressed(int key) { 
+    if (sequenceUI.isActive()) {
+        sequenceUI.keyPressed(key, this);
+        return;
+    }
+
     if (searchBar.keyPressed(key, pan, zoom)) return;
+    if (historyUI.keyPressed(key, pan, zoom)) return;
+    if (viewsUI.keyPressed(key, pan, zoom)) return;
+    if (winPosUI.keyPressed(key)) return;
     
     if (editingNote) {
         if (ofGetKeyPressed(OF_KEY_COMMAND) || ofGetKeyPressed(OF_KEY_CONTROL) || ofGetKeyPressed(OF_KEY_SUPER)) {
@@ -706,8 +810,7 @@ void PlaylistVisualizerApp::keyPressed(int key) {
 
     if (key >= '1' && key <= '5') {
         int idx = key - '1';
-        pan = presetPans[idx];
-        zoom = presetZooms[idx];
+        viewsUI.applyPresetByIndex(idx, pan, zoom);
         return;
     }
 
@@ -726,7 +829,7 @@ void PlaylistVisualizerApp::keyPressed(int key) {
 
     if (bEditMode && !selectedRects.empty()) {
         if (key == OF_KEY_BACKSPACE || key == OF_KEY_DEL) {
-            saveUndoState();
+            saveUndoState("Suppression Element");
             textNotes.erase(std::remove_if(textNotes.begin(), textNotes.end(),
                 [&](const shared_ptr<PlaylistTextNote>& note) {
                     return std::find(selectedRects.begin(), selectedRects.end(), &note->rect) != selectedRects.end();
@@ -743,7 +846,7 @@ void PlaylistVisualizerApp::keyPressed(int key) {
         
         if (ofGetKeyPressed(OF_KEY_SHIFT)) {
             if (key == 'x' || key == 'X') {
-                 saveUndoState();
+                 saveUndoState("Alignement Vertical (Y)");
                  float targetY = selectedRects[0]->y;
                 for (auto* r : selectedRects) {
                     r->y = targetY;
@@ -751,7 +854,7 @@ void PlaylistVisualizerApp::keyPressed(int key) {
                 return;
             }
             if (key == 'y' || key == 'Y') {
-                 saveUndoState();
+                 saveUndoState("Alignement Horizontal (X)");
                  float targetX = selectedRects[0]->x;
                 for (auto* r : selectedRects) {
                     r->x = targetX;
@@ -866,33 +969,12 @@ ofJson PlaylistVisualizerApp::serializeState() {
         pt["frames"].push_back(f);
     }
     
-    pt["presets"] = ofJson::array();
-    for(int i=0; i<5; i++) {
-        ofJson p;
-        p["pan_x"] = presetPans[i].x;
-        p["pan_y"] = presetPans[i].y;
-        p["zoom"] = presetZooms[i];
-        pt["presets"].push_back(p);
-    }
+    viewsUI.saveSettings(pt);
     
-    pt["window_presets"] = ofJson::array();
-    for(int i=0; i<5; i++) {
-        ofJson p;
-        p["saved"] = windowPresetSaved[i];
-        p["windows"] = ofJson::array();
-        for(int w=0; w<6; w++) {
-            ofJson wJson;
-            wJson["x"] = windowPresets[i][w].x;
-            wJson["y"] = windowPresets[i][w].y;
-            wJson["w"] = windowPresets[i][w].width;
-            wJson["h"] = windowPresets[i][w].height;
-            p["windows"].push_back(wJson);
-        }
-        pt["window_presets"].push_back(p);
-    }
+    winPosUI.saveSettings(pt);
     
     pt["current_windows"] = ofJson::array();
-    for(int w=0; w<6; w++) {
+    for(int w=0; w<7; w++) {
         ofJson wJson;
         auto win = getAppWindow(w);
         if(win) {
@@ -967,30 +1049,12 @@ void PlaylistVisualizerApp::deserializeState(const ofJson& pt) {
         }
     }
     
-    if(pt.contains("presets") && pt["presets"].is_array()) {
-        for(int i=0; i<5 && i<pt["presets"].size(); i++) {
-            presetPans[i].x = pt["presets"][i].value("pan_x", 250.0f);
-            presetPans[i].y = pt["presets"][i].value("pan_y", 0.0f);
-            presetZooms[i] = pt["presets"][i].value("zoom", 1.0f);
-        }
-    }
+    viewsUI.loadSettings(pt);
     
-    if(pt.contains("window_presets") && pt["window_presets"].is_array()) {
-        for(int i=0; i<5 && i<pt["window_presets"].size(); i++) {
-            windowPresetSaved[i] = pt["window_presets"][i].value("saved", false);
-            if(pt["window_presets"][i].contains("windows") && pt["window_presets"][i]["windows"].is_array()) {
-                for(int w=0; w<6 && w<pt["window_presets"][i]["windows"].size(); w++) {
-                    windowPresets[i][w].x = pt["window_presets"][i]["windows"][w].value("x", 0.0f);
-                    windowPresets[i][w].y = pt["window_presets"][i]["windows"][w].value("y", 0.0f);
-                    windowPresets[i][w].width = pt["window_presets"][i]["windows"][w].value("w", 0.0f);
-                    windowPresets[i][w].height = pt["window_presets"][i]["windows"][w].value("h", 0.0f);
-                }
-            }
-        }
-    }
+    winPosUI.loadSettings(pt);
     
     if(pt.contains("current_windows") && pt["current_windows"].is_array()) {
-        for(int w=0; w<6 && w<pt["current_windows"].size(); w++) {
+        for(int w=0; w<7 && w<pt["current_windows"].size(); w++) {
             auto win = getAppWindow(w);
             if(win) {
                 float x = pt["current_windows"][w].value("x", win->getWindowPosition().x);
@@ -1021,7 +1085,7 @@ void PlaylistVisualizerApp::deserializeState(const ofJson& pt) {
     }
 }
 
-void PlaylistVisualizerApp::saveUndoState() {
+void PlaylistVisualizerApp::saveUndoState(string actionName) {
     ofJson currentState = serializeState();
     if (!undoStack.empty() && undoStack.back() == currentState) {
         return; 
@@ -1030,6 +1094,8 @@ void PlaylistVisualizerApp::saveUndoState() {
     if(undoStack.size() > 5) {
         undoStack.pop_front();
     }
+    
+    historyUI.addEvent(actionName, pan, zoom);
 }
 
 void PlaylistVisualizerApp::undo() {
@@ -1120,20 +1186,28 @@ vector<SearchableButton> PlaylistVisualizerApp::getAllSearchableButtons() {
     for(int i=0; i<4; i++) res.push_back({"->V" + ofToString(i+1), &windowControlsUI.moveWinBtns[i]});
     for(int i=0; i<4; i++) res.push_back({"V" + ofToString(i+1) + " WIN", &windowControlsUI.toggleWinBtns[i]});
     for(int i=0; i<4; i++) res.push_back({"REC V" + ofToString(i+1), &windowControlsUI.recWinBtns[i]});
-    res.push_back({"Format d'enregistrement", &windowControlsUI.formatBtn});
-    res.push_back({"Qualite d'enregistrement", &windowControlsUI.qualityBtn});
-    res.push_back({"Repartir Fenetres", &windowControlsUI.arrangeWinBtn});
+    res.push_back({"FMT", &windowControlsUI.formatBtn});
+    res.push_back({"Q", &windowControlsUI.qualityBtn});
+    res.push_back({"ARRANGE", &windowControlsUI.arrangeWinBtn});
     for(int i=0; i<6; i++) {
         res.push_back({windowControlsUI.wxcvbNames[i], &windowControlsUI.wxcvbBtns[i]});
         res.push_back({windowControlsUI.focusNames[i], &windowControlsUI.focusBtns[i]});
     }
-    for(int i=0; i<4; i++) res.push_back({"GAB " + ofToString(i), &windowControlsUI.gabBtns[i]});
-    if (mainAppPtr && mainAppPtr->annexeApp) {
-        res.push_back({"Focus Annexes", &focusAnnexesBtnRect});
-        res.push_back({"Toggle Annexes", &toggleAnnexesBtnRect});
+    for(int i=0; i<5; i++) res.push_back({"GAB " + ofToString(i), &windowControlsUI.gabBtns[i]});
+    
+    if (mainAppPtr) {
+        if (mainAppPtr->annexeApp) {
+            res.push_back({"FOCUS ANNEXE", &focusAnnexesBtnRect});
+            res.push_back({"ANNEXE ON/OFF", &toggleAnnexesBtnRect});
+        } else {
+            res.push_back({"CREER ANNEXE", &createAnnexeBtnRect});
+        }
     }
-    res.push_back({"Diffuse Room", &windowControlsUI.diffuseRoomBtn});
-    res.push_back({"Diffuse Scene2D", &windowControlsUI.diffuseScene2DBtn});
+    res.push_back({"Room Alpha", &windowControlsUI.roomAlphaBtn});
+    res.push_back({"DIF:ROOM", &windowControlsUI.diffuseRoomBtn});
+    res.push_back({"DIF:SCENE2D", &windowControlsUI.diffuseScene2DBtn});
+    res.push_back({"LAY:ZENIT", &windowControlsUI.zenitLayoutBtn});
+    res.push_back({"CREER ZENIT", &windowControlsUI.createZenitBtn});
     
     // Controls UI
     for(auto& t : controlsUI.roomToggles) res.push_back({t.name, &t.rect});
@@ -1143,41 +1217,42 @@ vector<SearchableButton> PlaylistVisualizerApp::getAllSearchableButtons() {
     for(auto& b : controlsUI.creatureButtons) res.push_back({b.name, &b.rect});
     for(auto& b : controlsUI.interactiveButtons) res.push_back({b.name, &b.rect});
     for(auto& b : controlsUI.mainBrushButtons) res.push_back({b.name, &b.rect});
-    res.push_back({"Clear All Creatures", &controlsUI.clearAllCreaturesBtn});
-    res.push_back({"Undo Creature", &controlsUI.undoCreatureBtn});
-    res.push_back({"Reset EatMap", &controlsUI.resetEatMapBtn});
-    res.push_back({"Reset Colliders", &controlsUI.resetCollidersBtn});
+    res.push_back({"CLEAR ALL CREATURES", &controlsUI.clearAllCreaturesBtn});
+    res.push_back({"UNDO CREA", &controlsUI.undoCreatureBtn});
+    res.push_back({"RESET EATMAP", &controlsUI.resetEatMapBtn});
+    res.push_back({"RESET COLLIDER", &controlsUI.resetCollidersBtn});
     
     // Player UI
-    res.push_back({"Loop", &playerUI.loopButtonRect});
-    res.push_back({"Play/Toggle", &playerUI.toggleButtonRect});
-    res.push_back({"Simulate", &playerUI.simButtonRect});
-    res.push_back({"Speed x2", &playerUI.doubleSpeedBtnRect});
-    res.push_back({"Mute", &playerUI.muteBtnRect});
-    res.push_back({"Crop 106", &playerUI.crop106BtnRect});
-    res.push_back({"Use Disk Images", &playerUI.useDiskImagesBtnRect});
-    res.push_back({"Infinite Pause", &playerUI.infinitePauseBtnRect});
-    res.push_back({"Pause Accordion", &playerUI.pauseAccordionBtn});
+    res.push_back({"LOOP MODE", &playerUI.loopButtonRect});
+    res.push_back({"GO PLAYLIST", &playerUI.toggleButtonRect});
+    res.push_back({"SIMULATE 32 VID", &playerUI.simButtonRect});
+    res.push_back({"SPEED x2", &playerUI.doubleSpeedBtnRect});
+    res.push_back({"MUTE", &playerUI.muteBtnRect});
+    res.push_back({"CROP 106%", &playerUI.crop106BtnRect});
+    res.push_back({"USE DISK IMGS", &playerUI.useDiskImagesBtnRect});
+    res.push_back({"HOLD LAST FRAME", &playerUI.infinitePauseBtnRect});
+    res.push_back({"PAUSE ACCORDION", &playerUI.pauseAccordionBtn});
+    res.push_back({"FADE ACCORDION", &playerUI.fadeAccordionBtn});
     
     // Gemini UI
-    res.push_back({"API Key", &geminiUI.apiKeyBox});
-    res.push_back({"Theme", &geminiUI.themeBox});
-    res.push_back({"Prompt Vid 1", &geminiUI.promptVid1Box});
-    res.push_back({"Prompt Vid 2", &geminiUI.promptVid2Box});
-    res.push_back({"Gen Room 360", &geminiUI.genRoomBtn});
-    res.push_back({"Gen Vid Last", &geminiUI.genVidLastBtn});
-    res.push_back({"Gen Vid 2 Last", &geminiUI.genVid2LastBtn});
-    res.push_back({"Model Accordion", &geminiUI.modelAccordionBtn});
-    res.push_back({"Image Size", &geminiUI.imageSizeBtn});
-    res.push_back({"Video Res", &geminiUI.videoResBtn});
-    res.push_back({"Gen Text To Room", &geminiUI.genTextToRoomBtn});
+    res.push_back({"API KEY", &geminiUI.apiKeyBox});
+    res.push_back({"THEME", &geminiUI.themeBox});
+    res.push_back({"PROMPT V1", &geminiUI.promptVid1Box});
+    res.push_back({"PROMPT V2", &geminiUI.promptVid2Box});
+    res.push_back({"GEN 360 FROM ROOM", &geminiUI.genRoomBtn});
+    res.push_back({"GEN VID FROM LAST", &geminiUI.genVidLastBtn});
+    res.push_back({"GEN VID FROM 2 LAST", &geminiUI.genVid2LastBtn});
+    res.push_back({"MODEL", &geminiUI.modelAccordionBtn});
+    res.push_back({"IMG SIZE", &geminiUI.imageSizeBtn});
+    res.push_back({"VID RES", &geminiUI.videoResBtn});
+    res.push_back({"GEN 360 FROM TEXT", &geminiUI.genTextToRoomBtn});
     
     for(auto& note : textNotes) {
         string preview = note->text;
         ofStringReplace(preview, "\n", " ");
-        if (preview.length() > 20) preview = preview.substr(0, 17) + "...";
+        if (preview.length() > 30) preview = preview.substr(0, 27) + "...";
         if (preview.empty()) preview = "Note vide";
-        res.push_back({"Note: " + preview, &note->rect});
+        res.push_back({"Note : " + preview, &note->rect});
     }
     
     return res;

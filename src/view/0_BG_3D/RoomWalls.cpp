@@ -95,7 +95,7 @@ void RoomWalls::draw(bool showRoof, float alpha, int mode,
         glDepthMask(GL_FALSE);
     }
 
-    if (mode == 2) { // 2 = FBOs de la Scene 2D
+    if (mode == 2 || mode == 3) { // 2 = Scene 2D FBOs, 3 = Scene2DZenit FBOs
         if(fFront && fFront->isAllocated()) { fFront->getTexture().bind(); meshFront.draw(); fFront->getTexture().unbind(); }
         if(fBack && fBack->isAllocated()) { fBack->getTexture().bind(); meshBack.draw(); fBack->getTexture().unbind(); }
         if(fJar && fJar->isAllocated()) { fJar->getTexture().bind(); meshJar.draw(); fJar->getTexture().unbind(); }
@@ -154,7 +154,7 @@ bool RoomWalls::rayTriangleIntersect(const ofVec3f &orig, const ofVec3f &dir,
 ofColor RoomWalls::getPixelFromRay(const ofVec3f& origin, const ofVec3f& dir) {
     float minT = 100000.0f; // Distance infinie
     ofColor finalColor(0, 0, 0, 0); // Transparent par défaut
-    bool hit = false;
+    //bool hit = false;
 
     // Liste des meshes et textures associées à tester
     struct WallObj { ofMesh* m; ofImage* i; };
@@ -187,7 +187,7 @@ ofColor RoomWalls::getPixelFromRay(const ofVec3f& origin, const ofVec3f& dir) {
             if(rayTriangleIntersect(origin, dir, v0, v1, v2, t, u, v)) {
                 if(t > 0 && t < minT) {
                     minT = t;
-                    hit = true;
+                   // hit = true;
 
                     // Interpolation des coordonnées de texture (Barycentric)
                     // UV = w*uv0 + u*uv1 + v*uv2, avec w = 1-u-v
@@ -222,7 +222,7 @@ ofColor RoomWalls::getPixelFromRayDynamic(const ofVec3f& origin, const ofVec3f& 
                                           ofPixels* pSol, ofPixels* pTopCour, ofPixels* pTopJar) {
     float minT = 100000.0f;
     ofColor finalColor(0, 0, 0, 0);
-    bool hit = false;
+    //bool hit = false;
 
     struct WallObj { ofMesh* m; ofImage* i; ofPixels* p; };
     vector<WallObj> walls = {
@@ -250,7 +250,7 @@ ofColor RoomWalls::getPixelFromRayDynamic(const ofVec3f& origin, const ofVec3f& 
             if(rayTriangleIntersect(origin, dir, v0, v1, v2, t, u, v)) {
                 if(t > 0 && t < minT) {
                     minT = t;
-                    hit = true;
+                   // hit = true;
 
                     ofVec2f uv0 = w.m->getTexCoord(idx0);
                     ofVec2f uv1 = w.m->getTexCoord(idx1);
@@ -263,7 +263,7 @@ ofColor RoomWalls::getPixelFromRayDynamic(const ofVec3f& origin, const ofVec3f& 
                     float ty = ofClamp(texCoord.y, 0.0f, 1.0f);
                     
                     ofPixels* activePix = nullptr;
-                    if (mode == 2 && w.p && w.p->isAllocated()) {
+                    if ((mode == 2 || mode == 3) && w.p && w.p->isAllocated()) {
                         activePix = w.p;
                     } else {
                         activePix = &w.i->getPixels();

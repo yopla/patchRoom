@@ -360,9 +360,9 @@ void PerceptionSystem::updatePoulpe(shared_ptr<Scene2D_SIDE> sceneSide,
     }
 
     // Mapping constants from Scene2D_SIDE
-    float srcX_Front = sceneSide->wJar; // 2624
-    float wFront = sceneSide->wFront;   // 2400
-    float yStartSol = 1472.0f;
+    // float srcX_Front = sceneSide->wJar; // 2624
+    // float wFront = sceneSide->wFront;   // 2400
+    // float yStartSol = 1472.0f;
     ofVec2f poulpeHead = sceneSide->layerManager.poulpeLayer.getHeadPos();
     ofVec3f head3D = sceneSide->get3DPos(poulpeHead.x, poulpeHead.y);
     

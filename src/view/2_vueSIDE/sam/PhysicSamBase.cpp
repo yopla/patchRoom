@@ -154,7 +154,7 @@ void PhysicSamBase::drawHole(float shadowAngle, float shadowDist) {
     // Trou de base (plus clair, 60% de noir)
     float lightAlpha = 255.0f * 0.60f; 
     // Ombre interne supplémentaire (75% de noir)
-    float darkAlpha = 255.0f * 0.75f; 
+    float darkAlpha = 255.0f * 0.95f; 
     
     // Calcul de l'ombre interne par vertex (découpe nette basée sur la forme)
     for (size_t i = 0; i < holeMesh.getNumVertices(); i++) {
