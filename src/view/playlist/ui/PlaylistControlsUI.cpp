@@ -156,6 +156,12 @@ void PlaylistControlsUI::setupRoomToggles(RoomApp* roomApp, ofApp* mainAppPtr) {
     addToggle("Faisceau", [roomApp](){ return roomApp->bDrawBeam; }, [roomApp](){ roomApp->bDrawBeam = !roomApp->bDrawBeam; });
     addToggle("Prev 360", [roomApp](){ return roomApp->bDrawAtmosphere; }, [roomApp](){ roomApp->bDrawAtmosphere = !roomApp->bDrawAtmosphere; });
     addToggle("Texture ON", [roomApp](){ return roomApp->bUseTexture; }, [roomApp](){ roomApp->bUseTexture = !roomApp->bUseTexture; });
+    addToggle("Box Checker", [roomApp](){ return roomApp->bDrawBoxTexture; }, [roomApp](){ roomApp->bDrawBoxTexture = !roomApp->bDrawBoxTexture; });
+    addToggle("JupyterBox", [roomApp](){ return roomApp->bDrawJupyterBox; }, [roomApp](){ roomApp->bDrawJupyterBox = !roomApp->bDrawJupyterBox; });
+    addToggle("G.O.L Box", [roomApp](){ return roomApp->bDrawGolBox; }, [roomApp](){ roomApp->bDrawGolBox = !roomApp->bDrawGolBox; });
+    addToggle("GOL Motion", [roomApp](){ return roomApp->bDrawGolBoxMotion; }, [roomApp](){ roomApp->bDrawGolBoxMotion = !roomApp->bDrawGolBoxMotion; });
+    addToggle("AutoSnake Box", [roomApp](){ return roomApp->bDrawAutoSnakeBox; }, [roomApp](){ roomApp->bDrawAutoSnakeBox = !roomApp->bDrawAutoSnakeBox; });
+    addToggle("Snake Interact", [roomApp](){ return roomApp->bInteractAutoSnake; }, [roomApp](){ roomApp->bInteractAutoSnake = !roomApp->bInteractAutoSnake; });
     addToggle("Plafond", [roomApp](){ return roomApp->bShowRoof; }, [roomApp](){ roomApp->bShowRoof = !roomApp->bShowRoof; });
     addToggle("Respiration", [roomApp](){ return roomApp->respire; }, [roomApp](){ roomApp->respire = !roomApp->respire; });
     addToggle("Vagues", [roomApp](){ return roomApp->bDrawRipples; }, [roomApp](){ roomApp->bDrawRipples = !roomApp->bDrawRipples; });
@@ -234,6 +240,24 @@ void PlaylistControlsUI::setupRoomActionBtns(RoomApp* roomApp) {
     addAction("Plan Ele+ [Z]", [roomApp](){ roomApp->projection.movePlanColle(0.0f, 1.0f); }, true);
     addAction("Plan Ele- [S]", [roomApp](){ roomApp->projection.movePlanColle(0.0f, -1.0f); }, true);
     addAction("Del Flys [X]", [roomApp](){ roomApp->lightFlyRing.clearLights(); }, false);
+    
+    addAction("Jupy Reset", [roomApp](){ roomApp->jupyterBox.reset(); }, false);
+    addAction("Jupy Pause", [roomApp](){ roomApp->jupyterBox.bPaused = !roomApp->jupyterBox.bPaused; }, false, [roomApp](){ return roomApp->jupyterBox.bPaused; });
+    addAction("G.O.L Reset", [roomApp](){ roomApp->golBox.reset(); }, false);
+    addAction("G.O.L New Seed", [roomApp, this](){ 
+        roomApp->golBox.currentSeed = ofRandom(10000000); 
+        this->golSeedString = ofToString(roomApp->golBox.currentSeed);
+        roomApp->golBox.reset(); 
+    }, false);
+    addAction("GOLM Reset", [roomApp](){ roomApp->golBoxMotion.reset(); }, false);
+    addAction("GOLM Pause", [roomApp](){ roomApp->golBoxMotion.bPaused = !roomApp->golBoxMotion.bPaused; }, false, [roomApp](){ return roomApp->golBoxMotion.bPaused; });
+    addAction("GOLM New Seed", [roomApp, this](){ 
+        roomApp->golBoxMotion.currentSeed = ofRandom(10000000); 
+        this->golmSeedString = ofToString(roomApp->golBoxMotion.currentSeed);
+        roomApp->golBoxMotion.reset(); 
+    }, false);
+    addAction("AutoS Reset", [roomApp](){ roomApp->autoSnakeBox.reset(); }, false);
+    addAction("AutoS Pause", [roomApp](){ roomApp->autoSnakeBox.bPaused = !roomApp->autoSnakeBox.bPaused; }, false, [roomApp](){ return roomApp->autoSnakeBox.bPaused; });
 
     int cols = 2;
     float bw = 100;
@@ -246,6 +270,14 @@ void PlaylistControlsUI::setupRoomActionBtns(RoomApp* roomApp) {
         int c = i % cols;
         int r = i / cols;
         roomActionBtns[i].rect.set(startX + c*(bw+pad), startY + r*(bh+pad), bw, bh);
+    }
+    
+    int numRows = (roomActionBtns.size() + cols - 1) / cols;
+    golSeedBox.set(startX, startY + numRows*(bh+pad), bw*2+pad, bh);
+    golmSeedBox.set(startX, startY + (numRows+1)*(bh+pad), bw*2+pad, bh);
+    if (roomApp) {
+        golSeedString = ofToString(roomApp->golBox.currentSeed);
+        golmSeedString = ofToString(roomApp->golBoxMotion.currentSeed);
     }
 }
 
@@ -413,6 +445,62 @@ void PlaylistControlsUI::draw(ofApp* mainAppPtr) {
         ofDrawBitmapString(t.name, 5, 14);
         ofPopMatrix();
     }
+    
+    if(mainAppPtr && mainAppPtr->roomApp) {
+        if (bEditingGolSeed) ofSetColor(200, 200, 50);
+        else ofSetColor(64, 94, 104);
+        ofFill(); ofDrawRectangle(golSeedBox);
+        ofNoFill(); ofSetColor(150); ofDrawRectangle(golSeedBox);
+        
+        ofRectangle pasteGolBtn(golSeedBox.getRight() - 60, golSeedBox.y, 30, golSeedBox.height);
+        ofSetColor(100, 200, 150);
+        ofFill(); ofDrawRectangle(pasteGolBtn);
+        ofNoFill(); ofSetColor(255); ofDrawRectangle(pasteGolBtn);
+        ofPushMatrix(); ofTranslate(pasteGolBtn.x, pasteGolBtn.y); ofScale(pasteGolBtn.height / 20.0f, pasteGolBtn.height / 20.0f);
+        ofDrawBitmapString("V", 10, 14);
+        ofPopMatrix();
+
+        ofRectangle copyGolBtn(golSeedBox.getRight() - 30, golSeedBox.y, 30, golSeedBox.height);
+        ofSetColor(100, 150, 200);
+        ofFill(); ofDrawRectangle(copyGolBtn);
+        ofNoFill(); ofSetColor(255); ofDrawRectangle(copyGolBtn);
+        ofPushMatrix(); ofTranslate(copyGolBtn.x, copyGolBtn.y); ofScale(copyGolBtn.height / 20.0f, copyGolBtn.height / 20.0f);
+        ofDrawBitmapString("C", 10, 14);
+        ofPopMatrix();
+
+        ofSetColor(255);
+        string displayStrGol = "GOL SD: " + golSeedString + (bEditingGolSeed && (ofGetFrameNum() % 60 < 30) ? "_" : "");
+        ofPushMatrix(); ofTranslate(golSeedBox.x, golSeedBox.y); ofScale(golSeedBox.height / 20.0f, golSeedBox.height / 20.0f);
+        ofDrawBitmapString(displayStrGol, 5, 14);
+        ofPopMatrix();
+
+        if (bEditingGolmSeed) ofSetColor(200, 200, 50);
+        else ofSetColor(64, 94, 104);
+        ofFill(); ofDrawRectangle(golmSeedBox);
+        ofNoFill(); ofSetColor(150); ofDrawRectangle(golmSeedBox);
+        
+        ofRectangle pasteGolmBtn(golmSeedBox.getRight() - 60, golmSeedBox.y, 30, golmSeedBox.height);
+        ofSetColor(100, 200, 150);
+        ofFill(); ofDrawRectangle(pasteGolmBtn);
+        ofNoFill(); ofSetColor(255); ofDrawRectangle(pasteGolmBtn);
+        ofPushMatrix(); ofTranslate(pasteGolmBtn.x, pasteGolmBtn.y); ofScale(pasteGolmBtn.height / 20.0f, pasteGolmBtn.height / 20.0f);
+        ofDrawBitmapString("V", 10, 14);
+        ofPopMatrix();
+
+        ofRectangle copyGolmBtn(golmSeedBox.getRight() - 30, golmSeedBox.y, 30, golmSeedBox.height);
+        ofSetColor(100, 150, 200);
+        ofFill(); ofDrawRectangle(copyGolmBtn);
+        ofNoFill(); ofSetColor(255); ofDrawRectangle(copyGolmBtn);
+        ofPushMatrix(); ofTranslate(copyGolmBtn.x, copyGolmBtn.y); ofScale(copyGolmBtn.height / 20.0f, copyGolmBtn.height / 20.0f);
+        ofDrawBitmapString("C", 10, 14);
+        ofPopMatrix();
+
+        ofSetColor(255);
+        string displayStrGolm = "GOLM SD: " + golmSeedString + (bEditingGolmSeed && (ofGetFrameNum() % 60 < 30) ? "_" : "");
+        ofPushMatrix(); ofTranslate(golmSeedBox.x, golmSeedBox.y); ofScale(golmSeedBox.height / 20.0f, golmSeedBox.height / 20.0f);
+        ofDrawBitmapString(displayStrGolm, 5, 14);
+        ofPopMatrix();
+    }
 
     // Action Room
     for(auto& b : roomActionBtns) {
@@ -532,7 +620,65 @@ void PlaylistControlsUI::draw(ofApp* mainAppPtr) {
     ofPopStyle();
 }
 
+void PlaylistControlsUI::unfocus(RoomApp* roomApp) {
+    if (bEditingGolSeed) {
+        bEditingGolSeed = false;
+        if (roomApp) {
+            try { roomApp->golBox.currentSeed = std::stol(golSeedString); } catch(...) {}
+            roomApp->golBox.reset();
+        }
+    }
+    if (bEditingGolmSeed) {
+        bEditingGolmSeed = false;
+        if (roomApp) {
+            try { roomApp->golBoxMotion.currentSeed = std::stol(golmSeedString); } catch(...) {}
+            roomApp->golBoxMotion.reset();
+        }
+    }
+}
+
 bool PlaylistControlsUI::mousePressed(ofVec2f worldM, Scene2D_SIDE* scene2D) {
+    ofRectangle copyGolBtn(golSeedBox.getRight() - 30, golSeedBox.y, 30, golSeedBox.height);
+    ofRectangle copyGolmBtn(golmSeedBox.getRight() - 30, golmSeedBox.y, 30, golmSeedBox.height);
+    ofRectangle pasteGolBtn(golSeedBox.getRight() - 60, golSeedBox.y, 30, golSeedBox.height);
+    ofRectangle pasteGolmBtn(golmSeedBox.getRight() - 60, golmSeedBox.y, 30, golmSeedBox.height);
+
+    if(pasteGolmBtn.inside(worldM)) {
+        if(ofGetWindowPtr()) golmSeedString = ofTrim(ofGetWindowPtr()->getClipboardString());
+        ofLogNotice("PlaylistControlsUI") << "Pasted GOLM seed from clipboard: " << golmSeedString;
+        // Active le mode édition pour que l'utilisateur puisse valider avec Entrée
+        bEditingGolmSeed = true; bEditingGolSeed = false;
+        return true;
+    }
+    if(pasteGolBtn.inside(worldM)) {
+        if(ofGetWindowPtr()) golSeedString = ofTrim(ofGetWindowPtr()->getClipboardString());
+        ofLogNotice("PlaylistControlsUI") << "Pasted GOL seed from clipboard: " << golSeedString;
+        bEditingGolSeed = true; bEditingGolmSeed = false;
+        return true;
+    }
+    if(copyGolmBtn.inside(worldM)) {
+        if(ofGetWindowPtr()) ofGetWindowPtr()->setClipboardString(golmSeedString);
+        ofLogNotice("PlaylistControlsUI") << "Copied GOLM seed to clipboard: " << golmSeedString;
+        return true;
+    }
+    if(copyGolBtn.inside(worldM)) {
+        if(ofGetWindowPtr()) ofGetWindowPtr()->setClipboardString(golSeedString);
+        ofLogNotice("PlaylistControlsUI") << "Copied GOL seed to clipboard: " << golSeedString;
+        return true;
+    }
+
+    if(golmSeedBox.inside(worldM)) {
+        bEditingGolmSeed = true;
+        bEditingGolSeed = false;
+        return true;
+    } else if(golSeedBox.inside(worldM)) {
+        bEditingGolSeed = true;
+        bEditingGolmSeed = false;
+        return true;
+    } else {
+        bEditingGolmSeed = false;
+        bEditingGolSeed = false;
+    }
     for(auto& t : roomToggles) {
         if(t.rect.inside(worldM)) { t.toggle(); return true; }
     }
@@ -635,6 +781,16 @@ string PlaylistControlsUI::getTooltip(ofVec2f worldM, PlaylistTooltipManager& to
     if(undoCreatureBtn.inside(worldM)) return tooltipManager.getTooltipText("UNDO_SCENE2D_CREATURE");
     if(resetEatMapBtn.inside(worldM)) return tooltipManager.getTooltipText("RESET_EATMAP");
     if(resetCollidersBtn.inside(worldM)) return tooltipManager.getTooltipText("RESET_COLLIDERS");
+    ofRectangle copyGolBtn(golSeedBox.getRight() - 30, golSeedBox.y, 30, golSeedBox.height);
+    ofRectangle copyGolmBtn(golmSeedBox.getRight() - 30, golmSeedBox.y, 30, golmSeedBox.height);
+    ofRectangle pasteGolBtn(golSeedBox.getRight() - 60, golSeedBox.y, 30, golSeedBox.height);
+    ofRectangle pasteGolmBtn(golmSeedBox.getRight() - 60, golmSeedBox.y, 30, golmSeedBox.height);
+    if(pasteGolBtn.inside(worldM)) return "Coller la seed GOL depuis le presse-papier.";
+    if(pasteGolmBtn.inside(worldM)) return "Coller la seed GOL Motion depuis le presse-papier.";
+    if(copyGolBtn.inside(worldM)) return "Copier la seed GOL dans le presse-papier.";
+    if(copyGolmBtn.inside(worldM)) return "Copier la seed GOL Motion dans le presse-papier.";
+    if(golSeedBox.inside(worldM)) return "Cliquez pour editer la seed GOL manuellement. Appuyez sur Entree pour valider.";
+    if(golmSeedBox.inside(worldM)) return "Cliquez pour editer la seed GOL Motion manuellement. Appuyez sur Entree pour valider.";
     return "";
 }
 
@@ -651,6 +807,8 @@ void PlaylistControlsUI::saveSettings(ofJson& pt) {
     saveR("undoCreature", undoCreatureBtn);
     saveR("resetEatMap", resetEatMapBtn);
     saveR("resetColliders", resetCollidersBtn);
+    saveR("golmSeedBox", golmSeedBox);
+    saveR("golSeedBox", golSeedBox);
 }
 
 void PlaylistControlsUI::loadSettings(const ofJson& pt) {
@@ -673,6 +831,8 @@ void PlaylistControlsUI::loadSettings(const ofJson& pt) {
     loadR("undoCreature", undoCreatureBtn);
     loadR("resetEatMap", resetEatMapBtn);
     loadR("resetColliders", resetCollidersBtn);
+    loadR("golmSeedBox", golmSeedBox);
+    loadR("golSeedBox", golSeedBox);
 }
 
 vector<ofRectangle*> PlaylistControlsUI::getInteractableRects() {
@@ -688,6 +848,8 @@ vector<ofRectangle*> PlaylistControlsUI::getInteractableRects() {
     rects.push_back(&undoCreatureBtn);
     rects.push_back(&resetEatMapBtn);
     rects.push_back(&resetCollidersBtn);
+    rects.push_back(&golmSeedBox);
+    rects.push_back(&golSeedBox);
     return rects;
 }
 
@@ -703,5 +865,7 @@ ofRectangle* PlaylistControlsUI::findButtonAt(ofVec2f pos) {
     if(undoCreatureBtn.inside(pos)) return &undoCreatureBtn;
     if(resetEatMapBtn.inside(pos)) return &resetEatMapBtn;
     if(resetCollidersBtn.inside(pos)) return &resetCollidersBtn;
+    if(golmSeedBox.inside(pos)) return &golmSeedBox;
+    if(golSeedBox.inside(pos)) return &golSeedBox;
     return nullptr;
 }

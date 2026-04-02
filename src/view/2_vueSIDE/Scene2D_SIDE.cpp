@@ -3,9 +3,9 @@
 #include "ofApp.h"
 #include "ColliderGenerator.h"
 #include "ofxOpenCv.h"
-#include <opencv2/dnn.hpp>
+//#include <opencv2/dnn.hpp>
 #include "PhysicSamLayer.h"
-#include <opencv2/imgproc.hpp>
+//#include <opencv2/imgproc.hpp>
 
 //--------------------------------------------------------------
 void Scene2D_SIDE::setup() {

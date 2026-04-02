@@ -637,7 +637,8 @@ std::vector<std::string> PlaylistSequenceUI::getButtonStates(std::string btnName
         btnName == "SPEED x2" || btnName == "MUTE" || btnName == "CROP 106%" || 
         btnName == "USE DISK IMGS" || btnName == "HOLD LAST FRAME" || 
         btnName == "FOCUS ANNEXE" || btnName == "ANNEXE ON/OFF" || 
-        btnName == "DIF:ROOM" || btnName == "DIF:SCENE2D") return {"ON", "OFF", "TOGGLE"};
+        btnName == "DIF:ROOM" || btnName == "DIF:SCENE2D" ||
+        btnName == "AutoS Pause" || btnName == "GOLM Pause" || btnName == "Jupy Pause") return {"ON", "OFF", "TOGGLE"};
         
     if (btnName.substr(0, 1) == "V" && btnName.find(" WIN") == std::string::npos && btnName.find(":") == std::string::npos) return {"ON", "OFF", "TOGGLE"};
     if (btnName.find(" WIN") != std::string::npos) return {"ON", "OFF", "TOGGLE"};

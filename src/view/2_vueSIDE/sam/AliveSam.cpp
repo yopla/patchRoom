@@ -1,5 +1,5 @@
 #include "AliveSam.h"
-#include "ofxOpenCv.h"
+//#include "ofxOpenCv.h"
 
 void AliveSam::setup(const ofPolyline& contour, const ofRectangle& bbox, const ofImage& sourceImg, float scale, float offsetY) {
     // 1. Base setup for physics properties and texture

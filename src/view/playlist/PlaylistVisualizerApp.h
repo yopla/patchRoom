@@ -154,6 +154,7 @@ public:
         if (geminiUI.bApiKeyFocused || geminiUI.bThemeFocused || geminiUI.bPromptVid1Focused || geminiUI.bPromptVid2Focused) return true;
         if (viewsUI.isEditing()) return true;
         if (winPosUI.isEditing()) return true;
+        if (controlsUI.bEditingGolmSeed || controlsUI.bEditingGolSeed) return true;
         return false;
     }
 };

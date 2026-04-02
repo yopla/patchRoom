@@ -59,6 +59,14 @@ void PlaylistTooltipManager::setup() {
     texts["Faisceau"] = "Affiche le faisceau volumétrique du vidéoprojecteur virtuel.";
     texts["Prev 360"] = "Affiche la sphère d'environnement 360 dans la vue de prévisualisation.";
     texts["Texture ON"] = "Bascule entre la texture chargée (ON) et le damier par défaut (OFF) pour la sphère.";
+    texts["Box Checker"] = "Affiche une boîte texturée en damier juste derrière les murs de la Room.";
+    texts["JupyterBox"] = "Affiche une simulation de mini-jeu de stratégie sur les murs de la Room.";
+    texts["G.O.L Box"] = "Affiche une simulation du Jeu de la Vie (Game of Life chromatique) sur les murs.";
+    texts["GOL Motion"] = "Affiche une simulation du Jeu de la Vie avec particules animées (2PClm).";
+    texts["AutoSnake Box"] = "Affiche une simulation de Snake autonome 3D sur la boite.";
+    texts["Snake Interact"] = "Active l'interaction au clic sur la boite 3D pour placer le prochain objectif du serpent.";
+    texts["AutoS Reset"] = "Reinitialise le AutoSnake.";
+    texts["AutoS Pause"] = "Met en pause ou reprend le AutoSnake.";
     texts["Plafond"] = "Affiche ou cache le plafond 3D de la pièce.";
     texts["Respiration"] = "Ajoute un léger mouvement d'oscillation verticale à la caméra (respiration).";
     texts["Vagues"] = "Affiche un effet de vagues d'eau virtuelles au sol.";
@@ -83,6 +91,12 @@ void PlaylistTooltipManager::setup() {
     texts["Sph. 360 [O]"] = "Bascule la sphère d'environnement en mode projection vidéo 360 (Touche O).";
     texts["Auto Rot [I]"] = "Active/Désactive la rotation automatique de l'environnement 360 (Touche I).";
     texts["Del Flys [X]"] = "Supprime toutes les lucioles (Light Flys) présentes dans la scène.";
+    
+    texts["Jupy Reset"] = "Relance la simulation JupyterBox et redistribue les 60 bases aléatoirement.";
+    texts["Jupy Pause"] = "Met en pause ou reprend l'écoulement du temps pour le combat de JupyterBox.";
+    texts["G.O.L Reset"] = "Réinitialise le Jeu de la Vie avec une nouvelle répartition aléatoire.";
+    texts["GOLM Reset"] = "Réinitialise le Jeu de la Vie animé avec une nouvelle répartition.";
+    texts["GOLM Pause"] = "Met en pause ou reprend l'animation de GOL Motion.";
     
     // Player
     texts["LOOP"] = "Joue la vidéo actuelle en boucle continue sans passer à la suivante.";

@@ -21,6 +21,11 @@
 #include "JellySphereRing.h" // <--- AJOUT
 #include "ColorCopRing.h" // <--- AJOUT NOUVEAU
 #include "Scene360VideoPlayer.h" // <--- AJOUT
+#include "BoxTexture.h"
+#include "JupyterBox.h"
+#include "GolBox.h"
+#include "GolBoxMotion.h"
+#include "AutoSnakeBox.h"
 
 class RoomApp : public ofBaseApp {
 
@@ -53,6 +58,11 @@ public:
     LiquidSphereRing liquidSphereRing; // <--- AJOUT
     JellySphereRing jellySphereRing; // <--- AJOUT
     ColorCopRing colorCopRing; // <--- AJOUT NOUVEAU
+    BoxTexture boxTexture;
+    JupyterBox jupyterBox;
+    GolBox golBox;
+    GolBoxMotion golBoxMotion;
+    AutoSnakeBox autoSnakeBox;
     Scene360VideoPlayer scene360VideoPlayer; // <--- AJOUT
 
     // Position X globale sur le périmètre (de 0 à TotalPerimeter)
@@ -157,6 +167,12 @@ public:
     bool bDrawLiquidSphere = false; // <--- AJOUT
     bool bDrawJellySphere = false; // <--- AJOUT
     bool bDrawColorCop = false; // <--- AJOUT NOUVEAU
+    bool bDrawBoxTexture = false;
+    bool bDrawJupyterBox = false;
+    bool bDrawGolBox = false;
+    bool bDrawGolBoxMotion = false;
+    bool bDrawAutoSnakeBox = false;
+    bool bInteractAutoSnake = false; // <--- AJOUT
     bool bDrawScene360Video = false; // <--- AJOUT
     bool bLockCameraCenter = false; // <--- AJOUT
    

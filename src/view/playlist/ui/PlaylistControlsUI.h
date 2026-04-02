@@ -52,6 +52,7 @@ public:
     
     void draw(ofApp* mainAppPtr);
     bool mousePressed(ofVec2f worldM, Scene2D_SIDE* scene2D);
+    void unfocus(RoomApp* roomApp);
     void handleContinuousActions(ofVec2f worldM);
     string getTooltip(ofVec2f worldM, PlaylistTooltipManager& tooltipManager);
     
@@ -83,4 +84,12 @@ public:
     bool uiStateDiscoM = false;
     bool uiStateRecPreview = false;
     bool uiStateRecCanvas = false;
+    
+    ofRectangle golmSeedBox;
+    bool bEditingGolmSeed = false;
+    string golmSeedString = "";
+    
+    ofRectangle golSeedBox;
+    bool bEditingGolSeed = false;
+    string golSeedString = "";
 };

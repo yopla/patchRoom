@@ -367,6 +367,15 @@ void RoomInputHandler::mousePressed(int x, int y, int button) {
 
     if (bSpacePressed || bAltPressed) return;
 
+    if (app->bDrawAutoSnakeBox && app->bInteractAutoSnake) {
+        // --- RAYCAST AUTO SNAKE BOX ---
+        ofVec3f rayOrigin = app->camGlobal.getPosition();
+        ofVec3f rayDir = app->camGlobal.screenToWorld(ofVec3f(x, y, 0)) - rayOrigin;
+        rayDir.normalize();
+        
+        app->autoSnakeBox.setTargetFromRay(rayOrigin, rayDir);
+    }
+
     if (app->bDrawCloudRing) {
         // --- RAYCAST CLOUD RING (SPHERE) ---
         ofVec3f rayOrigin = app->camGlobal.getPosition();

@@ -531,6 +531,12 @@ void PlaylistVisualizerApp::mousePressed(int x, int y, int button) {
         editingNote = nullptr;
     }
     
+    // Unfocus des boites de texte Seed (validation auto au clic à l'extérieur)
+    if ((controlsUI.bEditingGolSeed && !controlsUI.golSeedBox.inside(worldM)) ||
+        (controlsUI.bEditingGolmSeed && !controlsUI.golmSeedBox.inside(worldM))) {
+        controlsUI.unfocus(roomApp);
+    }
+    
     ofRectangle* clickedRect = findButtonAt(worldM);
     
     // Raccourci Cmd+Clic (ou Ctrl+Clic) sur le fond pour basculer le mode édition
@@ -797,6 +803,44 @@ void PlaylistVisualizerApp::keyPressed(int key) {
         } else if (key >= 32 && key <= 126) {
             editingNote->text += (char)key;
             editingNote->updateSize();
+        }
+        return;
+    }
+    
+    if (controlsUI.bEditingGolmSeed) {
+        if (key == OF_KEY_BACKSPACE || key == OF_KEY_DEL) {
+            if (!controlsUI.golmSeedString.empty()) {
+                controlsUI.golmSeedString.pop_back();
+            }
+        } else if (key == OF_KEY_RETURN) {
+            controlsUI.bEditingGolmSeed = false;
+            if (roomApp) {
+                try { roomApp->golBoxMotion.currentSeed = std::stol(controlsUI.golmSeedString); } catch(...) {}
+                roomApp->golBoxMotion.reset();
+            }
+        } else if (key == OF_KEY_ESC) {
+            controlsUI.bEditingGolmSeed = false;
+        } else if (key >= '0' && key <= '9') {
+            controlsUI.golmSeedString += (char)key;
+        }
+        return;
+    }
+    
+    if (controlsUI.bEditingGolSeed) {
+        if (key == OF_KEY_BACKSPACE || key == OF_KEY_DEL) {
+            if (!controlsUI.golSeedString.empty()) {
+                controlsUI.golSeedString.pop_back();
+            }
+        } else if (key == OF_KEY_RETURN) {
+            controlsUI.bEditingGolSeed = false;
+            if (roomApp) {
+                try { roomApp->golBox.currentSeed = std::stol(controlsUI.golSeedString); } catch(...) {}
+                roomApp->golBox.reset();
+            }
+        } else if (key == OF_KEY_ESC) {
+            controlsUI.bEditingGolSeed = false;
+        } else if (key >= '0' && key <= '9') {
+            controlsUI.golSeedString += (char)key;
         }
         return;
     }
@@ -1221,6 +1265,8 @@ vector<SearchableButton> PlaylistVisualizerApp::getAllSearchableButtons() {
     res.push_back({"UNDO CREA", &controlsUI.undoCreatureBtn});
     res.push_back({"RESET EATMAP", &controlsUI.resetEatMapBtn});
     res.push_back({"RESET COLLIDER", &controlsUI.resetCollidersBtn});
+    res.push_back({"GOLM SEED BOX", &controlsUI.golmSeedBox});
+    res.push_back({"GOL SEED BOX", &controlsUI.golSeedBox});
     
     // Player UI
     res.push_back({"LOOP MODE", &playerUI.loopButtonRect});

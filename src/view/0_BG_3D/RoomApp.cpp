@@ -64,6 +64,13 @@ void RoomApp::setup(){
     kraken.setup(); // <--- AJOUT
     externalKraken.setup(); // <--- AJOUT
 
+    // Setup de la boite texturée (légèrement plus grande que la room)
+    boxTexture.setup(roomWidth + 200, heightFrontBack + 200, roomDepth + 200);
+    jupyterBox.setup(roomWidth + 200, heightFrontBack + 200, roomDepth + 200);
+    golBox.setup(roomWidth + 200, heightFrontBack + 200, roomDepth + 200);
+    golBoxMotion.setup(roomWidth + 200, heightFrontBack + 200, roomDepth + 200);
+    autoSnakeBox.setup(roomWidth, heightFrontBack, roomDepth); // Dimensions exactes pour aligner les arêtes
+
     // Initialisation du lecteur vidéo 360
     scene360VideoPlayer.setup(&atmosphere, "_scene");
 }
@@ -196,6 +203,22 @@ void RoomApp::update(){
     if (bDrawScene360Video) {
         scene360VideoPlayer.update();
     }
+
+    if (bDrawJupyterBox) {
+        jupyterBox.update();
+    }
+
+    if (bDrawGolBox) {
+        golBox.update();
+    }
+
+    if (bDrawGolBoxMotion) {
+        golBoxMotion.update();
+    }
+
+    if (bDrawAutoSnakeBox) {
+        autoSnakeBox.update();
+    }
 }
 
 //--------------------------------------------------------------
@@ -239,6 +262,26 @@ void RoomApp::drawSceneContent(bool showAtmosphere, bool isGlobalView) {
 
     // --- 2. DESSIN DU CONTENU ATTACHÉ À LA ROOM ---
     
+    if (bDrawBoxTexture) {
+        boxTexture.draw();
+    }
+    
+    if (bDrawJupyterBox) {
+        jupyterBox.draw();
+    }
+    
+    if (bDrawGolBox) {
+        golBox.draw();
+    }
+    
+    if (bDrawGolBoxMotion) {
+        golBoxMotion.draw();
+    }
+    
+    if (bDrawAutoSnakeBox) {
+        autoSnakeBox.draw();
+    }
+
     if (bFluidRingEnabled || fluidRing.globalAlpha > 0.0f) {
         fluidRing.draw();
     }
