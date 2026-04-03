@@ -26,6 +26,7 @@
 #include "GolBox.h"
 #include "GolBoxMotion.h"
 #include "AutoSnakeBox.h"
+#include "Tuyau3D.h"
 
 class RoomApp : public ofBaseApp {
 
@@ -64,6 +65,7 @@ public:
     GolBoxMotion golBoxMotion;
     AutoSnakeBox autoSnakeBox;
     Scene360VideoPlayer scene360VideoPlayer; // <--- AJOUT
+    Tuyau3D tuyau;
 
     // Position X globale sur le périmètre (de 0 à TotalPerimeter)
     float posterGlobalX; 
@@ -175,6 +177,7 @@ public:
     bool bInteractAutoSnake = false; // <--- AJOUT
     bool bDrawScene360Video = false; // <--- AJOUT
     bool bLockCameraCenter = false; // <--- AJOUT
+    bool bDrawTuyau = false; // <--- AJOUT (Bouton dans PlaylistVisualizer)
    
     bool bOscillateRoom = false;
 

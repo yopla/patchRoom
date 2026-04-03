@@ -13,7 +13,8 @@ void PlaylistGeminiUI::setup() {
     float startX = 1500;
     float startY = 700;
     
-    apiKeyBox.set(startX, startY, 400, 30);
+    apiKeyBox.set(startX, startY, 300, 30);
+    listModelsBtn.set(startX + 310, startY, 90, 30);
     themeBox.set(startX, startY + 40, 400, 80);
     genRoomBtn.set(startX, startY + 130, 400, 30);
     promptVid1Box.set(startX, startY + 170, 400, 80);
@@ -66,6 +67,12 @@ void PlaylistGeminiUI::draw() {
     if(displayApi.empty()) displayApi = "Coller Clef API ici...";
     ofPushMatrix(); ofTranslate(apiKeyBox.x, apiKeyBox.y); ofScale(apiKeyBox.height/30.0f, apiKeyBox.height/30.0f);
     ofDrawBitmapString("API: " + displayApi, 5, 20);
+    ofPopMatrix();
+
+    ofFill(); ofSetColor(100, 150, 200); ofDrawRectangle(listModelsBtn);
+    ofNoFill(); ofSetColor(255); ofDrawRectangle(listModelsBtn);
+    ofPushMatrix(); ofTranslate(listModelsBtn.x, listModelsBtn.y); ofScale(listModelsBtn.height/30.0f, listModelsBtn.height/30.0f);
+    ofDrawBitmapString("SCAN MODELS", 5, 20);
     ofPopMatrix();
 
     // Rendu Scrollable Text Box pour Theme et Prompts
@@ -202,6 +209,16 @@ bool PlaylistGeminiUI::mousePressed(ofVec2f worldM, ofApp* mainAppPtr) {
     }
     if(promptVid2Box.inside(worldM)) {
         bPromptVid2Focused = true; bApiKeyFocused = false; bThemeFocused = false; bPromptVid1Focused = false; return true;
+    }
+    
+    if(listModelsBtn.inside(worldM)) {
+        unfocusAll();
+        if(mainAppPtr) {
+            if(!apiKeyText.empty()) mainAppPtr->geminiGen.setApiKey(apiKeyText);
+            mainAppPtr->geminiGen.listModels();
+            ofLogNotice("PlaylistGeminiUI") << "Scan des modeles lance.";
+        }
+        return true;
     }
     
     if(genRoomBtn.inside(worldM)) {
@@ -343,6 +360,7 @@ void PlaylistGeminiUI::saveSettings(ofJson& pt) {
     };
     
     saveR("gemini_apiKeyBox", apiKeyBox);
+    saveR("gemini_listModelsBtn", listModelsBtn);
     saveR("gemini_themeBox", themeBox);
     saveR("gemini_promptVid1Box", promptVid1Box);
     saveR("gemini_promptVid2Box", promptVid2Box);
@@ -383,6 +401,7 @@ void PlaylistGeminiUI::loadSettings(const ofJson& pt) {
     };
     
     loadR("gemini_apiKeyBox", apiKeyBox);
+    loadR("gemini_listModelsBtn", listModelsBtn);
     loadR("gemini_themeBox", themeBox);
     loadR("gemini_promptVid1Box", promptVid1Box);
     loadR("gemini_promptVid2Box", promptVid2Box);
@@ -399,6 +418,7 @@ void PlaylistGeminiUI::loadSettings(const ofJson& pt) {
 vector<ofRectangle*> PlaylistGeminiUI::getInteractableRects() {
     vector<ofRectangle*> rects;
     rects.push_back(&apiKeyBox);
+    rects.push_back(&listModelsBtn);
     rects.push_back(&themeBox);
     rects.push_back(&promptVid1Box);
     rects.push_back(&promptVid2Box);
@@ -417,6 +437,7 @@ vector<ofRectangle*> PlaylistGeminiUI::getInteractableRects() {
 
 ofRectangle* PlaylistGeminiUI::findButtonAt(ofVec2f pos) {
     if(apiKeyBox.inside(pos)) return &apiKeyBox;
+    if(listModelsBtn.inside(pos)) return &listModelsBtn;
     if(themeBox.inside(pos)) return &themeBox;
     if(promptVid1Box.inside(pos)) return &promptVid1Box;
     if(promptVid2Box.inside(pos)) return &promptVid2Box;
@@ -435,6 +456,7 @@ ofRectangle* PlaylistGeminiUI::findButtonAt(ofVec2f pos) {
 
 string PlaylistGeminiUI::getTooltip(ofVec2f worldM, PlaylistTooltipManager& tooltipManager) {
     if(apiKeyBox.inside(worldM)) return tooltipManager.getTooltipText("API_KEY_BOX");
+    if(listModelsBtn.inside(worldM)) return tooltipManager.getTooltipText("SCAN_MODELS_BTN");
     if(themeBox.inside(worldM)) return tooltipManager.getTooltipText("THEME_BOX");
     if(promptVid1Box.inside(worldM)) return tooltipManager.getTooltipText("PROMPT_VID1_BOX");
     if(promptVid2Box.inside(worldM)) return tooltipManager.getTooltipText("PROMPT_VID2_BOX");

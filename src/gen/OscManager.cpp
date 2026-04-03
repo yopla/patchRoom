@@ -147,6 +147,17 @@ void OscManager::processOscMessage(ofxOscMessage& mess, ofApp* app) {
         }
     }
 
+    // Commande: /Tuyau3D [0 ou 1]
+    else if(address == "/Tuyau3D"){
+        bool state = false;
+        if(mess.getArgType(0) == OFXOSC_TYPE_INT32 || mess.getArgType(0) == OFXOSC_TYPE_FLOAT) state = mess.getArgAsFloat(0) > 0;
+        else if(mess.getArgType(0) == OFXOSC_TYPE_STRING) state = (mess.getArgAsString(0) == "on");
+
+        if(app->roomApp) {
+            app->roomApp->bDrawTuyau = state;
+        }
+    }
+
     // Commande: /LiquidSphere [0 ou 1]
     else if(address == "/LiquidSphere"){
         bool state = false;

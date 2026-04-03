@@ -285,6 +285,9 @@ void RoomInputHandler::keyPressed(int key) {
             app->jellySphereRing.clearJellies(); // Nettoie quand on ferme
         }
     }
+    if(key == '9') { // <--- AJOUT TOGGLE TUYAU 3D
+        app->bDrawTuyau = !app->bDrawTuyau;
+    }
 
     if(key == 'l' || key == 'L') {
         app->bLockCameraCenter = !app->bLockCameraCenter;

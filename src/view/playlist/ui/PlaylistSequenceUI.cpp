@@ -638,7 +638,7 @@ std::vector<std::string> PlaylistSequenceUI::getButtonStates(std::string btnName
         btnName == "USE DISK IMGS" || btnName == "HOLD LAST FRAME" || 
         btnName == "FOCUS ANNEXE" || btnName == "ANNEXE ON/OFF" || 
         btnName == "DIF:ROOM" || btnName == "DIF:SCENE2D" ||
-        btnName == "AutoS Pause" || btnName == "GOLM Pause" || btnName == "Jupy Pause") return {"ON", "OFF", "TOGGLE"};
+            btnName == "AutoS Pause" || btnName == "GOLM Pause" || btnName == "Jupy Pause" || btnName == "Play Tuyau" || btnName == "Pause Carref") return {"ON", "OFF", "TOGGLE"};
         
     if (btnName.substr(0, 1) == "V" && btnName.find(" WIN") == std::string::npos && btnName.find(":") == std::string::npos) return {"ON", "OFF", "TOGGLE"};
     if (btnName.find(" WIN") != std::string::npos) return {"ON", "OFF", "TOGGLE"};
@@ -739,6 +739,14 @@ void PlaylistSequenceUI::applyButtonState(std::string btnName, std::string state
         bool cur = app->player->isInfinitePause();
         if ((state == "ON" && !cur) || (state == "OFF" && cur) || state == "TOGGLE") app->player->toggleInfinitePause();
     }
+        else if (btnName == "Play Tuyau" && main->roomApp) {
+            bool cur = main->roomApp->tuyau.bIsPlaying;
+            if ((state == "ON" && !cur) || (state == "OFF" && cur) || state == "TOGGLE") main->roomApp->tuyau.bIsPlaying = !cur;
+        }
+        else if (btnName == "Pause Carref" && main->roomApp) {
+            bool cur = main->roomApp->tuyau.bPauseAtJunction;
+            if ((state == "ON" && !cur) || (state == "OFF" && cur) || state == "TOGGLE") main->roomApp->tuyau.bPauseAtJunction = !cur;
+        }
     else if (btnName == "FOCUS ANNEXE") {
         if (main->annexeApp) {
             auto focusWin = [](std::shared_ptr<ofAppBaseWindow> win) {
@@ -776,7 +784,7 @@ void PlaylistSequenceUI::applyButtonState(std::string btnName, std::string state
                 if (t.name == btnName) {
                     bool curState = *(t.valuePtr);
                     if ((state == "ON" && !curState) || (state == "OFF" && curState) || state == "TOGGLE") {
-                        app->controlsUI.mousePressed(t.rect.getCenter(), app->scene2D);
+                        app->controlsUI.mousePressed(t.rect.getCenter(), app->scene2D, main->roomApp.get());
                     }
                     handled = true; break;
                 }
@@ -821,7 +829,7 @@ void PlaylistSequenceUI::applyButtonState(std::string btnName, std::string state
             if (btn.name == btnName && btn.rect != nullptr) {
                 ofVec2f btnPos = btn.rect->getCenter();
                 if (app->windowControlsUI.mousePressed(btnPos, main)) break;
-                if (app->controlsUI.mousePressed(btnPos, app->scene2D)) break;
+                if (app->controlsUI.mousePressed(btnPos, app->scene2D, main->roomApp.get())) break;
                 if (app->playerUI.mousePressed(btnPos, app->player, app->bDrawScene360VideoPtr)) break;
                 if (app->geminiUI.mousePressed(btnPos, main)) break;
                 if (btnName == "CREER ANNEXE") {

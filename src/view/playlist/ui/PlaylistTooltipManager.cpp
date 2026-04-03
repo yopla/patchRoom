@@ -83,6 +83,10 @@ void PlaylistTooltipManager::setup() {
     texts["Cur Reflet"] = "Active/Désactive le débordement du curseur sur les murs adjacents (Reflets).";
     texts["Prev Inter"] = "Visualise la zone d'interaction dans la fenêtre RoomPreview (Touche B).";
     texts["Prev Curs"] = "Affiche le curseur projeté dans la fenêtre RoomPreview (Touche S).";
+    texts["Tuyau 3D"] = "Affiche un grand tuyau coloré 3D (Boucle de Hue) qui s'enroule de l'exterieur autour de la pièce sans la toucher.";
+    texts["Tuyau Obj"] = "Affiche les boites (carrefours et decor) attachées au tuyau.";
+    texts["Tuyau Arcs"] = "Active ou désactive les arcs de contournement et les trous de raccord du tuyau.";
+    texts["Couture Arcs"] = "Affiche ou masque la bande lumineuse (soudure) aux raccords du tuyau.";
 
     texts["Reset Cam [R]"] = "Réinitialise la position et l'angle de la caméra 3D globale.";
     texts["Lock Cam [L]"] = "Verrouille la caméra au centre de la pièce pour un point de vue 360 (Touche L).";
@@ -149,6 +153,7 @@ void PlaylistTooltipManager::setup() {
     texts["IMG_SIZE_BTN"] = "Définit la résolution de l'image 360 générée (Défaut, 2K, 4K).";
     texts["VID_RES_BTN"] = "Définit la résolution de la vidéo générée (Défaut, 4K).";
     texts["GEN_TEXT_ROOM"] = "Génère une image 360 à partir de texte uniquement (Aucune image de référence).";
+    texts["SCAN_MODELS_BTN"] = "Interroge l'API pour lister les modèles disponibles (Affiche dans la console).";
 
     // Interface principale PlaylistVisualizer
     texts["EDIT"] = "Mode Édition : Cliquez pour déplacer ou redimensionner les boutons de l'interface.";

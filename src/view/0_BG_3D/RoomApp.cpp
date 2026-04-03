@@ -54,6 +54,15 @@ void RoomApp::setup(){
     camGlobal.setDistance(4000);
     camGlobal.setPosition(2000, 2500, 3000);
     camGlobal.lookAt(ofVec3f(0, 600, 0));
+    camGlobal.setFarClip(150000.0f); // Très lointain pour voir la totalité du tuyau géant
+    
+    camFront.setFarClip(150000.0f);
+    camBack.setFarClip(150000.0f);
+    camCour.setFarClip(150000.0f);
+    camJar.setFarClip(150000.0f);
+    camSol.setFarClip(150000.0f);
+    camTopCour.setFarClip(150000.0f);
+    camTopJar.setFarClip(150000.0f);
     
     rigPosition.set(0, 600, 0);
 
@@ -73,6 +82,9 @@ void RoomApp::setup(){
 
     // Initialisation du lecteur vidéo 360
     scene360VideoPlayer.setup(&atmosphere, "_scene");
+    
+    // Initialisation du Tuyau 3D
+    tuyau.setup();
 }
 
 void RoomApp::dragEvent(ofDragInfo dragInfo){
@@ -203,6 +215,10 @@ void RoomApp::update(){
     if (bDrawScene360Video) {
         scene360VideoPlayer.update();
     }
+    
+    if (bDrawTuyau) {
+        tuyau.update(localTime);
+    }
 
     if (bDrawJupyterBox) {
         jupyterBox.update();
@@ -314,6 +330,10 @@ void RoomApp::drawSceneContent(bool showAtmosphere, bool isGlobalView) {
     // --- DESSIN DU COLOR COP RING ---
     if (bDrawColorCop) {
         colorCopRing.draw();
+    }
+    
+    if (bDrawTuyau) {
+        tuyau.draw();
     }
 
    if(bDrawGab && bgMode != 1) {
@@ -427,10 +447,14 @@ void RoomApp::draw(){
     ofDrawBitmapString("LIQUID SPHERE [7]: " + ofToString(bDrawLiquidSphere), 20, 140);
     ofDrawBitmapString("JELLY SPHERE [0]: " + ofToString(bDrawJellySphere), 20, 155); // <--- AJOUT
     ofDrawBitmapString("COLOR COP: " + ofToString(bDrawColorCop), 20, 170); // <--- AJOUT NOUVEAU
-    ofDrawBitmapString("SCENE 360 [8]: " + ofToString(bDrawScene360Video), 20, 170); // <--- AJOUT
+    ofDrawBitmapString("SCENE 360 [8]: " + ofToString(bDrawScene360Video), 20, 185); // <--- AJOUT
+    ofDrawBitmapString("TUYAU 3D [9]: " + ofToString(bDrawTuyau), 20, 200); // <--- AJOUT
+    ofDrawBitmapString("TUYAU OBJ: " + ofToString(tuyau.bDrawTuyauObj), 20, 215); 
+    ofDrawBitmapString("TUYAU ARCS: " + ofToString(tuyau.bDrawArcs), 20, 230); 
+    ofDrawBitmapString("COUTURE ARCS: " + ofToString(tuyau.bDrawCouture), 20, 245); 
     
     if(cursorSquare.isVisible) {
-        ofDrawBitmapString("CURSOR 3D: " + ofToString(cursorSquare.getCurrentPos()), 20, 200);
+        ofDrawBitmapString("CURSOR 3D: " + ofToString(cursorSquare.getCurrentPos()), 20, 260);
     }
     
     if(bLightFlyRingEnabled) {

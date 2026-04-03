@@ -38,6 +38,7 @@ public:
     int promptVid2ScrollOffset = 0;
     
     ofRectangle apiKeyBox;
+    ofRectangle listModelsBtn;
     ofRectangle themeBox;
     ofRectangle promptVid1Box;
     ofRectangle promptVid2Box;

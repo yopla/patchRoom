@@ -644,7 +644,7 @@ void PlaylistVisualizerApp::mousePressed(int x, int y, int button) {
 
     if (windowControlsUI.mousePressed(worldM, mainAppPtr)) return;
 
-    if (controlsUI.mousePressed(worldM, scene2D)) return;
+    if (controlsUI.mousePressed(worldM, scene2D, roomApp)) return;
 
     if (playerUI.mousePressed(worldM, player, bDrawScene360VideoPtr)) return;
     if (!player) {
@@ -724,6 +724,10 @@ void PlaylistVisualizerApp::mouseDragged(int x, int y, int button) {
         }
         return;
     }
+    
+    if (!bEditMode) {
+        if(controlsUI.mouseDragged(getTransformedMouse(x, y), roomApp)) return;
+    }
 }
 
 void PlaylistVisualizerApp::mouseReleased(int x, int y, int button) {
@@ -739,6 +743,8 @@ void PlaylistVisualizerApp::mouseReleased(int x, int y, int button) {
         resizingRect = nullptr;
     }
     bIsDraggingPan = false;
+        
+        controlsUI.mouseReleased();
 }
 
 void PlaylistVisualizerApp::mouseMoved(int x, int y) {
@@ -1282,6 +1288,7 @@ vector<SearchableButton> PlaylistVisualizerApp::getAllSearchableButtons() {
     
     // Gemini UI
     res.push_back({"API KEY", &geminiUI.apiKeyBox});
+    res.push_back({"SCAN MODELS", &geminiUI.listModelsBtn});
     res.push_back({"THEME", &geminiUI.themeBox});
     res.push_back({"PROMPT V1", &geminiUI.promptVid1Box});
     res.push_back({"PROMPT V2", &geminiUI.promptVid2Box});

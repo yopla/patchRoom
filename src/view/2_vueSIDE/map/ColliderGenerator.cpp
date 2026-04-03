@@ -350,11 +350,11 @@ void ColliderGenerator::generateWithDexined(const ofImage& inputImg, string outp
 
         // Threshold pour obtenir des murs fermes au lieu d'un gris continu
         cv::threshold(edgeMap, edgeMap, 100, 255, cv::THRESH_BINARY);
-
         ofPixels threshPix;
         threshPix.setFromExternalPixels(edgeMap.ptr(), w, h, 1);
         
         saveFile(threshPix, outputPath);
+        ofSaveImage(threshPix, outputPath); // Sauvegarde directe au lieu de saveFile pour voir le N&B brut
         ofLogNotice("ColliderGenerator") << "Collider Dexined genere avec succes : " << outputPath;
 
     } catch(const cv::Exception& e) {

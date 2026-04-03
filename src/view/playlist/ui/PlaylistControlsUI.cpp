@@ -181,6 +181,10 @@ void PlaylistControlsUI::setupRoomToggles(RoomApp* roomApp, ofApp* mainAppPtr) {
     addToggle("Cur Reflet", [roomApp](){ return roomApp->cursorSquare.bDrawReflections; }, [roomApp](){ roomApp->cursorSquare.bDrawReflections = !roomApp->cursorSquare.bDrawReflections; });
     addToggle("Prev Inter", [mainAppPtr](){ return mainAppPtr && mainAppPtr->roomPreviewApp ? mainAppPtr->roomPreviewApp->bDrawInteraction : false; }, [mainAppPtr](){ if(mainAppPtr && mainAppPtr->roomPreviewApp) mainAppPtr->roomPreviewApp->bDrawInteraction = !mainAppPtr->roomPreviewApp->bDrawInteraction; });
     addToggle("Prev Curs", [mainAppPtr](){ return mainAppPtr && mainAppPtr->roomPreviewApp ? mainAppPtr->roomPreviewApp->bShowCursor : false; }, [mainAppPtr](){ if(mainAppPtr && mainAppPtr->roomPreviewApp) mainAppPtr->roomPreviewApp->bShowCursor = !mainAppPtr->roomPreviewApp->bShowCursor; });
+    addToggle("Tuyau 3D", [roomApp](){ return roomApp->bDrawTuyau; }, [roomApp](){ roomApp->bDrawTuyau = !roomApp->bDrawTuyau; });
+    addToggle("Tuyau Obj", [roomApp](){ return roomApp->tuyau.bDrawTuyauObj; }, [roomApp](){ roomApp->tuyau.bDrawTuyauObj = !roomApp->tuyau.bDrawTuyauObj; });
+    addToggle("Tuyau Arcs", [roomApp](){ return roomApp->tuyau.bDrawArcs; }, [roomApp](){ roomApp->tuyau.setDrawArcs(!roomApp->tuyau.bDrawArcs); });
+    addToggle("Couture Arcs", [roomApp](){ return roomApp->tuyau.bDrawCouture; }, [roomApp](){ roomApp->tuyau.bDrawCouture = !roomApp->tuyau.bDrawCouture; });
 
     int cols = 2;
     float bw = 100;
@@ -258,6 +262,11 @@ void PlaylistControlsUI::setupRoomActionBtns(RoomApp* roomApp) {
     }, false);
     addAction("AutoS Reset", [roomApp](){ roomApp->autoSnakeBox.reset(); }, false);
     addAction("AutoS Pause", [roomApp](){ roomApp->autoSnakeBox.bPaused = !roomApp->autoSnakeBox.bPaused; }, false, [roomApp](){ return roomApp->autoSnakeBox.bPaused; });
+    
+    addAction("Play Tuyau", [roomApp](){ roomApp->tuyau.bIsPlaying = !roomApp->tuyau.bIsPlaying; }, false, [roomApp](){ return roomApp->tuyau.bIsPlaying; });
+    addAction("Pause Carref", [roomApp](){ roomApp->tuyau.bPauseAtJunction = !roomApp->tuyau.bPauseAtJunction; }, false, [roomApp](){ return roomApp->tuyau.bPauseAtJunction; });
+    addAction("Next Carref", [roomApp](){ roomApp->tuyau.nextCarrefour(); }, false);
+    addAction("Reset Tuyau", [roomApp](){ roomApp->tuyau.reset(); }, false);
 
     int cols = 2;
     float bw = 100;
@@ -275,6 +284,15 @@ void PlaylistControlsUI::setupRoomActionBtns(RoomApp* roomApp) {
     int numRows = (roomActionBtns.size() + cols - 1) / cols;
     golSeedBox.set(startX, startY + numRows*(bh+pad), bw*2+pad, bh);
     golmSeedBox.set(startX, startY + (numRows+1)*(bh+pad), bw*2+pad, bh);
+    
+    // Slider vitesse tuyau juste en dessous
+    tuyauSpeedSlider.set(startX, startY + (numRows+2)*(bh+pad), bw*2+pad, bh);
+    tuyauRotXSlider.set(startX, startY + (numRows+3)*(bh+pad), bw*2+pad, bh);
+    tuyauRotYSlider.set(startX, startY + (numRows+4)*(bh+pad), bw*2+pad, bh);
+    tuyauRotZSlider.set(startX, startY + (numRows+5)*(bh+pad), bw*2+pad, bh);
+    
+    tuyauPathBox.set(startX, startY + (numRows+6)*(bh+pad), bw*2+pad, bh);
+    
     if (roomApp) {
         golSeedString = ofToString(roomApp->golBox.currentSeed);
         golmSeedString = ofToString(roomApp->golBoxMotion.currentSeed);
@@ -500,6 +518,85 @@ void PlaylistControlsUI::draw(ofApp* mainAppPtr) {
         ofPushMatrix(); ofTranslate(golmSeedBox.x, golmSeedBox.y); ofScale(golmSeedBox.height / 20.0f, golmSeedBox.height / 20.0f);
         ofDrawBitmapString(displayStrGolm, 5, 14);
         ofPopMatrix();
+        
+        // Dessin du Slider Tuyau
+        ofSetColor(64, 94, 104);
+        ofFill(); ofDrawRectangle(tuyauSpeedSlider);
+        ofNoFill(); ofSetColor(150); ofDrawRectangle(tuyauSpeedSlider);
+        
+        float handleX = tuyauSpeedSlider.x + (mainAppPtr->roomApp->tuyau.speed / 5.0f) * tuyauSpeedSlider.width; // Max speed 5x
+        ofSetColor(200, 200, 50);
+        ofFill();
+        ofDrawRectangle(ofClamp(handleX - 5, tuyauSpeedSlider.x, tuyauSpeedSlider.getRight() - 10), tuyauSpeedSlider.y, 10, tuyauSpeedSlider.height);
+        
+        ofSetColor(255);
+        ofPushMatrix(); ofTranslate(tuyauSpeedSlider.x, tuyauSpeedSlider.y); ofScale(tuyauSpeedSlider.height / 20.0f, tuyauSpeedSlider.height / 20.0f);
+        ofDrawBitmapString("VITESSE TUYAU", 5, 14);
+        ofPopMatrix();
+        
+        // Dessin Rot X
+        ofSetColor(64, 94, 104); ofFill(); ofDrawRectangle(tuyauRotXSlider);
+        ofNoFill(); ofSetColor(150); ofDrawRectangle(tuyauRotXSlider);
+        float handleRx = tuyauRotXSlider.x + (mainAppPtr->roomApp->tuyau.rotX / 360.0f) * tuyauRotXSlider.width;
+        ofSetColor(200, 100, 50); ofFill();
+        ofDrawRectangle(ofClamp(handleRx - 5, tuyauRotXSlider.x, tuyauRotXSlider.getRight() - 10), tuyauRotXSlider.y, 10, tuyauRotXSlider.height);
+        ofSetColor(255);
+        ofPushMatrix(); ofTranslate(tuyauRotXSlider.x, tuyauRotXSlider.y); ofScale(tuyauRotXSlider.height / 20.0f, tuyauRotXSlider.height / 20.0f);
+        ofDrawBitmapString("ROT X TUYAU", 5, 14);
+        ofPopMatrix();
+
+        // Dessin Rot Y
+        ofSetColor(64, 94, 104); ofFill(); ofDrawRectangle(tuyauRotYSlider);
+        ofNoFill(); ofSetColor(150); ofDrawRectangle(tuyauRotYSlider);
+        float handleRy = tuyauRotYSlider.x + (mainAppPtr->roomApp->tuyau.rotY / 360.0f) * tuyauRotYSlider.width;
+        ofSetColor(50, 200, 100); ofFill();
+        ofDrawRectangle(ofClamp(handleRy - 5, tuyauRotYSlider.x, tuyauRotYSlider.getRight() - 10), tuyauRotYSlider.y, 10, tuyauRotYSlider.height);
+        ofSetColor(255);
+        ofPushMatrix(); ofTranslate(tuyauRotYSlider.x, tuyauRotYSlider.y); ofScale(tuyauRotYSlider.height / 20.0f, tuyauRotYSlider.height / 20.0f);
+        ofDrawBitmapString("ROT Y TUYAU", 5, 14);
+        ofPopMatrix();
+
+        // Dessin Rot Z
+        ofSetColor(64, 94, 104); ofFill(); ofDrawRectangle(tuyauRotZSlider);
+        ofNoFill(); ofSetColor(150); ofDrawRectangle(tuyauRotZSlider);
+        float handleRz = tuyauRotZSlider.x + (mainAppPtr->roomApp->tuyau.rotZ / 360.0f) * tuyauRotZSlider.width;
+        ofSetColor(50, 100, 200); ofFill();
+        ofDrawRectangle(ofClamp(handleRz - 5, tuyauRotZSlider.x, tuyauRotZSlider.getRight() - 10), tuyauRotZSlider.y, 10, tuyauRotZSlider.height);
+        ofSetColor(255);
+        ofPushMatrix(); ofTranslate(tuyauRotZSlider.x, tuyauRotZSlider.y); ofScale(tuyauRotZSlider.height / 20.0f, tuyauRotZSlider.height / 20.0f);
+        ofDrawBitmapString("ROT Z TUYAU", 5, 14);
+        ofPopMatrix();
+        
+        // Dessin Path Box
+        auto& tuyau = mainAppPtr->roomApp->tuyau;
+        if (bTuyauPathBoxOpen) ofSetColor(150, 150, 200); else ofSetColor(64, 94, 104);
+        ofFill(); ofDrawRectangle(tuyauPathBox);
+        ofNoFill(); ofSetColor(150); ofDrawRectangle(tuyauPathBox);
+        
+        vector<string> paths = tuyau.getAvailablePaths();
+        string currentChoice = (tuyau.selectedPathOption < paths.size()) ? paths[tuyau.selectedPathOption] : "---";
+        
+        ofSetColor(255);
+        ofPushMatrix(); ofTranslate(tuyauPathBox.x, tuyauPathBox.y); ofScale(tuyauPathBox.height / 20.0f, tuyauPathBox.height / 20.0f);
+        ofDrawBitmapString("VOIE: " + currentChoice + (bTuyauPathBoxOpen ? " [-]" : " [+]"), 5, 14);
+        ofPopMatrix();
+        
+        if (bTuyauPathBoxOpen) {
+            tuyauPathOptionsRects.clear();
+            for(size_t j=0; j<paths.size(); j++) {
+                ofRectangle optRect(tuyauPathBox.x, tuyauPathBox.getBottom() + j * tuyauPathBox.height, tuyauPathBox.width, tuyauPathBox.height);
+                tuyauPathOptionsRects.push_back(optRect);
+                
+                if (tuyau.selectedPathOption == j) ofSetColor(200, 200, 50); else ofSetColor(80);
+                ofFill(); ofDrawRectangle(optRect);
+                ofNoFill(); ofSetColor(200); ofDrawRectangle(optRect);
+                
+                ofSetColor(255);
+                ofPushMatrix(); ofTranslate(optRect.x, optRect.y); ofScale(optRect.height / 20.0f, optRect.height / 20.0f);
+                ofDrawBitmapString(paths[j], 10, 14);
+                ofPopMatrix();
+            }
+        }
     }
 
     // Action Room
@@ -637,7 +734,7 @@ void PlaylistControlsUI::unfocus(RoomApp* roomApp) {
     }
 }
 
-bool PlaylistControlsUI::mousePressed(ofVec2f worldM, Scene2D_SIDE* scene2D) {
+bool PlaylistControlsUI::mousePressed(ofVec2f worldM, Scene2D_SIDE* scene2D, RoomApp* roomApp) {
     ofRectangle copyGolBtn(golSeedBox.getRight() - 30, golSeedBox.y, 30, golSeedBox.height);
     ofRectangle copyGolmBtn(golmSeedBox.getRight() - 30, golmSeedBox.y, 30, golmSeedBox.height);
     ofRectangle pasteGolBtn(golSeedBox.getRight() - 60, golSeedBox.y, 30, golSeedBox.height);
@@ -679,6 +776,56 @@ bool PlaylistControlsUI::mousePressed(ofVec2f worldM, Scene2D_SIDE* scene2D) {
         bEditingGolmSeed = false;
         bEditingGolSeed = false;
     }
+    
+    if(tuyauSpeedSlider.inside(worldM)) {
+        bDraggingTuyauSlider = true;
+        if(roomApp) {
+            float pct = (worldM.x - tuyauSpeedSlider.x) / tuyauSpeedSlider.width;
+            pct = ofClamp(pct, 0.0f, 1.0f);
+            roomApp->tuyau.speed = pct * 5.0f;
+        }
+        return true;
+    }
+    
+    if(tuyauRotXSlider.inside(worldM)) {
+        bDraggingTuyauRotX = true;
+        if(roomApp) {
+            float pct = (worldM.x - tuyauRotXSlider.x) / tuyauRotXSlider.width;
+            roomApp->tuyau.rotX = ofClamp(pct, 0.0f, 1.0f) * 360.0f;
+        }
+        return true;
+    }
+    if(tuyauRotYSlider.inside(worldM)) {
+        bDraggingTuyauRotY = true;
+        if(roomApp) {
+            float pct = (worldM.x - tuyauRotYSlider.x) / tuyauRotYSlider.width;
+            roomApp->tuyau.rotY = ofClamp(pct, 0.0f, 1.0f) * 360.0f;
+        }
+        return true;
+    }
+    if(tuyauRotZSlider.inside(worldM)) {
+        bDraggingTuyauRotZ = true;
+        if(roomApp) {
+            float pct = (worldM.x - tuyauRotZSlider.x) / tuyauRotZSlider.width;
+            roomApp->tuyau.rotZ = ofClamp(pct, 0.0f, 1.0f) * 360.0f;
+        }
+        return true;
+    }
+
+    if (tuyauPathBox.inside(worldM)) {
+        bTuyauPathBoxOpen = !bTuyauPathBoxOpen;
+        return true;
+    }
+    if (bTuyauPathBoxOpen && roomApp) {
+        for(size_t i=0; i<tuyauPathOptionsRects.size(); i++) {
+            if(tuyauPathOptionsRects[i].inside(worldM)) {
+                roomApp->tuyau.selectPath(i);
+                bTuyauPathBoxOpen = false;
+                return true;
+            }
+        }
+    }
+
     for(auto& t : roomToggles) {
         if(t.rect.inside(worldM)) { t.toggle(); return true; }
     }
@@ -757,6 +904,38 @@ bool PlaylistControlsUI::mousePressed(ofVec2f worldM, Scene2D_SIDE* scene2D) {
     return false;
 }
 
+bool PlaylistControlsUI::mouseDragged(ofVec2f worldM, RoomApp* roomApp) {
+    if(bDraggingTuyauSlider && roomApp) {
+        float pct = (worldM.x - tuyauSpeedSlider.x) / tuyauSpeedSlider.width;
+        pct = ofClamp(pct, 0.0f, 1.0f);
+        roomApp->tuyau.speed = pct * 5.0f; // Map pct to 0.0x to 5.0x
+        return true;
+    }
+    if(bDraggingTuyauRotX && roomApp) {
+        float pct = (worldM.x - tuyauRotXSlider.x) / tuyauRotXSlider.width;
+        roomApp->tuyau.rotX = ofClamp(pct, 0.0f, 1.0f) * 360.0f;
+        return true;
+    }
+    if(bDraggingTuyauRotY && roomApp) {
+        float pct = (worldM.x - tuyauRotYSlider.x) / tuyauRotYSlider.width;
+        roomApp->tuyau.rotY = ofClamp(pct, 0.0f, 1.0f) * 360.0f;
+        return true;
+    }
+    if(bDraggingTuyauRotZ && roomApp) {
+        float pct = (worldM.x - tuyauRotZSlider.x) / tuyauRotZSlider.width;
+        roomApp->tuyau.rotZ = ofClamp(pct, 0.0f, 1.0f) * 360.0f;
+        return true;
+    }
+    return false;
+}
+
+void PlaylistControlsUI::mouseReleased() {
+    bDraggingTuyauSlider = false;
+    bDraggingTuyauRotX = false;
+    bDraggingTuyauRotY = false;
+    bDraggingTuyauRotZ = false;
+}
+
 void PlaylistControlsUI::handleContinuousActions(ofVec2f worldM) {
     for(auto& btn : roomActionBtns) {
         if(btn.continuous && btn.rect.inside(worldM)) btn.action();
@@ -791,6 +970,14 @@ string PlaylistControlsUI::getTooltip(ofVec2f worldM, PlaylistTooltipManager& to
     if(copyGolmBtn.inside(worldM)) return "Copier la seed GOL Motion dans le presse-papier.";
     if(golSeedBox.inside(worldM)) return "Cliquez pour editer la seed GOL manuellement. Appuyez sur Entree pour valider.";
     if(golmSeedBox.inside(worldM)) return "Cliquez pour editer la seed GOL Motion manuellement. Appuyez sur Entree pour valider.";
+    if(tuyauSpeedSlider.inside(worldM)) return "Slider: Controle la vitesse globale de l'animation du grand Tuyau 3D.";
+    if(tuyauRotXSlider.inside(worldM)) return "Slider: Pivoter le Tuyau 3D sur l'axe X.";
+    if(tuyauRotYSlider.inside(worldM)) return "Slider: Pivoter le Tuyau 3D sur l'axe Y.";
+    if(tuyauRotZSlider.inside(worldM)) return "Slider: Pivoter le Tuyau 3D sur l'axe Z.";
+    if(tuyauPathBox.inside(worldM)) return "Menu deroulant: Choisir la prochaine direction (Arc ou Tuyau Principal).";
+    if (bTuyauPathBoxOpen) {
+        for(auto& r : tuyauPathOptionsRects) if(r.inside(worldM)) return "Cliquez pour selectionner cette voie.";
+    }
     return "";
 }
 
@@ -809,6 +996,11 @@ void PlaylistControlsUI::saveSettings(ofJson& pt) {
     saveR("resetColliders", resetCollidersBtn);
     saveR("golmSeedBox", golmSeedBox);
     saveR("golSeedBox", golSeedBox);
+    saveR("tuyauSpeedSlider", tuyauSpeedSlider);
+    saveR("tuyauRotXSlider", tuyauRotXSlider);
+    saveR("tuyauRotYSlider", tuyauRotYSlider);
+    saveR("tuyauRotZSlider", tuyauRotZSlider);
+    saveR("tuyauPathBox", tuyauPathBox);
 }
 
 void PlaylistControlsUI::loadSettings(const ofJson& pt) {
@@ -833,6 +1025,11 @@ void PlaylistControlsUI::loadSettings(const ofJson& pt) {
     loadR("resetColliders", resetCollidersBtn);
     loadR("golmSeedBox", golmSeedBox);
     loadR("golSeedBox", golSeedBox);
+    loadR("tuyauSpeedSlider", tuyauSpeedSlider);
+    loadR("tuyauRotXSlider", tuyauRotXSlider);
+    loadR("tuyauRotYSlider", tuyauRotYSlider);
+    loadR("tuyauRotZSlider", tuyauRotZSlider);
+    loadR("tuyauPathBox", tuyauPathBox);
 }
 
 vector<ofRectangle*> PlaylistControlsUI::getInteractableRects() {
@@ -850,6 +1047,14 @@ vector<ofRectangle*> PlaylistControlsUI::getInteractableRects() {
     rects.push_back(&resetCollidersBtn);
     rects.push_back(&golmSeedBox);
     rects.push_back(&golSeedBox);
+    rects.push_back(&tuyauSpeedSlider);
+    rects.push_back(&tuyauRotXSlider);
+    rects.push_back(&tuyauRotYSlider);
+    rects.push_back(&tuyauRotZSlider);
+    rects.push_back(&tuyauPathBox);
+    if (bTuyauPathBoxOpen) {
+        for(auto& r : tuyauPathOptionsRects) rects.push_back(&r);
+    }
     return rects;
 }
 
@@ -867,5 +1072,13 @@ ofRectangle* PlaylistControlsUI::findButtonAt(ofVec2f pos) {
     if(resetCollidersBtn.inside(pos)) return &resetCollidersBtn;
     if(golmSeedBox.inside(pos)) return &golmSeedBox;
     if(golSeedBox.inside(pos)) return &golSeedBox;
+    if(tuyauSpeedSlider.inside(pos)) return &tuyauSpeedSlider;
+    if(tuyauRotXSlider.inside(pos)) return &tuyauRotXSlider;
+    if(tuyauRotYSlider.inside(pos)) return &tuyauRotYSlider;
+    if(tuyauRotZSlider.inside(pos)) return &tuyauRotZSlider;
+    if (bTuyauPathBoxOpen) {
+        for(auto& r : tuyauPathOptionsRects) if(r.inside(pos)) return &r;
+    }
+    if(tuyauPathBox.inside(pos)) return &tuyauPathBox;
     return nullptr;
 }

@@ -51,7 +51,9 @@ public:
     void clearAllCreatures(Scene2D_SIDE* scene2D);
     
     void draw(ofApp* mainAppPtr);
-    bool mousePressed(ofVec2f worldM, Scene2D_SIDE* scene2D);
+    bool mousePressed(ofVec2f worldM, Scene2D_SIDE* scene2D, RoomApp* roomApp);
+    bool mouseDragged(ofVec2f worldM, RoomApp* roomApp);
+    void mouseReleased();
     void unfocus(RoomApp* roomApp);
     void handleContinuousActions(ofVec2f worldM);
     string getTooltip(ofVec2f worldM, PlaylistTooltipManager& tooltipManager);
@@ -92,4 +94,20 @@ public:
     ofRectangle golSeedBox;
     bool bEditingGolSeed = false;
     string golSeedString = "";
+    
+    // Slider de vitesse Tuyau
+    ofRectangle tuyauSpeedSlider;
+    bool bDraggingTuyauSlider = false;
+    
+    // Sliders de rotation Tuyau
+    ofRectangle tuyauRotXSlider;
+    ofRectangle tuyauRotYSlider;
+    ofRectangle tuyauRotZSlider;
+    bool bDraggingTuyauRotX = false;
+    bool bDraggingTuyauRotY = false;
+    bool bDraggingTuyauRotZ = false;
+    
+    ofRectangle tuyauPathBox;
+    bool bTuyauPathBoxOpen = false;
+    vector<ofRectangle> tuyauPathOptionsRects;
 };

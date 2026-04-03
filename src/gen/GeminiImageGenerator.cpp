@@ -116,9 +116,6 @@ void GeminiImageGenerator::setup(string key) {
     // On s'abonne aux notifications de réponse URL
     ofRegisterURLNotification(this);
     bRegistered = true;
-    
-    // On liste les modèles disponibles au démarrage pour déboguer
-    listModels();
 }
 
 //--------------------------------------------------------------
